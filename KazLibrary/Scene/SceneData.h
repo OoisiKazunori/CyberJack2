@@ -1,0 +1,11 @@
+#pragma once
+
+enum SceneName
+{
+	SCENE_NONE = -1,
+	SCENE_TITLE,
+	SCENE_TUTORIAL,
+	SCENE_GAME,
+	SCENE_DEBUG,
+	SCENE_RESULT
+};

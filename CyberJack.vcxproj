@@ -1,0 +1,502 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{7af1d473-65eb-4eff-a07d-f17658aa44e4}</ProjectGuid>
+    <RootNamespace>KazLibコピー用</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>CyberJack</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir)lib\fbx_sdk\include;$(ProjectDir)DirectXTex\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(WindowsSdkDir)Redist\D3D$(PlatformTarget)\dxil.dll;$(ProjectDir)lib\fbx_sdk\lib;$(ProjectDir)DirectXTex\lib\$(Configuration);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(ProjectDir)lib\fbx_sdk\include;$(ProjectDir)DirectXTex\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(WindowsSdkDir)Redist\D3D$(PlatformTarget)\dxil.dll;$(ProjectDir)lib\fbx_sdk\lib;$(ProjectDir)DirectXTex\lib\$(Configuration);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libfbxsdk-md.lib;libxml2-md.lib;zlib-md.lib;DirectXTex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <AdditionalOptions>/IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\KazLibrary;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libfbxsdk-mt.lib;libxml2-mt.lib;zlib-mt.lib;DirectXTex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <AdditionalOptions>/IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Game\CollisionDetection\CollisionDetectionOfMeshCircleAndParticle.cpp" />
+    <ClCompile Include="Game\CollisionDetection\ComputeParticleAvoidSphere.cpp" />
+    <ClCompile Include="Game\CollisionDetection\GenerateCollisionOfParticle.cpp" />
+    <ClCompile Include="Game\CollisionDetection\GPUMeshAndSphereHitBox.cpp" />
+    <ClCompile Include="Game\CollisionDetection\InstanceMeshCollision.cpp" />
+    <ClCompile Include="Game\Debug\ParameterMgr.cpp" />
+    <ClCompile Include="Game\Debug\ParticleWall.cpp" />
+    <ClCompile Include="Game\Debug\WirteCpuLineData.cpp" />
+    <ClCompile Include="Game\Effect\ComputeLerp.cpp" />
+    <ClCompile Include="Game\Effect\DeadParticle.cpp" />
+    <ClCompile Include="Game\Effect\GalacticParticle.cpp" />
+    <ClCompile Include="Game\Effect\InstanceDeadParticle.cpp" />
+    <ClCompile Include="Game\Effect\InstanceMeshParticle.cpp" />
+    <ClCompile Include="Game\Effect\MeshParticle.cpp" />
+    <ClCompile Include="Game\Effect\MeshParticleEmitter.cpp" />
+    <ClCompile Include="Game\Effect\FireEffect.cpp" />
+    <ClCompile Include="Game\Effect\MisileSmokeEmitter.cpp" />
+    <ClCompile Include="Game\Effect\MisileSmokeParticle.cpp" />
+    <ClCompile Include="Game\Effect\PlayerDamageEmitter.cpp" />
+    <ClCompile Include="Game\Effect\PlayerDamegePartice.cpp" />
+    <ClCompile Include="Game\Effect\PortalIntermediateDirection.cpp" />
+    <ClCompile Include="Game\Effect\RocketEffect.cpp" />
+    <ClCompile Include="Game\Effect\RocketLightEffect.cpp" />
+    <ClCompile Include="Game\Effect\SearchLight.cpp" />
+    <ClCompile Include="Game\Effect\SparkEmitter.cpp" />
+    <ClCompile Include="Game\Effect\SparkParticle.cpp" />
+    <ClCompile Include="Game\Effect\SplineParticle.cpp" />
+    <ClCompile Include="Game\Effect\TextureParticle.cpp" />
+    <ClCompile Include="Game\Enemy\BattleshipEnemy.cpp" />
+    <ClCompile Include="Game\Enemy\BikeEnemy.cpp" />
+    <ClCompile Include="Game\Effect\EaseScaleParticle.cpp" />
+    <ClCompile Include="Game\Effect\HitEffectPattern1Emitter.cpp" />
+    <ClCompile Include="Game\Effect\HitEffectPattern2Emitter.cpp" />
+    <ClCompile Include="Game\Effect\HitEffectPattern3Emitter.cpp" />
+    <ClCompile Include="Game\Effect\IHitEffectEmitter.cpp" />
+    <ClCompile Include="Game\Enemy\HitEnemyEffect.cpp" />
+    <ClCompile Include="Game\Enemy\KidEnemy.cpp" />
+    <ClCompile Include="Game\Enemy\NormalMisileEnemy.cpp" />
+    <ClCompile Include="Game\Enemy\PopEnemy.cpp" />
+    <ClCompile Include="Game\Enemy\SplineMisile.cpp" />
+    <ClCompile Include="Game\Enemy\NormalEnemy.cpp" />
+    <ClCompile Include="Game\Enemy\SplineMisileForBattleShip.cpp" />
+    <ClCompile Include="Game\Enemy\SplineMisileForBikeEnemy.cpp" />
+    <ClCompile Include="Game\Enemy\SummonEnemy.cpp" />
+    <ClCompile Include="Game\Enemy\TutorialBlock.cpp" />
+    <ClCompile Include="Game\Event\DirectionalMarker.cpp" />
+    <ClCompile Include="Game\Event\EventSprite.cpp" />
+    <ClCompile Include="Game\Event\GoalBox.cpp" />
+    <ClCompile Include="Game\Event\GoalBoxEffect.cpp" />
+    <ClCompile Include="Game\Event\GoalBoxPortalEffect.cpp" />
+    <ClCompile Include="Game\Event\GoalBoxPortalStringEffect.cpp" />
+    <ClCompile Include="Game\Event\LineCpuEffect.cpp" />
+    <ClCompile Include="Game\Event\LineFlashLight.cpp" />
+    <ClCompile Include="Game\Event\LineLightEffect.cpp" />
+    <ClCompile Include="Game\Event\MoiveEffect.cpp" />
+    <ClCompile Include="Game\Event\PortalEffect.cpp" />
+    <ClCompile Include="Game\Event\PortalFlame.cpp" />
+    <ClCompile Include="Game\Event\TutorialGame.cpp" />
+    <ClCompile Include="Game\Event\TutorialWindow.cpp" />
+    <ClCompile Include="Game\Event\WindowFlame.cpp" />
+    <ClCompile Include="Game\Game.cpp" />
+    <ClCompile Include="Game\GameRenderTarget.cpp" />
+    <ClCompile Include="Game\Helper\CameraWork.cpp" />
+    <ClCompile Include="Game\Helper\EnemyHelper.cpp" />
+    <ClCompile Include="Game\Interface\IEnemy.cpp" />
+    <ClCompile Include="Game\Interface\IOperationObject.cpp" />
+    <ClCompile Include="Game\Interface\IStage.cpp" />
+    <ClCompile Include="Game\LineEffect\LineEffect.cpp" />
+    <ClCompile Include="Game\LineEffect\LineLevel1.cpp" />
+    <ClCompile Include="Game\Player.cpp" />
+    <ClCompile Include="Game\Stage\BlockMountain.cpp" />
+    <ClCompile Include="Game\Stage\BlockParticleStage.cpp" />
+    <ClCompile Include="Game\Stage\DrawGrid.cpp" />
+    <ClCompile Include="Game\Stage\FirstStage.cpp" />
+    <ClCompile Include="Game\Stage\GpuParticleStage.cpp" />
+    <ClCompile Include="Game\Stage\MountainObject.cpp" />
+    <ClCompile Include="Game\Stage\RezStage.cpp" />
+    <ClCompile Include="Game\Stage\SecondStage.cpp" />
+    <ClCompile Include="Game\Stage\StageMgr.cpp" />
+    <ClCompile Include="Game\Stage\ThridStage.cpp" />
+    <ClCompile Include="Game\Stage\WindowForAd.cpp" />
+    <ClCompile Include="Game\Tool\MapChipPlacementTool.cpp" />
+    <ClCompile Include="Game\Tutorial.cpp" />
+    <ClCompile Include="Game\Tutorial\DirectX12MoviePlayer.cpp" />
+    <ClCompile Include="Game\Tutorial\DirectXMoive.cpp" />
+    <ClCompile Include="Game\Tutorial\Gauge.cpp" />
+    <ClCompile Include="Game\Tutorial\OldComputer.cpp" />
+    <ClCompile Include="Game\Tutorial\TutorialMovie.cpp" />
+    <ClCompile Include="Game\UI\AnnounceStageUI.cpp" />
+    <ClCompile Include="Game\UI\AttackLog.cpp" />
+    <ClCompile Include="Game\UI\Cursor.cpp" />
+    <ClCompile Include="Game\UI\DamageTextWindow.cpp" />
+    <ClCompile Include="Game\UI\DrawMenu.cpp" />
+    <ClCompile Include="Game\UI\Letter.cpp" />
+    <ClCompile Include="Game\UI\LockOnBoxEffect.cpp" />
+    <ClCompile Include="Game\UI\PlayerHpUi.cpp" />
+    <ClCompile Include="Game\UI\StringWindow.cpp" />
+    <ClCompile Include="KazLibrary\Buffer\BufferDuplicateBlocking.cpp" />
+    <ClCompile Include="KazLibrary\Buffer\CreateGpuBuffer.cpp" />
+    <ClCompile Include="KazLibrary\Buffer\CreateMeshBuffer.cpp" />
+    <ClCompile Include="KazLibrary\Buffer\DescriptorHeapMgr.cpp" />
+    <ClCompile Include="KazLibrary\Buffer\DrawFuncData.cpp" />
+    <ClCompile Include="KazLibrary\Buffer\UavViewHandleMgr.cpp" />
+    <ClCompile Include="KazLibrary\Camera\CameraMgr.cpp" />
+    <ClCompile Include="KazLibrary\Collision\BBDuringEquallyCoordinatePlace.cpp" />
+    <ClCompile Include="KazLibrary\Collision\BoundingBox.cpp" />
+    <ClCompile Include="KazLibrary\Collision\CollisionManager.cpp" />
+    <ClCompile Include="KazLibrary\DirectXCommon\DirectX12.cpp" />
+    <ClCompile Include="KazLibrary\DirectXCommon\DirectX12CmdList.cpp" />
+    <ClCompile Include="KazLibrary\DirectXCommon\DirectX12Device.cpp" />
+    <ClCompile Include="KazLibrary\Easing\easing.cpp" />
+    <ClCompile Include="KazLibrary\Fps\FPSManager.cpp" />
+    <ClCompile Include="KazLibrary\Helper\DirtyFlag.cpp" />
+    <ClCompile Include="KazLibrary\Helper\HandleMaker.cpp" />
+    <ClCompile Include="KazLibrary\Helper\ISinglton.cpp" />
+    <ClCompile Include="KazLibrary\Helper\KazBufferHelper.cpp" />
+    <ClCompile Include="KazLibrary\Helper\KazHelper.cpp" />
+    <ClCompile Include="KazLibrary\Helper\KazImGuiHelper.cpp" />
+    <ClCompile Include="KazLibrary\Helper\KazRenderHelper.cpp" />
+    <ClCompile Include="KazLibrary\Helper\OutPutDebugStringAndCheckResult.cpp" />
+    <ClCompile Include="KazLibrary\Helper\RegisterNameWithData.cpp" />
+    <ClCompile Include="KazLibrary\Helper\ResouceBufferHelper.cpp" />
+    <ClCompile Include="KazLibrary\Helper\Select.cpp" />
+    <ClCompile Include="KazLibrary\Imgui\imgui.cpp" />
+    <ClCompile Include="KazLibrary\Imgui\imgui_demo.cpp" />
+    <ClCompile Include="KazLibrary\Imgui\imgui_draw.cpp" />
+    <ClCompile Include="KazLibrary\Imgui\imgui_impl_dx12.cpp" />
+    <ClCompile Include="KazLibrary\Imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="KazLibrary\Imgui\imgui_tables.cpp" />
+    <ClCompile Include="KazLibrary\Imgui\imgui_widgets.cpp" />
+    <ClCompile Include="KazLibrary\Imgui\MyImgui.cpp" />
+    <ClCompile Include="KazLibrary\Input\ControllerInputManager.cpp" />
+    <ClCompile Include="KazLibrary\Input\KeyBoradInputManager.cpp" />
+    <ClCompile Include="KazLibrary\Loader\FbxModelResourceMgr.cpp" />
+    <ClCompile Include="KazLibrary\Loader\MeshParticleLoader.cpp" />
+    <ClCompile Include="KazLibrary\Loader\ObjResourceMgr.cpp" />
+    <ClCompile Include="KazLibrary\Loader\TextureResourceMgr.cpp" />
+    <ClCompile Include="KazLibrary\Math\KazMath.cpp" />
+    <ClCompile Include="KazLibrary\Pipeline\GraphicsDepthTest.cpp" />
+    <ClCompile Include="KazLibrary\Pipeline\GraphicsPipeLineMgr.cpp" />
+    <ClCompile Include="KazLibrary\Pipeline\GraphicsRootSignature.cpp" />
+    <ClCompile Include="KazLibrary\Pipeline\PreCreateBasePipeLine.cpp" />
+    <ClCompile Include="KazLibrary\Pipeline\PreCreateBaseRootSignature.cpp" />
+    <ClCompile Include="KazLibrary\Pipeline\Shader.cpp" />
+    <ClCompile Include="KazLibrary\RenderTarget\GaussianBuler.cpp" />
+    <ClCompile Include="KazLibrary\RenderTarget\RenderTargetStatus.cpp" />
+    <ClCompile Include="KazLibrary\Render\BackGroundForDebug.cpp" />
+    <ClCompile Include="KazLibrary\Render\Box2DRender.cpp" />
+    <ClCompile Include="KazLibrary\Render\BoxPolygonRender.cpp" />
+    <ClCompile Include="KazLibrary\Render\CircleRender.cpp" />
+    <ClCompile Include="KazLibrary\Render\DrawExcuteIndirect.cpp" />
+    <ClCompile Include="KazLibrary\Render\DrawingByRasterize.cpp" />
+    <ClCompile Include="KazLibrary\Render\FbxModelRender.cpp" />
+    <ClCompile Include="KazLibrary\Render\GPUParticleRender.cpp" />
+    <ClCompile Include="KazLibrary\Render\IRender.cpp" />
+    <ClCompile Include="KazLibrary\Render\LineRender.cpp" />
+    <ClCompile Include="KazLibrary\Render\MovieRender.cpp" />
+    <ClCompile Include="KazLibrary\Render\ObjModelRender.cpp" />
+    <ClCompile Include="KazLibrary\Render\PolygonRender.cpp" />
+    <ClCompile Include="KazLibrary\Render\Sprite2DRender.cpp" />
+    <ClCompile Include="KazLibrary\Render\Sprite3DRender.cpp" />
+    <ClCompile Include="KazLibrary\Scene\DebugMeshParticle.cpp" />
+    <ClCompile Include="KazLibrary\Scene\DebugScene.cpp" />
+    <ClCompile Include="KazLibrary\Scene\DebugStageScene.cpp" />
+    <ClCompile Include="KazLibrary\Scene\EnemyDebugScene.cpp" />
+    <ClCompile Include="KazLibrary\Scene\GameScene.cpp" />
+    <ClCompile Include="KazLibrary\Scene\main.cpp" />
+    <ClCompile Include="KazLibrary\Scene\PortalScene.cpp" />
+    <ClCompile Include="KazLibrary\Scene\RayTracingScene.cpp" />
+    <ClCompile Include="KazLibrary\Scene\RenderScene.cpp" />
+    <ClCompile Include="KazLibrary\Scene\SceneChange.cpp" />
+    <ClCompile Include="KazLibrary\Scene\SceneManager.cpp" />
+    <ClCompile Include="KazLibrary\Scene\StageSelectScene.cpp" />
+    <ClCompile Include="KazLibrary\Scene\TitleScene.cpp" />
+    <ClCompile Include="KazLibrary\Sound\IAXAudio2VoiceCallback.cpp" />
+    <ClCompile Include="KazLibrary\Sound\SoundManager.cpp" />
+    <ClCompile Include="KazLibrary\WinApi\Msg.cpp" />
+    <ClCompile Include="KazLibrary\WinApi\WinApi.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Game\CollisionDetection\CollisionDetectionOfMeshCircleAndParticle.h" />
+    <ClInclude Include="Game\CollisionDetection\ComputeParticleAvoidSphere.h" />
+    <ClInclude Include="Game\CollisionDetection\GenerateCollisionOfParticle.h" />
+    <ClInclude Include="Game\CollisionDetection\GPUMeshAndSphereHitBox.h" />
+    <ClInclude Include="Game\CollisionDetection\InstanceMeshCollision.h" />
+    <ClInclude Include="Game\Debug\ParameterMgr.h" />
+    <ClInclude Include="Game\Debug\ParticleWall.h" />
+    <ClInclude Include="Game\Debug\WirteCpuLineData.h" />
+    <ClInclude Include="Game\Effect\ComputeLerp.h" />
+    <ClInclude Include="Game\Effect\DeadParticle.h" />
+    <ClInclude Include="Game\Effect\GalacticParticle.h" />
+    <ClInclude Include="Game\Effect\InstanceDeadParticle.h" />
+    <ClInclude Include="Game\Effect\InstanceMeshParticle.h" />
+    <ClInclude Include="Game\Effect\MeshParticle.h" />
+    <ClInclude Include="Game\Effect\MeshParticleEmitter.h" />
+    <ClInclude Include="Game\Effect\FireEffect.h" />
+    <ClInclude Include="Game\Effect\MisileSmokeEmitter.h" />
+    <ClInclude Include="Game\Effect\MisileSmokeParticle.h" />
+    <ClInclude Include="Game\Effect\PlayerDamageEmitter.h" />
+    <ClInclude Include="Game\Effect\PlayerDamegePartice.h" />
+    <ClInclude Include="Game\Effect\PortalIntermediateDirection.h" />
+    <ClInclude Include="Game\Effect\RocketEffect.h" />
+    <ClInclude Include="Game\Effect\RocketLightEffect.h" />
+    <ClInclude Include="Game\Effect\SearchLight.h" />
+    <ClInclude Include="Game\Effect\SparkEmitter.h" />
+    <ClInclude Include="Game\Effect\SparkParticle.h" />
+    <ClInclude Include="Game\Effect\SplineParticle.h" />
+    <ClInclude Include="Game\Effect\TextureParticle.h" />
+    <ClInclude Include="Game\Enemy\BattleshipEnemy.h" />
+    <ClInclude Include="Game\Enemy\BikeEnemy.h" />
+    <ClInclude Include="Game\Effect\EaseScaleParticle.h" />
+    <ClInclude Include="Game\Effect\HitEffectPattern1Emitter.h" />
+    <ClInclude Include="Game\Effect\HitEffectPattern2Emitter.h" />
+    <ClInclude Include="Game\Effect\HitEffectPattern3Emitter.h" />
+    <ClInclude Include="Game\Effect\IHitEffectEmitter.h" />
+    <ClInclude Include="Game\Enemy\EnemyData.h" />
+    <ClInclude Include="Game\Enemy\HitEnemyEffect.h" />
+    <ClInclude Include="Game\Enemy\KidEnemy.h" />
+    <ClInclude Include="Game\Enemy\NormalMisileEnemy.h" />
+    <ClInclude Include="Game\Enemy\PopEnemy.h" />
+    <ClInclude Include="Game\Enemy\SplineMisile.h" />
+    <ClInclude Include="Game\Enemy\NormalEnemy.h" />
+    <ClInclude Include="Game\Enemy\SplineMisileForBattleShip.h" />
+    <ClInclude Include="Game\Enemy\SplineMisileForBikeEnemy.h" />
+    <ClInclude Include="Game\Enemy\SummonEnemy.h" />
+    <ClInclude Include="Game\Enemy\TutorialBlock.h" />
+    <ClInclude Include="Game\Event\DirectionalMarker.h" />
+    <ClInclude Include="Game\Event\EventSprite.h" />
+    <ClInclude Include="Game\Event\GoalBox.h" />
+    <ClInclude Include="Game\Event\GoalBoxEffect.h" />
+    <ClInclude Include="Game\Event\GoalBoxPortalEffect.h" />
+    <ClInclude Include="Game\Event\GoalBoxPortalStringEffect.h" />
+    <ClInclude Include="Game\Event\LineCpuEffect.h" />
+    <ClInclude Include="Game\Event\LineFlashLight.h" />
+    <ClInclude Include="Game\Event\LineLightEffect.h" />
+    <ClInclude Include="Game\Event\PortalEffect.h" />
+    <ClInclude Include="Game\Event\PortalFlame.h" />
+    <ClInclude Include="Game\Event\MoiveEffect.h" />
+    <ClInclude Include="Game\Event\TutorialGame.h" />
+    <ClInclude Include="Game\Event\TutorialWindow.h" />
+    <ClInclude Include="Game\Event\WindowFlame.h" />
+    <ClInclude Include="Game\Game.h" />
+    <ClInclude Include="Game\GameRenderTarget.h" />
+    <ClInclude Include="Game\Helper\CameraWork.h" />
+    <ClInclude Include="Game\Helper\EnemyHelper.h" />
+    <ClInclude Include="Game\Interface\IEnemy.h" />
+    <ClInclude Include="Game\Interface\IOperationObject.h" />
+    <ClInclude Include="Game\Interface\IStage.h" />
+    <ClInclude Include="Game\LineEffect\LineEffect.h" />
+    <ClInclude Include="Game\LineEffect\LineLevel1.h" />
+    <ClInclude Include="Game\Player.h" />
+    <ClInclude Include="Game\Stage\BlockMountain.h" />
+    <ClInclude Include="Game\Stage\BlockParticleStage.h" />
+    <ClInclude Include="Game\Stage\DrawGrid.h" />
+    <ClInclude Include="Game\Stage\FirstStage.h" />
+    <ClInclude Include="Game\Stage\GpuParticleStage.h" />
+    <ClInclude Include="Game\Stage\MountainObject.h" />
+    <ClInclude Include="Game\Stage\RezStage.h" />
+    <ClInclude Include="Game\Stage\SecondStage.h" />
+    <ClInclude Include="Game\Stage\StageMgr.h" />
+    <ClInclude Include="Game\Stage\ThridStage.h" />
+    <ClInclude Include="Game\Stage\WindowForAd.h" />
+    <ClInclude Include="Game\Tool\MapChipPlacementTool.h" />
+    <ClInclude Include="Game\Tutorial.h" />
+    <ClInclude Include="Game\Tutorial\DirectX12MoviePlayer.h" />
+    <ClInclude Include="Game\Tutorial\DirectXMoive.h" />
+    <ClInclude Include="Game\Tutorial\Gauge.h" />
+    <ClInclude Include="Game\Tutorial\OldComputer.h" />
+    <ClInclude Include="Game\Tutorial\TutorialMovie.h" />
+    <ClInclude Include="Game\UI\AnnounceStageUI.h" />
+    <ClInclude Include="Game\UI\AttackLog.h" />
+    <ClInclude Include="Game\UI\Cursor.h" />
+    <ClInclude Include="Game\UI\DamageTextWindow.h" />
+    <ClInclude Include="Game\UI\DrawMenu.h" />
+    <ClInclude Include="Game\UI\Letter.h" />
+    <ClInclude Include="Game\UI\LockOnBoxEffect.h" />
+    <ClInclude Include="Game\UI\PlayerHpUi.h" />
+    <ClInclude Include="Game\UI\StringWindow.h" />
+    <ClInclude Include="KazLibrary\Buffer\BufferDuplicateBlocking.h" />
+    <ClInclude Include="KazLibrary\Buffer\CreateGpuBuffer.h" />
+    <ClInclude Include="KazLibrary\Buffer\CreateMeshBuffer.h" />
+    <ClInclude Include="KazLibrary\Buffer\DescriptorHeapMgr.h" />
+    <ClInclude Include="KazLibrary\Buffer\DrawFuncData.h" />
+    <ClInclude Include="KazLibrary\Buffer\UavViewHandleMgr.h" />
+    <ClInclude Include="KazLibrary\Camera\CameraMgr.h" />
+    <ClInclude Include="KazLibrary\Collision\BBDuringEquallyCoordinatePlace.h" />
+    <ClInclude Include="KazLibrary\Collision\BoundingBox.h" />
+    <ClInclude Include="KazLibrary\Collision\CollisionManager.h" />
+    <ClInclude Include="KazLibrary\DirectXCommon\Base.h" />
+    <ClInclude Include="KazLibrary\DirectXCommon\d3dx12.h" />
+    <ClInclude Include="KazLibrary\DirectXCommon\DirectX12.h" />
+    <ClInclude Include="KazLibrary\DirectXCommon\DirectX12CmdList.h" />
+    <ClInclude Include="KazLibrary\DirectXCommon\DirectX12Device.h" />
+    <ClInclude Include="KazLibrary\dxcapi.h" />
+    <ClInclude Include="KazLibrary\Easing\easing.h" />
+    <ClInclude Include="KazLibrary\Fps\FPSManager.h" />
+    <ClInclude Include="KazLibrary\Helper\DebugColor.h" />
+    <ClInclude Include="KazLibrary\Helper\DirtyFlag.h" />
+    <ClInclude Include="KazLibrary\Helper\HandleMaker.h" />
+    <ClInclude Include="KazLibrary\Helper\ISinglton.h" />
+    <ClInclude Include="KazLibrary\Helper\KazBufferHelper.h" />
+    <ClInclude Include="KazLibrary\Helper\KazHelper.h" />
+    <ClInclude Include="KazLibrary\Helper\KazImGuiHelper.h" />
+    <ClInclude Include="KazLibrary\Helper\KazRenderHelper.h" />
+    <ClInclude Include="KazLibrary\Helper\OutPutDebugStringAndCheckResult.h" />
+    <ClInclude Include="KazLibrary\Helper\RegisterNameWithData.h" />
+    <ClInclude Include="KazLibrary\Helper\ResouceBufferHelper.h" />
+    <ClInclude Include="KazLibrary\Helper\ResourceFilePass.h" />
+    <ClInclude Include="KazLibrary\Helper\Select.h" />
+    <ClInclude Include="KazLibrary\Imgui\imconfig.h" />
+    <ClInclude Include="KazLibrary\Imgui\imgui.h" />
+    <ClInclude Include="KazLibrary\Imgui\imgui_impl_dx12.h" />
+    <ClInclude Include="KazLibrary\Imgui\imgui_impl_win32.h" />
+    <ClInclude Include="KazLibrary\Imgui\imgui_internal.h" />
+    <ClInclude Include="KazLibrary\Imgui\imstb_rectpack.h" />
+    <ClInclude Include="KazLibrary\Imgui\imstb_textedit.h" />
+    <ClInclude Include="KazLibrary\Imgui\imstb_truetype.h" />
+    <ClInclude Include="KazLibrary\Imgui\MyImgui.h" />
+    <ClInclude Include="KazLibrary\Input\ControllerInputManager.h" />
+    <ClInclude Include="KazLibrary\Input\IInputManager.h" />
+    <ClInclude Include="KazLibrary\Input\KeyBoradInputManager.h" />
+    <ClInclude Include="KazLibrary\Loader\FbxModelResourceMgr.h" />
+    <ClInclude Include="KazLibrary\Loader\MeshParticleLoader.h" />
+    <ClInclude Include="KazLibrary\Loader\ObjResourceMgr.h" />
+    <ClInclude Include="KazLibrary\Loader\TextureResourceMgr.h" />
+    <ClInclude Include="KazLibrary\Math\KazMath.h" />
+    <ClInclude Include="KazLibrary\Pipeline\GraphicsDepthTest.h" />
+    <ClInclude Include="KazLibrary\Pipeline\GraphicsPipeLineMgr.h" />
+    <ClInclude Include="KazLibrary\Pipeline\GraphicsRootSignature.h" />
+    <ClInclude Include="KazLibrary\Pipeline\PreCreateBasePipeLine.h" />
+    <ClInclude Include="KazLibrary\Pipeline\PreCreateBaseRootSignature.h" />
+    <ClInclude Include="KazLibrary\Pipeline\Shader.h" />
+    <ClInclude Include="KazLibrary\RenderTarget\GaussianBuler.h" />
+    <ClInclude Include="KazLibrary\RenderTarget\RenderTargetStatus.h" />
+    <ClInclude Include="KazLibrary\Render\BackGroundForDebug.h" />
+    <ClInclude Include="KazLibrary\Render\Box2DRender.h" />
+    <ClInclude Include="KazLibrary\Render\BoxPolygonRender.h" />
+    <ClInclude Include="KazLibrary\Render\CircleRender.h" />
+    <ClInclude Include="KazLibrary\Render\DrawExcuteIndirect.h" />
+    <ClInclude Include="KazLibrary\Render\DrawingByRasterize.h" />
+    <ClInclude Include="KazLibrary\Render\FbxModelRender.h" />
+    <ClInclude Include="KazLibrary\Render\GPUParticleRender.h" />
+    <ClInclude Include="KazLibrary\Render\IRender.h" />
+    <ClInclude Include="KazLibrary\Render\KazExcuteIndirect.h" />
+    <ClInclude Include="KazLibrary\Render\KazRender.h" />
+    <ClInclude Include="KazLibrary\Render\LineRender.h" />
+    <ClInclude Include="KazLibrary\Render\MovieRender.h" />
+    <ClInclude Include="KazLibrary\Render\ObjModelRender.h" />
+    <ClInclude Include="KazLibrary\Render\PolygonRender.h" />
+    <ClInclude Include="KazLibrary\Render\RenderData.h" />
+    <ClInclude Include="KazLibrary\Render\resource.h" />
+    <ClInclude Include="KazLibrary\Render\Sprite2DRender.h" />
+    <ClInclude Include="KazLibrary\Render\Sprite3DRender.h" />
+    <ClInclude Include="KazLibrary\Scene\DebugMeshParticle.h" />
+    <ClInclude Include="KazLibrary\Scene\DebugScene.h" />
+    <ClInclude Include="KazLibrary\Scene\DebugStageScene.h" />
+    <ClInclude Include="KazLibrary\Scene\EnemyDebugScene.h" />
+    <ClInclude Include="KazLibrary\Scene\GameScene.h" />
+    <ClInclude Include="KazLibrary\Scene\PortalScene.h" />
+    <ClInclude Include="KazLibrary\Scene\RayTracingScene.h" />
+    <ClInclude Include="KazLibrary\Scene\RenderScene.h" />
+    <ClInclude Include="KazLibrary\Scene\SceneBase.h" />
+    <ClInclude Include="KazLibrary\Scene\SceneChange.h" />
+    <ClInclude Include="KazLibrary\Scene\SceneData.h" />
+    <ClInclude Include="KazLibrary\Scene\SceneManager.h" />
+    <ClInclude Include="KazLibrary\Scene\StageSelectScene.h" />
+    <ClInclude Include="KazLibrary\Scene\TitleScene.h" />
+    <ClInclude Include="KazLibrary\Sound\IAXAudio2VoiceCallback.h" />
+    <ClInclude Include="KazLibrary\Sound\SoundManager.h" />
+    <ClInclude Include="KazLibrary\WinApi\Msg.h" />
+    <ClInclude Include="KazLibrary\WinApi\WinApi.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="KazLib.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\WinPixEventRuntime.1.0.220124001\build\WinPixEventRuntime.targets" Condition="Exists('packages\WinPixEventRuntime.1.0.220124001\build\WinPixEventRuntime.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>このプロジェクトは、このコンピューター上にない NuGet パッケージを参照しています。それらのパッケージをダウンロードするには、[NuGet パッケージの復元] を使用します。詳細については、http://go.microsoft.com/fwlink/?LinkID=322105 を参照してください。見つからないファイルは {0} です。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\WinPixEventRuntime.1.0.220124001\build\WinPixEventRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\WinPixEventRuntime.1.0.220124001\build\WinPixEventRuntime.targets'))" />
+  </Target>
+</Project>
