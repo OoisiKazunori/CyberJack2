@@ -1440,7 +1440,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "FloorParticleComputeShader.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "FloorParticleComputeShader.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_FLOORPARTICLE
@@ -1455,7 +1455,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "FloorParticleMoveComputeShader.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "FloorParticleMoveComputeShader.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_FLOORPARTICLE_MOVE
@@ -1469,7 +1469,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "PortalLineComputeShader.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "PortalLineComputeShader.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_PORTALLINE
@@ -1484,7 +1484,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "PortalLineMoveComputeShader.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "PortalLineMoveComputeShader.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_PORTALLINE_MOVE
@@ -1498,7 +1498,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitMeshParticleComputeShader.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitMeshParticleComputeShader.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_MESHPARTICLE_INIT
@@ -1512,7 +1512,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "UpdateMeshParticleComputeShader.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "UpdateMeshParticleComputeShader.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_MESHPARTICLE_UPDATE
@@ -1525,7 +1525,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA2));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitDeadParticleComputeShader.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitDeadParticleComputeShader.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_DEADPARTICLE_INIT
@@ -1539,7 +1539,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "UpdateDeadparticleComputeShader.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "UpdateDeadparticleComputeShader.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_DEADPARTICLE_UPDATE
@@ -1554,7 +1554,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "BlockParticleInitComputeShader.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "BlockParticleInitComputeShader.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_BLOCKPARTICLE
@@ -1568,7 +1568,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "BlockParticleMoveComputeShader.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "BlockParticleMoveComputeShader.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_BLOCKPARTICLE_MOVE
@@ -1586,7 +1586,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA5));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "MeshParticleComputeShader.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "MeshParticleComputeShader.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_MESHPARTICLE
@@ -1600,7 +1600,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA2));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitSplineParticleComputeShader.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitSplineParticleComputeShader.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_SPLINEPARTICLE_INIT
@@ -1616,7 +1616,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA5));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "UpdateSplineParticleComputeShader.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "UpdateSplineParticleComputeShader.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_SPLINEPARTICLE_UPDATE
@@ -1636,7 +1636,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		//lRootsignature.samplerArray.push_back({});
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitMeshTextureParticleComputeShader.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitMeshTextureParticleComputeShader.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_TEXTUREPARTICLE_INIT
@@ -1653,7 +1653,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		//lRootsignature.samplerArray.push_back({});
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "MeshParticleUpdateInputPosColor.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "MeshParticleUpdateInputPosColor.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_TEXTUREPARTICLE_UPDATE
@@ -1669,7 +1669,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		//lRootsignature.samplerArray.push_back({});
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "MeshParticleUpdateFlashColor.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "MeshParticleUpdateFlashColor.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_TEXTUREPARTICLE_FLASH_UPDATE
@@ -1685,7 +1685,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		//lRootsignature.samplerArray.push_back({});
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitTriangleCollisionData.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitTriangleCollisionData.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_HITBOX_TRIANGLE_INIT
@@ -1703,7 +1703,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		//lRootsignature.samplerArray.push_back({});
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "UpdateCollisionDetectionTriangleAndSphere.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "UpdateCollisionDetectionTriangleAndSphere.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_HITBOX_TRIANGLE_INIT
@@ -1720,7 +1720,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		//lRootsignature.samplerArray.push_back({});
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "BlockParticleHitBoxUpdate.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "BlockParticleHitBoxUpdate.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_PARTICLEWALL_HITBOX
@@ -1737,7 +1737,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		//lRootsignature.samplerArray.push_back({});
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "MeshHitBoxUpdate.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "MeshHitBoxUpdate.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_HITBOX_MESH
@@ -1751,7 +1751,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "ComputeBB.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "ComputeBB.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_HITBOX_BB
@@ -1766,7 +1766,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA4));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "BBDuringEquallyCoordinatePlace.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "BBDuringEquallyCoordinatePlace.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_HITBOX_SETCIRCLE_IN_BB
@@ -1782,7 +1782,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA5));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "BBDuringEquallyCoordinatePlace.hlsl", "DebugCSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "BBDuringEquallyCoordinatePlace.hlsl", "DebugCSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_HITBOX_SETCIRCLE_IN_BB_DEBUG
@@ -1797,7 +1797,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA4));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "AttachHitBoxIdParticle.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "AttachHitBoxIdParticle.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_HITBOX_ID_ATTACH_TO_PARTICLE
@@ -1812,7 +1812,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA4));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "CheckMeshHitBoxAndCircle.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "CheckMeshHitBoxAndCircle.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_HITBOX_MESHCIRCLE_PARTICLE
@@ -1828,7 +1828,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA5));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "ComputeParticleAvoidSphere.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "ComputeParticleAvoidSphere.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_HITBOX_AVOID_PARTICLE
@@ -1842,7 +1842,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "CalucurateMatrix.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "CalucurateMatrix.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_HITBOX_CALUMAT
@@ -1859,7 +1859,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_SRV_DESC, GRAPHICS_PRAMTYPE_TEX));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitPosUvMeshParticle.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitPosUvMeshParticle.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_INIT_POSUV_MESHPARTICLE
@@ -1873,7 +1873,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitPosMeshParticle.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitPosMeshParticle.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_INIT_POS_MESHPARTICLE
@@ -1889,7 +1889,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA5));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "UpdateMeshParticle.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "UpdateMeshParticle.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_UPDATE_MESHPARTICLE
@@ -1906,7 +1906,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA6));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "UpdateStageParticle.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "UpdateStageParticle.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_UPDATE_STAGE_MESHPARTICLE
@@ -1919,7 +1919,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA2));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "ConvertInitMeshParticle.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "ConvertInitMeshParticle.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_COVERT_INITMESH_TO_UPDATEMESH
@@ -1934,7 +1934,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "ParticleCullingProcess.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "ParticleCullingProcess.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_CONVERT_WORLDMAT_TO_DRAWMAT
@@ -1948,7 +1948,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA2));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "TestAppend.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "TestAppend.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_TEST_APPEND
@@ -1962,7 +1962,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA2));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "MeshParticleHitBoxMove.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "MeshParticleHitBoxMove.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_MESHPARTICLE_MOVE
@@ -1976,7 +1976,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA3));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "MeshSphereHitBoxMove.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "MeshSphereHitBoxMove.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_HITBOX_MESHCIRCLE_MOVE
@@ -1991,7 +1991,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitDeadParticle.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "InitDeadParticle.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_DEAD_PARTICLE_INIT
@@ -2007,7 +2007,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA4));
 
 		GraphicsPipeLineMgr::Instance()->CreateComputePipeLine(
-			ShaderOptionData(KazFilePathName::ComputeShaderPath + "UpdateDeadParticle.hlsl", "CSmain", "cs_6_4"),
+			ShaderOptionData(KazFilePathName::ComputeShaderPath + "UpdateDeadParticle.hlsl", "CSmain", "cs_6_4",SHADER_TYPE_COMPUTE),
 			desc,
 			lRootsignature,
 			PIPELINE_COMPUTE_NAME_DEAD_PARTICLE_UPDATE
