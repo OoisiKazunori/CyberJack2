@@ -1,17 +1,21 @@
 #include "Letter.h"
 #include<assert.h>
 #include"../KazLibrary/Helper/ResourceFilePass.h"
+#include"../Game/Event/GameCommonData.h"
 
 Letter::Letter()
 {
+	inputRender = std::make_unique<Sprite2DRender>();
+	render = std::make_unique<Sprite2DRender>();
+
 	graphHandle[CHARA_LARGE] = TextureResourceMgr::Instance()->LoadDivGraph(KazFilePathName::UIPath + "UppercaseAlphabet.png", 26, 1, 16, 16);
 	graphHandle[CHARA_SMALL] =  TextureResourceMgr::Instance()->LoadDivGraph(KazFilePathName::UIPath + "LowercaseAlphabet.png", 26, 1, 16, 16);
 	graphHandle[CHARA_NUM] = TextureResourceMgr::Instance()->LoadDivGraph(KazFilePathName::UIPath + "Number.png", 10, 1, 16, 16);
 	graphHandle[CHARA_SPECIAL] = TextureResourceMgr::Instance()->LoadDivGraph(KazFilePathName::UIPath + "SpecialKey.png", 4, 1, 16, 16);
 	inputLogHandle = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::UIPath + "inputLog.png");
-	inputRender.data.handleData = inputLogHandle;
-	inputRender.data.transform.scale = { 1.0f,1.5f };
-	inputRender.data.pipelineName = PIPELINE_NAME_SPRITE_Z_ALWAYS_CUTALPHA;
+	inputRender->data.handleData = inputLogHandle;
+	inputRender->data.transform.scale = { 1.0f,1.5f };
+	inputRender->data.pipelineName = PIPELINE_NAME_SPRITE_Z_ALWAYS_CUTALPHA;
 	initFlag = false;
 }
 
@@ -21,13 +25,13 @@ void Letter::Init(const KazMath::Vec2<float> &POS, const char &CHARACTER, float 
 	baseSize = { FONT_SIZE ,FONT_SIZE };
 
 	const float L_ADD_SCALE = 0.3f;
-	render.data.transform.pos = basePos + KazMath::Vec2<float>(10.0f, 10.0f);
-	render.data.transform.scale = baseSize + L_ADD_SCALE;
-	render.data.handleData = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::UIPath + "FontTest.png");
-	render.data.pipelineName = PIPELINE_NAME_SPRITE_COLOR;
-	render.data.colorData.color = { 153,229,80,255 };
+	render->data.transform.pos = basePos + KazMath::Vec2<float>(10.0f, 10.0f);
+	render->data.transform.scale = baseSize + L_ADD_SCALE;
+	render->data.handleData = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::UIPath + "FontTest.png");
+	render->data.pipelineName = PIPELINE_NAME_SPRITE_COLOR;
+	render->data.colorData.color = { 153,229,80,255 };
 
-	inputRender.data.transform.pos = basePos;
+	inputRender->data.transform.pos = basePos;
 
 	spaceFlag = false;
 
@@ -35,17 +39,17 @@ void Letter::Init(const KazMath::Vec2<float> &POS, const char &CHARACTER, float 
 	if (CheckFontType(CHARACTER, 65, 90))
 	{
 		fontType = CHARA_LARGE;
-		fontNum = CHARACTER - 65;
+		fontNum = static_cast<int>(CHARACTER) - 65;
 	}
 	else if (CheckFontType(CHARACTER, 97, 123))
 	{
 		fontType = CHARA_SMALL;
-		fontNum = CHARACTER - 97;
+		fontNum = static_cast<int>(CHARACTER) - 97;
 	}
 	else if (CheckFontType(CHARACTER, 48, 58))
 	{
 		fontType = CHARA_NUM;
-		fontNum = CHARACTER - 48;
+		fontNum = static_cast<int>(CHARACTER) - 48;
 	}
 	else if (CHARACTER == 32)
 	{
@@ -90,8 +94,19 @@ void Letter::Init(const KazMath::Vec2<float> &POS, const char &CHARACTER, float 
 	{
 		return;
 	}
-	render.data.handleData = graphHandle[fontType];
-	render.data.animationHandle = fontNum;
+
+	//大文字画像がリリース版でのみ解放されるバグ発生中。別の画像を読み込んで対処
+	if(GameCommonData::Instance()->IsSecondFlag)
+	{
+		graphHandle[CHARA_LARGE] = TextureResourceMgr::Instance()->LoadDivGraph(KazFilePathName::UIPath + "UppercaseAlphabet2.png", 26, 1, 16, 16);
+	}
+	else
+	{
+		graphHandle[CHARA_LARGE] = TextureResourceMgr::Instance()->LoadDivGraph(KazFilePathName::UIPath + "UppercaseAlphabet.png", 26, 1, 16, 16);
+	}
+
+	render->data.handleData = graphHandle[fontType];
+	render->data.animationHandle = fontNum;
 }
 
 void Letter::Finalize()
@@ -113,16 +128,16 @@ void Letter::Update(float Y_POS, int INDEX)
 		↓
 		差分を補間座標に足す
 		*/
-		KazMath::Vec2<float>sub = basePos - render.data.transform.pos;
+		KazMath::Vec2<float>sub = basePos - render->data.transform.pos;
 		basePos.y = Y_POS;
-		render.data.transform.pos = basePos + sub;
+		render->data.transform.pos = basePos + sub;
 
 		prevStringIndex = INDEX;
 	}
 
 	//補間をかける
-	KazMath::Larp(basePos, &render.data.transform.pos, 0.3f);
-	KazMath::Larp(baseSize, &render.data.transform.scale, 0.3f);
+	KazMath::Larp(basePos, &render->data.transform.pos, 0.3f);
+	KazMath::Larp(baseSize, &render->data.transform.scale, 0.3f);
 
 	++timer;
 	if (2 <= timer)
@@ -137,11 +152,11 @@ void Letter::Draw()
 
 	if (!changeHandleFlag)
 	{
-		inputRender.Draw();
+		inputRender->Draw();
 	}
 	else if (!spaceFlag)
 	{
-		render.Draw();
+		render->Draw();
 	}
 }
 
@@ -170,7 +185,6 @@ void String::Init(const KazMath::Vec2<float>POS, const std::string &STRING, floa
 	charaArrayNum = 0;
 
 	basePos = POS;
-
 }
 
 void String::Finalize()

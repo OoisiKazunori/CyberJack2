@@ -2,9 +2,7 @@
 #include"../DirectXCommon/Base.h"
 #include"../Helper/OutPutDebugStringAndCheckResult.h"
 
-#include<atlstr.h>
-
-#include <dxcapi.h>
+#include"../dxcapi.h"
 
 enum ShaderType
 {

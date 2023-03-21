@@ -13,6 +13,8 @@
 
 #include"../KazLibrary/Buffer/CreateGpuBuffer.h"
 #include"../KazLibrary/Render/MovieRender.h"
+#include"../KazLibrary/Loader/MovieLoader.h"
+
 
 class DirectX12MoviePlayer
 {
@@ -33,11 +35,11 @@ public:
 
 	Microsoft::WRL::ComPtr<ID3D12Resource>GetBuffer()
 	{
-		return gpuBuffer->GetBufferData(movieTexHandle);
+		return MovieLoader::Instance()->GetBuffer(resourceHandle);
 	};
 	RESOURCE_HANDLE GetDescriptorHeapHandle()
 	{
-		return movieTexHandle + memorySize.startSize;
+		return resourceHandle;
 	};
 
 private:
@@ -49,7 +51,6 @@ private:
 
 	Microsoft::WRL::ComPtr<IMFMediaEngine> mediaEngine;
 	HANDLE hPrepare;
-	HANDLE hSharedTexture;
 	DXGI_FORMAT format;
 
 	IMFSourceReader *mfSourceReader;
@@ -60,8 +61,8 @@ private:
 	RESOURCE_HANDLE movieTexHandle;
 	MovieRender render;
 
+	RESOURCE_HANDLE resourceHandle;
 
-	static int TEX_HANDLE;
 };
 
 

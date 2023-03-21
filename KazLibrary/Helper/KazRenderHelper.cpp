@@ -213,7 +213,7 @@ KazRenderHelper::ID3D12ResourceWrapper::ID3D12ResourceWrapper()
 
 void KazRenderHelper::ID3D12ResourceWrapper::CreateBuffer(const KazBufferHelper::BufferResourceData &BUFFER_OPTION)
 {
-	for (int i = 0; i < 1; ++i)
+	for (int i = 0; i < buffer.size(); ++i)
 	{
 		HRESULT lResult;
 		//バッファの生成
@@ -237,29 +237,32 @@ void KazRenderHelper::ID3D12ResourceWrapper::CreateBuffer(const KazBufferHelper:
 
 void KazRenderHelper::ID3D12ResourceWrapper::TransData(void *DATA, const unsigned int &DATA_SIZE)
 {
-	UINT lIndex = 0;
-
 	void *dataMap = nullptr;
-	auto result = buffer[lIndex]->Map(0, nullptr, (void **)&dataMap);
-	if (SUCCEEDED(result))
+
+	for (int i = 0; i < buffer.size(); ++i)
 	{
-		memcpy(dataMap, DATA, DATA_SIZE);
-		buffer[lIndex]->Unmap(0, nullptr);
+		auto result = buffer[i]->Map(0, nullptr, (void **)&dataMap);
+		if (SUCCEEDED(result))
+		{
+			memcpy(dataMap, DATA, DATA_SIZE);
+			buffer[i]->Unmap(0, nullptr);
+		}
 	}
 }
 
 void KazRenderHelper::ID3D12ResourceWrapper::TransData(void *DATA, unsigned int START_DATA_SIZE, unsigned int DATA_SIZE)
 {
-	UINT lIndex = 0;
-
 	void *dataMap = nullptr;
-	auto result = buffer[lIndex]->Map(0, nullptr, (void **)&dataMap);
-
-	void *data = &dataMap + START_DATA_SIZE;
-	if (SUCCEEDED(result))
+	for (int i = 0; i < buffer.size(); ++i)
 	{
-		memcpy(data, DATA, DATA_SIZE);
-		buffer[lIndex]->Unmap(0, nullptr);
+		auto result = buffer[i]->Map(0, nullptr, (void **)&dataMap);
+
+		void *data = &dataMap + START_DATA_SIZE;
+		if (SUCCEEDED(result))
+		{
+			memcpy(data, DATA, DATA_SIZE);
+			buffer[i]->Unmap(0, nullptr);
+		}
 	}
 }
 
@@ -273,7 +276,7 @@ void KazRenderHelper::ID3D12ResourceWrapper::Release()
 
 D3D12_GPU_VIRTUAL_ADDRESS KazRenderHelper::ID3D12ResourceWrapper::GetGpuAddress()
 {
-	return buffer[0]->GetGPUVirtualAddress();
+	return buffer[GetIndex()]->GetGPUVirtualAddress();
 }
 
 void *KazRenderHelper::ID3D12ResourceWrapper::GetMapAddres(int BB_INDEX)const
@@ -281,7 +284,7 @@ void *KazRenderHelper::ID3D12ResourceWrapper::GetMapAddres(int BB_INDEX)const
 	void *dataMap = nullptr;
 	if (BB_INDEX == -1)
 	{
-		buffer[0]->Map(0, nullptr, (void **)&dataMap);
+		buffer[GetIndex()]->Map(0, nullptr, (void **)&dataMap);
 	}
 	else
 	{

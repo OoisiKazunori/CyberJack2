@@ -3,6 +3,8 @@
 #include"../KazLibrary/Buffer/UavViewHandleMgr.h"
 #include"../KazLibrary/RenderTarget/RenderTargetStatus.h"
 
+const int ResouceBufferHelper::SWAPCHAIN_NUM = 1;
+
 ResouceBufferHelper::ResouceBufferHelper() :counterBufferData(
 	CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 	D3D12_HEAP_FLAG_NONE,
@@ -41,7 +43,7 @@ RESOURCE_HANDLE ResouceBufferHelper::CreateBuffer(UINT STRUCTURE_BYTE_STRIDE, Gr
 
 
 		std::vector<RESOURCE_HANDLE>lViewHandleArray;
-		for (int i = 0; i < RenderTargetStatus::Instance()->SWAPCHAIN_MAX_NUM; ++i)
+		for (int i = 0; i < SWAPCHAIN_NUM; ++i)
 		{
 			lViewHandleArray.emplace_back(UavViewHandleMgr::Instance()->GetHandle());
 			bufferArrayData[lHandle].CreateViewHandle(lViewHandleArray[i]);
@@ -87,7 +89,7 @@ RESOURCE_HANDLE ResouceBufferHelper::CreateBuffer(const KazBufferHelper::BufferR
 	{
 	case GRAPHICS_RANGE_TYPE_UAV_DESC:
 		std::vector<RESOURCE_HANDLE>lViewHandleArray;
-		for (int i = 0; i < RenderTargetStatus::Instance()->SWAPCHAIN_MAX_NUM; ++i)
+		for (int i = 0; i < SWAPCHAIN_NUM; ++i)
 		{
 			lViewHandleArray.emplace_back(UavViewHandleMgr::Instance()->GetHandle());
 			bufferArrayData[lHandle].CreateViewHandle(lViewHandleArray[i]);
@@ -143,7 +145,7 @@ ResouceBufferHelper::BufferData ResouceBufferHelper::CreateAndGetBuffer(UINT STR
 		lBufferData.bufferWrapper.CreateBuffer(KazBufferHelper::SetRWStructuredBuffer(lBufferSize));
 
 		std::vector<RESOURCE_HANDLE>lViewHandleArray;
-		for (int i = 0; i < RenderTargetStatus::Instance()->SWAPCHAIN_MAX_NUM; ++i)
+		for (int i = 0; i < SWAPCHAIN_NUM; ++i)
 		{
 			lViewHandleArray.emplace_back(UavViewHandleMgr::Instance()->GetHandle());
 			lBufferData.CreateViewHandle(lViewHandleArray[i]);
@@ -199,7 +201,7 @@ ResouceBufferHelper::BufferData ResouceBufferHelper::CreateAndGetBuffer(const Ka
 		lBufferData.bufferWrapper.CreateBuffer(KazBufferHelper::SetRWStructuredBuffer(lBufferSize));
 
 		std::vector<RESOURCE_HANDLE>lViewHandleArray;
-		for (int i = 0; i < RenderTargetStatus::Instance()->SWAPCHAIN_MAX_NUM; ++i)
+		for (int i = 0; i < SWAPCHAIN_NUM; ++i)
 		{
 			lViewHandleArray.emplace_back(UavViewHandleMgr::Instance()->GetHandle());
 			lBufferData.CreateViewHandle(lViewHandleArray[i]);

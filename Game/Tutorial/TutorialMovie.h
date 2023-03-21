@@ -12,6 +12,7 @@ class TutorialMovie
 {
 public:
 	TutorialMovie(bool STOP_MOVIE_FLAG);
+	~TutorialMovie();
 	void Init(const std::string &TEXT,int MAX_ACHIEVEMENT_ITEMS);
 	void Update();
 	void Draw();
@@ -42,12 +43,12 @@ private:
 	bool stopFlag;
 	std::unique_ptr<DirectX12MoviePlayer> moviePlayer;
 	RESOURCE_HANDLE vhsSeedHandle, noiseSeedHandle;
-	MovieRender movieRender;
+	std::unique_ptr<MovieRender> movieRender;
 	float seedNum;
 	//動画再生--------------------------------------------
 
 	//ノイズ再生--------------------------------------------
-	Sprite2DRender normalRender;
+	Sprite2DRenderPtr normalRender;
 	//ノイズ再生--------------------------------------------
 
 	//UI--------------------------------------------
@@ -58,6 +59,6 @@ private:
 
 	RESOURCE_HANDLE renderTargetHandle;
 	RESOURCE_HANDLE outputRenderTargetHandle;
-	Sprite2DRender outputRender;
+	Sprite2DRenderPtr outputRender;
 
 };

@@ -201,7 +201,7 @@ private:
 
 	BoxPolygonRender box;
 
-	Tutorial tutorial;
+	std::unique_ptr<Tutorial> tutorial;
 
 	PortalIntermediateDirection portalEffect;
 	//std::unique_ptr<MeshParticleEmitter> meshEmitter;

@@ -39,7 +39,7 @@ public:
 		}
 		const RESOURCE_HANDLE &GetViewHandle()const
 		{
-			return viewHandle[RenderTargetStatus::Instance()->bbIndex];
+			return viewHandle[GetIndex()];
 		}
 
 		void operator=(const BufferData &rhs)
@@ -83,7 +83,19 @@ private:
 	std::vector<ResouceBufferHelper::BufferData>bufferArrayData;
 	HandleMaker handle;
 
+	static const int SWAPCHAIN_NUM;
 
 
 	KazBufferHelper::BufferResourceData counterBufferData;
+	static const UINT GetIndex()
+	{
+		if (SWAPCHAIN_NUM <= RenderTargetStatus::Instance()->bbIndex)
+		{
+			return 0;
+		}
+		else
+		{
+			return RenderTargetStatus::Instance()->bbIndex;
+		}
+	}
 };

@@ -7,7 +7,6 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#pragma comment(lib, "dxcompiler.lib")
 
 Shader::Shader()
 {
@@ -68,7 +67,7 @@ void Shader::Compier(std::string SHADER_FILE, std::string ENTRY_POINT, std::stri
 	{
 		if (result)
 		{
-			CComPtr<IDxcBlobEncoding> errorsBlob;
+			Microsoft::WRL::ComPtr<IDxcBlobEncoding> errorsBlob;
 			hr = result->GetErrorBuffer(&errorsBlob);
 			if (SUCCEEDED(hr) && errorsBlob)
 			{
@@ -81,7 +80,7 @@ void Shader::Compier(std::string SHADER_FILE, std::string ENTRY_POINT, std::stri
 	}
 	//ÉGÉâÅ[èàóù-------------------------
 
-	CComPtr<IDxcBlob> code;
+	Microsoft::WRL::ComPtr<IDxcBlob> code;
 	result->GetResult(&shaderBlobs[SHADER_TYPE]);
 
 

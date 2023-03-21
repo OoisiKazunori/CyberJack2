@@ -175,6 +175,8 @@
     <ClCompile Include="KazLibrary\Loader\MeshParticleLoader.cpp" />
     <ClCompile Include="Game\Effect\InstanceDeadParticle.cpp" />
     <ClCompile Include="KazLibrary\Scene\RayTracingScene.cpp" />
+    <ClCompile Include="KazLibrary\Loader\MovieLoader.cpp" />
+    <ClCompile Include="Game\Event\GameCommonData.cpp" />
     <ClCompile Include="KazLibrary\Scene\RenderScene.cpp" />
     <ClCompile Include="KazLibrary\Render\DrawingByRasterize.cpp" />
     <ClCompile Include="KazLibrary\Buffer\BufferDuplicateBlocking.cpp" />
@@ -369,6 +371,8 @@
     <ClInclude Include="KazLibrary\Loader\MeshParticleLoader.h" />
     <ClInclude Include="Game\Effect\InstanceDeadParticle.h" />
     <ClInclude Include="KazLibrary\Scene\RayTracingScene.h" />
+    <ClInclude Include="KazLibrary\Loader\MovieLoader.h" />
+    <ClInclude Include="Game\Event\GameCommonData.h" />
     <ClInclude Include="KazLibrary\Scene\RenderScene.h" />
     <ClInclude Include="KazLibrary\Render\DrawingByRasterize.h" />
     <ClInclude Include="KazLibrary\Buffer\BufferDuplicateBlocking.h" />

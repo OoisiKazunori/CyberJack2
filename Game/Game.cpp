@@ -20,6 +20,7 @@ Game::Game(
 	const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX> &CAMERA_ARRAY
 ) :LOG_FONT_SIZE(1.0f)
 {
+	tutorial = std::make_unique<Tutorial>();
 
 	for (int i = 0; i < smokeR.size(); ++i)
 	{
@@ -197,7 +198,7 @@ void Game::Init(bool SKIP_FLAG)
 	testEnemyPos = { 0.0f,0.0f,100.0f };
 
 	appearGoalBoxPos[0] = { 0.0f,10.0f,40.0f };
-	appearGoalBoxPos[1] = { 0.0f,-15.0f,40.0f };
+	appearGoalBoxPos[1] = { -20.0f,10.0f,40.0f };
 	appearGoalBoxPos[2] = { 20.0f,-5.0f,40.0f };
 	responeGoalBoxPos = { -10.0f,-100.0f,40.0f };
 	goalBox.Init(responeGoalBoxPos);
@@ -217,7 +218,7 @@ void Game::Init(bool SKIP_FLAG)
 	fireIndex = 0;
 	cameraWork.Init();
 
-	tutorial.Init(SKIP_FLAG);
+	tutorial->Init(SKIP_FLAG);
 	portalEffect.Init();
 
 	isGameOverFlag = false;
@@ -242,7 +243,6 @@ void Game::Init(bool SKIP_FLAG)
 
 void Game::Finalize()
 {
-	tutorial.Finalize();
 }
 
 void Game::Input()
@@ -253,9 +253,9 @@ void Game::Input()
 	ControllerInputManager *inputController = ControllerInputManager::Instance();
 
 
-	if (tutorial.tutorialFlag)
+	if (tutorial->tutorialFlag)
 	{
-		tutorial.Input();
+		tutorial->Input();
 
 		if (inputController->InputTrigger(XINPUT_GAMEPAD_START))
 		{
@@ -342,10 +342,10 @@ void Game::Input()
 
 void Game::Update()
 {
-	tutorial.handle = renderTarget[0]->GetGameRenderTargetHandle();
-	if (tutorial.tutorialFlag)
+	tutorial->handle = renderTarget[0]->GetGameRenderTargetHandle();
+	if (tutorial->tutorialFlag)
 	{
-		tutorial.Update();
+		tutorial->Update();
 		stages[0]->Update();
 		cursor.Update();
 		cameraWork.Update(cursor.GetValue(), &player.pos, cameraModeChangeFlag);
@@ -1037,7 +1037,7 @@ void Game::Update()
 	//ゲームループの経過時間----------------------------------------------------------------
 
 	//ゲーム開始
-	if (!tutorial.tutorialFlag && !gameStartFlag)
+	if (!tutorial->tutorialFlag && !gameStartFlag)
 	{
 		//ステージ番号知らせる
 		stageUI.Init();
@@ -1084,9 +1084,9 @@ void Game::Draw()
 {
 	particleRender->InitCount();
 
-	if (tutorial.tutorialFlag)
+	if (tutorial->tutorialFlag)
 	{
-		tutorial.Draw();
+		tutorial->Draw();
 	}
 	else
 	{
@@ -1223,9 +1223,9 @@ void Game::Draw()
 		mainRenderTarget.data.handleData = renderTarget[stageNum]->GetGameRenderTargetHandle();
 
 		//チュートリアル用の描画
-		if (tutorial.tutorialFlag)
+		if (tutorial->tutorialFlag)
 		{
-			mainRenderTarget.data.handleData.handle = tutorial.mainRenderTarget.data.handleData.handle;
+			mainRenderTarget.data.handleData.handle = tutorial->mainRenderTarget.data.handleData.handle;
 		}
 		//中間演出の描画
 		if (portalEffect.disappearFlag || portalEffect.DrawNextPortal())
@@ -1238,9 +1238,9 @@ void Game::Draw()
 		logoutWindow->Draw();
 
 		mainRenderTarget.Draw();
-		if (tutorial.tutorialFlag)
+		if (tutorial->tutorialFlag)
 		{
-			tutorial.cursor.Draw();
+			tutorial->cursor.Draw();
 		}
 		else
 		{

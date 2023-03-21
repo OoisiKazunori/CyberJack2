@@ -47,7 +47,8 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
 
         //èoóÕ--------------------------------------------
         OutputData outputMat;
-        outputMat.mat = mul(viewProjection,pMatWorld);
+        outputMat.mat = mul(viewProjection, pMatWorld);
+        outputMat.color = float4(0, 0, 0, 0);
         outputData[index * 3 + trianglePosIndex] = outputMat;
         //èoóÕ--------------------------------------------
     }

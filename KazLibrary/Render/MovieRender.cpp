@@ -57,7 +57,6 @@ MovieRender::~MovieRender()
 }
 
 void MovieRender::Draw()
-
 {
 	//パイプライン設定-----------------------------------------------------------------------------------------------------
 	renderData.pipelineMgr->SetPipeLineAndRootSignature(data.pipelineName);

@@ -18,58 +18,11 @@ const float BlockParticleStage::PILLAR_PARTICLE_INTERVAL_NUM = 15000.0f;
 
 BlockParticleStage::BlockParticleStage()
 {
-	for (int i = 0; i < splineParticle.size(); ++i)
-	{
-		//splineParticle[i] = std::make_unique<SplineParticle>(2.5f);
-	}
 
 	//大渦初期化--------------------------------------------
 
 
 	v = { 40.0f,800.0f,100.0f };
-	//{
-	//	KazMath::Vec3<float>level = { 100.0f,300.0f,0.0f };
-	//	std::vector<KazMath::Vec3<float>> limitPosArray;
-	//	for (int i = 0; i < 150; ++i)
-	//	{
-	//		level.x = cosf(KazMath::AngleToRadian(i * static_cast<int>(v.x))) * v.y;
-	//		level.y = sinf(KazMath::AngleToRadian(i * static_cast<int>(v.x))) * v.y;
-	//		limitPosArray.push_back(KazMath::Vec3<float>(level.x, level.y, -3000.0f + static_cast<float>(i) * v.z));
-	//	}
-	//	splineParticle[0]->Init(limitPosArray, false);
-	//}
-	////大渦初期化--------------------------------------------
-	//{
-	//	for (int i = 1; i < splineParticle.size(); ++i)
-	//	{
-	//		std::vector<KazMath::Vec3<float>> limitPosArray;
-	//		KazMath::Vec3<float>lStartPos;
-	//		lStartPos.y = KazMath::Rand(5000.0f, -5000.0f);
-
-	//		//左から右
-	//		if (KazMath::Rand(3, 0) < 2)
-	//		{
-	//			lStartPos.x = KazMath::Rand(7000.0f, 2000.0f);
-	//		}
-	//		else
-	//		{
-	//			lStartPos.x = -KazMath::Rand(7000.0f, 2000.0f);
-	//		}
-	//		bool lupDownFlag = false;
-	//		//上に行くかどうか
-	//		if (KazMath::Rand(3, 0) < 2)
-	//		{
-	//			lupDownFlag = true;
-	//		}
-
-	//		for (int i = 0; i < 150; ++i)
-	//		{
-	//			lStartPos.z = -5000.0f + static_cast<float>(i) * v.z;
-	//			limitPosArray.push_back(lStartPos);
-	//		}
-	//		splineParticle[i]->Init(limitPosArray, false);
-	//	}
-	//}
 
 
 	floorResourceHandle = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::StagePath + "lambert1_Base_color.png");
@@ -148,10 +101,6 @@ BlockParticleStage::BlockParticleStage()
 		pillarParticleTransform[i].scale = { 23.5f,25.0f,23.5f };
 		RESOURCE_HANDLE lHandle = FbxModelResourceMgr::Instance()->GetResourceData(pillarHandle)->textureHandle[0];
 		UINT lFaceCountNum = FbxModelResourceMgr::Instance()->GetResourceData(pillarHandle)->faceCountNum;
-
-		/*	InstanceMeshParticle::Instance()->AddMeshData(
-				MeshParticleLoader::Instance()->Load(KazFilePathName::StagePath + "house/" + "House_01.fbx", true, &pillarParticleMotherMat[i], lData)
-			);*/
 	}
 
 
@@ -181,6 +130,13 @@ BlockParticleStage::BlockParticleStage()
 	collisionArrrayData[1].motherMat = &transformMatArray[1];
 	collisionArrrayData[1].colorData = &colorArrayData[1];
 
+	collisionArrrayData.emplace_back(InitMeshCollisionData());
+	collisionArrrayData[2].vertData = lStageMeshParticleData.vertData;
+	collisionArrrayData[2].vertNumArray = FbxModelResourceMgr::Instance()->GetResourceData(lHandle)->vertNum;
+	collisionArrrayData[2].meshParticleData = lStageMeshParticleData;
+	collisionArrrayData[2].motherMat = &transformMatArray[2];
+	collisionArrrayData[2].colorData = &colorArrayData[2];
+
 	for (int i = 0; i < colorArrayData.size(); ++i)
 	{
 		colorArrayData[i].alpha = 1.0f;
@@ -189,7 +145,7 @@ BlockParticleStage::BlockParticleStage()
 
 	for (int i = 0; i < transformArrayData.size(); ++i)
 	{
-		transformArrayData[i].pos = { 0.0f,0.0f,static_cast<float>(i) * 500.0f + 0.0f };
+		transformArrayData[i].pos = { 0.0f,0.0f,static_cast<float>(i) * 400.0f + 0.0f };
 	}
 
 	galacticParticle = std::make_unique<GalacticParticle>();
@@ -212,24 +168,6 @@ void BlockParticleStage::Update()
 
 	galacticParticle->Update();
 
-	//KazMath::Vec3<float>level = { 100.0f,300.0f,0.0f };
-	//std::vector<KazMath::Vec3<float>> limitPosArray;
-	//for (int i = 0; i < 150; ++i)
-	//{
-	//	level.x = cosf(KazMath::AngleToRadian(i * static_cast<int>(v.x))) * v.y;
-	//	level.y = sinf(KazMath::AngleToRadian(i * static_cast<int>(v.x))) * v.y;
-	//	limitPosArray.push_back(KazMath::Vec3<float>(level.x, level.y, -1000.0f + static_cast<float>(i) * v.z));
-	//}
-	//for (int i = 0; i < splineParticle.size(); ++i)
-	//{
-	//	splineParticle[i]->Init(limitPosArray);
-	//}
-
-	/*for (int i = 0; i < splineParticle.size(); ++i)
-	{
-		splineParticle[i]->Update();
-	}*/
-
 	for (int i = 0; i < floorParticleTransform.size(); ++i)
 	{
 		floorParticleTransform[i].pos.z += -5.0f;
@@ -239,10 +177,6 @@ void BlockParticleStage::Update()
 		}
 		floorParticleMotherMat[i] = floorParticleTransform[i].GetMat();
 	}
-
-	//ImGui::Begin("Block");
-	//KazImGuiHelper::InputVec2("Flash", &flash);
-	//ImGui::End();
 
 	flash.x += 200.0f;
 	if (100000.0f <= flash.x)
@@ -257,24 +191,6 @@ void BlockParticleStage::Update()
 	{
 		flash.y = 0.0f;
 	}
-
-	//for (int i = 0; i < pillarParticleTransform.size(); ++i)
-	//{
-	//	pillarParticleModel[i]->updateCommonData.flash.x = flash.x;
-	//	pillarParticleModel[i]->updateCommonData.flash.y = flash.y;
-
-
-	//	pillarParticleTransform[i].pos.z += -5.0f;
-	//	if (pillarParticleTransform[i].pos.z <= -10000.0f)
-	//	{
-	//		pillarParticleTransform[i].pos.z = 12500.0f;
-	//	}
-
-	//	pillarParticleMotherMat[i] = pillarParticleTransform[i].GetMat();
-	//	pillarParticleModel[i]->Update(false);
-	//}
-
-
 
 
 	//パーティクルステージの挙動
@@ -296,7 +212,7 @@ void BlockParticleStage::Update()
 		//透明になったらループさせる
 		if (colorArrayData[i].alpha <= 0.0f)
 		{
-			transformArrayData[i].pos.z = 800.0f;
+			transformArrayData[i].pos.z = 700.0f;
 		}
 		//アルファ固定
 		if (1.0f <= colorArrayData[i].alpha)

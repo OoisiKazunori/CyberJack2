@@ -64,5 +64,7 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     
     idData.meshID = -1;
     idData.id = uint3(-1,-1,-1);
+    idData.meshPos = float3(0,0,0);
+    idData.circlePos = float3(0,0,0);
     hitBoxAppendData.Append(idData);
 }

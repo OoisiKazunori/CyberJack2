@@ -90,6 +90,7 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
             OutputData outputMat;
             countIndexData[0] += 1;
             uint resultIndex = countIndexData[0];
+            outputMat.mat = MatrixIdentity();
             outputMat.color = float4(1.0f,1.0f,0.0f,0.5f);
             matrixData.Append(outputMat);
         }

@@ -14,8 +14,8 @@
 #include"../Game/Tutorial/OldComputer.h"
 #include"../Game/Tutorial/TutorialMovie.h"
 
-class TitleScene :public SceneBase {
-
+class TitleScene :public SceneBase
+{
 public:
 	TitleScene();
 	~TitleScene();
@@ -77,4 +77,6 @@ private:
 	TutorialMovie movie;
 
 	Sprite2DRender onlyControllerR;
+
+	bool isFirstFlag;
 };

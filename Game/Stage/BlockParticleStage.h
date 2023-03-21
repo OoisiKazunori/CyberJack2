@@ -119,8 +119,9 @@ private:
 
 	std::unique_ptr<CreateMeshBuffer> meshBuffer;
 
-	std::array<ColorData, 2>colorArrayData;
-	std::array<KazMath::Transform3D, 2>transformArrayData;
-	std::array<DirectX::XMMATRIX, 2>transformMatArray;
+	static const int WALL_MAX_NUM = 2;
+	std::array<ColorData, WALL_MAX_NUM>colorArrayData;
+	std::array<KazMath::Transform3D, WALL_MAX_NUM>transformArrayData;
+	std::array<DirectX::XMMATRIX, WALL_MAX_NUM>transformMatArray;
 };
 

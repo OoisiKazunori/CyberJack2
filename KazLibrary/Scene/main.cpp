@@ -24,11 +24,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 #ifdef _DEBUG
 	//DebugLayer
-	CComPtr<ID3D12Debug1> debug1;
+	Microsoft::WRL::ComPtr<ID3D12Debug1> debug1;
 	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug1))))
 	{
-		CComPtr<ID3D12Debug> spDebugController0;
-		CComPtr<ID3D12Debug1> spDebugController1;
+		Microsoft::WRL::ComPtr<ID3D12Debug> spDebugController0;
+		Microsoft::WRL::ComPtr<ID3D12Debug1> spDebugController1;
 
 
 		D3D12GetDebugInterface(IID_PPV_ARGS(&spDebugController0));
@@ -60,7 +60,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	}
 
 #ifdef _DEBUG
-	CComPtr<ID3D12InfoQueue> infoQueue;
+	Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue;
 	DirectX12Device::Instance()->dev->QueryInterface(IID_PPV_ARGS(&infoQueue));
 
 	D3D12_MESSAGE_ID denyIds[] = {

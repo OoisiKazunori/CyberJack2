@@ -5,15 +5,17 @@
 #include"../KazLibrary/DirectXCommon/DirectX12Device.h"
 #include"../KazLibrary/DirectXCommon/DirectX12CmdList.h"
 #include"../KazLibrary/RenderTarget/RenderTargetStatus.h"
+#include"../KazLibrary/Loader/MovieLoader.h"
+
 
 #pragma comment(lib, "Mfplat.lib")
 #pragma comment(lib, "mfuuid.lib")
 #pragma comment(lib, "mfreadwrite.lib")
 
-int DirectX12MoviePlayer::TEX_HANDLE = 0;
 
 DirectX12MoviePlayer::DirectX12MoviePlayer()
 {
+
 	MFStartup(MF_VERSION);
 
 	format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -53,8 +55,6 @@ DirectX12MoviePlayer::DirectX12MoviePlayer()
 
 	const DWORD flags = MF_MEDIA_ENGINE_WAITFORSTABLE_STATE;
 	hr = mfFactory->CreateInstance(flags, attributes.Get(), &mediaEngine);
-
-
 }
 
 void DirectX12MoviePlayer::SetMediaSource(const std::string &fileName)
@@ -89,35 +89,11 @@ void DirectX12MoviePlayer::SetMediaSource(const std::string &fileName)
 	height = static_cast<UINT>(lHeight);
 
 	//シェーダーリソースバッファ、ビューの用意--------------------------------------------
-	auto lResDescMovieTex = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_B8G8R8A8_UNORM, width, height, 1, 1);
-
-
-	D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS;
-	// D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS は複数のキューからアクセスされることになるので追加
-	D3D12_RESOURCE_DESC resDesc = CD3DX12_RESOURCE_DESC::Tex2D(format, width, height, 1, 1);
-	resDesc.Flags = flags;
-	D3D12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-
-	KazBufferHelper::BufferResourceData resourceData(heapProps, D3D12_HEAP_FLAG_SHARED, resDesc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, nullptr, "MovieBuff");
-	movieTexHandle = gpuBuffer->CreateBuffer(resourceData);
-
-	D3D12_SHADER_RESOURCE_VIEW_DESC lSrvDesc = {};
-	lSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	lSrvDesc.Texture2D.MipLevels = 1;
-	lSrvDesc.Shader4ComponentMapping = static_cast<UINT>(D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING);
-	lSrvDesc.Format = lResDescMovieTex.Format;
-	memorySize = DescriptorHeapMgr::Instance()->GetSize(DESCRIPTORHEAP_MEMORY_MOVIE);
-
-	DescriptorHeapMgr::Instance()->CreateBufferView(TEX_HANDLE + memorySize.startSize, lSrvDesc, gpuBuffer->GetBufferData(movieTexHandle).Get());
-	++TEX_HANDLE;
-	//シェーダーリソースバッファ、ビューの用意--------------------------------------------
-
-	DirectX12Device::Instance()->dev->CreateSharedHandle(
-		gpuBuffer->GetBufferData(movieTexHandle).Get()
-		, nullptr, GENERIC_ALL, nullptr,
-		&hSharedTexture
-	);
-	//リソース準備-------------------------------------------
+	MovieLoadData lData;
+	lData.filePass = fileName;
+	lData.x = width;
+	lData.y = height;
+	resourceHandle = MovieLoader::Instance()->Load(lData);
 }
 
 void DirectX12MoviePlayer::Play()
@@ -167,7 +143,7 @@ bool DirectX12MoviePlayer::TranferFrame()
 		if (SUCCEEDED(hr))
 		{
 			Microsoft::WRL::ComPtr<ID3D11Texture2D> mediaTexture;
-			hr = DirectX12Device::Instance()->dev11->OpenSharedResource1(hSharedTexture, IID_PPV_ARGS(mediaTexture.GetAddressOf()));
+			hr = DirectX12Device::Instance()->dev11->OpenSharedResource1(MovieLoader::Instance()->GetShareHandle(resourceHandle), IID_PPV_ARGS(mediaTexture.GetAddressOf()));
 			if (SUCCEEDED(hr)) {
 				MFVideoNormalizedRect rect{ 0.0f, 0.0f, 1.0f, 1.0f };
 				RECT rcTarget{ 0, 0, LONG(width), LONG(height) };
@@ -187,8 +163,8 @@ bool DirectX12MoviePlayer::TranferFrame()
 
 void DirectX12MoviePlayer::Draw()
 {
-	render.data.buff = gpuBuffer->GetBufferData(movieTexHandle);
-	render.data.handleData = TEX_HANDLE + memorySize.startSize;
+	render.data.buff = MovieLoader::Instance()->GetBuffer(resourceHandle);
+	render.data.handleData = resourceHandle;
 	render.data.transform.pos = { WIN_X / 2.0f,WIN_Y / 2.0f };
 	render.Draw();
 }

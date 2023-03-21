@@ -21,7 +21,7 @@ public:
 	bool endGameFlag;
 private:
 	std::vector<std::unique_ptr<SceneBase>> scene;
-	ChangeScene::SceneChange change;
+	std::unique_ptr<ChangeScene::SceneChange> change;
 	int nowScene, nextScene;
 	bool initGameFlag;
 
@@ -29,4 +29,5 @@ private:
 
 	bool itisInArrayFlag;
 	bool gameFirstInitFlag;
+
 };

@@ -24,6 +24,8 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	itisInArrayFlag = true;
 	endGameFlag = false;
 	initGameFlag = false;
+
+	change = std::make_unique<ChangeScene::SceneChange>();
 }
 
 SceneManager::~SceneManager()
@@ -38,7 +40,7 @@ void SceneManager::Update()
 	//シーン遷移の開始
 	if (nextScene != nowScene)
 	{
-		change.Start();
+		change->Start();
 	}
 
 	if (!gameFirstInitFlag)
@@ -67,7 +69,7 @@ void SceneManager::Update()
 	}
 
 	//ゲーム画面が隠された判定
-	if (change.AllHiden())
+	if (change->AllHiden())
 	{
 		scene[nowScene]->Finalize();
 
@@ -106,7 +108,7 @@ void SceneManager::Update()
 		}
 	}
 
-	change.Update();
+	change->Update();
 
 	// fpsを制限(今回は60fps)
 	FpsManager::RegulateFps(60);

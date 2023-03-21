@@ -81,10 +81,11 @@ void PopEnemy::Update()
 	}
 	oldReverseFlag = reverseFlag;
 
+	if (!ProcessingOfDeathFbx(DEATH_ROLL))
+	{
+		iEnemy_FbxModelRender->data.transform.pos += vel;
+	}
 
-	iEnemy_FbxModelRender->data.transform.pos += vel;
-
-	ProcessingOfDeath(DEATH_ROLL);
 }
 
 void PopEnemy::Draw()

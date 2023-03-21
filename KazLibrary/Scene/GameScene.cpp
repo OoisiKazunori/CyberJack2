@@ -306,6 +306,7 @@ void GameScene::PreInit()
 #pragma endregion
 	++layerLevel;
 
+
 	game = std::make_unique<Game>(responeData, stages, backGroundColorArray, cameraMoveArray);
 }
 

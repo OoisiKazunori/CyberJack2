@@ -138,31 +138,33 @@ namespace KazRenderHelper
 			D3D12_RESOURCE_STATES AFTER_STATE
 		)const
 		{
-			UINT lIndexNum = 0;
-			DirectX12CmdList::Instance()->cmdList->ResourceBarrier(
-				1,
-				&CD3DX12_RESOURCE_BARRIER::Transition(buffer[lIndexNum].Get(),
-					BEFORE_STATE,
-					AFTER_STATE
-				)
-			);
+			for (int i = 0; i < buffer.size(); ++i)
+			{
+				DirectX12CmdList::Instance()->cmdList->ResourceBarrier(
+					1,
+					&CD3DX12_RESOURCE_BARRIER::Transition(buffer[i].Get(),
+						BEFORE_STATE,
+						AFTER_STATE
+					)
+				);
 
-			DirectX12CmdList::Instance()->cmdList->CopyResource(buffer[lIndexNum].Get(), SRC_BUFFER.Get());
+				DirectX12CmdList::Instance()->cmdList->CopyResource(buffer[i].Get(), SRC_BUFFER.Get());
 
-			DirectX12CmdList::Instance()->cmdList->ResourceBarrier(
-				1,
-				&CD3DX12_RESOURCE_BARRIER::Transition(buffer[lIndexNum].Get(),
-					AFTER_STATE,
-					BEFORE_STATE
-				)
-			);
+				DirectX12CmdList::Instance()->cmdList->ResourceBarrier(
+					1,
+					&CD3DX12_RESOURCE_BARRIER::Transition(buffer[i].Get(),
+						AFTER_STATE,
+						BEFORE_STATE
+					)
+				);
+			}
 		}
 
 		const Microsoft::WRL::ComPtr<ID3D12Resource> &GetBuffer(int INDEX = -1) const
 		{
 			if (INDEX == -1)
 			{
-				return buffer[0];
+				return buffer[GetIndex()];
 			}
 			else
 			{
@@ -180,6 +182,10 @@ namespace KazRenderHelper
 		
 	private:
 		std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 1>buffer;
+		UINT GetIndex()const
+		{
+			return 0;
+		}
 	};
 
 

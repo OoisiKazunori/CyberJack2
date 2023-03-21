@@ -15,7 +15,7 @@ public:
 
 private:
 	KazMath::Vec2<float>basePos, baseSize;
-	Sprite2DRender render, inputRender;
+	Sprite2DRenderPtr render, inputRender;
 
 	enum FontType
 	{
