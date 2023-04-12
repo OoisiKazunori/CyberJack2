@@ -1,7 +1,7 @@
 #include "GPUParticleRender.h"
 #include"../KazLibrary/RenderTarget/RenderTargetStatus.h"
 
-GPUParticleRender::GPUParticleRender(std::vector<D3D12_INDIRECT_ARGUMENT_DESC> ARG_ARRAY, int MAXNUM)
+GPUParticleRender::GPUParticleRender(std::vector<D3D12_INDIRECT_ARGUMENT_DESC> ARG_ARRAY, Microsoft::WRL::ComPtr<ID3D12RootSignature> ROOTSIGNATURE, int MAXNUM)
 {
 	particleMaxNum = MAXNUM;
 
@@ -67,7 +67,7 @@ GPUParticleRender::GPUParticleRender(std::vector<D3D12_INDIRECT_ARGUMENT_DESC> A
 	lInitData.indexNum = static_cast<UINT>(lIndicesArray.size());
 	lInitData.elementNum = particleMaxNum;
 	lInitData.updateView = computeCovertWorldMatToDrawMat.GetBufferData(outputHandle).bufferWrapper.GetBuffer()->GetGPUVirtualAddress();
-	lInitData.rootsignatureName = ROOTSIGNATURE_DATA_DRAW_UAV;
+	lInitData.rootsignature = ROOTSIGNATURE;
 
 	lInitData.argument = ARG_ARRAY;
 	excuteIndirect = std::make_unique<DrawExcuteIndirect>(lInitData);

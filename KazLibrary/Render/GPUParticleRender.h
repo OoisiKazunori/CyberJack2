@@ -9,7 +9,7 @@
 class GPUParticleRender
 {
 public:
-	GPUParticleRender(std::vector<D3D12_INDIRECT_ARGUMENT_DESC> ARG_ARRAY, int MAXNUM = 3000000);
+	GPUParticleRender(std::vector<D3D12_INDIRECT_ARGUMENT_DESC> ARG_ARRAY, Microsoft::WRL::ComPtr<ID3D12RootSignature> ROOTSIGNATURE, int MAXNUM = 3000000);
 
 	void InitCount();
 	void Draw(const DirectX::XMUINT3 &NUM = { 3000,1,1 });

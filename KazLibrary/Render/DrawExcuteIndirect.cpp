@@ -15,7 +15,7 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawIndexedExcuteIndirect &INIT
 	desc.ByteStride = sizeof(DrawIndexedIndirectCommand);
 
 	HRESULT lResult =
-		DirectX12Device::Instance()->dev->CreateCommandSignature(&desc, GraphicsRootSignature::Instance()->GetRootSignature(INIT_DATA.rootsignatureName).Get(), IID_PPV_ARGS(&commandSig));
+		DirectX12Device::Instance()->dev->CreateCommandSignature(&desc, INIT_DATA.rootsignature.Get(), IID_PPV_ARGS(&commandSig));
 	//コマンドシグネチャ---------------------------
 	if (lResult != S_OK)
 	{
@@ -46,7 +46,7 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawExcuteIndirect &INIT_DATA)
 	desc.ByteStride = sizeof(DrawIndirectCommand);
 
 	HRESULT lResult =
-		DirectX12Device::Instance()->dev->CreateCommandSignature(&desc, GraphicsRootSignature::Instance()->GetRootSignature(INIT_DATA.rootsignatureName).Get(), IID_PPV_ARGS(&commandSig));
+		DirectX12Device::Instance()->dev->CreateCommandSignature(&desc, INIT_DATA.rootsignature.Get(), IID_PPV_ARGS(&commandSig));
 	//コマンドシグネチャ---------------------------
 	if (lResult != S_OK)
 	{

@@ -11,7 +11,7 @@ struct InitDrawIndexedExcuteIndirect
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 	D3D12_INDEX_BUFFER_VIEW indexBufferView;
 	UINT indexNum;
-	RootSignatureMode rootsignatureName;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature;
 };
 
 struct InitDrawExcuteIndirect
@@ -21,7 +21,7 @@ struct InitDrawExcuteIndirect
 	UINT elementNum;
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 	UINT vertNum;
-	RootSignatureMode rootsignatureName;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootsignature;
 };
 
 /// <summary>

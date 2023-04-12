@@ -21,6 +21,16 @@ PreCreateBaseRootSignature::PreCreateBaseRootSignature()
 		GraphicsRootSignature::Instance()->CreateRootSignature(ROOTSIGNATURE_DATA_UAV, colorData, 1);
 	}
 
+	{
+		RootSignatureData srvData;
+		srvData.paramData[0].param = 0;
+		srvData.paramData[0].type = GRAPHICS_PRAMTYPE_DATA;
+		srvData.range[0] = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+		srvData.paramData[1].param = 1;
+		srvData.paramData[1].type = GRAPHICS_PRAMTYPE_DATA2;
+		srvData.range[1] = GRAPHICS_RANGE_TYPE_SRV_VIEW;
+		GraphicsRootSignature::Instance()->CreateRootSignature(ROOTSIGNATURE_DATA_UAV_SRV, srvData, 2);
+	}
 
 #pragma region 座標とテクスチャを送る
 	{

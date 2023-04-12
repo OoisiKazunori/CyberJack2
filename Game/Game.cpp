@@ -129,7 +129,7 @@ Game::Game(
 	args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
 	args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 
-	particleRender = std::make_unique<GPUParticleRender>(args);
+	particleRender = std::make_unique<GPUParticleRender>(args,GraphicsRootSignature::Instance()->GetRootSignature(ROOTSIGNATURE_DATA_UAV));
 	meshParticle = std::make_unique<InstanceMeshParticle>(particleRender.get());
 
 	for (int enemyType = 0; enemyType < responeData.size(); ++enemyType)
