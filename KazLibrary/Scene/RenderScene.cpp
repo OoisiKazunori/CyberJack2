@@ -29,6 +29,15 @@ RenderScene::RenderScene()
 	colorArray[0] = { 155,155,155,255 };
 	colorArray[1] = { 155,0,0,155 };
 	colorArray[2] = { 0,155,0,55 };
+
+	std::vector<D3D12_INDIRECT_ARGUMENT_DESC> args;
+	args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
+	args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW;
+	args[0].UnorderedAccessView.RootParameterIndex = 0;
+	args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
+	args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+
+	gpuParticleRender = std::make_unique<GPUParticleRender>(args);
 }
 
 RenderScene::~RenderScene()

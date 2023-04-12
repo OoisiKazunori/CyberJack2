@@ -122,8 +122,14 @@ Game::Game(
 
 	meshCollision = std::make_unique<InstanceMeshCollision>(lInitCollisionData, enemyHitBoxArray);
 
+	std::vector<D3D12_INDIRECT_ARGUMENT_DESC> args;
+	args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
+	args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW;
+	args[0].UnorderedAccessView.RootParameterIndex = 0;
+	args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
+	args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 
-	particleRender = std::make_unique<GPUParticleRender>();
+	particleRender = std::make_unique<GPUParticleRender>(args);
 	meshParticle = std::make_unique<InstanceMeshParticle>(particleRender.get());
 
 	for (int enemyType = 0; enemyType < responeData.size(); ++enemyType)

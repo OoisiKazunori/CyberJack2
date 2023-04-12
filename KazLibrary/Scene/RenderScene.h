@@ -32,5 +32,7 @@ private:
 
 	CameraWork camera;
 
+	std::unique_ptr<GPUParticleRender> gpuParticleRender;
+
 };
 
