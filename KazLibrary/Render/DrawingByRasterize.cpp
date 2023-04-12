@@ -99,6 +99,46 @@ void DrawingByRasterize::Draw()
 	//今までスタックした描画情報をもとに描画
 	for (int lDrawIndex = 0; lDrawIndex < graphicDataArray.size(); ++lDrawIndex)
 	{
+		RESOURCE_HANDLE lRenderTargetHandle = graphicDataArray[lDrawIndex].renderTargetHandle;
+
+		renderTargetClearArray[0].handle = lRenderTargetHandle;
+		renderTargetClearArray[0].clearFlag = false;
+		renderTargetClearArray[0].isOpenFlag = false;
+
+
+		if (lRenderTargetHandle == -1)
+		{
+			//開かれているレンダーターゲットがあったら閉じる
+			if (prevRenderTargetHandle != -1)
+			{
+				RenderTargetStatus::Instance()->PrepareToCloseBarrier(prevRenderTargetHandle);
+			}
+			RenderTargetStatus::Instance()->SetDoubleBufferFlame();
+			RenderTargetStatus::Instance()->ClearDoubuleBuffer(BG_COLOR);
+		}
+
+
+		//レンダーターゲットの切り替え
+		//ダブルバッファへの書き込み
+		if (graphicDataArray[lDrawIndex].renderTargetHandle == -1)
+		{
+			//開かれているレンダーターゲットがあったら閉じる
+			if (prevRenderTargetHandle != -1)
+			{
+				RenderTargetStatus::Instance()->PrepareToCloseBarrier(prevRenderTargetHandle);
+			}
+			RenderTargetStatus::Instance()->SetDoubleBufferFlame();
+			RenderTargetStatus::Instance()->ClearDoubuleBuffer(BG_COLOR);
+		}
+		//レンダーターゲットへの書き込み
+		else if (graphicDataArray[lDrawIndex].renderTargetHandle != prevRenderTargetHandle)
+		{
+			RenderTargetStatus::Instance()->PrepareToChangeBarrier(graphicDataArray[lDrawIndex].renderTargetHandle);
+			RenderTargetStatus::Instance()->ClearRenderTarget(graphicDataArray[lDrawIndex].renderTargetHandle);
+		}
+		prevRenderTargetHandle = graphicDataArray[lDrawIndex].renderTargetHandle;
+
+
 		//パイプラインとルートシグネチャの生成
 		RESOURCE_HANDLE lPipelineHandle = graphicDataArray[lDrawIndex].pipelineHandle;
 		RESOURCE_HANDLE lRootSignatureHandle = graphicDataArray[lDrawIndex].rootsignatureHandle;

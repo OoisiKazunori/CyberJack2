@@ -45,7 +45,7 @@ public:
 		//デバック情報
 		std::source_location drawCallData;
 
-		DrawData() :generateFlag(false)
+		DrawData() :generateFlag(false), renderTargetHandle(-1)
 		{
 		};
 	};
@@ -76,6 +76,17 @@ private:
 	RootSignatureDuplicateBlocking rootSignatureBufferMgr;
 
 	//パイプラインの情報----------------------------------------
+
+	//レンダーターゲット情報----------------------------------------
+	RESOURCE_HANDLE prevRenderTargetHandle;
+	struct RenderTargetClearData
+	{
+		RESOURCE_HANDLE handle;
+		bool isOpenFlag;
+		bool clearFlag;
+	};
+	std::vector<RenderTargetClearData>renderTargetClearArray;
+	//レンダーターゲット情報----------------------------------------
 
 
 	//描画に必要なバッファをコマンドリストに積む

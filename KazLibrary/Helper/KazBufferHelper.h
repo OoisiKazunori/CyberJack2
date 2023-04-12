@@ -102,7 +102,5 @@ namespace KazBufferHelper
 	{
 		return static_cast<T>(BUFFER_SIZE * static_cast<int>(STRUCTURE_SIZE));
 	};
-
-
 }
 
