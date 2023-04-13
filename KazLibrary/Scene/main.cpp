@@ -75,6 +75,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	filter.DenyList.NumSeverities = _countof(severities);
 	filter.DenyList.pSeverityList = severities;
 	infoQueue->PushStorageFilter(&filter);
+
+	infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+	infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+	infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
 #endif 
 
 	MyImgui imgui;
