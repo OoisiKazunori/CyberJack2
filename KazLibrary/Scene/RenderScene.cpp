@@ -34,7 +34,7 @@ RenderScene::RenderScene()
 	std::array<USHORT, 6> lIndicesArray;
 
 	BUFFER_SIZE lVertBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVerticesArray.size(), sizeof(SpriteVertex));
-	BUFFER_SIZE lIndexBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndicesArray.size(), sizeof(UINT));
+	BUFFER_SIZE lIndexBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndicesArray.size(), sizeof(USHORT));
 
 	KazBufferHelper::BufferResourceData lBufferData
 	(
@@ -71,8 +71,8 @@ RenderScene::RenderScene()
 
 
 		InitDrawIndexedExcuteIndirect data;
-		data.vertexBufferView = KazBufferHelper::SetVertexBufferView(gpuVertexBuffer.GetGpuAddress(), lVertBuffSize, sizeof(lVerticesArray[0]));
-		data.indexBufferView = KazBufferHelper::SetIndexBufferView(gpuIndexBuffer.GetGpuAddress(), lIndexBuffSize);
+		data.vertexBufferView = KazBufferHelper::SetVertexBufferView(vertexBuffer->GetGpuAddress(), lVertBuffSize, sizeof(lVerticesArray[0]));
+		data.indexBufferView = KazBufferHelper::SetIndexBufferView(indexBuffer->GetGpuAddress(), lIndexBuffSize);
 		data.indexNum = static_cast<UINT>(6);
 		data.elementNum = 1;
 		data.updateView = uavMatBuffer.GetBuffer()->GetGPUVirtualAddress();
@@ -100,8 +100,8 @@ RenderScene::RenderScene()
 
 
 		InitDrawIndexedExcuteIndirect data;
-		data.vertexBufferView = KazBufferHelper::SetVertexBufferView(gpuVertexBuffer.GetGpuAddress(), lVertBuffSize, sizeof(lVerticesArray[0]));
-		data.indexBufferView = KazBufferHelper::SetIndexBufferView(gpuIndexBuffer.GetGpuAddress(), lIndexBuffSize);
+		data.vertexBufferView = KazBufferHelper::SetVertexBufferView(vertexBuffer->GetGpuAddress(), lVertBuffSize, sizeof(lVerticesArray[0]));
+		data.indexBufferView = KazBufferHelper::SetIndexBufferView(indexBuffer->GetGpuAddress(), lIndexBuffSize);
 		data.indexNum = static_cast<UINT>(6);
 		data.elementNum = 1;
 		data.texHandle = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::TestPath + "tex.png");
@@ -155,6 +155,10 @@ void RenderScene::Draw()
 	RenderTargetStatus::Instance()->SetDoubleBufferFlame();
 	RenderTargetStatus::Instance()->ClearDoubuleBuffer(BG_COLOR);
 
+
+	//gpuParticleRender[0]->Draw(PIPELINE_NAME_GPUPARTICLE, nullptr);
+	gpuParticleRender[1]->Draw(PIPELINE_NAME_GPUPARTICLE_TEXCOLOR, nullptr);
+
 	for (int i = 0; i < testRArray.size(); ++i)
 	{
 		testRArray[i]->DrawCall(transformArray[i], colorArray[i], 0, motherMat);
@@ -164,8 +168,6 @@ void RenderScene::Draw()
 	//rasterizeRenderer.Draw();
 
 
-	//gpuParticleRender[0]->Draw(PIPELINE_NAME_GPUPARTICLE, nullptr);
-	gpuParticleRender[1]->Draw(PIPELINE_NAME_GPUPARTICLE_TEXCOLOR, nullptr);
 
 }
 

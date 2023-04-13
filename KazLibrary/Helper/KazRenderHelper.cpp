@@ -168,6 +168,18 @@ std::array<unsigned short, 6> KazRenderHelper::InitIndciesForPlanePolygon()
 	return result;
 }
 
+std::array<UINT, 6> KazRenderHelper::InitIndciesForPlanePolygonUINT()
+{
+	std::array<UINT, 6>result;
+	result[0] = 0;
+	result[1] = 1;
+	result[2] = 2;
+	result[3] = 2;
+	result[4] = 1;
+	result[5] = 3;
+	return result;
+}
+
 int KazRenderHelper::SetBufferOnCmdList(const GraphicsRootSignatureParameter &PARAM, const GraphicsRangeType &RANGE, const GraphicsRootParamType &TYPE)
 {
 	int type = -1;

@@ -70,7 +70,7 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawExcuteIndirect &INIT_DATA)
 
 void DrawExcuteIndirect::Draw(PipeLineNames PIPELINE_NAME,const Microsoft::WRL::ComPtr<ID3D12Resource> &COUNTER_BUFFER)
 {
-	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
+	//DescriptorHeapMgr::Instance()->SetDescriptorHeap();
 	GraphicsPipeLineMgr::Instance()->SetPipeline(PIPELINE_NAME);
 	DirectX12CmdList::Instance()->cmdList->SetGraphicsRootSignature(initData.rootsignature.Get());
 	DirectX12CmdList::Instance()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

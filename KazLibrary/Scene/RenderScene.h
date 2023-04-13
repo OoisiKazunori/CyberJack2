@@ -41,7 +41,6 @@ private:
 
 
 	std::unique_ptr<KazRenderHelper::ID3D12ResourceWrapper> vertexBuffer, indexBuffer;
-	KazRenderHelper::ID3D12ResourceWrapper gpuVertexBuffer, gpuIndexBuffer;
 
 	KazRenderHelper::ID3D12ResourceWrapper uavMatBuffer;
 
@@ -53,7 +52,7 @@ private:
 		KazRenderHelper::InitUvPos(&lVerticesArray[0].uv, &lVerticesArray[1].uv, &lVerticesArray[2].uv, &lVerticesArray[3].uv);
 
 		BUFFER_SIZE lVertBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVerticesArray.size(), sizeof(SpriteVertex));
-		BUFFER_SIZE lIndexBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndicesArray.size(), sizeof(UINT));
+		BUFFER_SIZE lIndexBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndicesArray.size(), sizeof(USHORT));
 
 
 		vertexBuffer = std::make_unique<KazRenderHelper::ID3D12ResourceWrapper>();
@@ -63,14 +62,8 @@ private:
 		vertexBuffer->CreateBuffer(KazBufferHelper::SetVertexBufferData(lVertBuffSize));
 		indexBuffer->CreateBuffer(KazBufferHelper::SetIndexBufferData(lIndexBuffSize));
 
-		gpuVertexBuffer.CreateBuffer(KazBufferHelper::SetGPUBufferData(lVertBuffSize));
-		gpuIndexBuffer.CreateBuffer(KazBufferHelper::SetGPUBufferData(lIndexBuffSize));
-
 		vertexBuffer->TransData(lVerticesArray.data(), lVertBuffSize);
 		indexBuffer->TransData(lIndicesArray.data(), lIndexBuffSize);
-
-		gpuVertexBuffer.CopyBuffer(vertexBuffer->GetBuffer(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST);
-		gpuIndexBuffer.CopyBuffer(indexBuffer->GetBuffer(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST);
 	}
 
 	void GeneratePipeline()
