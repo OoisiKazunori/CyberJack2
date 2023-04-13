@@ -52,37 +52,6 @@ RenderScene::RenderScene()
 
 	//テクスチャ付きパーティクルのパイプライン
 	GeneratePipeline();
-	{
-		//ルートシグネチャーを新しく用意する
-		//RootSignatureDataTest lRootsignature;
-		//lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA));
-		//rootSignatureArray[0] = GraphicsRootSignature::Instance()->CreateRootSignature(lRootsignature, ROOTSIGNATURE_GRAPHICS);
-		//元からあったやつを用意(使用するグラフィックパイプラインと一緒)
-		rootSignatureArray[0] = GraphicsRootSignature::Instance()->GetRootSignature(ROOTSIGNATURE_DATA_DRAW_UAV);
-
-		std::vector<D3D12_INDIRECT_ARGUMENT_DESC> args;
-		//UAV情報
-		args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
-		args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW;
-		args[0].UnorderedAccessView.RootParameterIndex = 0;
-		//インデックスあり
-		args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
-		args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
-
-
-		InitDrawIndexedExcuteIndirect data;
-		data.vertexBufferView = KazBufferHelper::SetVertexBufferView(vertexBuffer->GetGpuAddress(), lVertBuffSize, sizeof(lVerticesArray[0]));
-		data.indexBufferView = KazBufferHelper::SetIndexBufferView(indexBuffer->GetGpuAddress(), lIndexBuffSize);
-		data.indexNum = static_cast<UINT>(6);
-		data.elementNum = 1;
-		data.updateView = uavMatBuffer.GetBuffer()->GetGPUVirtualAddress();
-		data.rootsignature = rootSignatureArray[0];
-		data.texHandle = -1;
-		data.argument = args;
-
-
-		gpuParticleRender[0] = std::make_unique<DrawExcuteIndirect>(data);
-	}
 
 	{
 		std::vector<D3D12_INDIRECT_ARGUMENT_DESC> args;
@@ -106,10 +75,10 @@ RenderScene::RenderScene()
 		data.elementNum = 1;
 		data.texHandle = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::TestPath + "tex.png");
 		data.updateView = uavMatBuffer.GetBuffer()->GetGPUVirtualAddress();
-		data.rootsignature = rootSignatureArray[1];
+		data.rootsignature = rootSignatureArray;
 		data.argument = args;
 
-		gpuParticleRender[1] = std::make_unique<DrawExcuteIndirect>(data);
+		gpuParticleRender = std::make_unique<DrawExcuteIndirect>(data);
 	}
 }
 
@@ -156,8 +125,7 @@ void RenderScene::Draw()
 	RenderTargetStatus::Instance()->ClearDoubuleBuffer(BG_COLOR);
 
 
-	//gpuParticleRender[0]->Draw(PIPELINE_NAME_GPUPARTICLE, nullptr);
-	gpuParticleRender[1]->Draw(PIPELINE_NAME_GPUPARTICLE_TEXCOLOR, nullptr);
+	gpuParticleRender->Draw(PIPELINE_NAME_GPUPARTICLE_TEXCOLOR, nullptr);
 
 	for (int i = 0; i < testRArray.size(); ++i)
 	{

@@ -35,8 +35,8 @@ private:
 
 	CameraWork camera;
 
-	std::array<std::unique_ptr<DrawExcuteIndirect>, 2> gpuParticleRender;
-	std::array<Microsoft::WRL::ComPtr<ID3D12RootSignature>, 2> rootSignatureArray;
+	std::unique_ptr<DrawExcuteIndirect> gpuParticleRender;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignatureArray;
 
 
 
@@ -137,7 +137,7 @@ private:
 			RootSignatureDataTest lRootsignature;
 			lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA));
 			lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_SRV_DESC, GRAPHICS_PRAMTYPE_DATA2));
-			rootSignatureArray[1] = GraphicsRootSignature::Instance()->CreateRootSignature(lRootsignature, ROOTSIGNATURE_GRAPHICS);
+			rootSignatureArray = GraphicsRootSignature::Instance()->CreateRootSignature(lRootsignature, ROOTSIGNATURE_GRAPHICS);
 
 			ShaderOptionData vs(KazFilePathName::ShaderFilePath + "GPUParticle.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
 			ShaderOptionData ps(KazFilePathName::ShaderFilePath + "GPUParticle.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
@@ -148,7 +148,7 @@ private:
 				vs,
 				ps,
 				gPipeline,
-				rootSignatureArray[1],
+				rootSignatureArray,
 				PIPELINE_NAME_GPUPARTICLE_TEXCOLOR
 			);
 		}
