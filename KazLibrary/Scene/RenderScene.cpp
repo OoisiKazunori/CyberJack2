@@ -47,14 +47,18 @@ RenderScene::RenderScene()
 	);
 	uavMatBuffer.CreateBuffer(lBufferData);
 
-
+	//パーティクルの頂点情報
 	GenerateRect(lVerticesArray, lIndicesArray);
 
+	//テクスチャ付きパーティクルのパイプライン
+	GeneratePipeline();
 	{
-		RootSignatureDataTest lRootsignature;
-		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA));
-		rootSignatureArray[0] = GraphicsRootSignature::Instance()->CreateRootSignature(lRootsignature, ROOTSIGNATURE_GRAPHICS);
-
+		//ルートシグネチャーを新しく用意する
+		//RootSignatureDataTest lRootsignature;
+		//lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA));
+		//rootSignatureArray[0] = GraphicsRootSignature::Instance()->CreateRootSignature(lRootsignature, ROOTSIGNATURE_GRAPHICS);
+		//元からあったやつを用意(使用するグラフィックパイプラインと一緒)
+		rootSignatureArray[0] = GraphicsRootSignature::Instance()->GetRootSignature(ROOTSIGNATURE_DATA_DRAW_UAV);
 
 		std::vector<D3D12_INDIRECT_ARGUMENT_DESC> args;
 		//UAV情報
@@ -80,24 +84,18 @@ RenderScene::RenderScene()
 	}
 
 	{
-		RootSignatureDataTest lRootsignature;
-		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA));
-		lRootsignature.rangeArray.push_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_SRV_VIEW, GRAPHICS_PRAMTYPE_DATA2));
-		rootSignatureArray[1] = GraphicsRootSignature::Instance()->CreateRootSignature(lRootsignature, ROOTSIGNATURE_GRAPHICS);
-
-
 		std::vector<D3D12_INDIRECT_ARGUMENT_DESC> args;
 		//UAV
 		args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
-		args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW;
-		args[0].UnorderedAccessView.RootParameterIndex = 0;
+		args[args.size() - 1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW;
+		args[args.size() - 1].UnorderedAccessView.RootParameterIndex = 0;
 		//SRV
-		args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
-		args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
-		args[1].ShaderResourceView.RootParameterIndex = 1;
+		//args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
+		//args[args.size() - 1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
+		//args[args.size() - 1].ShaderResourceView.RootParameterIndex = 1;
 		//インデックスあり
 		args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
-		args[2].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+		args[args.size() - 1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 
 
 		InitDrawIndexedExcuteIndirect data;
@@ -161,12 +159,11 @@ void RenderScene::Draw()
 	}
 
 
-	rasterizeRenderer.Draw();
+	//rasterizeRenderer.Draw();
 
-	for (int i = 0; i < gpuParticleRender.size(); ++i)
-	{
-		//gpuParticleRender[i]->Draw(PI);
-	}
+
+	//gpuParticleRender[0]->Draw(PIPELINE_NAME_GPUPARTICLE, nullptr);
+	gpuParticleRender[1]->Draw(PIPELINE_NAME_GPUPARTICLE_TEXCOLOR, nullptr);
 
 }
 

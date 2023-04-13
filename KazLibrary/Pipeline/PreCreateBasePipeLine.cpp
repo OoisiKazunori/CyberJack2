@@ -400,6 +400,9 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 	lPipelineMgr->RegisterVertexShaderWithData(KazFilePathName::VertexShaderPath + "GPUParticleVertexShader.hlsl", "VSmain", "vs_6_4", SHADER_VERTEX_GPUPARTICLE);
 	lPipelineMgr->RegisterPixcelShaderWithData(KazFilePathName::PixelShaderPath + "GPUParticlePixelShader.hlsl", "PSmain", "ps_6_4", SHADER_PIXEL_GPUPARTICLE);
 
+	lPipelineMgr->RegisterVertexShaderWithData(KazFilePathName::ShaderFilePath + "GPUParticle.hlsl", "VSmain", "vs_6_4", SHADER_VERTEX_GPUPARTICLE_POSUVCOLOR);
+	lPipelineMgr->RegisterPixcelShaderWithData(KazFilePathName::ShaderFilePath + "GPUParticle.hlsl", "PSmain", "ps_6_4", SHADER_PIXEL_GPUPARTICLE_TEXCOLOR);
+
 
 	lPipelineMgr->RegisterVertexShaderWithData(KazFilePathName::VertexShaderPath + "GPUParticlePosUvVertexShader.hlsl", "VSmain", "vs_6_4", SHADER_VERTEX_GPUPARTICLE_POSUV);
 	lPipelineMgr->RegisterPixcelShaderWithData(KazFilePathName::PixelShaderPath + "GPUParticleTexturePixelShader.hlsl", "PSmain", "ps_6_4", SHADER_PIXEL_GPUPARTICLE_TEX);
@@ -1998,12 +2001,6 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 	}
 
 #pragma endregion
-
-
-
-
-
-
 
 
 	GraphicsPipeLineMgr::Instance()->CreatePipeLine(

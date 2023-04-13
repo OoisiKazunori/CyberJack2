@@ -239,9 +239,9 @@ IDxcBlob *Shader::CompileShader(const ShaderOptionData &DATA)
 	Microsoft::WRL::ComPtr<IDxcBlob> blob;
 	dxcResult->GetResult(&blob);
 
-	shaderBlobs[SHADER_TYPE_COMPUTE] = blob.Get();
+	shaderBlobs[DATA.shaderType] = blob.Get();
 
-	return shaderBlobs[SHADER_TYPE_COMPUTE].Get();
+	return shaderBlobs[DATA.shaderType].Get();
 }
 
 void Shader::Error()

@@ -24,11 +24,11 @@ PreCreateBaseRootSignature::PreCreateBaseRootSignature()
 	{
 		RootSignatureData srvData;
 		srvData.paramData[0].param = 0;
-		srvData.paramData[0].type = GRAPHICS_PRAMTYPE_DATA;
-		srvData.range[0] = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-		srvData.paramData[1].param = 1;
-		srvData.paramData[1].type = GRAPHICS_PRAMTYPE_DATA2;
-		srvData.range[1] = GRAPHICS_RANGE_TYPE_SRV_VIEW;
+		srvData.paramData[0].type = GRAPHICS_PRAMTYPE_DATA2;
+		srvData.range[0] = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		srvData.paramData[1].param = 0;
+		srvData.paramData[1].type = GRAPHICS_PRAMTYPE_DATA;
+		srvData.range[1] = GRAPHICS_RANGE_TYPE_SRV_DESC;
 		GraphicsRootSignature::Instance()->CreateRootSignature(ROOTSIGNATURE_DATA_UAV_SRV, srvData, 2);
 	}
 
@@ -454,7 +454,7 @@ PreCreateBaseRootSignature::PreCreateBaseRootSignature()
 		RootSignatureData spriteData;
 		spriteData.paramData[0].param = 0;
 		spriteData.paramData[0].type = GRAPHICS_PRAMTYPE_DRAW;
-		spriteData.range[0] = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		spriteData.range[0] = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 		GraphicsRootSignature::Instance()->CreateRootSignature(ROOTSIGNATURE_DATA_DRAW_UAV, spriteData, 1);
 	}
 

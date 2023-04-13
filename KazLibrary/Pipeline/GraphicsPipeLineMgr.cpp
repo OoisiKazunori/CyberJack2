@@ -197,11 +197,12 @@ RootSignatureMode GraphicsPipeLineMgr::GetRootSignatureName(PipeLineNames PIPELI
 }
 
 void GraphicsPipeLineMgr::CreatePipeLine(
-	std::vector<D3D12_INPUT_ELEMENT_DESC> INPUT_LAYOUT_NAME,
+	D3D12_INPUT_ELEMENT_DESC *INPUT_LAYOUT_NAME,
+	int INPUT_LAYOUT_ELEMENT_NUM,
 	const ShaderOptionData &VERTEX_SHADER_NAME,
 	const ShaderOptionData &PIXEL_SHADER_NAME,
 	const D3D12_GRAPHICS_PIPELINE_STATE_DESC &PIPELINE_DATA_NAME,
-	const RootSignatureDataTest &ROOTSIGNATURE,
+	const Microsoft::WRL::ComPtr<ID3D12RootSignature> &ROOTSIGNATURE,
 	PipeLineNames PIPELINE_NAME,
 	const ShaderOptionData &GEOMETORY_SHADER_NAME
 )
@@ -210,8 +211,8 @@ void GraphicsPipeLineMgr::CreatePipeLine(
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC grahicsPipeLine = PIPELINE_DATA_NAME;
 
 	//インプットレイアウトの代入
-	grahicsPipeLine.InputLayout.pInputElementDescs = INPUT_LAYOUT_NAME.data();
-	grahicsPipeLine.InputLayout.NumElements = static_cast<UINT>(INPUT_LAYOUT_NAME.size());
+	grahicsPipeLine.InputLayout.pInputElementDescs = INPUT_LAYOUT_NAME;
+	grahicsPipeLine.InputLayout.NumElements = INPUT_LAYOUT_ELEMENT_NUM;
 
 	Shader lShader;
 	IDxcBlob *lVS = lShader.CompileShader(VERTEX_SHADER_NAME);
@@ -227,7 +228,7 @@ void GraphicsPipeLineMgr::CreatePipeLine(
 	}
 
 	//ルートシグネチャの設定
-	rootSignature[PIPELINE_NAME] = GraphicsRootSignature::Instance()->CreateRootSignature(ROOTSIGNATURE, ROOTSIGNATURE_GRAPHICS).Get();
+	rootSignature[PIPELINE_NAME] = ROOTSIGNATURE;
 	grahicsPipeLine.pRootSignature = rootSignature[PIPELINE_NAME].Get();
 
 	//パイプラインの生成

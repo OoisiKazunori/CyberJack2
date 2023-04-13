@@ -16,6 +16,7 @@ namespace KazFilePathName
 	static std::string PixelShaderPath = RelativeShaderPath + "PixelShader/";
 	static std::string GeometryShaderPath = RelativeShaderPath + "GeometryShader/";
 	static std::string ComputeShaderPath = RelativeShaderPath + "ComputeShader/";
+	static std::string ShaderFilePath = RelativeShaderPath + "ShaderFile/";
 
 
 	//‰æ‘œƒpƒX-----------------------

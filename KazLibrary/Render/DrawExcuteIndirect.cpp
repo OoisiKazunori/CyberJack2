@@ -53,7 +53,6 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawExcuteIndirect &INIT_DATA)
 		assert(0);
 	}
 
-
 	//Indirect用のバッファ生成
 	drawCommandHandle = buffers.CreateBuffer(KazBufferHelper::SetRWStructuredBuffer(sizeof(DrawIndirectCommand)));
 

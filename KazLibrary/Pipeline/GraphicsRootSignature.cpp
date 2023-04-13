@@ -129,13 +129,13 @@ void GraphicsRootSignature::CreateRootSignature(RootSignatureMode ROOTSIGNATURE,
 		//computeRootParameters[5].InitAsDescriptorTable(1, &ranges[4]);
 		CreateMyRootSignature(ROOTSIGNATURE_DATA.sample, computeRootParameters.data(), computeRootParameters.size(), ROOTSIGNATURE);
 	}
-	else if (ROOTSIGNATURE == ROOTSIGNATURE_DATA_DRAW_UAV)
-	{
-		std::array<CD3DX12_ROOT_PARAMETER, 1> computeRootParameters;
-		computeRootParameters[0].InitAsUnorderedAccessView(0, 0);
-		CreateMyRootSignature(ROOTSIGNATURE_DATA.sample, computeRootParameters.data(), computeRootParameters.size(), ROOTSIGNATURE);
+	//else if (ROOTSIGNATURE == ROOTSIGNATURE_DATA_DRAW_UAV)
+	//{
+	//	std::array<CD3DX12_ROOT_PARAMETER, 1> computeRootParameters;
+	//	computeRootParameters[0].InitAsUnorderedAccessView(0, 0);
+	//	CreateMyRootSignature(ROOTSIGNATURE_DATA.sample, computeRootParameters.data(), computeRootParameters.size(), ROOTSIGNATURE);
 
-	}
+	//}
 	else if (ROOTSIGNATURE == ROOTSIGNATURE_DATA_UAB_UAB_UAB_CB)
 	{
 		std::array<CD3DX12_ROOT_PARAMETER, 5> computeRootParameters;
