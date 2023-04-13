@@ -3,6 +3,9 @@
 #include"../KazLibrary/DirectXCommon/DirectX12CmdList.h"
 #include"../KazLibrary/Pipeline/GraphicsRootSignature.h"
 #include"../KazLibrary/RenderTarget/RenderTargetStatus.h"
+#include"../KazLibrary/Loader/TextureResourceMgr.h"
+#include"../KazLibrary/Buffer/DescriptorHeapMgr.h"
+
 
 DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawIndexedExcuteIndirect &INIT_DATA) :initData(INIT_DATA)
 {
@@ -67,8 +70,11 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawExcuteIndirect &INIT_DATA)
 
 void DrawExcuteIndirect::Draw(PipeLineNames PIPELINE_NAME,const Microsoft::WRL::ComPtr<ID3D12Resource> &COUNTER_BUFFER)
 {
-	GraphicsPipeLineMgr::Instance()->SetPipeLineAndRootSignature(PIPELINE_NAME);
+	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
+	GraphicsPipeLineMgr::Instance()->SetPipeline(PIPELINE_NAME);
+	DirectX12CmdList::Instance()->cmdList->SetGraphicsRootSignature(initData.rootsignature.Get());
 	DirectX12CmdList::Instance()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	//•`‰æî•ñ
 	switch (drawType)
 	{
@@ -81,6 +87,11 @@ void DrawExcuteIndirect::Draw(PipeLineNames PIPELINE_NAME,const Microsoft::WRL::
 		break;
 	default:
 		break;
+	}
+
+	if (initData.texHandle != -1)
+	{
+		DirectX12CmdList::Instance()->cmdList->SetGraphicsRootDescriptorTable(1, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(initData.texHandle));
 	}
 
 	RenderTargetStatus::Instance()->ChangeBarrier(

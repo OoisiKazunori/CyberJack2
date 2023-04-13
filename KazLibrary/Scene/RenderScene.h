@@ -46,13 +46,13 @@ private:
 	KazRenderHelper::ID3D12ResourceWrapper uavMatBuffer;
 
 
-	void GenerateRect(std::array<Vertex, 4>&lVerticesArray, std::array<USHORT, 6> &lIndicesArray)
+	void GenerateRect(std::array<SpriteVertex, 4>&lVerticesArray, std::array<USHORT, 6> &lIndicesArray)
 	{
 		lIndicesArray = KazRenderHelper::InitIndciesForPlanePolygon();
 		KazRenderHelper::InitVerticesPos(&lVerticesArray[0].pos, &lVerticesArray[1].pos, &lVerticesArray[2].pos, &lVerticesArray[3].pos, { 0.5f,0.5f });
 		KazRenderHelper::InitUvPos(&lVerticesArray[0].uv, &lVerticesArray[1].uv, &lVerticesArray[2].uv, &lVerticesArray[3].uv);
 
-		BUFFER_SIZE lVertBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVerticesArray.size(), sizeof(Vertex));
+		BUFFER_SIZE lVertBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVerticesArray.size(), sizeof(SpriteVertex));
 		BUFFER_SIZE lIndexBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndicesArray.size(), sizeof(UINT));
 
 

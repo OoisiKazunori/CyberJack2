@@ -30,10 +30,10 @@ RenderScene::RenderScene()
 	colorArray[1] = { 155,0,0,155 };
 	colorArray[2] = { 0,155,0,55 };
 
-	std::array<Vertex, 4>lVerticesArray;
+	std::array<SpriteVertex, 4>lVerticesArray;
 	std::array<USHORT, 6> lIndicesArray;
 
-	BUFFER_SIZE lVertBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVerticesArray.size(), sizeof(Vertex));
+	BUFFER_SIZE lVertBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVerticesArray.size(), sizeof(SpriteVertex));
 	BUFFER_SIZE lIndexBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndicesArray.size(), sizeof(UINT));
 
 	KazBufferHelper::BufferResourceData lBufferData
@@ -77,6 +77,7 @@ RenderScene::RenderScene()
 		data.elementNum = 1;
 		data.updateView = uavMatBuffer.GetBuffer()->GetGPUVirtualAddress();
 		data.rootsignature = rootSignatureArray[0];
+		data.texHandle = -1;
 		data.argument = args;
 
 
@@ -103,6 +104,7 @@ RenderScene::RenderScene()
 		data.indexBufferView = KazBufferHelper::SetIndexBufferView(gpuIndexBuffer.GetGpuAddress(), lIndexBuffSize);
 		data.indexNum = static_cast<UINT>(6);
 		data.elementNum = 1;
+		data.texHandle = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::TestPath + "tex.png");
 		data.updateView = uavMatBuffer.GetBuffer()->GetGPUVirtualAddress();
 		data.rootsignature = rootSignatureArray[1];
 		data.argument = args;

@@ -351,6 +351,8 @@ public:
 	/// <param name="PIPELINE_NAME">登録したパイプラインの名前</param>
 	bool SetPipeLineAndRootSignature(PipeLineNames PIPELINE_NAME);
 
+	void SetPipeline(PipeLineNames PIPELINE_NAME);
+
 
 	/// <summary>
 	/// 登録されたコンピュートパイプラインの中から指定のパイプラインをコマンドリストに積みます

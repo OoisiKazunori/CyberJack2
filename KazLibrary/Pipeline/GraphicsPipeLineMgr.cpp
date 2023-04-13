@@ -149,6 +149,11 @@ bool GraphicsPipeLineMgr::SetPipeLineAndRootSignature(PipeLineNames PIPELINE_NAM
 	}
 }
 
+void GraphicsPipeLineMgr::SetPipeline(PipeLineNames PIPELINE_NAME)
+{
+	DirectX12CmdList::Instance()->cmdList->SetPipelineState(pipeLineRegisterData[PIPELINE_NAME].Get());
+}
+
 bool GraphicsPipeLineMgr::SetComputePipeLineAndRootSignature(ComputePipeLineNames PIPELINE_NAME)
 {
 	//if (IsitSafe(PIPELINE_NAME, computePipeLineRegisterData.size()) && computePipeLineRegisterData[PIPELINE_NAME].Get() != nullptr)
