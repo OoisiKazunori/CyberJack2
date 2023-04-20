@@ -91,13 +91,34 @@ KazBufferHelper::BufferResourceData KazBufferHelper::SetRWStructuredBuffer(BUFFE
 	prop.VisibleNodeMask = 1;
 
 	D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer(BUFFER_SIZE, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-
 	KazBufferHelper::BufferResourceData data
 	(
 		prop,
 		D3D12_HEAP_FLAG_NONE,
 		desc,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		nullptr,
+		BUFFER_NAME
+	);
+	return data;
+}
+
+KazBufferHelper::BufferResourceData KazBufferHelper::SetRWStructuredBuffer2(BUFFER_SIZE BUFFER_SIZE, const std::string& BUFFER_NAME)
+{
+	D3D12_HEAP_PROPERTIES prop = {};
+	prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+	prop.CreationNodeMask = 1;
+	prop.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
+	prop.Type = D3D12_HEAP_TYPE_CUSTOM;
+	prop.VisibleNodeMask = 1;
+
+	D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer(BUFFER_SIZE, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	KazBufferHelper::BufferResourceData data
+	(
+		prop,
+		D3D12_HEAP_FLAG_NONE,
+		desc,
+		D3D12_RESOURCE_STATE_COMMON,
 		nullptr,
 		BUFFER_NAME
 	);

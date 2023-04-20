@@ -26,7 +26,14 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawIndexedExcuteIndirect &INIT
 	}
 
 	//Indirect用のバッファ生成
-	drawCommandHandle = buffers.CreateBuffer(KazBufferHelper::SetRWStructuredBuffer(sizeof(DrawIndexedIndirectCommand)));
+	drawCommandHandle = buffers.CreateBuffer(KazBufferHelper::SetRWStructuredBuffer2(sizeof(DrawIndexedIndirectCommand)));
+
+	RenderTargetStatus::Instance()->ChangeBarrier(
+		buffers.GetBufferData(drawCommandHandle).Get(),
+		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+	);
+
 
 	DrawIndexedIndirectCommand command;
 	command.drawArguments.IndexCountPerInstance = INIT_DATA.indexNum;

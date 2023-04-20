@@ -604,7 +604,7 @@ PreCreateBaseRootSignature::PreCreateBaseRootSignature()
 		lData.paramData[3].param = 3;
 		lData.paramData[3].type = GRAPHICS_PRAMTYPE_DATA4;
 		lData.range[3] = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		GraphicsRootSignature::Instance()->CreateRootSignature(ROOTSIGNATURE_DATA_UAV_UAV_UAV_CBV, lData, 5);
+		//GraphicsRootSignature::Instance()->CreateRootSignature(ROOTSIGNATURE_DATA_UAV_UAV_UAV_CBV, lData, 5);
 	}
 
 
