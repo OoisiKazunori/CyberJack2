@@ -243,12 +243,20 @@ DivGraphData TextureResourceMgr::GetDivData(RESOURCE_HANDLE HANDLE)
 
 void TextureResourceMgr::SetSRV(RESOURCE_HANDLE GRAPH_HANDLE, GraphicsRootSignatureParameter PARAM, GraphicsRootParamType TYPE)
 {
-	//テクスチャバッファのバッファがない所をコマンドリストに積ませてもエラーは吐かれない。しかし危なそう...
 	if (GRAPH_HANDLE != -1)
 	{
 		D3D12_GPU_DESCRIPTOR_HANDLE gpuDescHandleSRV = DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GRAPH_HANDLE);
 		int param = KazRenderHelper::SetBufferOnCmdList(PARAM, GRAPHICS_RANGE_TYPE_SRV_DESC, TYPE);
 		DirectX12CmdList::Instance()->cmdList->SetGraphicsRootDescriptorTable(param, gpuDescHandleSRV);
+	}
+}
+
+void TextureResourceMgr::SetSRView(RESOURCE_HANDLE GRAPH_HANDLE, GraphicsRootSignatureParameter PARAM, GraphicsRootParamType TYPE)
+{
+	if (GRAPH_HANDLE != -1)
+	{
+		int param = KazRenderHelper::SetBufferOnCmdList(PARAM, GRAPHICS_RANGE_TYPE_SRV_DESC, TYPE);
+		DirectX12CmdList::Instance()->cmdList->SetGraphicsRootShaderResourceView(param, buffers->GetBufferData(GRAPH_HANDLE)->GetGPUVirtualAddress());
 	}
 }
 

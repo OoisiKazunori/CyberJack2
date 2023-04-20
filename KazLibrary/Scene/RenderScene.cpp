@@ -29,6 +29,9 @@ RenderScene::RenderScene()
 	colorArray[0] = { 155,155,155,255 };
 	colorArray[1] = { 155,0,0,155 };
 	colorArray[2] = { 0,155,0,55 };
+
+	TextureResourceMgr::Instance()->LoadGraph("");
+
 }
 
 RenderScene::~RenderScene()
@@ -70,8 +73,8 @@ void RenderScene::Draw()
 		testRArray[i]->DrawCall(transformArray[i], colorArray[i], 0, motherMat);
 	}
 
-
 	rasterizeRenderer.Draw();
+
 }
 
 int RenderScene::SceneChange()

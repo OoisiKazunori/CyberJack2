@@ -8,6 +8,7 @@
 #include"../Pipeline/GraphicsRootSignature.h"
 #include"../Buffer/CreateGpuBuffer.h"
 #include"../KazLibrary/Math/KazMath.h"
+#include"../KazLibrary/Helper/ResouceBufferHelper.h"
 
 /// <summary>
 /// 画像の分割をする際にどの座標からどれくらいのサイズでUV切り取りをするか記録したもの
@@ -64,6 +65,7 @@ public:
 	/// <param name="PARAM">ルートパラム</param>
 	/// <param name="TYPE">ルートパラムの種類</param>
 	void SetSRV(RESOURCE_HANDLE GRAPH_HANDLE, GraphicsRootSignatureParameter PARAM, GraphicsRootParamType TYPE);
+	void SetSRView(RESOURCE_HANDLE GRAPH_HANDLE, GraphicsRootSignatureParameter PARAM, GraphicsRootParamType TYPE);
 
 
 	/// <summary>
@@ -82,7 +84,6 @@ public:
 	/// <returns>分割する画像の情報</returns>
 	DivGraphData GetDivData(RESOURCE_HANDLE HANDLE);
 
-	std::unique_ptr<CreateGpuBuffer> buffers;
 private:
 	//std::unique_ptr<CreateGpuBuffer> buffers;
 	const DirectX::Image *img;
@@ -104,5 +105,9 @@ private:
 	std::vector<std::string> handleName;
 
 	vector<DivGraphData> divData;
+
+	std::vector<ResouceBufferHelper::BufferData>bufferArray;
+	std::unique_ptr<CreateGpuBuffer> buffers;
+
 	friend ISingleton<TextureResourceMgr>;
 };
