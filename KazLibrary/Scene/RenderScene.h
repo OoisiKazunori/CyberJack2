@@ -29,7 +29,7 @@ private:
 	DirectX::XMMATRIX motherMat;
 
 	BoxPolygonRender boxR;
-
+	Sprite3DRender spriteR;
 	CameraWork camera;
 
 	std::unique_ptr<GPUParticleRender> gpuParticleRender;

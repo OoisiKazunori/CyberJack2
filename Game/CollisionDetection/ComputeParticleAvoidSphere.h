@@ -1,5 +1,6 @@
 #pragma once
 #include"../KazLibrary/Helper/ResouceBufferHelper.h"
+#include"../KazLibrary/Helper/KazBufferHelper.h"
 
 class ComputeParticleAvoidSphere
 {
@@ -35,7 +36,7 @@ private:
 		UINT hitFlag;
 		UINT hitTimer;
 	};
-	KazRenderHelper::ID3D12ResourceWrapper copyBuffer;
+	KazBufferHelper::ID3D12ResourceWrapper copyBuffer;
 
 	static const int PARTICLE_MAX_NUM = 200000;
 

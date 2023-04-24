@@ -67,7 +67,7 @@ private:
 
 
 
-	KazRenderHelper::ID3D12ResourceWrapper copyBuffer;
+	KazBufferHelper::ID3D12ResourceWrapper copyBuffer;
 
 
 	//歪み込みのパーティクル情報を親子関係で動かす-----------------------------

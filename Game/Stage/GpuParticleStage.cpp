@@ -159,7 +159,7 @@ void GpuParticleStage::Draw()
 	DirectX12CmdList::Instance()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	DirectX12CmdList::Instance()->cmdList->IASetVertexBuffers(0, 1, &vertexBufferView);
 	DirectX12CmdList::Instance()->cmdList->IASetIndexBuffer(&indexBufferView);
-	DirectX12CmdList::Instance()->cmdList->SetGraphicsRootShaderResourceView(0, TextureResourceMgr::Instance()->buffers->GetBufferData(texHandle)->GetGPUVirtualAddress());
+	TextureResourceMgr::Instance()->SetSRView(texHandle, GraphicsRootSignature::Instance()->GetRootParam(GraphicsPipeLineMgr::Instance()->GetRootSignatureName(PIPELINE_NAME_GPUPARTICLE)), GRAPHICS_PRAMTYPE_TEX);
 
 	RenderTargetStatus::Instance()->ChangeBarrier(
 		buffers->GetBufferData(drawCommandHandle).Get(),

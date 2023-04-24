@@ -1,7 +1,6 @@
 #pragma once
 #include"../KazLibrary/Render/DrawExcuteIndirect.h"
 #include"../KazLibrary/Helper/KazBufferHelper.h"
-#include"../KazLibrary/Helper/KazRenderHelper.h"
 #include"../KazLibrary/Helper/ResouceBufferHelper.h"
 #include"../KazLibrary/Helper/ISinglton.h"
 
@@ -40,11 +39,11 @@ private:
 	std::unique_ptr<DrawExcuteIndirect> excuteIndirect;
 	RESOURCE_HANDLE vertexBufferHandle;
 	RESOURCE_HANDLE indexBufferHandle;
-	std::unique_ptr<KazRenderHelper::ID3D12ResourceWrapper> vertexBuffer, indexBuffer;
-	KazRenderHelper::ID3D12ResourceWrapper gpuVertexBuffer, gpuIndexBuffer;
+	std::unique_ptr<KazBufferHelper::ID3D12ResourceWrapper> vertexBuffer, indexBuffer;
+	KazBufferHelper::ID3D12ResourceWrapper gpuVertexBuffer, gpuIndexBuffer;
 
 
 
-	KazRenderHelper::ID3D12ResourceWrapper copyBuffer;
+	KazBufferHelper::ID3D12ResourceWrapper copyBuffer;
 };
 

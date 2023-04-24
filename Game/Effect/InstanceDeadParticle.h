@@ -1,7 +1,7 @@
 #pragma once
 #include"../KazLibrary/Helper/ResouceBufferHelper.h"
 #include"../KazLibrary/Render/DrawExcuteIndirect.h"
-#include"../KazLibrary/Helper/KazRenderHelper.h"
+#include"../KazLibrary/Helper/KazBufferHelper.h"
 #include"../KazLibrary/Helper/ISinglton.h"
 #include"../KazLibrary/Render/GPUParticleRender.h"
 #include"../Game/Effect/MeshParticle.h"
@@ -46,7 +46,7 @@ private:
 	};
 	std::vector<ResouceBufferHelper::BufferData> idBufferData;
 	std::vector<MeshParticle> meshParticleData;
-	KazRenderHelper::ID3D12ResourceWrapper motherMatBuffer;
+	KazBufferHelper::ID3D12ResourceWrapper motherMatBuffer;
 
 	struct MotherData
 	{
@@ -63,6 +63,6 @@ private:
 	std::vector<MotherData>matArray;
 
 
-	KazRenderHelper::ID3D12ResourceWrapper copyBuffer;
+	KazBufferHelper::ID3D12ResourceWrapper copyBuffer;
 };
 

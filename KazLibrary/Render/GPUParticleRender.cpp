@@ -43,8 +43,8 @@ GPUParticleRender::GPUParticleRender(std::vector<D3D12_INDIRECT_ARGUMENT_DESC> A
 	BUFFER_SIZE lIndexBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndicesArray.size(), sizeof(UINT));
 
 
-	vertexBuffer = std::make_unique<KazRenderHelper::ID3D12ResourceWrapper>();
-	indexBuffer = std::make_unique<KazRenderHelper::ID3D12ResourceWrapper>();
+	vertexBuffer = std::make_unique<KazBufferHelper::ID3D12ResourceWrapper>();
+	indexBuffer = std::make_unique<KazBufferHelper::ID3D12ResourceWrapper>();
 
 
 	vertexBuffer->CreateBuffer(KazBufferHelper::SetVertexBufferData(lVertBuffSize));

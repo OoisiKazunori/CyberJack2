@@ -1,4 +1,6 @@
 #include "BufferDuplicateBlocking.h"
+#include"DirectXCommon/DirectX12Device.h"
+#include"DirectXCommon/DirectX12CmdList.h"
 
 RESOURCE_HANDLE PipelineDuplicateBlocking::GeneratePipeline(const D3D12_GRAPHICS_PIPELINE_STATE_DESC &DATA)
 {

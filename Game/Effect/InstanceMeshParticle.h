@@ -1,7 +1,7 @@
 #pragma once
 #include"../KazLibrary/Helper/ResouceBufferHelper.h"
 #include"../KazLibrary/Render/DrawExcuteIndirect.h"
-#include"../KazLibrary/Helper/KazRenderHelper.h"
+#include"../KazLibrary/Helper/KazBufferHelper.h"
 #include"../KazLibrary/Helper/ISinglton.h"
 #include"../KazLibrary/Render/GPUParticleRender.h"
 
@@ -114,10 +114,10 @@ private:
 
 	std::vector<InitMeshParticleData> initData;
 
-	KazRenderHelper::ID3D12ResourceWrapper copyBuffer;
-	KazRenderHelper::ID3D12ResourceWrapper motherMatrixBuffer;
-	KazRenderHelper::ID3D12ResourceWrapper colorBuffer;
-	KazRenderHelper::ID3D12ResourceWrapper scaleRotaBuffer;
+	KazBufferHelper::ID3D12ResourceWrapper copyBuffer;
+	KazBufferHelper::ID3D12ResourceWrapper motherMatrixBuffer;
+	KazBufferHelper::ID3D12ResourceWrapper colorBuffer;
+	KazBufferHelper::ID3D12ResourceWrapper scaleRotaBuffer;
 
 	struct ScaleRotaBillData
 	{
