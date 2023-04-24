@@ -191,6 +191,7 @@ std::shared_ptr<KazBufferHelper::BufferData> TextureResourceMgr::LoadGraphBuffer
 	);
 
 	bufferArray[num]->rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
+	bufferArray[num]->CreateViewHandle(std::vector<RESOURCE_HANDLE>({ num }));
 
 	return bufferArray[num];
 }

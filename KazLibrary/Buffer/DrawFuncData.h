@@ -121,9 +121,9 @@ namespace DrawFuncPipelineData
 		//パイプラインの設定
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC gPipeline{};
 
-		D3D12_INPUT_ELEMENT_DESC *input3DLayOut = new D3D12_INPUT_ELEMENT_DESC[2]
+		D3D12_INPUT_ELEMENT_DESC *input3DLayOut = new D3D12_INPUT_ELEMENT_DESC[2];
+		input3DLayOut[0] =
 		{
-			{
 			"POSITION",
 			0,
 			DXGI_FORMAT_R32G32B32_FLOAT,
@@ -131,8 +131,9 @@ namespace DrawFuncPipelineData
 			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
 			0
-			},
-			{
+		};
+		input3DLayOut[1] =
+		{
 			"TEXCOORD",
 			0,
 			DXGI_FORMAT_R32G32_FLOAT,
@@ -140,10 +141,10 @@ namespace DrawFuncPipelineData
 			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
 			0
-			}
 		};
+
 		gPipeline.InputLayout.pInputElementDescs = input3DLayOut;
-		gPipeline.InputLayout.NumElements = 1;
+		gPipeline.InputLayout.NumElements = 2;
 
 		//サンプルマスク
 		gPipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;

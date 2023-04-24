@@ -82,14 +82,6 @@ void DrawingByRasterize::Update()
 			graphicDataArray[lGenerateIndex].generateFlag = true;
 		}
 	}
-
-	//É\Å[Égèàóù
-	std::qsort(
-		graphicDataArray.data(),
-		graphicDataArray.size(),
-		sizeof(DrawData),
-		(int (*)(const void *, const void *))int_cmpr
-	);
 }
 
 void DrawingByRasterize::Draw()
