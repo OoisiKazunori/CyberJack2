@@ -377,6 +377,7 @@
     <ClInclude Include="KazLibrary\Render\DrawingByRasterize.h" />
     <ClInclude Include="KazLibrary\Buffer\BufferDuplicateBlocking.h" />
     <ClInclude Include="KazLibrary\Buffer\DrawFuncData.h" />
+    <ClInclude Include="KazLibrary\Buffer\GPUBufferData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

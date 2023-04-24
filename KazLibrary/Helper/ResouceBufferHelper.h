@@ -1,6 +1,6 @@
 #pragma once
 #include"../KazLibrary/DirectXCommon/Base.h"
-#include"../KazLibrary/Helper/KazRenderHelper.h"
+#include"../KazLibrary/Helper/KazBufferHelper.h"
 #include"../KazLibrary/Buffer/DescriptorHeapMgr.h"
 
 struct DispatchCallData
@@ -14,8 +14,8 @@ public:
 
 	struct BufferData
 	{
-		KazRenderHelper::ID3D12ResourceWrapper bufferWrapper;
-		KazRenderHelper::ID3D12ResourceWrapper counterWrapper;
+		KazBufferHelper::ID3D12ResourceWrapper bufferWrapper;
+		KazBufferHelper::ID3D12ResourceWrapper counterWrapper;
 		GraphicsRangeType rangeType;
 		GraphicsRootParamType rootParamType;
 		UINT bufferSize;

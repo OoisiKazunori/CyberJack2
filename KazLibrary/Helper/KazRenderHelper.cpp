@@ -207,11 +207,11 @@ DirectX::XMFLOAT4 KazRenderHelper::SendColorDataToGPU(DirectX::XMFLOAT4 COLOR_DA
 	return DirectX::XMFLOAT4(COLOR_DATA.x / 255.0f, COLOR_DATA.y / 255.0f, COLOR_DATA.z / 255.0f, COLOR_DATA.w / 255.0f);
 }
 
-KazRenderHelper::ID3D12ResourceWrapper::ID3D12ResourceWrapper()
+KazBufferHelper::ID3D12ResourceWrapper::ID3D12ResourceWrapper()
 {
 }
 
-void KazRenderHelper::ID3D12ResourceWrapper::CreateBuffer(const KazBufferHelper::BufferResourceData &BUFFER_OPTION)
+void KazBufferHelper::ID3D12ResourceWrapper::CreateBuffer(const BufferResourceData &BUFFER_OPTION)
 {
 	for (int i = 0; i < buffer.size(); ++i)
 	{
@@ -235,7 +235,7 @@ void KazRenderHelper::ID3D12ResourceWrapper::CreateBuffer(const KazBufferHelper:
 	}
 }
 
-void KazRenderHelper::ID3D12ResourceWrapper::TransData(void *DATA, const unsigned int &DATA_SIZE)
+void KazBufferHelper::ID3D12ResourceWrapper::TransData(void *DATA, const unsigned int &DATA_SIZE)
 {
 	void *dataMap = nullptr;
 
@@ -250,7 +250,7 @@ void KazRenderHelper::ID3D12ResourceWrapper::TransData(void *DATA, const unsigne
 	}
 }
 
-void KazRenderHelper::ID3D12ResourceWrapper::TransData(void *DATA, unsigned int START_DATA_SIZE, unsigned int DATA_SIZE)
+void KazBufferHelper::ID3D12ResourceWrapper::TransData(void *DATA, unsigned int START_DATA_SIZE, unsigned int DATA_SIZE)
 {
 	void *dataMap = nullptr;
 	for (int i = 0; i < buffer.size(); ++i)
@@ -266,7 +266,7 @@ void KazRenderHelper::ID3D12ResourceWrapper::TransData(void *DATA, unsigned int 
 	}
 }
 
-void KazRenderHelper::ID3D12ResourceWrapper::Release()
+void KazBufferHelper::ID3D12ResourceWrapper::Release()
 {
 	for (int i = 0; i < buffer.size(); ++i)
 	{
@@ -274,12 +274,12 @@ void KazRenderHelper::ID3D12ResourceWrapper::Release()
 	}
 }
 
-D3D12_GPU_VIRTUAL_ADDRESS KazRenderHelper::ID3D12ResourceWrapper::GetGpuAddress()
+D3D12_GPU_VIRTUAL_ADDRESS KazBufferHelper::ID3D12ResourceWrapper::GetGpuAddress()
 {
 	return buffer[GetIndex()]->GetGPUVirtualAddress();
 }
 
-void *KazRenderHelper::ID3D12ResourceWrapper::GetMapAddres(int BB_INDEX)const
+void *KazBufferHelper::ID3D12ResourceWrapper::GetMapAddres(int BB_INDEX)const
 {
 	void *dataMap = nullptr;
 	if (BB_INDEX == -1)

@@ -1,14 +1,13 @@
 #pragma once
-#include"../DirectXCommon/Base.h"
 #include<DirectXTex.h>
-#include<string>
-#include"../Pipeline/Shader.h"
 #include<vector>
+#include<memory>
+#include<string>
+#include"../DirectXCommon/Base.h"
 #include"../Helper/ISinglton.h"
 #include"../Pipeline/GraphicsRootSignature.h"
-#include"../Buffer/CreateGpuBuffer.h"
 #include"../KazLibrary/Math/KazMath.h"
-#include"../KazLibrary/Helper/ResouceBufferHelper.h"
+#include"../KazLibrary/Helper/KazBufferHelper.h"
 
 /// <summary>
 /// 画像の分割をする際にどの座標からどれくらいのサイズでUV切り取りをするか記録したもの
@@ -35,6 +34,7 @@ public:
 	/// <param name="RESOURCE">読み込みたい画像のファイルパス</param>
 	/// <returns>ハンドル</returns>
 	RESOURCE_HANDLE LoadGraph(std::string RESOURCE);
+	std::shared_ptr<KazBufferHelper::BufferData> LoadGraphBuffer(std::string RESOURCE);
 	
 	/// <summary>
 	///  ファイルパスを書いて画像を読み込み、分割します
@@ -95,7 +95,6 @@ private:
 	const int DescriptorMaxNum = 5000;
 
 	DirectX::ScratchImage scratchImg;
-	UINT handle;
 	UINT setHandle;
 	UINT IncreSize;
 	DirectX::TexMetadata metadata;
@@ -106,8 +105,8 @@ private:
 
 	vector<DivGraphData> divData;
 
-	std::vector<ResouceBufferHelper::BufferData>bufferArray;
-	std::unique_ptr<CreateGpuBuffer> buffers;
+	HandleMaker handle;
+	std::vector<std::shared_ptr<KazBufferHelper::BufferData>>bufferArray;
 
 	friend ISingleton<TextureResourceMgr>;
 };

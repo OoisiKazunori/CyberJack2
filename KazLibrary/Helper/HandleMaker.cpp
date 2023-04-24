@@ -1,5 +1,6 @@
 #include "HandleMaker.h"
 #include"../Helper/KazHelper.h"
+#include"../Helper/KazBufferHelper.h"
 
 HandleMaker::HandleMaker()
 {

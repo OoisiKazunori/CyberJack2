@@ -49,8 +49,8 @@ private:
 	};
 	const std::vector<Sphere*> &sphereHitBoxArray;
 
-	KazRenderHelper::ID3D12ResourceWrapper motherMatrixBuffer;
+	KazBufferHelper::ID3D12ResourceWrapper motherMatrixBuffer;
 
-	KazRenderHelper::ID3D12ResourceWrapper copyBuffer;
+	KazBufferHelper::ID3D12ResourceWrapper copyBuffer;
 };
 

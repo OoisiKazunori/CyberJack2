@@ -2,6 +2,7 @@
 #include"../DirectXCommon/Base.h"
 #include"../KazLibrary/DirectXCommon/DirectX12CmdList.h"
 #include"../KazLibrary/DirectXCommon/DirectX12Device.h"
+#include"../KazLibrary/Pipeline/GraphicsRootSignature.h"
 
 struct BufferMemorySize
 {
@@ -54,6 +55,144 @@ namespace KazBufferHelper
 			BufferName(BUFFER_NAME)
 		{
 		};
+	};
+
+
+	class ID3D12ResourceWrapper
+	{
+	public:
+		ID3D12ResourceWrapper();
+
+		/// <summary>
+		/// バッファ生成
+		/// </summary>
+		/// <param name="BUFFER_OPTION">バッファを生成する為に必要な構造体</param>
+		void CreateBuffer(const BufferResourceData &BUFFER_OPTION);
+
+		/// <summary>
+		/// データをバッファに転送します
+		/// </summary>
+		/// <param name="DATA">送りたいデータのアドレス</param>
+		/// <param name="DATA_SIZE">送りたいデータのサイズ</param>
+		void TransData(void *DATA, const unsigned int &DATA_SIZE);
+		void TransData(void *DATA, unsigned int START_DATA_SIZE, unsigned int DATA_SIZE);
+
+		/// <summary>
+		/// バッファを開放します
+		/// </summary>
+		/// <param name="HANDLE">開放したいバッファのハンドル</param>
+		void Release();
+
+		/// <summary>
+		/// バッファのGPUアドレスを受け取ります
+		/// </summary>
+		/// <param name="HANDLE">ハンドル</param>
+		/// <returns>バッファのGPUアドレス</returns>
+		D3D12_GPU_VIRTUAL_ADDRESS GetGpuAddress();
+
+		void *GetMapAddres(int BB_INDEX = -1)const;
+
+		void CopyBuffer(
+			const Microsoft::WRL::ComPtr<ID3D12Resource> &SRC_BUFFER,
+			D3D12_RESOURCE_STATES BEFORE_STATE,
+			D3D12_RESOURCE_STATES AFTER_STATE
+		)const
+		{
+			for (int i = 0; i < buffer.size(); ++i)
+			{
+				DirectX12CmdList::Instance()->cmdList->ResourceBarrier(
+					1,
+					&CD3DX12_RESOURCE_BARRIER::Transition(buffer[i].Get(),
+						BEFORE_STATE,
+						AFTER_STATE
+					)
+				);
+
+				DirectX12CmdList::Instance()->cmdList->CopyResource(buffer[i].Get(), SRC_BUFFER.Get());
+
+				DirectX12CmdList::Instance()->cmdList->ResourceBarrier(
+					1,
+					&CD3DX12_RESOURCE_BARRIER::Transition(buffer[i].Get(),
+						AFTER_STATE,
+						BEFORE_STATE
+					)
+				);
+			}
+		}
+
+		const Microsoft::WRL::ComPtr<ID3D12Resource> &GetBuffer(int INDEX = -1) const
+		{
+			if (INDEX == -1)
+			{
+				return buffer[GetIndex()];
+			}
+			else
+			{
+				return buffer[INDEX];
+			}
+		}
+
+		void operator=(const ID3D12ResourceWrapper &rhs)
+		{
+			for (int i = 0; i < buffer.size(); ++i)
+			{
+				rhs.buffer[i].CopyTo(&buffer[i]);
+			}
+		};
+
+	private:
+		std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 1>buffer;
+		UINT GetIndex()const
+		{
+			return 0;
+		}
+	};
+
+
+
+	struct BufferData
+	{
+		ID3D12ResourceWrapper bufferWrapper;
+		ID3D12ResourceWrapper counterWrapper;
+		GraphicsRangeType rangeType;
+		GraphicsRootParamType rootParamType;
+		UINT bufferSize;
+		UINT elementNum;
+
+		BufferData(const KazBufferHelper::BufferResourceData &BUFFER_DATA) :rangeType(GRAPHICS_RANGE_TYPE_NONE), rootParamType(GRAPHICS_PRAMTYPE_NONE), bufferSize(0), elementNum(0)
+		{
+			bufferWrapper.CreateBuffer(BUFFER_DATA);
+		}
+		BufferData() :rangeType(GRAPHICS_RANGE_TYPE_NONE), rootParamType(GRAPHICS_PRAMTYPE_NONE), bufferSize(0), elementNum(0)
+		{
+		}
+
+		void CreateViewHandle(std::vector<RESOURCE_HANDLE>HANDLE_ARRAY)
+		{
+			viewHandle = HANDLE_ARRAY;
+		}
+		void CreateViewHandle(RESOURCE_HANDLE HANDLE)
+		{
+			viewHandle.emplace_back(HANDLE);
+		}
+		const RESOURCE_HANDLE &GetViewHandle()const
+		{
+			return viewHandle[0];
+		}
+
+		void operator=(const BufferData &rhs)
+		{
+			rangeType = rhs.rangeType;
+			rootParamType = rhs.rootParamType;
+			bufferSize = rhs.bufferSize;
+			bufferWrapper = rhs.bufferWrapper;
+			counterWrapper = rhs.counterWrapper;
+			viewHandle = rhs.viewHandle;
+			elementNum = rhs.elementNum;
+		};
+
+	private:
+		std::vector<RESOURCE_HANDLE> viewHandle;
 	};
 
 

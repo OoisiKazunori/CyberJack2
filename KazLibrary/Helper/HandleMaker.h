@@ -1,7 +1,7 @@
 #pragma once
 #include"../DirectXCommon/Base.h"
-#include"../Helper/KazBufferHelper.h"
 
+struct BufferMemorySize;
 
 /// <summary>
 /// 使用していないハンドルを返し、指定のハンドルを削除できるクラス

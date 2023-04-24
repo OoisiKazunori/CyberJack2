@@ -397,6 +397,7 @@
     <ClInclude Include="KazLibrary\Buffer\CreateMeshBuffer.h" />
     <ClInclude Include="KazLibrary\Buffer\DescriptorHeapMgr.h" />
     <ClInclude Include="KazLibrary\Buffer\DrawFuncData.h" />
+    <ClInclude Include="KazLibrary\Buffer\GPUBufferData.h" />
     <ClInclude Include="KazLibrary\Buffer\UavViewHandleMgr.h" />
     <ClInclude Include="KazLibrary\Camera\CameraMgr.h" />
     <ClInclude Include="KazLibrary\Collision\BBDuringEquallyCoordinatePlace.h" />

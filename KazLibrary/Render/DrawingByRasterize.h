@@ -3,8 +3,8 @@
 #include <iostream>
 #include <source_location>
 #include"../KazLibrary/Helper/KazRenderHelper.h"
+#include"../KazLibrary/Helper/KazBufferHelper.h"
 #include"../KazLibrary/Math/KazMath.h"
-#include"../KazLibrary/Helper/ResouceBufferHelper.h"
 #include"../Pipeline/Shader.h"
 #include"../KazLibrary/Buffer/BufferDuplicateBlocking.h"
 #include"../KazLibrary/Buffer/DrawFuncData.h"
@@ -40,7 +40,7 @@ public:
 
 
 		//その他描画に必要なバッファ情報
-		std::vector<ResouceBufferHelper::BufferData> buffer;
+		std::vector<std::shared_ptr<KazBufferHelper::BufferData>> buffer;
 
 		//デバック情報
 		std::source_location drawCallData;
@@ -79,7 +79,7 @@ private:
 
 
 	//描画に必要なバッファをコマンドリストに積む
-	void SetBufferOnCmdList(const std::vector<ResouceBufferHelper::BufferData> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM);
+	void SetBufferOnCmdList(const  std::vector<std::shared_ptr<KazBufferHelper::BufferData>> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM);
 
 	//頂点情報のセット
 	void DrawIndexInstanceCommand(const KazRenderHelper::DrawIndexInstanceCommandData &DATA);
@@ -163,6 +163,24 @@ namespace DrawFunc
 		return lDrawCallData;
 	};
 
+	//行列情報のみ
+	static DrawCallData SetTransformData(DrawingByRasterize *CALL_DATA_PTR, const KazRenderHelper::DrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	{
+		DrawCallData lDrawCallData(CALL_DATA_PTR);
+		//頂点情報
+		lDrawCallData.drawIndexInstanceCommandData = VERTEX_DATA;
+		//行列情報
+		lDrawCallData.bufferResourceDataArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX)),
+			GRAPHICS_PRAMTYPE_DATA,
+			GRAPHICS_RANGE_TYPE_CBV_VIEW
+		);
+		lDrawCallData.pipelineData = PIPELINE_DATA;
+
+		return lDrawCallData;
+	};
+
+
 	//単色のポリゴン表示(インデックスなし)
 	static DrawCallData SetDrawPolygonData(DrawingByRasterize *CALL_DATA_PTR, const KazRenderHelper::DrawInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
 	{
@@ -210,9 +228,9 @@ namespace DrawFunc
 			//その他必要なバッファのセット
 			for (int i = 0; i < INIT_DATA.bufferResourceDataArray.size(); ++i)
 			{
-				lData->buffer.emplace_back(INIT_DATA.bufferResourceDataArray[i].resourceData);
-				lData->buffer[i].rangeType = INIT_DATA.bufferResourceDataArray[i].rangeType;
-				lData->buffer[i].rootParamType = INIT_DATA.bufferResourceDataArray[i].rootParam;
+				lData->buffer.emplace_back(std::make_shared<KazBufferHelper::BufferData>(INIT_DATA.bufferResourceDataArray[i].resourceData));
+				lData->buffer[i]->rangeType = INIT_DATA.bufferResourceDataArray[i].rangeType;
+				lData->buffer[i]->rootParamType = INIT_DATA.bufferResourceDataArray[i].rootParam;
 			}
 
 			//デバック用の情報のセット
@@ -237,10 +255,22 @@ namespace DrawFunc
 				KazMath::CaluWorld(TRANSFORM, { 0.0f,1.0f,0.0f }, { 0.0f,0.0f,1.0f }) *
 				CameraMgr::Instance()->GetViewMatrix() *
 				CameraMgr::Instance()->GetPerspectiveMatProjection();
-			lData->buffer[0].bufferWrapper.TransData(&lMat, sizeof(DirectX::XMMATRIX));
+			lData->buffer[0]->bufferWrapper.TransData(&lMat, sizeof(DirectX::XMMATRIX));
 			//色
 			DirectX::XMFLOAT4 lColor = COLOR.ConvertColorRateToXMFLOAT4();
-			lData->buffer[1].bufferWrapper.TransData(&lColor, sizeof(DirectX::XMFLOAT4));
+			lData->buffer[1]->bufferWrapper.TransData(&lColor, sizeof(DirectX::XMFLOAT4));
+		};
+
+		void DrawTexPlane(const KazMath::Transform3D &TRANSFORM, const KazMath::Color &COLOR, int CAMERA_INDEX, const DirectX::XMMATRIX &MOTHER_MAT)
+		{
+			//スタック用のバッファを呼び出し、そこに入っているバッファを使用して転送する
+			DrawingByRasterize::DrawData *lData = GetDrawData();
+			//行列
+			DirectX::XMMATRIX lMat =
+				KazMath::CaluWorld(TRANSFORM, { 0.0f,1.0f,0.0f }, { 0.0f,0.0f,1.0f }) *
+				CameraMgr::Instance()->GetViewMatrix() *
+				CameraMgr::Instance()->GetPerspectiveMatProjection();
+			lData->buffer[0]->bufferWrapper.TransData(&lMat, sizeof(DirectX::XMMATRIX));
 		};
 
 		//よく使う処理は関数に纏める----------------------------------------
