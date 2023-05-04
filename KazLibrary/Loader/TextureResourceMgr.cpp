@@ -25,8 +25,9 @@ TextureResourceMgr::~TextureResourceMgr()
 
 void TextureResourceMgr::Release(RESOURCE_HANDLE HANDLE)
 {
-	handleName[HANDLE] = "";
-	bufferArray[HANDLE].reset();
+	RESOURCE_HANDLE elementNum = handle.CaluNowHandle(HANDLE);
+	handleName[elementNum] = "";
+	bufferArray[elementNum].reset();
 	handle.DeleteHandle(HANDLE);
 	DescriptorHeapMgr::Instance()->Release(HANDLE);
 }
@@ -92,15 +93,17 @@ RESOURCE_HANDLE TextureResourceMgr::LoadGraph(std::string RESOURCE)
 
 
 	RESOURCE_HANDLE num = handle.GetHandle();
+	RESOURCE_HANDLE elementNum = handle.CaluNowHandle(num);
+
 	if (bufferArray.size() <= num)
 	{
 		bufferArray.emplace_back();
 	}
-	bufferArray[num] = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetShaderResourceBufferData(textureDesc));
+	bufferArray[elementNum] = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetShaderResourceBufferData(textureDesc));
 
-	DescriptorHeapMgr::Instance()->CreateBufferView(num, srvDesc, bufferArray[num]->bufferWrapper.GetBuffer().Get());
+	DescriptorHeapMgr::Instance()->CreateBufferView(num, srvDesc, bufferArray[elementNum]->bufferWrapper.GetBuffer().Get());
 
-	bufferArray[num]->bufferWrapper.GetBuffer()->WriteToSubresource
+	bufferArray[elementNum]->bufferWrapper.GetBuffer()->WriteToSubresource
 	(
 		0,
 		nullptr,
@@ -173,15 +176,18 @@ std::shared_ptr<KazBufferHelper::BufferData> TextureResourceMgr::LoadGraphBuffer
 
 
 	RESOURCE_HANDLE num = handle.GetHandle();
+	RESOURCE_HANDLE elementNum = handle.CaluNowHandle(num);
+
+
 	if (bufferArray.size() <= num)
 	{
 		bufferArray.emplace_back();
 	}
-	bufferArray[num] = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetShaderResourceBufferData(textureDesc));
+	bufferArray[elementNum] = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetShaderResourceBufferData(textureDesc));
 
-	DescriptorHeapMgr::Instance()->CreateBufferView(num, srvDesc, bufferArray[num]->bufferWrapper.GetBuffer().Get());
+	DescriptorHeapMgr::Instance()->CreateBufferView(num, srvDesc, bufferArray[elementNum]->bufferWrapper.GetBuffer().Get());
 
-	bufferArray[num]->bufferWrapper.GetBuffer()->WriteToSubresource
+	bufferArray[elementNum]->bufferWrapper.GetBuffer()->WriteToSubresource
 	(
 		0,
 		nullptr,
@@ -190,10 +196,10 @@ std::shared_ptr<KazBufferHelper::BufferData> TextureResourceMgr::LoadGraphBuffer
 		(UINT)img->slicePitch
 	);
 
-	bufferArray[num]->rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
-	bufferArray[num]->CreateViewHandle(std::vector<RESOURCE_HANDLE>({ num }));
+	bufferArray[elementNum]->rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
+	bufferArray[elementNum]->CreateViewHandle(std::vector<RESOURCE_HANDLE>({ num }));
 
-	return bufferArray[num];
+	return bufferArray[elementNum];
 }
 
 RESOURCE_HANDLE TextureResourceMgr::LoadDivGraph(string RESOURCE, int DIV_WIDTH_NUM, int DIV_HEIGHT_NUM, int TEXSIZE_WIDTH, int TEXSIZE_HEIGHT)
@@ -251,15 +257,17 @@ RESOURCE_HANDLE TextureResourceMgr::LoadDivGraph(string RESOURCE, int DIV_WIDTH_
 
 
 	RESOURCE_HANDLE lHandle = handle.GetHandle();
+	RESOURCE_HANDLE elementNum = handle.CaluNowHandle(lHandle);
+
 	if (bufferArray.size() <= lHandle)
 	{
 		bufferArray.emplace_back();
 	}
-	bufferArray[lHandle] = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetShaderResourceBufferData(textureDesc));
+	bufferArray[elementNum] = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetShaderResourceBufferData(textureDesc));
 
-	DescriptorHeapMgr::Instance()->CreateBufferView(lHandle, srvDesc, bufferArray[lHandle]->bufferWrapper.GetBuffer().Get());
+	DescriptorHeapMgr::Instance()->CreateBufferView(lHandle, srvDesc, bufferArray[elementNum]->bufferWrapper.GetBuffer().Get());
 
-	bufferArray[lHandle]->bufferWrapper.GetBuffer()->WriteToSubresource
+	bufferArray[elementNum]->bufferWrapper.GetBuffer()->WriteToSubresource
 	(
 		0,
 		nullptr,
@@ -291,9 +299,10 @@ D3D12_RESOURCE_DESC TextureResourceMgr::GetTextureSize(RESOURCE_HANDLE HANDLE)
 	//ハンドルが-1、もしくはtexBuffがnullptrだった場合、0のWidthとHeightを返す
 	if (HANDLE != -1)
 	{
-		if (bufferArray[HANDLE]->bufferWrapper.GetBuffer() != nullptr)
+		RESOURCE_HANDLE elementNum = handle.CaluNowHandle(HANDLE);
+		if (bufferArray[elementNum]->bufferWrapper.GetBuffer() != nullptr)
 		{
-			return bufferArray[HANDLE]->bufferWrapper.GetBuffer()->GetDesc();
+			return bufferArray[elementNum]->bufferWrapper.GetBuffer()->GetDesc();
 		}
 		else
 		{
@@ -347,6 +356,7 @@ void TextureResourceMgr::SetSRView(RESOURCE_HANDLE GRAPH_HANDLE, GraphicsRootSig
 	if (GRAPH_HANDLE != -1)
 	{
 		int param = KazRenderHelper::SetBufferOnCmdList(PARAM, GRAPHICS_RANGE_TYPE_SRV_DESC, TYPE);
-		DirectX12CmdList::Instance()->cmdList->SetGraphicsRootShaderResourceView(param, bufferArray[GRAPH_HANDLE]->bufferWrapper.GetGpuAddress());
+		RESOURCE_HANDLE elementNum = handle.CaluNowHandle(GRAPH_HANDLE);
+		DirectX12CmdList::Instance()->cmdList->SetGraphicsRootShaderResourceView(param, bufferArray[elementNum]->bufferWrapper.GetGpuAddress());
 	}
 }
