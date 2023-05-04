@@ -121,6 +121,24 @@ namespace KazBufferHelper
 			}
 		}
 
+		void ChangeBarrier(
+			D3D12_RESOURCE_STATES BEFORE_STATE,
+			D3D12_RESOURCE_STATES AFTER_STATE
+		)
+		{
+			for (int i = 0; i < buffer.size(); ++i)
+			{
+				DirectX12CmdList::Instance()->cmdList->ResourceBarrier(
+					1,
+					&CD3DX12_RESOURCE_BARRIER::Transition(buffer[i].Get(),
+						BEFORE_STATE,
+						AFTER_STATE
+					)
+				);
+			}
+		}
+
+
 		const Microsoft::WRL::ComPtr<ID3D12Resource> &GetBuffer(int INDEX = -1) const
 		{
 			if (INDEX == -1)

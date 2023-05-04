@@ -13,7 +13,7 @@ cbuffer ColorBuffer : register(b1)
     float4 color; //êF
 }
 
-ColorOutput VSmain(float4 pos : POSITION,float2 uv : TEXCOORD)
+ColorOutput VSmain(float4 pos : POSITION)
 {
     ColorOutput op;
     op.svpos = mul(mat,pos);
@@ -25,7 +25,8 @@ RWStructuredBuffer<float4> colorBuffer : register(u0);
 
 float4 PSmain(ColorOutput input) : SV_TARGET
 {
-    uint2 index = input.svpos;
-    colorBuffer[index.x][index.y] = input.svpos;
+    uint index = input.svpos.y * 1280 + input.svpos.x;
+
+    colorBuffer[index] = input.color;
     return input.color;
 }
