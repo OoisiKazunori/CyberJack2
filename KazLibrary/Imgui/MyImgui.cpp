@@ -3,6 +3,8 @@
 #include"../DirectXCommon/DirectX12Device.h"
 #include"../DirectXCommon/DirectX12CmdList.h"
 
+#include"Buffer/DescriptorHeapMgr.h"
+
 MyImgui::MyImgui() 
 {
 }
@@ -17,7 +19,7 @@ MyImgui::~MyImgui()
 void MyImgui::Create(HWND hwnd) 
 {
 	//ƒq[ƒv‚Ì¶¬
-	heapForImgui = CreateDescriptorHeapForImgui();
+	heapForImgui = DescriptorHeapMgr::Instance()->heaps;
 
 	if (ImGui::CreateContext() == nullptr)
 	{
@@ -65,19 +67,4 @@ void MyImgui::Set()
 	ImGui_ImplDX12_RenderDrawData(
 	ImGui::GetDrawData(),
 	DirectX12CmdList::Instance()->cmdList.Get());
-}
-
-Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> MyImgui::CreateDescriptorHeapForImgui() 
-{
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> ret;
-
-	D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	desc.NodeMask = 0;
-	desc.NumDescriptors = 1;
-	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-
-	DirectX12Device::Instance()->dev->CreateDescriptorHeap(&desc, IID_PPV_ARGS(ret.ReleaseAndGetAddressOf()));
-
-	return ret;
 }

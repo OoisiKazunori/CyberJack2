@@ -432,6 +432,7 @@
     <ClInclude Include="KazLibrary\Imgui\imstb_textedit.h" />
     <ClInclude Include="KazLibrary\Imgui\imstb_truetype.h" />
     <ClInclude Include="KazLibrary\Imgui\MyImgui.h" />
+    <ClInclude Include="KazLibrary\Imgui\stb_image.h" />
     <ClInclude Include="KazLibrary\Input\ControllerInputManager.h" />
     <ClInclude Include="KazLibrary\Input\IInputManager.h" />
     <ClInclude Include="KazLibrary\Input\KeyBoradInputManager.h" />

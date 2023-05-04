@@ -44,7 +44,6 @@ private:
 	/// ヒープの生成
 	/// </summary>
 	/// <returns>デスクリプタヒープ</returns>
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeapForImgui();
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>heapForImgui;
 
 };

@@ -27,11 +27,11 @@ public:
 
 	int GetType(RESOURCE_HANDLE HANDLE);
 
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heaps;
 private:
 
 	//デスクリプタヒープの処理-----------------------------------------------------------------------------
 	static const short DESCRIPTOR_HEAP_SIZE_MAX = 4096;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heaps;
 	std::array<BufferMemorySize, DESCRIPTORHEAP_MEMORY_MAX> heapMaxSizes;
 	UINT64 shaderResourceHeapIncreSize;
 	UINT64 rtvHeapIncreSize;
