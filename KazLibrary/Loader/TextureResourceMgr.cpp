@@ -166,7 +166,6 @@ std::shared_ptr<KazBufferHelper::BufferData> TextureResourceMgr::LoadGraphBuffer
 		(UINT16)metadata.mipLevels
 	);
 
-
 	//ƒrƒ…[İ’è
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Format = metadata.format;

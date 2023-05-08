@@ -104,6 +104,32 @@ KazBufferHelper::BufferResourceData KazBufferHelper::SetRWStructuredBuffer(BUFFE
 	return data;
 }
 
+KazBufferHelper::BufferResourceData KazBufferHelper::SetUAVTexBuffer(int width, int height, const std::string &BUFFER_NAME)
+{
+	D3D12_RESOURCE_DESC desc =
+		CD3DX12_RESOURCE_DESC::Tex2D(
+			DXGI_FORMAT_B8G8R8A8_UNORM,
+			width,
+			(UINT)height,
+			(UINT16)1,
+			(UINT16)1
+		);
+	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+	desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+
+	KazBufferHelper::BufferResourceData data
+	(
+		CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0),
+		D3D12_HEAP_FLAG_NONE,
+		desc,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		nullptr,
+		BUFFER_NAME
+	);
+
+	return data;
+}
+
 KazBufferHelper::BufferResourceData KazBufferHelper::SetOnlyReadStructuredBuffer(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME)
 {
 	D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer(BUFFER_SIZE, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);

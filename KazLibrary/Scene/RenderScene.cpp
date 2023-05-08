@@ -17,18 +17,28 @@ RenderScene::RenderScene()
 			);
 
 		//Albedo用のG-Bufferを生成
-		int lBufferSize = 1280 * 720 * sizeof(DirectX::XMFLOAT4);
+		int lBufferSize = 1280 * 720;
 		testRArray[0]->GetDrawData()->buffer.emplace_back(
-			std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetRWStructuredBuffer(lBufferSize, "G-Buffer_Write"))
+			std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetUAVTexBuffer(1280, 720, "G-Buffer_Write"))
 		);
 		RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
-		DescriptorHeapMgr::Instance()->CreateBufferView(view, KazBufferHelper::SetUnorderedAccessView(sizeof(DirectX::XMFLOAT4), 1280 * 720), testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer().Get());
+
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+		uavDesc.Buffer.FirstElement = 0;
+		uavDesc.Buffer.NumElements = 1280 * 720;
+		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+
+
+		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer().Get());
 		testRArray[0]->GetDrawData()->buffer[2]->CreateViewHandle(view);
 		testRArray[0]->GetDrawData()->buffer[2]->elementNum = 1280 * 720;
 		testRArray[0]->GetDrawData()->buffer[2]->rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 		testRArray[0]->GetDrawData()->buffer[2]->rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 	}
 
+	//フォワードレンダリングで描画する立方体
 	{
 		DrawFunc::PipelineGenerateData lData;
 		lData.desc = DrawFuncPipelineData::SetTest();
@@ -40,29 +50,29 @@ RenderScene::RenderScene()
 			);
 	}
 
-	//G-Bufferの描画確認
-	{
-		DrawFunc::PipelineGenerateData lData;
-		lData.desc = DrawFuncPipelineData::SetTex();
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawGBuffer.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawGBuffer.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
+	//G-Bufferの描画確認用の板ポリ
+	//{
+	//	DrawFunc::PipelineGenerateData lData;
+	//	lData.desc = DrawFuncPipelineData::SetTex();
+	//	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawGBuffer.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
+	//	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawGBuffer.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
-		testRArray[2] = std::make_unique<DrawFunc::KazRender>(
-			DrawFunc::SetTransformData(&rasterizeRenderer, spriteR.drawIndexInstanceCommandData, lData)
-			);
+	//	testRArray[2] = std::make_unique<DrawFunc::KazRender>(
+	//		DrawFunc::SetTransformData(&rasterizeRenderer, spriteR.drawIndexInstanceCommandData, lData)
+	//		);
 
-		//Albedo用のG-Bufferを生成
-		int lBufferSize = 1280 * 720 * sizeof(DirectX::XMFLOAT4);
-		testRArray[2]->GetDrawData()->buffer.emplace_back(
-			std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetRWStructuredBuffer(lBufferSize, "G-Buffer_Read"))
-		);
-		RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
-		DescriptorHeapMgr::Instance()->CreateBufferView(view, KazBufferHelper::SetUnorderedAccessView(sizeof(DirectX::XMFLOAT4), 1280 * 720), testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer().Get());
-		testRArray[2]->GetDrawData()->buffer[1]->CreateViewHandle(view);
-		testRArray[2]->GetDrawData()->buffer[1]->elementNum = 1280 * 720;
-		testRArray[2]->GetDrawData()->buffer[1]->rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		testRArray[2]->GetDrawData()->buffer[1]->rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-	}
+	//	//Albedo用のG-Bufferを生成
+	//	int lBufferSize = 1280 * 720 * sizeof(DirectX::XMFLOAT4);
+	//	testRArray[2]->GetDrawData()->buffer.emplace_back(
+	//		std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetRWStructuredBuffer(lBufferSize, "G-Buffer_Read"))
+	//	);
+	//	RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
+	//	DescriptorHeapMgr::Instance()->CreateBufferView(view, KazBufferHelper::SetUnorderedAccessView(sizeof(DirectX::XMFLOAT4), 1280 * 720), testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer().Get());
+	//	testRArray[2]->GetDrawData()->buffer[1]->CreateViewHandle(view);
+	//	testRArray[2]->GetDrawData()->buffer[1]->elementNum = 1280 * 720;
+	//	testRArray[2]->GetDrawData()->buffer[1]->rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	//	testRArray[2]->GetDrawData()->buffer[1]->rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+	//}
 	transformArray[0].pos = { 0.0f,0.0f,0.0f };
 	transformArray[1].pos = { 10.0f,0.0f,0.0f };
 	transformArray[2].pos = { 20.0f,0.0f,0.0f };
@@ -70,6 +80,8 @@ RenderScene::RenderScene()
 	colorArray[0] = { 155,155,155,255 };
 	colorArray[1] = { 155,0,0,155 };
 	colorArray[2] = { 0,155,0,55 };
+
+	texFlag = true;
 
 }
 
@@ -100,7 +112,7 @@ void RenderScene::Update()
 	CameraMgr::Instance()->Camera(camera.GetEyePos(), camera.GetTargetPos(), { 0.0f,1.0f,0.0f });
 
 
-	testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	/*testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
 	testRArray[2]->GetDrawData()->buffer[1]->bufferWrapper.CopyBuffer(
 		testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer(),
@@ -108,7 +120,8 @@ void RenderScene::Update()
 		D3D12_RESOURCE_STATE_COPY_DEST
 	);
 
-	testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.ChangeBarrier(D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.ChangeBarrier(D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);*/
+
 
 
 	rasterizeRenderer.Update();
@@ -122,20 +135,9 @@ void RenderScene::Draw()
 
 	testRArray[0]->DrawCall(transformArray[0], colorArray[0], 0, motherMat);
 	testRArray[1]->DrawCall(transformArray[1], colorArray[1], 0, motherMat);
-	testRArray[2]->DrawTexPlane(transformArray[2], colorArray[2], 0, motherMat);
+	//testRArray[2]->DrawTexPlane(transformArray[2], colorArray[2], 0, motherMat);
 
 	rasterizeRenderer.Draw();
-
-
-	KazMath::Vec2<float>texSize(
-		static_cast<float>(testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer()->GetDesc().Width),
-		static_cast<float>(testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer()->GetDesc().Height)
-	);
-	//D3D12_GPU_DESCRIPTOR_HANDLE handle = DescriptorHeapMgr::Instance()->GetGpuDescriptorView(testRArray[0]->GetDrawData()->buffer[2]->GetViewHandle());
-	//ImGui::Begin("RenderDebugInfomation");
-	//ImGui::Text("aaa");
-	//ImGui::Image((ImTextureID)handle.ptr, ImVec2(texSize.x, texSize.y));
-	//ImGui::End();
 
 }
 

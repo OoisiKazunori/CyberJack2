@@ -21,12 +21,11 @@ ColorOutput VSmain(float4 pos : POSITION)
     return op;
 }
 
-RWStructuredBuffer<float4> colorBuffer : register(u0);
+RWTexture2D<float4> colorBuffer : register(u0);
 
 float4 PSmain(ColorOutput input) : SV_TARGET
 {
     uint index = input.svpos.y * 1280 + input.svpos.x;
-
-    colorBuffer[index] = input.color;
+    colorBuffer[input.svpos.xy] = input.color;
     return input.color;
 }
