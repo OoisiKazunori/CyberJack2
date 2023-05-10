@@ -5,6 +5,9 @@ RenderScene::RenderScene()
 {
 	endGameFlag = false;
 
+
+	boxData = boxBuffer.GenerateBoxBuffer(1.0f);
+
 	//G-Bufferに書き込む予定のオブジェクト
 	{
 		DrawFunc::PipelineGenerateData lData;
@@ -12,8 +15,9 @@ RenderScene::RenderScene()
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DefferdRender.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DefferdRender.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
+
 		testRArray[0] = std::make_unique<DrawFunc::KazRender>(
-			DrawFunc::SetDrawPolygonIndexData(&rasterizeRenderer, boxR.drawIndexInstanceCommandData, lData)
+			DrawFunc::SetDrawPolygonIndexData(&rasterizeRenderer, boxData.index, lData)
 			);
 
 		//Albedo用のG-Bufferを生成
@@ -46,7 +50,7 @@ RenderScene::RenderScene()
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "TestDraw.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
 		testRArray[1] = std::make_unique<DrawFunc::KazRender>(
-			DrawFunc::SetDrawPolygonIndexData(&rasterizeRenderer, boxR.drawIndexInstanceCommandData, lData)
+			DrawFunc::SetDrawPolygonIndexData(&rasterizeRenderer, boxData.index, lData)
 			);
 	}
 
@@ -56,6 +60,13 @@ RenderScene::RenderScene()
 		lData.desc = DrawFuncPipelineData::SetTex();
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawGBuffer.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawGBuffer.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
+
+		planeData = texBuffer.GeneratePlaneTexBuffer(
+			{
+				static_cast<float>(testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer()->GetDesc().Width),
+				static_cast<float>(testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer()->GetDesc().Height)
+			}
+		);
 
 		testRArray[2] = std::make_unique<DrawFunc::KazRender>(
 			DrawFunc::SetTransformData(&rasterizeRenderer, spriteR.drawIndexInstanceCommandData, lData)
@@ -77,7 +88,7 @@ RenderScene::RenderScene()
 	texFlag = true;
 
 
-	clearGBuffer.SetBuffer(testRArray[0]->GetDrawData()->buffer[2], GRAPHICS_PRAMTYPE_DATA);
+	//clearGBuffer.SetBuffer(testRArray[0]->GetDrawData()->buffer[2], GRAPHICS_PRAMTYPE_DATA);
 }
 
 RenderScene::~RenderScene()

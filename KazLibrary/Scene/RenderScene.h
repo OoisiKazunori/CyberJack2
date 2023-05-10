@@ -7,6 +7,7 @@
 #include"../KazLibrary/Helper/ResourceFilePass.h"
 #include"../Buffer/DescriptorHeapMgr.h"
 #include"../Buffer/UavViewHandleMgr.h"
+#include"../Buffer/Polygon.h"
 
 
 class RenderScene :public SceneBase
@@ -36,7 +37,6 @@ private:
 
 	KazMath::Vec2<int>texSize;
 
-	BoxPolygonRender boxR;
 	Sprite3DRender spriteR;
 	CameraWork camera;
 
@@ -45,6 +45,12 @@ private:
 	bool texFlag;
 
 	ResouceBufferHelper clearGBuffer;
+
+
+	PolygonBuffer boxBuffer;
+	PolygonBuffer texBuffer;
+	PolygonIndexData boxData;
+	PolygonIndexData planeData;
 
 };
 

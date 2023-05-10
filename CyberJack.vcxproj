@@ -214,6 +214,7 @@
     <ClCompile Include="KazLibrary\Buffer\CreateMeshBuffer.cpp" />
     <ClCompile Include="KazLibrary\Buffer\DescriptorHeapMgr.cpp" />
     <ClCompile Include="KazLibrary\Buffer\DrawFuncData.cpp" />
+    <ClCompile Include="KazLibrary\Buffer\Polygon.cpp" />
     <ClCompile Include="KazLibrary\Buffer\UavViewHandleMgr.cpp" />
     <ClCompile Include="KazLibrary\Camera\CameraMgr.cpp" />
     <ClCompile Include="KazLibrary\Collision\BBDuringEquallyCoordinatePlace.cpp" />
@@ -397,6 +398,7 @@
     <ClInclude Include="KazLibrary\Buffer\CreateMeshBuffer.h" />
     <ClInclude Include="KazLibrary\Buffer\DescriptorHeapMgr.h" />
     <ClInclude Include="KazLibrary\Buffer\DrawFuncData.h" />
+    <ClInclude Include="KazLibrary\Buffer\Polygon.h" />
     <ClInclude Include="KazLibrary\Buffer\UavViewHandleMgr.h" />
     <ClInclude Include="KazLibrary\Camera\CameraMgr.h" />
     <ClInclude Include="KazLibrary\Collision\BBDuringEquallyCoordinatePlace.h" />

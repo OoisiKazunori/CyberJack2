@@ -43,7 +43,7 @@ namespace KazMath
 			x /= len;
 			y /= len;
 		};
-		DirectX::XMFLOAT2 ConvertXMFLOAT2()
+		DirectX::XMFLOAT2 ConvertXMFLOAT2()const
 		{
 			return DirectX::XMFLOAT2(static_cast<float>(x), static_cast<float>(y));
 		};
