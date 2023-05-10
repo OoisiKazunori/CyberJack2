@@ -43,5 +43,8 @@ private:
 	std::unique_ptr<GPUParticleRender> gpuParticleRender;
 
 	bool texFlag;
+
+	ResouceBufferHelper clearGBuffer;
+
 };
 

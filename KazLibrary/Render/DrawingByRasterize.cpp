@@ -60,15 +60,29 @@ void DrawingByRasterize::Update()
 			}
 
 
+			
+
+
 			RootSignatureDataTest lRootSignatureGenerateData;
 			//ルートシグネチャの生成
 			for (int i = 0; i < graphicDataArray[lGenerateIndex].buffer.size(); ++i)
 			{
-				lRootSignatureGenerateData.rangeArray.emplace_back
-				(
-					graphicDataArray[lGenerateIndex].buffer[i]->rangeType,
-					graphicDataArray[lGenerateIndex].buffer[i]->rootParamType
-				);
+				if (lGenerateIndex == 2 && graphicDataArray[lGenerateIndex].buffer[i]->rangeType == GRAPHICS_RANGE_TYPE_UAV_DESC)
+				{
+					lRootSignatureGenerateData.rangeArray.emplace_back
+					(
+						GRAPHICS_RANGE_TYPE_UAV_DESC,
+						graphicDataArray[lGenerateIndex].buffer[i]->rootParamType
+					);
+				}
+				else
+				{
+					lRootSignatureGenerateData.rangeArray.emplace_back
+					(
+						graphicDataArray[lGenerateIndex].buffer[i]->rangeType,
+						graphicDataArray[lGenerateIndex].buffer[i]->rootParamType
+					);
+				}
 			}
 			graphicDataArray[lGenerateIndex].rootsignatureHandle = rootSignatureBufferMgr.GenerateRootSignature(lRootSignatureGenerateData);
 

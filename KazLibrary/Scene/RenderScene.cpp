@@ -51,28 +51,21 @@ RenderScene::RenderScene()
 	}
 
 	//G-Bufferの描画確認用の板ポリ
-	//{
-	//	DrawFunc::PipelineGenerateData lData;
-	//	lData.desc = DrawFuncPipelineData::SetTex();
-	//	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawGBuffer.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
-	//	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawGBuffer.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
+	{
+		DrawFunc::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetTex();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawGBuffer.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawGBuffer.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
-	//	testRArray[2] = std::make_unique<DrawFunc::KazRender>(
-	//		DrawFunc::SetTransformData(&rasterizeRenderer, spriteR.drawIndexInstanceCommandData, lData)
-	//		);
+		testRArray[2] = std::make_unique<DrawFunc::KazRender>(
+			DrawFunc::SetTransformData(&rasterizeRenderer, spriteR.drawIndexInstanceCommandData, lData)
+			);
 
-	//	//Albedo用のG-Bufferを生成
-	//	int lBufferSize = 1280 * 720 * sizeof(DirectX::XMFLOAT4);
-	//	testRArray[2]->GetDrawData()->buffer.emplace_back(
-	//		std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetRWStructuredBuffer(lBufferSize, "G-Buffer_Read"))
-	//	);
-	//	RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
-	//	DescriptorHeapMgr::Instance()->CreateBufferView(view, KazBufferHelper::SetUnorderedAccessView(sizeof(DirectX::XMFLOAT4), 1280 * 720), testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer().Get());
-	//	testRArray[2]->GetDrawData()->buffer[1]->CreateViewHandle(view);
-	//	testRArray[2]->GetDrawData()->buffer[1]->elementNum = 1280 * 720;
-	//	testRArray[2]->GetDrawData()->buffer[1]->rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-	//	testRArray[2]->GetDrawData()->buffer[1]->rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-	//}
+		//Albedo用のG-Bufferを生成
+		testRArray[2]->GetDrawData()->buffer.emplace_back(
+			testRArray[0]->GetDrawData()->buffer[2]
+		);
+	}
 	transformArray[0].pos = { 0.0f,0.0f,0.0f };
 	transformArray[1].pos = { 10.0f,0.0f,0.0f };
 	transformArray[2].pos = { 20.0f,0.0f,0.0f };
@@ -83,6 +76,8 @@ RenderScene::RenderScene()
 
 	texFlag = true;
 
+
+	clearGBuffer.SetBuffer(testRArray[0]->GetDrawData()->buffer[2], GRAPHICS_PRAMTYPE_DATA);
 }
 
 RenderScene::~RenderScene()
@@ -135,7 +130,7 @@ void RenderScene::Draw()
 
 	testRArray[0]->DrawCall(transformArray[0], colorArray[0], 0, motherMat);
 	testRArray[1]->DrawCall(transformArray[1], colorArray[1], 0, motherMat);
-	//testRArray[2]->DrawTexPlane(transformArray[2], colorArray[2], 0, motherMat);
+	testRArray[2]->DrawTexPlane(transformArray[2], colorArray[2], 0, motherMat);
 
 	rasterizeRenderer.Draw();
 
