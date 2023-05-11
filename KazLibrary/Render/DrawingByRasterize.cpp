@@ -100,7 +100,6 @@ void DrawingByRasterize::Update()
 
 void DrawingByRasterize::Draw()
 {
-	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
 
 	//今までスタックした描画情報をもとに描画
 	for (int lDrawIndex = 0; lDrawIndex < graphicDataArray.size(); ++lDrawIndex)

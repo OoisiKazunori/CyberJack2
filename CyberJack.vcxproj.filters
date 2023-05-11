@@ -182,6 +182,7 @@
     <ClCompile Include="KazLibrary\Buffer\BufferDuplicateBlocking.cpp" />
     <ClCompile Include="KazLibrary\Buffer\DrawFuncData.cpp" />
     <ClCompile Include="KazLibrary\Buffer\Polygon.cpp" />
+    <ClCompile Include="KazLibrary\Helper\Compute.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -380,6 +381,7 @@
     <ClInclude Include="KazLibrary\Buffer\DrawFuncData.h" />
     <ClInclude Include="KazLibrary\Imgui\stb_image.h" />
     <ClInclude Include="KazLibrary\Buffer\Polygon.h" />
+    <ClInclude Include="KazLibrary\Helper\Compute.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

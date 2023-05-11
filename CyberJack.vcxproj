@@ -225,6 +225,7 @@
     <ClCompile Include="KazLibrary\DirectXCommon\DirectX12Device.cpp" />
     <ClCompile Include="KazLibrary\Easing\easing.cpp" />
     <ClCompile Include="KazLibrary\Fps\FPSManager.cpp" />
+    <ClCompile Include="KazLibrary\Helper\Compute.cpp" />
     <ClCompile Include="KazLibrary\Helper\DirtyFlag.cpp" />
     <ClCompile Include="KazLibrary\Helper\HandleMaker.cpp" />
     <ClCompile Include="KazLibrary\Helper\ISinglton.cpp" />
@@ -412,6 +413,7 @@
     <ClInclude Include="KazLibrary\dxcapi.h" />
     <ClInclude Include="KazLibrary\Easing\easing.h" />
     <ClInclude Include="KazLibrary\Fps\FPSManager.h" />
+    <ClInclude Include="KazLibrary\Helper\Compute.h" />
     <ClInclude Include="KazLibrary\Helper\DebugColor.h" />
     <ClInclude Include="KazLibrary\Helper\DirtyFlag.h" />
     <ClInclude Include="KazLibrary\Helper\HandleMaker.h" />

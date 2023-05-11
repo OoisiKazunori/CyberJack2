@@ -63,13 +63,17 @@ RenderScene::RenderScene()
 
 		planeData = texBuffer.GeneratePlaneTexBuffer(
 			{
-				static_cast<float>(testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer()->GetDesc().Width),
-				static_cast<float>(testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer()->GetDesc().Height)
+				1.0f,
+				1.0f
+			},
+			{
+				static_cast<int>(testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer()->GetDesc().Width),
+				static_cast<int>(testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer()->GetDesc().Height)
 			}
 		);
 
 		testRArray[2] = std::make_unique<DrawFunc::KazRender>(
-			DrawFunc::SetTransformData(&rasterizeRenderer, spriteR.drawIndexInstanceCommandData, lData)
+			DrawFunc::SetTransformData(&rasterizeRenderer, planeData.index, lData)
 			);
 
 		//Albedo用のG-Bufferを生成
@@ -79,7 +83,9 @@ RenderScene::RenderScene()
 	}
 	transformArray[0].pos = { 0.0f,0.0f,0.0f };
 	transformArray[1].pos = { 10.0f,0.0f,0.0f };
-	transformArray[2].pos = { 20.0f,0.0f,0.0f };
+	transformArray[2].pos = { 1280.0f,720.0f,0.0f };
+	transformArray[2].scale = { 0.5f,0.5f,0.0f };
+
 
 	colorArray[0] = { 155,155,155,255 };
 	colorArray[1] = { 155,0,0,155 };
@@ -89,6 +95,33 @@ RenderScene::RenderScene()
 
 
 	//clearGBuffer.SetBuffer(testRArray[0]->GetDrawData()->buffer[2], GRAPHICS_PRAMTYPE_DATA);
+
+	//コンピュートシェーダーの生成
+	{
+		DispatchComputeShader::ComputeData computeData;
+		//設定
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};
+		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+		desc.NodeMask = 0;
+		computeData.desc = desc;
+		//シェーダーのパス
+		computeData.shaderData = ShaderOptionData(KazFilePathName::ComputeShaderPath + "ClearGBuffer.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE);
+
+		//ディスパッチのアドレス
+		dispatchData.x = 1280;
+		dispatchData.y = 720;
+		dispatchData.z = 1;
+		computeData.dispatchData = &dispatchData;
+
+		//セットするバッファ
+		computeData.bufferArray =
+		{
+			{testRArray[0]->GetDrawData()->buffer[2]}
+		};
+
+		//積む
+		compute.Stack(computeData);
+	}
 }
 
 RenderScene::~RenderScene()
@@ -118,24 +151,13 @@ void RenderScene::Update()
 	CameraMgr::Instance()->Camera(camera.GetEyePos(), camera.GetTargetPos(), { 0.0f,1.0f,0.0f });
 
 
-	/*testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
-
-	testRArray[2]->GetDrawData()->buffer[1]->bufferWrapper.CopyBuffer(
-		testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer(),
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		D3D12_RESOURCE_STATE_COPY_DEST
-	);
-
-	testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.ChangeBarrier(D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);*/
-
-
-
 	rasterizeRenderer.Update();
-
+	compute.Update();
 }
 
 void RenderScene::Draw()
 {
+	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
 	RenderTargetStatus::Instance()->SetDoubleBufferFlame();
 	RenderTargetStatus::Instance()->ClearDoubuleBuffer(BG_COLOR);
 
@@ -143,6 +165,7 @@ void RenderScene::Draw()
 	testRArray[1]->DrawCall(transformArray[1], colorArray[1], 0, motherMat);
 	testRArray[2]->DrawTexPlane(transformArray[2], colorArray[2], 0, motherMat);
 
+	compute.Compute();
 	rasterizeRenderer.Draw();
 
 }

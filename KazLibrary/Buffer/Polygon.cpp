@@ -112,7 +112,7 @@ PolygonIndexData PolygonBuffer::GenerateBoxBuffer(float scale)
 
 PolygonIndexData PolygonBuffer::GeneratePlaneBuffer(float scale)
 {
-	std::vector<DirectX::XMFLOAT3> lVertices = GetPlaneVertices({ 0.5f,0.5f }, { scale ,scale });
+	std::vector<DirectX::XMFLOAT3> lVertices = GetPlaneVertices({ 0.5f,0.5f }, { scale ,scale }, { 1,1 });
 	std::vector<USHORT> lIndices;
 	for (int i = 0; i < 6; ++i)
 	{
@@ -132,9 +132,9 @@ PolygonIndexData PolygonBuffer::GeneratePlaneBuffer(float scale)
 	return result;
 }
 
-PolygonIndexData PolygonBuffer::GeneratePlaneTexBuffer(const KazMath::Vec2<float> &scale)
+PolygonIndexData PolygonBuffer::GeneratePlaneTexBuffer(const KazMath::Vec2<float> &scale, const KazMath::Vec2<int> &texSize)
 {
-	std::vector<DirectX::XMFLOAT3> lVertices = GetPlaneVertices({ 0.5f,0.5f }, scale);
+	std::vector<DirectX::XMFLOAT3> lVertices = GetPlaneVertices({ 0.5f,0.5f }, scale, texSize);
 	std::vector<DirectX::XMFLOAT2> lUv(4);
 	KazRenderHelper::InitUvPos(&lUv[0], &lUv[1], &lUv[2], &lUv[3]);
 	std::vector<VertUvData> lVertUv;
@@ -156,7 +156,7 @@ PolygonIndexData PolygonBuffer::GeneratePlaneTexBuffer(const KazMath::Vec2<float
 	result.indexBuffer = GenerateIndexBuffer(lIndices);
 	result.index = KazRenderHelper::SetDrawIndexInstanceCommandData(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVertices.size(), sizeof(VertUvData)), sizeof(lVertices[0])),
+		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVertUv.size(), sizeof(VertUvData)), sizeof(lVertUv[0])),
 		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
 		static_cast<UINT>(lIndices.size()),
 		1
@@ -164,13 +164,20 @@ PolygonIndexData PolygonBuffer::GeneratePlaneTexBuffer(const KazMath::Vec2<float
 	return result;
 }
 
-std::vector<DirectX::XMFLOAT3> PolygonBuffer::GetPlaneVertices(const KazMath::Vec2<float> &anchorPoint, const KazMath::Vec2<float> &scale)
+std::vector<DirectX::XMFLOAT3> PolygonBuffer::GetPlaneVertices(const KazMath::Vec2<float> &anchorPoint, const KazMath::Vec2<float> &scale, const KazMath::Vec2<int> &texSize)
 {
 	std::vector<DirectX::XMFLOAT3> vertices(4);
 	KazRenderHelper::InitVerticesPos(&vertices[0], &vertices[1], &vertices[2], &vertices[3], anchorPoint.ConvertXMFLOAT2());
 
 	KazMath::Vec2<float>leftUpPos(vertices[0].x, vertices[0].y);
 	KazMath::Vec2<float>rightDownPos(vertices[3].x, vertices[3].y);
+
+	std::array<KazMath::Vec2<float>, 4> vertArray = KazRenderHelper::ChangePlaneScale(leftUpPos, rightDownPos, scale, anchorPoint, texSize);
+
+	for (int i = 0; i < vertArray.size(); ++i)
+	{
+		vertices[i] = { vertArray[i].x,vertArray[i].y,0.0f };
+	}
 
 	return vertices;
 }

@@ -28,6 +28,32 @@ RESOURCE_HANDLE PipelineDuplicateBlocking::GeneratePipeline(const D3D12_GRAPHICS
 	return lHandle;
 }
 
+RESOURCE_HANDLE PipelineDuplicateBlocking::GeneratePipeline(const D3D12_COMPUTE_PIPELINE_STATE_DESC &DATA)
+{
+	//重複チェック
+	for (int i = 0; i < bufferGenerateDataArray.size(); ++i)
+	{
+		bool lCheckFlag = false;
+		//bufferGenerateDataArray[i].VS.pShaderBytecode == DATA.VS.pShaderBytecode;
+
+		//重複を確認したら返す
+		if (lCheckFlag)
+		{
+			return i;
+		}
+	}
+
+	//重複がなければ生成
+	RESOURCE_HANDLE lHandle = handle.GetHandle();
+	bufferArray.emplace_back();
+	HRESULT lResult = DirectX12Device::Instance()->dev->CreateComputePipelineState(&DATA, IID_PPV_ARGS(&bufferArray[lHandle]));
+	if (lResult != S_OK)
+	{
+		return -1;
+	}
+	return lHandle;
+}
+
 Microsoft::WRL::ComPtr<ID3D12PipelineState> PipelineDuplicateBlocking::GetBuffer(RESOURCE_HANDLE HANDLE)
 {
 	return bufferArray[HANDLE];

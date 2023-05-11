@@ -25,7 +25,6 @@ RWTexture2D<float4> colorBuffer : register(u0);
 
 float4 PSmain(ColorOutput input) : SV_TARGET
 {
-    uint index = input.svpos.y * 1280 + input.svpos.x;
     colorBuffer[input.svpos.xy] = input.color;
     return input.color;
 }

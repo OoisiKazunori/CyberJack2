@@ -279,8 +279,8 @@ namespace DrawFunc
 			//s—ñ
 			DirectX::XMMATRIX lMat =
 				KazMath::CaluWorld(TRANSFORM, { 0.0f,1.0f,0.0f }, { 0.0f,0.0f,1.0f }) *
-				CameraMgr::Instance()->GetViewMatrix() *
-				CameraMgr::Instance()->GetPerspectiveMatProjection();
+				//CameraMgr::Instance()->GetViewMatrix() *
+				CameraMgr::Instance()->GetOrthographicMatProjection();
 			lData->buffer[0]->bufferWrapper.TransData(&lMat, sizeof(DirectX::XMMATRIX));
 		};
 

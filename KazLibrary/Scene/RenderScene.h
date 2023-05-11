@@ -8,7 +8,7 @@
 #include"../Buffer/DescriptorHeapMgr.h"
 #include"../Buffer/UavViewHandleMgr.h"
 #include"../Buffer/Polygon.h"
-
+#include"../KazLibrary/Helper/Compute.h"
 
 class RenderScene :public SceneBase
 {
@@ -27,6 +27,7 @@ public:
 
 private:
 	DrawingByRasterize rasterizeRenderer;
+	DispatchComputeShader compute;
 
 	std::array<std::unique_ptr<DrawFunc::KazRender>, 3> testRArray;
 	std::array<KazMath::Transform3D, 3> transformArray;
@@ -51,6 +52,9 @@ private:
 	PolygonBuffer texBuffer;
 	PolygonIndexData boxData;
 	PolygonIndexData planeData;
+
+
+	DispatchComputeShader::DispatchData dispatchData;
 
 };
 

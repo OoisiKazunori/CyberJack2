@@ -32,7 +32,7 @@ public:
 
 	PolygonIndexData GenerateBoxBuffer(float scale);
 	PolygonIndexData GeneratePlaneBuffer(float scale);
-	PolygonIndexData GeneratePlaneTexBuffer(const KazMath::Vec2<float> &scale);
+	PolygonIndexData GeneratePlaneTexBuffer(const KazMath::Vec2<float> &scale, const KazMath::Vec2<int> &texSize);
 private:
 	std::shared_ptr<KazBufferHelper::BufferData> cpuVertBuffer;
 	std::shared_ptr<KazBufferHelper::BufferData> cpuIndexBuffer;
@@ -51,5 +51,5 @@ private:
 	};
 
 
-	std::vector<DirectX::XMFLOAT3>GetPlaneVertices(const KazMath::Vec2<float> &anchorPoint, const KazMath::Vec2<float> &scale);
+	std::vector<DirectX::XMFLOAT3>GetPlaneVertices(const KazMath::Vec2<float> &anchorPoint, const KazMath::Vec2<float> &scale, const KazMath::Vec2<int> &texSize);
 };

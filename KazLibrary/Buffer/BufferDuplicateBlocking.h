@@ -3,6 +3,7 @@
 #include"../KazLibrary/Helper/HandleMaker.h"
 #include"../KazLibrary/Pipeline/Shader.h"
 #include"../KazLibrary/Pipeline/GraphicsRootSignature.h"
+#include"../KazLibrary/Helper/KazBufferHelper.h"
 
 /// <summary>
 /// バッファを生成する際に同じ設定の場合に生成せず同じ情報を返す処理
@@ -14,6 +15,7 @@ public:
 	{}
 
 	RESOURCE_HANDLE GeneratePipeline(const D3D12_GRAPHICS_PIPELINE_STATE_DESC &DATA);
+	RESOURCE_HANDLE GeneratePipeline(const D3D12_COMPUTE_PIPELINE_STATE_DESC &DATA);
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> GetBuffer(RESOURCE_HANDLE HANDLE);
 
 private:
@@ -47,6 +49,24 @@ public:
 	RESOURCE_HANDLE GenerateRootSignature(const RootSignatureDataTest &DATA);
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> GetBuffer(RESOURCE_HANDLE HANDLE);
 	const std::vector<RootSignatureParameter> &GetRootParam(RESOURCE_HANDLE ROOTSIGNATURE_HANDLE);
+
+
+	RootSignatureDataTest GetGenerateData(std::vector<std::shared_ptr<KazBufferHelper::BufferData>>bufferArray)
+	{
+		RootSignatureDataTest lRootSignatureGenerateData;
+		//ルートシグネチャの生成
+		for (int i = 0; i < bufferArray.size(); ++i)
+		{
+			lRootSignatureGenerateData.rangeArray.emplace_back
+			(
+				bufferArray[i]->rangeType,
+				bufferArray[i]->rootParamType
+			);
+		}
+
+		return lRootSignatureGenerateData;
+
+	}
 
 private:
 	HandleMaker handle;
