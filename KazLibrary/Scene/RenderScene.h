@@ -49,9 +49,11 @@ private:
 
 
 	PolygonBuffer boxBuffer;
+	PolygonBuffer boxNormalBuffer;
 	PolygonBuffer texBuffer;
 	PolygonIndexData boxData;
 	PolygonIndexData planeData;
+	PolygonIndexData boxNormalData;
 
 
 	DispatchComputeShader::DispatchData dispatchData;

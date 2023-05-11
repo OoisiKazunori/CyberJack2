@@ -44,13 +44,14 @@ RenderScene::RenderScene()
 
 	//フォワードレンダリングで描画する立方体
 	{
+		boxNormalData = boxNormalBuffer.GenerateBoxNormalBuffer(1.0f);
 		DrawFunc::PipelineGenerateData lData;
-		lData.desc = DrawFuncPipelineData::SetTest();
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "TestDraw.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "TestDraw.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.desc = DrawFuncPipelineData::SetPosNormal();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "TestDraw.hlsl", "VSPosNormalmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "TestDraw.hlsl", "PSPosNormalmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
 		testRArray[1] = std::make_unique<DrawFunc::KazRender>(
-			DrawFunc::SetDrawPolygonIndexData(&rasterizeRenderer, boxData.index, lData)
+			DrawFunc::SetDrawPolygonIndexData(&rasterizeRenderer, boxNormalData.index, lData)
 			);
 	}
 
@@ -70,7 +71,7 @@ RenderScene::RenderScene()
 				static_cast<int>(testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer()->GetDesc().Width),
 				static_cast<int>(testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer()->GetDesc().Height)
 			}
-		);
+			);
 
 		testRArray[2] = std::make_unique<DrawFunc::KazRender>(
 			DrawFunc::SetTransformData(&rasterizeRenderer, planeData.index, lData)

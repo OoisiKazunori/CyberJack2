@@ -38,41 +38,41 @@ PolygonIndexData PolygonBuffer::GenerateBoxBuffer(float scale)
 
 	std::vector<DirectX::XMFLOAT3> lVertices =
 	{
-	//前
-	{-lSize, -lSize, -lSize},	//左下
-	{-lSize,  lSize, -lSize},		//左上
-	{ lSize, -lSize, -lSize},		//右下
-	{ lSize,  lSize, -lSize},		//右上
+		//前
+		{-lSize, -lSize, -lSize},	//左下
+		{-lSize,  lSize, -lSize},		//左上
+		{ lSize, -lSize, -lSize},		//右下
+		{ lSize,  lSize, -lSize},		//右上
 
-	//後
-	{-lSize,-lSize,  lSize}, 	//左下
-	{-lSize, lSize,  lSize}, 	//左上
-	{ lSize,-lSize,  lSize},	//右下
-	{ lSize, lSize,  lSize},	//右上
+		//後
+		{-lSize,-lSize,  lSize}, 	//左下
+		{-lSize, lSize,  lSize}, 	//左上
+		{ lSize,-lSize,  lSize},	//右下
+		{ lSize, lSize,  lSize},	//右上
 
-	//左
-	{-lSize,-lSize, -lSize},	//左下
-	{-lSize,-lSize,  lSize}, 	//左上
-	{-lSize, lSize, -lSize}, 	//右下
-	{-lSize, lSize,  lSize}, 	//右上
+		//左
+		{-lSize,-lSize, -lSize},	//左下
+		{-lSize,-lSize,  lSize}, 	//左上
+		{-lSize, lSize, -lSize}, 	//右下
+		{-lSize, lSize,  lSize}, 	//右上
 
-	//右
-	{lSize,-lSize, -lSize},	//左下
-	{lSize,-lSize,  lSize},	//左上
-	{lSize, lSize, -lSize},	//右下
-	{lSize, lSize,  lSize},	//右上
+		//右
+		{lSize,-lSize, -lSize},	//左下
+		{lSize,-lSize,  lSize},	//左上
+		{lSize, lSize, -lSize},	//右下
+		{lSize, lSize,  lSize},	//右上
 
-	//下
-	{ lSize, -lSize, lSize}, 	//左下
-	{ lSize, -lSize,-lSize}, 	//左上
-	{-lSize, -lSize, lSize}, 	//右下
-	{-lSize, -lSize,-lSize}, //右上
+		//下
+		{ lSize, -lSize, lSize}, 	//左下
+		{ lSize, -lSize,-lSize}, 	//左上
+		{-lSize, -lSize, lSize}, 	//右下
+		{-lSize, -lSize,-lSize}, //右上
 
-	//上
-	{ lSize, lSize, lSize},		//左下
-	{ lSize, lSize,-lSize},		//左上
-	{-lSize, lSize, lSize},		//右下
-	{-lSize, lSize,-lSize}	//右上
+		//上
+		{ lSize, lSize, lSize},		//左下
+		{ lSize, lSize,-lSize},		//左上
+		{-lSize, lSize, lSize},		//右下
+		{-lSize, lSize,-lSize}	//右上
 	};
 
 	std::vector<USHORT> lIndices =
@@ -103,6 +103,103 @@ PolygonIndexData PolygonBuffer::GenerateBoxBuffer(float scale)
 	result.index = KazRenderHelper::SetDrawIndexInstanceCommandData(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
 		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVertices.size(), sizeof(DirectX::XMFLOAT3)), sizeof(lVertices[0])),
+		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
+		static_cast<UINT>(lIndices.size()),
+		1
+	);
+	return result;
+}
+
+PolygonIndexData PolygonBuffer::GenerateBoxNormalBuffer(float scale)
+{
+	const float lSize = scale;
+
+	std::vector<DirectX::XMFLOAT3> lVertices =
+	{
+		//前
+		{-lSize, -lSize, -lSize},	//左下
+		{-lSize,  lSize, -lSize},		//左上
+		{ lSize, -lSize, -lSize},		//右下
+		{ lSize,  lSize, -lSize},		//右上
+
+		//後
+		{-lSize,-lSize,  lSize}, 	//左下
+		{-lSize, lSize,  lSize}, 	//左上
+		{ lSize,-lSize,  lSize},	//右下
+		{ lSize, lSize,  lSize},	//右上
+
+		//左
+		{-lSize,-lSize, -lSize},	//左下
+		{-lSize,-lSize,  lSize}, 	//左上
+		{-lSize, lSize, -lSize}, 	//右下
+		{-lSize, lSize,  lSize}, 	//右上
+
+		//右
+		{lSize,-lSize, -lSize},	//左下
+		{lSize,-lSize,  lSize},	//左上
+		{lSize, lSize, -lSize},	//右下
+		{lSize, lSize,  lSize},	//右上
+
+		//下
+		{ lSize, -lSize, lSize}, 	//左下
+		{ lSize, -lSize,-lSize}, 	//左上
+		{-lSize, -lSize, lSize}, 	//右下
+		{-lSize, -lSize,-lSize}, //右上
+
+		//上
+		{ lSize, lSize, lSize},		//左下
+		{ lSize, lSize,-lSize},		//左上
+		{-lSize, lSize, lSize},		//右下
+		{-lSize, lSize,-lSize}	//右上
+	};
+
+	std::vector<USHORT> lIndices =
+	{
+		//前
+		0,1,2,		//三角形1つ目
+		2,1,3,		//三角形2つ目
+		//後
+		4,6,5,		//三角形3つ目
+		6,7,5,		//三角形4つ目
+		//左
+		8,9,10,		//三角形1つ目
+		10,9,11,	//三角形2つ目
+		//右
+		12,14,13,	//三角形1つ目
+		13,14,15,	//三角形2つ目
+		//下
+		16,18,17,	//三角形1つ目
+		17,18,19,	//三角形2つ目
+		//上
+		20,21,22,	//三角形3つ目
+		22,21,23	//三角形4つ目
+	};
+
+
+	struct VertNormal
+	{
+		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT3 normal;
+	};
+
+	std::vector<DirectX::XMFLOAT3>normalArray = GetBoxNormal(lVertices, lIndices);
+
+
+	std::vector<VertNormal>vertNormalArray;
+	for (int i = 0; i < lVertices.size(); ++i)
+	{
+		vertNormalArray.emplace_back();
+		vertNormalArray.back().pos = lVertices[i];
+		vertNormalArray.back().normal = normalArray[i];
+	}
+
+
+	PolygonIndexData result;
+	result.vertBuffer = GenerateVertexBuffer(vertNormalArray.data(), sizeof(VertNormal), vertNormalArray.size());
+	result.indexBuffer = GenerateIndexBuffer(lIndices);
+	result.index = KazRenderHelper::SetDrawIndexInstanceCommandData(
+		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(vertNormalArray.size(), sizeof(VertNormal)), sizeof(vertNormalArray[0])),
 		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
 		static_cast<UINT>(lIndices.size()),
 		1
@@ -180,4 +277,44 @@ std::vector<DirectX::XMFLOAT3> PolygonBuffer::GetPlaneVertices(const KazMath::Ve
 	}
 
 	return vertices;
+}
+
+std::vector<DirectX::XMFLOAT3> PolygonBuffer::GetBoxNormal(std::vector<DirectX::XMFLOAT3>VERT, std::vector<USHORT>INDEX)
+{
+	std::vector<DirectX::XMFLOAT3>normalArray;
+
+	//法線ベクトル
+	for (unsigned int i = 0; i < INDEX.size() / 3; i++)
+	{
+		USHORT index[3];
+
+		//三角形のインデックスを取り出して、一時的な変数に入れる
+		index[0] = INDEX[i * 3 + 0];
+		index[1] = INDEX[i * 3 + 1];
+		index[2] = INDEX[i * 3 + 2];
+
+		//三角形を構築する頂点座標をベクトルに代入
+		DirectX::XMVECTOR p0 = DirectX::XMLoadFloat3(&VERT[index[0]]);
+		DirectX::XMVECTOR p1 = DirectX::XMLoadFloat3(&VERT[index[1]]);
+		DirectX::XMVECTOR p2 = DirectX::XMLoadFloat3(&VERT[index[2]]);
+
+		//p0-p1,p0-p2ベクトルを計算(ベクトルの減算)
+		DirectX::XMVECTOR v1 = DirectX::XMVectorSubtract(p1, p0);
+		DirectX::XMVECTOR v2 = DirectX::XMVectorSubtract(p2, p0);
+
+		//外積は両方から垂直なベクトル
+		DirectX::XMVECTOR normal = DirectX::XMVector3Cross(v1, v2);
+
+		//正規化(長さを1にする)
+		normal = DirectX::XMVector3Normalize(normal);
+
+		normalArray.emplace_back();
+		normalArray.emplace_back();
+		normalArray.emplace_back();
+		//求めた法線を頂点データを代入
+		DirectX::XMStoreFloat3(&normalArray[index[0]], normal);
+		DirectX::XMStoreFloat3(&normalArray[index[1]], normal);
+		DirectX::XMStoreFloat3(&normalArray[index[2]], normal);
+	}
+	return normalArray;
 }

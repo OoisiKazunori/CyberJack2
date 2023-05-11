@@ -142,10 +142,10 @@ void KazRenderHelper::UVCut(const KazMath::Vec2<int> &UV_DIV_LEFTUP_POS, const K
 
 void KazRenderHelper::InitUvPos(DirectX::XMFLOAT2 *UV_LEFTUP_POS, DirectX::XMFLOAT2 *UV_LEFTDOWN_POS, DirectX::XMFLOAT2 *UV_RIGHTUP_POS, DirectX::XMFLOAT2 *UV_RIGHTDOWN_POS)
 {
-	*UV_LEFTUP_POS = { 0.0f,0.0f };
-	*UV_LEFTDOWN_POS = { 0.0f,1.0f };
-	*UV_RIGHTUP_POS = { 1.0f,0.0f };
-	*UV_RIGHTDOWN_POS = { 1.0f,1.0f };
+	*UV_LEFTUP_POS = { 0.0f,1.0f };
+	*UV_LEFTDOWN_POS = { 0.0f,0.0f };
+	*UV_RIGHTUP_POS = { 1.0f,1.0f };
+	*UV_RIGHTDOWN_POS = { 1.0f,0.0f };
 }
 
 void KazRenderHelper::InitVerticesPos(DirectX::XMFLOAT3 *LEFTUP_POS, DirectX::XMFLOAT3 *LEFTDOWN_POS, DirectX::XMFLOAT3 *RIGHTUP_POS, DirectX::XMFLOAT3 *RIGHTDOWN_POS, const DirectX::XMFLOAT2 &ANCHOR_POINT)

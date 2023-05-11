@@ -10,7 +10,7 @@ float4 PSmain(VSOutput input) : SV_TARGET
 	float light_diffuse = saturate(dot(-light, input.normal));//環境光...diffuseを[0,1]の範囲にClampする
 	
 	float3 shade_color;
-	shade_color = m_ambient + 0.5;					//アンビエント
+	shade_color = m_ambient + 0.5;			  //アンビエント
 	shade_color += m_diffuse * light_diffuse; //ディフューズ項
 
 	float4 texColor = tex.Sample(smp, input.uv);
