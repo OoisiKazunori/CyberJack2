@@ -107,8 +107,8 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 		KeyBoradInputManager *input = KeyBoradInputManager::Instance();
 
 		debugCameraMove = { 0,0,0 };
-		float debugSpeed = 10000.0f;
-		float debugSideSpeed = 10.0f;
+		float debugSpeed = 1.0f;
+		float debugSideSpeed = 1.0f;
 		if (input->InputState(DIK_D))
 		{
 			debugCameraMove.x = -debugSpeed;

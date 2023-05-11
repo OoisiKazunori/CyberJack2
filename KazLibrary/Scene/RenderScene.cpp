@@ -84,7 +84,7 @@ RenderScene::RenderScene()
 	transformArray[0].pos = { 0.0f,0.0f,0.0f };
 	transformArray[1].pos = { 10.0f,0.0f,0.0f };
 	transformArray[2].pos = { 1280.0f,720.0f,0.0f };
-	transformArray[2].scale = { 0.5f,0.5f,0.0f };
+	transformArray[2].scale = { 0.25f,0.25f,0.0f };
 
 
 	colorArray[0] = { 155,155,155,255 };
