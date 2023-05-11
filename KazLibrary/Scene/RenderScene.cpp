@@ -56,8 +56,6 @@ RenderScene::RenderScene()
 			DrawFunc::SetDrawPolygonIndexData(&rasterizeRenderer, boxData.index, lData)
 			);
 
-		//Albedo用のG-Bufferを生成
-		int lBufferSize = 1280 * 720;
 		testRArray[0]->GetDrawData()->buffer.emplace_back(gBuffer[0]);
 
 	}
@@ -67,12 +65,15 @@ RenderScene::RenderScene()
 		boxNormalData = boxNormalBuffer.GenerateBoxNormalBuffer(1.0f);
 		DrawFunc::PipelineGenerateData lData;
 		lData.desc = DrawFuncPipelineData::SetPosNormal();
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "TestDraw.hlsl", "VSPosNormalmain", "vs_6_4", SHADER_TYPE_VERTEX);
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "TestDraw.hlsl", "PSPosNormalmain", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DefferdRender.hlsl", "VSPosNormalmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DefferdRender.hlsl", "PSPosNormalmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
 		testRArray[1] = std::make_unique<DrawFunc::KazRender>(
 			DrawFunc::SetDrawPolygonIndexData(&rasterizeRenderer, boxNormalData.index, lData)
 			);
+
+		testRArray[1]->GetDrawData()->buffer.emplace_back(gBuffer[0]);
+		testRArray[1]->GetDrawData()->buffer.emplace_back(gBuffer[1]);
 	}
 
 	//G-Bufferの描画確認用の板ポリ
@@ -137,7 +138,8 @@ RenderScene::RenderScene()
 		//セットするバッファ
 		computeData.bufferArray =
 		{
-			{gBuffer[0]}
+			gBuffer[0],
+			gBuffer[1]
 		};
 
 		//積む

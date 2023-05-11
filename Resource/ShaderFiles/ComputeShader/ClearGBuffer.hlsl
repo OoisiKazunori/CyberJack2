@@ -1,9 +1,12 @@
 
 
-RWTexture2D<float4> albedoBuffer : register(u0);
+RWTexture2D<float4> albedoGBuffer : register(u0);
+RWTexture2D<float4> normalGBuffer : register(u1);
+
 
 [numthreads(1, 1, 1)]
 void CSmain(uint3 groupId : SV_GroupID)
-{
-    albedoBuffer[groupId.xy] = float4(0,0,0,1);
+{    
+    albedoGBuffer[groupId.xy] = float4(0,0,0,1);
+    normalGBuffer[groupId.xy] = float4(0,0,0,1);
 }
