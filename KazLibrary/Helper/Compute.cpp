@@ -56,31 +56,31 @@ void DispatchComputeShader::Compute()
 
 }
 
-void DispatchComputeShader::SetBufferOnCmdList(const std::vector<std::shared_ptr<KazBufferHelper::BufferData>> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM)
+void DispatchComputeShader::SetBufferOnCmdList(const std::vector<KazBufferHelper::BufferData> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM)
 
 {
 	for (int i = 0; i < BUFFER_ARRAY.size(); ++i)
 	{
-		const int L_PARAM = KazRenderHelper::SetBufferOnCmdList(ROOT_PARAM, BUFFER_ARRAY[i]->rangeType, BUFFER_ARRAY[i]->rootParamType);
+		const int L_PARAM = KazRenderHelper::SetBufferOnCmdList(ROOT_PARAM, BUFFER_ARRAY[i].rangeType, BUFFER_ARRAY[i].rootParamType);
 
 		//デスクリプタヒープにコマンドリストに積む。余りが偶数ならデスクリプタヒープだと判断する
-		if (BUFFER_ARRAY[i]->rangeType % 2 == 0)
+		if (BUFFER_ARRAY[i].rangeType % 2 == 0)
 		{
-			DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(L_PARAM, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(BUFFER_ARRAY[i]->GetViewHandle()));
+			DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(L_PARAM, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(BUFFER_ARRAY[i].GetViewHandle()));
 			continue;
 		}
 
 		//ビューで積む際はそれぞれの種類に合わせてコマンドリストに積む
-		switch (BUFFER_ARRAY[i]->rangeType)
+		switch (BUFFER_ARRAY[i].rangeType)
 		{
 		case GRAPHICS_RANGE_TYPE_SRV_VIEW:
-			DirectX12CmdList::Instance()->cmdList->SetComputeRootShaderResourceView(L_PARAM, BUFFER_ARRAY[i]->bufferWrapper.GetBuffer()->GetGPUVirtualAddress());
+			DirectX12CmdList::Instance()->cmdList->SetComputeRootShaderResourceView(L_PARAM, BUFFER_ARRAY[i].bufferWrapper->GetBuffer()->GetGPUVirtualAddress());
 			break;
 		case GRAPHICS_RANGE_TYPE_UAV_VIEW:
-			DirectX12CmdList::Instance()->cmdList->SetComputeRootUnorderedAccessView(L_PARAM, BUFFER_ARRAY[i]->bufferWrapper.GetBuffer()->GetGPUVirtualAddress());
+			DirectX12CmdList::Instance()->cmdList->SetComputeRootUnorderedAccessView(L_PARAM, BUFFER_ARRAY[i].bufferWrapper->GetBuffer()->GetGPUVirtualAddress());
 			break;
 		case GRAPHICS_RANGE_TYPE_CBV_VIEW:
-			DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(L_PARAM, BUFFER_ARRAY[i]->bufferWrapper.GetBuffer()->GetGPUVirtualAddress());
+			DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(L_PARAM, BUFFER_ARRAY[i].bufferWrapper->GetBuffer()->GetGPUVirtualAddress());
 			break;
 		default:
 			break;

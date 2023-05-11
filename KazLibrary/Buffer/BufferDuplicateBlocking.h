@@ -51,7 +51,7 @@ public:
 	const std::vector<RootSignatureParameter> &GetRootParam(RESOURCE_HANDLE ROOTSIGNATURE_HANDLE);
 
 
-	RootSignatureDataTest GetGenerateData(std::vector<std::shared_ptr<KazBufferHelper::BufferData>>bufferArray)
+	RootSignatureDataTest GetGenerateData(std::vector<KazBufferHelper::BufferData>bufferArray)
 	{
 		RootSignatureDataTest lRootSignatureGenerateData;
 		//ルートシグネチャの生成
@@ -59,8 +59,8 @@ public:
 		{
 			lRootSignatureGenerateData.rangeArray.emplace_back
 			(
-				bufferArray[i]->rangeType,
-				bufferArray[i]->rootParamType
+				bufferArray[i].rangeType,
+				bufferArray[i].rootParamType
 			);
 		}
 

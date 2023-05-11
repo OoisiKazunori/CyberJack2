@@ -17,11 +17,11 @@ ColorOutput VSmain(float4 pos : POSITION, float2 uv : TEXCOORD)
     return op;
 }
 
-RWTexture2D<float4> albedoGBuffer : register(u0);
+RWTexture2D<float4> GBuffer : register(u0);
 SamplerState smp : register(s0);
 
 float4 PSmain(ColorOutput input) : SV_TARGET
 {
-    float4 output = albedoGBuffer[input.uv * uint2(1280,720)];
+    float4 output = GBuffer[input.uv * uint2(1280,720)];
     return output;
 }

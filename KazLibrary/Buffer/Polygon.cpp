@@ -5,12 +5,12 @@ std::shared_ptr<KazBufferHelper::BufferData> PolygonBuffer::GenerateVertexBuffer
 	BUFFER_SIZE lSize = static_cast<BUFFER_SIZE>(arraySize * structureSize);
 	//RAMのバッファに一度転送---------------------------------------
 	cpuVertBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetVertexBufferData(lSize));
-	cpuVertBuffer->bufferWrapper.TransData(verticesPos, lSize);
+	cpuVertBuffer->bufferWrapper->TransData(verticesPos, lSize);
 	//RAMのバッファに一度転送---------------------------------------
 
 	//VRAMのバッファにコピー---------------------------------------
 	vertBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData(lSize));
-	vertBuffer->bufferWrapper.CopyBuffer(cpuVertBuffer->bufferWrapper.GetBuffer(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST);
+	vertBuffer->bufferWrapper->CopyBuffer(cpuVertBuffer->bufferWrapper->GetBuffer(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST);
 	//VRAMのバッファにコピー---------------------------------------
 
 	return cpuVertBuffer;
@@ -21,12 +21,12 @@ std::shared_ptr<KazBufferHelper::BufferData> PolygonBuffer::GenerateIndexBuffer(
 	BUFFER_SIZE lSize = static_cast<BUFFER_SIZE>(indices.size() * sizeof(USHORT));
 	//RAMのバッファに一度転送---------------------------------------
 	cpuIndexBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetIndexBufferData(lSize));
-	cpuIndexBuffer->bufferWrapper.TransData(indices.data(), lSize);
+	cpuIndexBuffer->bufferWrapper->TransData(indices.data(), lSize);
 	//RAMのバッファに一度転送---------------------------------------
 
 	//VRAMのバッファにコピー---------------------------------------
 	//indexBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData(lSize));
-	//indexBuffer->bufferWrapper.CopyBuffer(cpuIndexBuffer->bufferWrapper.GetBuffer(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST);
+	//indexBuffer->bufferWrapper->CopyBuffer(cpuIndexBuffer->bufferWrapper->GetBuffer(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST);
 	//VRAMのバッファにコピー---------------------------------------
 
 	return cpuIndexBuffer;
@@ -102,8 +102,8 @@ PolygonIndexData PolygonBuffer::GenerateBoxBuffer(float scale)
 	result.indexBuffer = GenerateIndexBuffer(lIndices);
 	result.index = KazRenderHelper::SetDrawIndexInstanceCommandData(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVertices.size(), sizeof(DirectX::XMFLOAT3)), sizeof(lVertices[0])),
-		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
+		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVertices.size(), sizeof(DirectX::XMFLOAT3)), sizeof(lVertices[0])),
+		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
 		static_cast<UINT>(lIndices.size()),
 		1
 	);
@@ -199,8 +199,8 @@ PolygonIndexData PolygonBuffer::GenerateBoxNormalBuffer(float scale)
 	result.indexBuffer = GenerateIndexBuffer(lIndices);
 	result.index = KazRenderHelper::SetDrawIndexInstanceCommandData(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(vertNormalArray.size(), sizeof(VertNormal)), sizeof(vertNormalArray[0])),
-		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
+		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(vertNormalArray.size(), sizeof(VertNormal)), sizeof(vertNormalArray[0])),
+		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
 		static_cast<UINT>(lIndices.size()),
 		1
 	);
@@ -221,8 +221,8 @@ PolygonIndexData PolygonBuffer::GeneratePlaneBuffer(float scale)
 	result.indexBuffer = GenerateIndexBuffer(lIndices);
 	result.index = KazRenderHelper::SetDrawIndexInstanceCommandData(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVertices.size(), sizeof(DirectX::XMFLOAT3)), sizeof(lVertices[0])),
-		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
+		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVertices.size(), sizeof(DirectX::XMFLOAT3)), sizeof(lVertices[0])),
+		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
 		static_cast<UINT>(lIndices.size()),
 		1
 	);
@@ -253,8 +253,8 @@ PolygonIndexData PolygonBuffer::GeneratePlaneTexBuffer(const KazMath::Vec2<float
 	result.indexBuffer = GenerateIndexBuffer(lIndices);
 	result.index = KazRenderHelper::SetDrawIndexInstanceCommandData(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVertUv.size(), sizeof(VertUvData)), sizeof(lVertUv[0])),
-		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper.GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
+		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVertUv.size(), sizeof(VertUvData)), sizeof(lVertUv[0])),
+		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
 		static_cast<UINT>(lIndices.size()),
 		1
 	);

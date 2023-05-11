@@ -30,11 +30,11 @@ private:
 	DispatchComputeShader compute;
 
 	std::array<std::unique_ptr<DrawFunc::KazRender>, 3> testRArray;
-	std::array<KazMath::Transform3D, 3> transformArray;
+	std::array<KazMath::Transform3D, 4> transformArray;
 	std::array<KazMath::Color, 3> colorArray;
 	DirectX::XMMATRIX motherMat;
 
-	std::shared_ptr<KazBufferHelper::BufferData>textureBuffer;
+	KazBufferHelper::BufferData textureBuffer;
 
 	KazMath::Vec2<int>texSize;
 
@@ -48,7 +48,7 @@ private:
 	ResouceBufferHelper clearGBuffer;
 
 
-	std::array<std::shared_ptr<KazBufferHelper::BufferData>, 2>gBuffer;
+	std::array<KazBufferHelper::BufferData, 2>gBuffer;
 
 	PolygonBuffer boxBuffer;
 	PolygonBuffer boxNormalBuffer;
@@ -59,5 +59,7 @@ private:
 
 	DispatchComputeShader::DispatchData dispatchData;
 
+
+	std::unique_ptr<DrawFunc::KazRender>normalGBufferRender;
 };
 

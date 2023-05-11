@@ -25,7 +25,7 @@ public:
 		D3D12_COMPUTE_PIPELINE_STATE_DESC desc;
 		ShaderOptionData shaderData;
 		const DispatchData *dispatchData;
-		std::vector<std::shared_ptr<KazBufferHelper::BufferData>>bufferArray;
+		std::vector<KazBufferHelper::BufferData>bufferArray;
 
 		//デバック情報
 		std::source_location drawCallData;
@@ -41,10 +41,10 @@ private:
 	struct ComputeBufferData
 	{
 		RESOURCE_HANDLE pipelineHandle, rootsignatureHandle, shaderHandle;
-		std::vector<std::shared_ptr<KazBufferHelper::BufferData>>bufferArray;
+		std::vector<KazBufferHelper::BufferData>bufferArray;
 		const DispatchData *dispatchData;
 
-		ComputeBufferData(const DispatchData *DISPATCH_DATA, std::vector<std::shared_ptr<KazBufferHelper::BufferData>>BUFFER_ARRAY,
+		ComputeBufferData(const DispatchData *DISPATCH_DATA, std::vector<KazBufferHelper::BufferData>BUFFER_ARRAY,
 			RESOURCE_HANDLE PIPELINE_HANDLE, RESOURCE_HANDLE ROOTSIGNATURE_HANDLE, RESOURCE_HANDLE SHADER_HANDLE) :
 			pipelineHandle(PIPELINE_HANDLE), rootsignatureHandle(ROOTSIGNATURE_HANDLE), shaderHandle(SHADER_HANDLE),
 			bufferArray(BUFFER_ARRAY), dispatchData(DISPATCH_DATA)
@@ -63,7 +63,7 @@ private:
 	std::vector<ComputeBufferData>generateComputeArray;	//生成用
 
 	//描画に必要なバッファをコマンドリストに積む
-	void SetBufferOnCmdList(const  std::vector<std::shared_ptr<KazBufferHelper::BufferData>> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM);
+	void SetBufferOnCmdList(const  std::vector<KazBufferHelper::BufferData> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM);
 
 
 	//何処の描画関数から呼び出されたかエラー文を書く

@@ -34,7 +34,7 @@ public:
 	/// <param name="RESOURCE">読み込みたい画像のファイルパス</param>
 	/// <returns>ハンドル</returns>
 	RESOURCE_HANDLE LoadGraph(std::string RESOURCE);
-	std::shared_ptr<KazBufferHelper::BufferData> LoadGraphBuffer(std::string RESOURCE);
+	KazBufferHelper::BufferData LoadGraphBuffer(std::string RESOURCE);
 	
 	/// <summary>
 	///  ファイルパスを書いて画像を読み込み、分割します
@@ -106,7 +106,7 @@ private:
 	vector<DivGraphData> divData;
 
 	HandleMaker handle;
-	std::vector<std::shared_ptr<KazBufferHelper::BufferData>>bufferArray;
+	std::vector<KazBufferHelper::BufferData>bufferArray;
 
 	friend ISingleton<TextureResourceMgr>;
 };

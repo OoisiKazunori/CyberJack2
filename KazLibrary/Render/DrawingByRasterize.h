@@ -40,7 +40,7 @@ public:
 
 
 		//その他描画に必要なバッファ情報
-		std::vector<std::shared_ptr<KazBufferHelper::BufferData>> buffer;
+		std::vector<KazBufferHelper::BufferData> buffer;
 
 		//デバック情報
 		std::source_location drawCallData;
@@ -90,7 +90,7 @@ private:
 
 
 	//描画に必要なバッファをコマンドリストに積む
-	void SetBufferOnCmdList(const  std::vector<std::shared_ptr<KazBufferHelper::BufferData>> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM);
+	void SetBufferOnCmdList(const  std::vector<KazBufferHelper::BufferData> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM);
 
 	//頂点情報のセット
 	void DrawIndexInstanceCommand(const KazRenderHelper::DrawIndexInstanceCommandData &DATA);
@@ -239,9 +239,9 @@ namespace DrawFunc
 			//その他必要なバッファのセット
 			for (int i = 0; i < INIT_DATA.bufferResourceDataArray.size(); ++i)
 			{
-				lData->buffer.emplace_back(std::make_shared<KazBufferHelper::BufferData>(INIT_DATA.bufferResourceDataArray[i].resourceData));
-				lData->buffer[i]->rangeType = INIT_DATA.bufferResourceDataArray[i].rangeType;
-				lData->buffer[i]->rootParamType = INIT_DATA.bufferResourceDataArray[i].rootParam;
+				lData->buffer.emplace_back(INIT_DATA.bufferResourceDataArray[i].resourceData);
+				lData->buffer[i].rangeType = INIT_DATA.bufferResourceDataArray[i].rangeType;
+				lData->buffer[i].rootParamType = INIT_DATA.bufferResourceDataArray[i].rootParam;
 			}
 
 			//デバック用の情報のセット
@@ -266,10 +266,10 @@ namespace DrawFunc
 				KazMath::CaluWorld(TRANSFORM, { 0.0f,1.0f,0.0f }, { 0.0f,0.0f,1.0f }) *
 				CameraMgr::Instance()->GetViewMatrix() *
 				CameraMgr::Instance()->GetPerspectiveMatProjection();
-			lData->buffer[0]->bufferWrapper.TransData(&lMat, sizeof(DirectX::XMMATRIX));
+			lData->buffer[0].bufferWrapper->TransData(&lMat, sizeof(DirectX::XMMATRIX));
 			//色
 			DirectX::XMFLOAT4 lColor = COLOR.ConvertColorRateToXMFLOAT4();
-			lData->buffer[1]->bufferWrapper.TransData(&lColor, sizeof(DirectX::XMFLOAT4));
+			lData->buffer[1].bufferWrapper->TransData(&lColor, sizeof(DirectX::XMFLOAT4));
 		};
 
 		void DrawTexPlane(const KazMath::Transform3D &TRANSFORM, const KazMath::Color &COLOR, int CAMERA_INDEX, const DirectX::XMMATRIX &MOTHER_MAT)
@@ -281,7 +281,7 @@ namespace DrawFunc
 				KazMath::CaluWorld(TRANSFORM, { 0.0f,1.0f,0.0f }, { 0.0f,0.0f,1.0f }) *
 				//CameraMgr::Instance()->GetViewMatrix() *
 				CameraMgr::Instance()->GetOrthographicMatProjection();
-			lData->buffer[0]->bufferWrapper.TransData(&lMat, sizeof(DirectX::XMMATRIX));
+			lData->buffer[0].bufferWrapper->TransData(&lMat, sizeof(DirectX::XMMATRIX));
 		};
 
 		//よく使う処理は関数に纏める----------------------------------------

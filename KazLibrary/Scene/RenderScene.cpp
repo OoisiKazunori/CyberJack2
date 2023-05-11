@@ -9,7 +9,7 @@ RenderScene::RenderScene()
 	boxData = boxBuffer.GenerateBoxBuffer(1.0f);
 
 	{
-		gBuffer[0] = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetUAVTexBuffer(1280, 720, "G-Buffer_Albedo"));
+		gBuffer[0] = KazBufferHelper::SetUAVTexBuffer(1280, 720, "G-Buffer_Albedo");
 		RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
@@ -19,14 +19,14 @@ RenderScene::RenderScene()
 		uavDesc.Buffer.NumElements = 1280 * 720;
 		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 
-		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, gBuffer[0]->bufferWrapper.GetBuffer().Get());
-		gBuffer[0]->CreateViewHandle(view);
-		gBuffer[0]->elementNum = 1280 * 720;
-		gBuffer[0]->rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		gBuffer[0]->rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, gBuffer[0].bufferWrapper->GetBuffer().Get());
+		gBuffer[0].CreateViewHandle(view);
+		gBuffer[0].elementNum = 1280 * 720;
+		gBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 	}
 	{
-		gBuffer[1] = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetUAVTexBuffer(1280, 720, "G-Buffer_Normal"));
+		gBuffer[1] = KazBufferHelper::SetUAVTexBuffer(1280, 720, "G-Buffer_Normal");
 		RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
@@ -36,11 +36,11 @@ RenderScene::RenderScene()
 		uavDesc.Buffer.NumElements = 1280 * 720;
 		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 
-		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, gBuffer[1]->bufferWrapper.GetBuffer().Get());
-		gBuffer[1]->CreateViewHandle(view);
-		gBuffer[1]->elementNum = 1280 * 720;
-		gBuffer[1]->rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		gBuffer[1]->rootParamType = GRAPHICS_PRAMTYPE_DATA4;
+		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, gBuffer[1].bufferWrapper->GetBuffer().Get());
+		gBuffer[1].CreateViewHandle(view);
+		gBuffer[1].elementNum = 1280 * 720;
+		gBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 	}
 
 
@@ -56,8 +56,8 @@ RenderScene::RenderScene()
 			DrawFunc::SetDrawPolygonIndexData(&rasterizeRenderer, boxData.index, lData)
 			);
 
+		gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 		testRArray[0]->GetDrawData()->buffer.emplace_back(gBuffer[0]);
-
 	}
 
 	//フォワードレンダリングで描画する立方体
@@ -72,6 +72,8 @@ RenderScene::RenderScene()
 			DrawFunc::SetDrawPolygonIndexData(&rasterizeRenderer, boxNormalData.index, lData)
 			);
 
+		gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+		gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA4;
 		testRArray[1]->GetDrawData()->buffer.emplace_back(gBuffer[0]);
 		testRArray[1]->GetDrawData()->buffer.emplace_back(gBuffer[1]);
 	}
@@ -89,8 +91,8 @@ RenderScene::RenderScene()
 				1.0f
 			},
 			{
-				static_cast<int>(testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer()->GetDesc().Width),
-				static_cast<int>(testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer()->GetDesc().Height)
+				static_cast<int>(gBuffer[0].bufferWrapper->GetBuffer()->GetDesc().Width),
+				static_cast<int>(gBuffer[0].bufferWrapper->GetBuffer()->GetDesc().Height)
 			}
 			);
 
@@ -98,15 +100,37 @@ RenderScene::RenderScene()
 			DrawFunc::SetTransformData(&rasterizeRenderer, planeData.index, lData)
 			);
 
+		gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 		//Albedo用のG-Bufferを生成
 		testRArray[2]->GetDrawData()->buffer.emplace_back(
-			testRArray[0]->GetDrawData()->buffer[2]
+			gBuffer[0]
 		);
 	}
+
+	{
+		DrawFunc::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetTex();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawGBuffer.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawGBuffer.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
+
+		normalGBufferRender = std::make_unique<DrawFunc::KazRender>(
+			DrawFunc::SetTransformData(&rasterizeRenderer, planeData.index, lData)
+			);
+
+		gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		//Albedo用のG-Bufferを生成
+		normalGBufferRender->GetDrawData()->buffer.emplace_back(
+			gBuffer[1]
+		);
+	}
+
 	transformArray[0].pos = { 0.0f,0.0f,0.0f };
 	transformArray[1].pos = { 10.0f,0.0f,0.0f };
 	transformArray[2].pos = { 1280.0f,720.0f,0.0f };
 	transformArray[2].scale = { 0.25f,0.25f,0.0f };
+
+	transformArray[3].pos = { 1280.0f,400.0f,0.0f };
+	transformArray[3].scale = { 0.25f,0.25f,0.0f };
 
 
 	colorArray[0] = { 155,155,155,255 };
@@ -134,6 +158,9 @@ RenderScene::RenderScene()
 		dispatchData.y = 720;
 		dispatchData.z = 1;
 		computeData.dispatchData = &dispatchData;
+
+		gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
 		//セットするバッファ
 		computeData.bufferArray =
@@ -174,6 +201,7 @@ void RenderScene::Update()
 	CameraMgr::Instance()->Camera(camera.GetEyePos(), camera.GetTargetPos(), { 0.0f,1.0f,0.0f });
 
 
+
 	rasterizeRenderer.Update();
 	compute.Update();
 }
@@ -187,6 +215,9 @@ void RenderScene::Draw()
 	testRArray[0]->DrawCall(transformArray[0], colorArray[0], 0, motherMat);
 	testRArray[1]->DrawCall(transformArray[1], colorArray[1], 0, motherMat);
 	testRArray[2]->DrawTexPlane(transformArray[2], colorArray[2], 0, motherMat);
+
+	transformArray[3].pos.y = 525.0f;
+	normalGBufferRender->DrawTexPlane(transformArray[3], colorArray[2], 0, motherMat);
 
 	compute.Compute();
 	rasterizeRenderer.Draw();

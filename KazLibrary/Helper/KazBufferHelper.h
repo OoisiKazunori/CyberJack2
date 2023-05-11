@@ -171,8 +171,8 @@ namespace KazBufferHelper
 
 	struct BufferData
 	{
-		ID3D12ResourceWrapper bufferWrapper;
-		ID3D12ResourceWrapper counterWrapper;
+		std::shared_ptr<ID3D12ResourceWrapper> bufferWrapper;
+		std::shared_ptr<ID3D12ResourceWrapper> counterWrapper;
 		GraphicsRangeType rangeType;
 		GraphicsRootParamType rootParamType;
 		UINT bufferSize;
@@ -180,7 +180,8 @@ namespace KazBufferHelper
 
 		BufferData(const KazBufferHelper::BufferResourceData &BUFFER_DATA) :rangeType(GRAPHICS_RANGE_TYPE_NONE), rootParamType(GRAPHICS_PRAMTYPE_NONE), bufferSize(0), elementNum(0)
 		{
-			bufferWrapper.CreateBuffer(BUFFER_DATA);
+			bufferWrapper = std::make_shared<ID3D12ResourceWrapper>();
+			bufferWrapper->CreateBuffer(BUFFER_DATA);
 		}
 		BufferData() :rangeType(GRAPHICS_RANGE_TYPE_NONE), rootParamType(GRAPHICS_PRAMTYPE_NONE), bufferSize(0), elementNum(0)
 		{
