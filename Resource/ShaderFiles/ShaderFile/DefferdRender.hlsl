@@ -66,7 +66,7 @@ float4 PSPosNormalmain(ColorNormalOutput input) : SV_TARGET
     float brightness = diffuse + 0.3f;
 
     albedoGBuffer[input.svpos.xy] = input.color;
-    normalGBuffer[input.svpos.xy] = float4(brightness, brightness, brightness, 1);
+    normalGBuffer[input.svpos.xy] = float4(input.normal.x, input.normal.y, input.normal.z, 1);
 
     return input.color * float4(brightness, brightness, brightness, 1);
 }

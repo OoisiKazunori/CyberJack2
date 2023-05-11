@@ -6,7 +6,7 @@ RWTexture2D<float4> normalGBuffer : register(u1);
 void CSmain(uint3 groupId : SV_GroupID)
 {    
     albedoGBuffer[groupId.xy] = float4(0,0,0,1);
-    normalGBuffer[groupId.xy] = float4(0,0,0,1);
+    normalGBuffer[groupId.xy] = float4(0,0,0,0);
 }
 //ÉNÉäÉAèàóù---------------------------------------
 
