@@ -30,7 +30,7 @@ private:
 	DispatchComputeShader compute;
 
 	std::array<std::unique_ptr<DrawFunc::KazRender>, 3> testRArray;
-	std::array<KazMath::Transform3D, 4> transformArray;
+	std::array<KazMath::Transform3D, 5> transformArray;
 	std::array<KazMath::Color, 3> colorArray;
 	DirectX::XMMATRIX motherMat;
 
@@ -49,6 +49,7 @@ private:
 
 
 	std::array<KazBufferHelper::BufferData, 2>gBuffer;
+	KazBufferHelper::BufferData finalGBuffer;
 
 	PolygonBuffer boxBuffer;
 	PolygonBuffer boxNormalBuffer;
@@ -61,5 +62,6 @@ private:
 
 
 	std::unique_ptr<DrawFunc::KazRender>normalGBufferRender;
+	std::unique_ptr<DrawFunc::KazRender>finalGBufferRender;
 };
 

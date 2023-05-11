@@ -42,6 +42,23 @@ RenderScene::RenderScene()
 		gBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 		gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 	}
+	{
+		finalGBuffer = KazBufferHelper::SetUAVTexBuffer(1280, 720, "G-Buffer_Final");
+		RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
+
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+		uavDesc.Buffer.FirstElement = 0;
+		uavDesc.Buffer.NumElements = 1280 * 720;
+		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+
+		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, finalGBuffer.bufferWrapper->GetBuffer().Get());
+		finalGBuffer.CreateViewHandle(view);
+		finalGBuffer.elementNum = 1280 * 720;
+		finalGBuffer.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		finalGBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+	}
 
 
 	//G-Bufferに書き込む予定のオブジェクト
@@ -107,6 +124,7 @@ RenderScene::RenderScene()
 		);
 	}
 
+	//法線描画用
 	{
 		DrawFunc::PipelineGenerateData lData;
 		lData.desc = DrawFuncPipelineData::SetTex();
@@ -124,13 +142,32 @@ RenderScene::RenderScene()
 		);
 	}
 
+	//最終合成
+	{
+		DrawFunc::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetTex();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawGBuffer.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawGBuffer.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
+
+		finalGBufferRender = std::make_unique<DrawFunc::KazRender>(
+			DrawFunc::SetTransformData(&rasterizeRenderer, planeData.index, lData)
+			);
+
+		finalGBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		//Albedo用のG-Bufferを生成
+		finalGBufferRender->GetDrawData()->buffer.emplace_back(
+			finalGBuffer
+		);
+	}
+
 	transformArray[0].pos = { 0.0f,0.0f,0.0f };
 	transformArray[1].pos = { 10.0f,0.0f,0.0f };
 	transformArray[2].pos = { 1280.0f,720.0f,0.0f };
 	transformArray[2].scale = { 0.25f,0.25f,0.0f };
-
-	transformArray[3].pos = { 1280.0f,400.0f,0.0f };
+	transformArray[3].pos = { 1280.0f,525.0f,0.0f };
 	transformArray[3].scale = { 0.25f,0.25f,0.0f };
+	transformArray[4].pos = { 1280.0f,300.0f,0.0f };
+	transformArray[4].scale = { 0.25f,0.25f,0.0f };
 
 
 	colorArray[0] = { 155,155,155,255 };
@@ -142,7 +179,41 @@ RenderScene::RenderScene()
 
 	//clearGBuffer.SetBuffer(testRArray[0]->GetDrawData()->buffer[2], GRAPHICS_PRAMTYPE_DATA);
 
-	//コンピュートシェーダーの生成
+
+	//ライティングパス
+	{
+		DispatchComputeShader::ComputeData computeData;
+		//設定
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};
+		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+		desc.NodeMask = 0;
+		computeData.desc = desc;
+		//シェーダーのパス
+		computeData.shaderData = ShaderOptionData(KazFilePathName::ComputeShaderPath + "DefferdRenderLightingPass.hlsl", "CSLightingPass", "cs_6_4", SHADER_TYPE_COMPUTE);
+
+		//ディスパッチのアドレス
+		dispatchData.x = 1280;
+		dispatchData.y = 720;
+		dispatchData.z = 1;
+		computeData.dispatchData = &dispatchData;
+
+		gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		finalGBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+
+		//セットするバッファ
+		computeData.bufferArray =
+		{
+			finalGBuffer,
+			gBuffer[0],
+			gBuffer[1]
+		};
+
+		//積む
+		compute.Stack(computeData);
+	}
+
+	//クリア処理
 	{
 		DispatchComputeShader::ComputeData computeData;
 		//設定
@@ -172,6 +243,7 @@ RenderScene::RenderScene()
 		//積む
 		compute.Stack(computeData);
 	}
+
 }
 
 RenderScene::~RenderScene()
@@ -216,8 +288,8 @@ void RenderScene::Draw()
 	testRArray[1]->DrawCall(transformArray[1], colorArray[1], 0, motherMat);
 	testRArray[2]->DrawTexPlane(transformArray[2], colorArray[2], 0, motherMat);
 
-	transformArray[3].pos.y = 525.0f;
 	normalGBufferRender->DrawTexPlane(transformArray[3], colorArray[2], 0, motherMat);
+	finalGBufferRender->DrawTexPlane(transformArray[4], colorArray[2], 0, motherMat);
 
 	compute.Compute();
 	rasterizeRenderer.Draw();
