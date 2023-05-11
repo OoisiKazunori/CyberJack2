@@ -8,6 +8,42 @@ RenderScene::RenderScene()
 
 	boxData = boxBuffer.GenerateBoxBuffer(1.0f);
 
+	{
+		gBuffer[0] = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetUAVTexBuffer(1280, 720, "G-Buffer_Albedo"));
+		RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
+
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+		uavDesc.Buffer.FirstElement = 0;
+		uavDesc.Buffer.NumElements = 1280 * 720;
+		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+
+		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, gBuffer[0]->bufferWrapper.GetBuffer().Get());
+		gBuffer[0]->CreateViewHandle(view);
+		gBuffer[0]->elementNum = 1280 * 720;
+		gBuffer[0]->rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		gBuffer[0]->rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+	}
+	{
+		gBuffer[1] = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetUAVTexBuffer(1280, 720, "G-Buffer_Normal"));
+		RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
+
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+		uavDesc.Buffer.FirstElement = 0;
+		uavDesc.Buffer.NumElements = 1280 * 720;
+		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+
+		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, gBuffer[1]->bufferWrapper.GetBuffer().Get());
+		gBuffer[1]->CreateViewHandle(view);
+		gBuffer[1]->elementNum = 1280 * 720;
+		gBuffer[1]->rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		gBuffer[1]->rootParamType = GRAPHICS_PRAMTYPE_DATA4;
+	}
+
+
 	//G-Bufferに書き込む予定のオブジェクト
 	{
 		DrawFunc::PipelineGenerateData lData;
@@ -22,24 +58,8 @@ RenderScene::RenderScene()
 
 		//Albedo用のG-Bufferを生成
 		int lBufferSize = 1280 * 720;
-		testRArray[0]->GetDrawData()->buffer.emplace_back(
-			std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetUAVTexBuffer(1280, 720, "G-Buffer_Write"))
-		);
-		RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
+		testRArray[0]->GetDrawData()->buffer.emplace_back(gBuffer[0]);
 
-		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-		uavDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-		uavDesc.Buffer.FirstElement = 0;
-		uavDesc.Buffer.NumElements = 1280 * 720;
-		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
-
-
-		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, testRArray[0]->GetDrawData()->buffer[2]->bufferWrapper.GetBuffer().Get());
-		testRArray[0]->GetDrawData()->buffer[2]->CreateViewHandle(view);
-		testRArray[0]->GetDrawData()->buffer[2]->elementNum = 1280 * 720;
-		testRArray[0]->GetDrawData()->buffer[2]->rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		testRArray[0]->GetDrawData()->buffer[2]->rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 	}
 
 	//フォワードレンダリングで描画する立方体
@@ -117,7 +137,7 @@ RenderScene::RenderScene()
 		//セットするバッファ
 		computeData.bufferArray =
 		{
-			{testRArray[0]->GetDrawData()->buffer[2]}
+			{gBuffer[0]}
 		};
 
 		//積む

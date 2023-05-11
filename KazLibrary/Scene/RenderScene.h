@@ -48,13 +48,14 @@ private:
 	ResouceBufferHelper clearGBuffer;
 
 
+	std::array<std::shared_ptr<KazBufferHelper::BufferData>, 2>gBuffer;
+
 	PolygonBuffer boxBuffer;
 	PolygonBuffer boxNormalBuffer;
 	PolygonBuffer texBuffer;
 	PolygonIndexData boxData;
 	PolygonIndexData planeData;
 	PolygonIndexData boxNormalData;
-
 
 	DispatchComputeShader::DispatchData dispatchData;
 

@@ -15,7 +15,6 @@ cbuffer ColorBuffer : register(b1)
 
 
 
-
 //’PF‘Î‰---------------------------------------
 struct ColorOutput
 {
