@@ -34,7 +34,8 @@ ColorOutput VSmain(float4 pos : POSITION)
 }
 
 float4 PSmain(ColorOutput input) : SV_TARGET
-{
+{    
+    input.color.a = 1.0f;
     albedoGBuffer[input.svpos.xy] = input.color;
     return input.color;
 }
@@ -65,6 +66,7 @@ float4 PSPosNormalmain(ColorNormalOutput input) : SV_TARGET
     float diffuse = saturate(dot(-light, input.normal));
     float brightness = diffuse + 0.3f;
 
+    input.color.a = 1.0f;
     albedoGBuffer[input.svpos.xy] = input.color;
     normalGBuffer[input.svpos.xy] = float4(input.normal.x, input.normal.y, input.normal.z, 1);
 

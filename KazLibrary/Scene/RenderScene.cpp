@@ -13,7 +13,7 @@ RenderScene::RenderScene()
 		RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-		uavDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		uavDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 		uavDesc.Buffer.FirstElement = 0;
 		uavDesc.Buffer.NumElements = 1280 * 720;
@@ -30,7 +30,7 @@ RenderScene::RenderScene()
 		RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-		uavDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		uavDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 		uavDesc.Buffer.FirstElement = 0;
 		uavDesc.Buffer.NumElements = 1280 * 720;
@@ -47,7 +47,7 @@ RenderScene::RenderScene()
 		RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-		uavDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		uavDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
 		uavDesc.Buffer.FirstElement = 0;
 		uavDesc.Buffer.NumElements = 1280 * 720;
@@ -59,6 +59,7 @@ RenderScene::RenderScene()
 		finalGBuffer.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 		finalGBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 	}
+	//ワールド座標、ラフネス、メタルネス、スぺキュラ、オブジェクトが反射するか屈折するか(インデックス)、Albedo、法線、カメラ座標(定数バッファでも可能)
 
 
 	//G-Bufferに書き込む予定のオブジェクト

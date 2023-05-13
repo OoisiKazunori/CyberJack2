@@ -8,8 +8,7 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 
 #pragma region InputLayOut
 	{
-		D3D12_INPUT_ELEMENT_DESC *input3DLayOut = new D3D12_INPUT_ELEMENT_DESC[3];
-
+		static D3D12_INPUT_ELEMENT_DESC input3DLayOut[3];
 		input3DLayOut[0] =
 		{
 			"POSITION",
@@ -44,14 +43,14 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		};
 
 
-		InputLayOutData *input = new InputLayOutData();
-		input->inputLayOut = input3DLayOut;
-		input->size = 3;
-		GraphicsPipeLineMgr::Instance()->RegisterInputLayOutWithData(*input, LAYOUT_POS_NORMAL_TEX);
+		static InputLayOutData input;
+		input.inputLayOut = input3DLayOut;
+		input.size = 3;
+		GraphicsPipeLineMgr::Instance()->RegisterInputLayOutWithData(input, LAYOUT_POS_NORMAL_TEX);
 	};
 
 	{
-		D3D12_INPUT_ELEMENT_DESC *input3DLayOut = new D3D12_INPUT_ELEMENT_DESC[2];
+		static D3D12_INPUT_ELEMENT_DESC input3DLayOut[2];
 
 		input3DLayOut[0] =
 		{
@@ -76,15 +75,14 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		};
 
 
-		InputLayOutData *input = new InputLayOutData();
-		input->inputLayOut = input3DLayOut;
-		input->size = 2;
-		GraphicsPipeLineMgr::Instance()->RegisterInputLayOutWithData(*input, LAYOUT_POS_NORMAL);
+		static InputLayOutData input;
+		input.inputLayOut = input3DLayOut;
+		input.size = 2;
+		GraphicsPipeLineMgr::Instance()->RegisterInputLayOutWithData(input, LAYOUT_POS_NORMAL);
 	};
 
 	{
-		D3D12_INPUT_ELEMENT_DESC *input2DLayOut = new D3D12_INPUT_ELEMENT_DESC[2];
-
+		static D3D12_INPUT_ELEMENT_DESC input2DLayOut[2];
 		input2DLayOut[0] =
 		{
 		"POSITION",
@@ -108,19 +106,18 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		};
 
 
-		InputLayOutData *input = new InputLayOutData;
-		input->inputLayOut = input2DLayOut;
-		input->size = 2;
-		GraphicsPipeLineMgr::Instance()->RegisterInputLayOutWithData(*input, LAYOUT_POS_TEX);
+		static InputLayOutData input;
+		input.inputLayOut = input2DLayOut;
+		input.size = 2;
+		GraphicsPipeLineMgr::Instance()->RegisterInputLayOutWithData(input, LAYOUT_POS_TEX);
 	}
 
 
 
 
 	{
-		D3D12_INPUT_ELEMENT_DESC *inputColorLayOut = new D3D12_INPUT_ELEMENT_DESC;
-
-		inputColorLayOut[0] =
+		static D3D12_INPUT_ELEMENT_DESC inputColorLayOut;
+		inputColorLayOut =
 		{
 		"POSITION",
 		0,
@@ -131,18 +128,17 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		0
 		};
 
-		InputLayOutData *input = new InputLayOutData;
-
-		input->inputLayOut = inputColorLayOut;
-		input->size = 1;
-		GraphicsPipeLineMgr::Instance()->RegisterInputLayOutWithData(*input, LAYOUT_POS);
+		static InputLayOutData input;
+		input.inputLayOut = &inputColorLayOut;
+		input.size = 1;
+		GraphicsPipeLineMgr::Instance()->RegisterInputLayOutWithData(input, LAYOUT_POS);
 	}
 
 
 
 
 	{
-		D3D12_INPUT_ELEMENT_DESC *inputFbxLayOut = new D3D12_INPUT_ELEMENT_DESC[5];
+		static D3D12_INPUT_ELEMENT_DESC inputFbxLayOut[5];
 
 		inputFbxLayOut[0] =
 		{
@@ -200,16 +196,15 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		};
 
 
-		InputLayOutData *input = new InputLayOutData;
+		static InputLayOutData input;
 
-		input->inputLayOut = inputFbxLayOut;
-		input->size = 5;
-		GraphicsPipeLineMgr::Instance()->RegisterInputLayOutWithData(*input, LAYOUT_POS_NORMAL_TEX_BONE_WEIGHT);
+		input.inputLayOut = inputFbxLayOut;
+		input.size = 5;
+		GraphicsPipeLineMgr::Instance()->RegisterInputLayOutWithData(input, LAYOUT_POS_NORMAL_TEX_BONE_WEIGHT);
 	}
 
 	{
-		D3D12_INPUT_ELEMENT_DESC *inputLineLayOut = new D3D12_INPUT_ELEMENT_DESC[2];
-
+		static D3D12_INPUT_ELEMENT_DESC inputLineLayOut[5];
 
 		inputLineLayOut[0] =
 		{
@@ -233,10 +228,10 @@ PreCreateBasePipeLine::PreCreateBasePipeLine()
 		0
 		};
 
-		InputLayOutData *input = new InputLayOutData;
-		input->inputLayOut = inputLineLayOut;
-		input->size = 2;
-		GraphicsPipeLineMgr::Instance()->RegisterInputLayOutWithData(*input, LAYOUT_POS_TICK);
+		static InputLayOutData input;
+		input.inputLayOut = inputLineLayOut;
+		input.size = 2;
+		GraphicsPipeLineMgr::Instance()->RegisterInputLayOutWithData(input, LAYOUT_POS_TICK);
 	}
 #pragma endregion
 

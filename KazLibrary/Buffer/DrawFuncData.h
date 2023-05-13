@@ -76,7 +76,9 @@ namespace DrawFuncPipelineData
 		//パイプラインの設定
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC gPipeline{};
 
-		D3D12_INPUT_ELEMENT_DESC *input3DLayOut = new D3D12_INPUT_ELEMENT_DESC
+
+
+		static D3D12_INPUT_ELEMENT_DESC input3DLayOut =
 		{
 			"POSITION",
 			0,
@@ -86,7 +88,7 @@ namespace DrawFuncPipelineData
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
 			0
 		};
-		gPipeline.InputLayout.pInputElementDescs = input3DLayOut;
+		gPipeline.InputLayout.pInputElementDescs = &input3DLayOut;
 		gPipeline.InputLayout.NumElements = 1;
 
 		//サンプルマスク
@@ -121,7 +123,7 @@ namespace DrawFuncPipelineData
 		//パイプラインの設定
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC gPipeline{};
 
-		D3D12_INPUT_ELEMENT_DESC *input3DLayOut = new D3D12_INPUT_ELEMENT_DESC[2];
+		static D3D12_INPUT_ELEMENT_DESC input3DLayOut[2];
 		input3DLayOut[0] =
 		{
 			"POSITION",
@@ -153,6 +155,7 @@ namespace DrawFuncPipelineData
 		CD3DX12_RASTERIZER_DESC rasterrize(D3D12_DEFAULT);
 		rasterrize.CullMode = D3D12_CULL_MODE_NONE;
 		gPipeline.RasterizerState = rasterrize;
+
 		//ブレンドモード
 		gPipeline.BlendState.RenderTarget[0] = SetAlphaBlend();
 
@@ -180,7 +183,7 @@ namespace DrawFuncPipelineData
 		//パイプラインの設定
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC gPipeline{};
 
-		D3D12_INPUT_ELEMENT_DESC *input3DLayOut = new D3D12_INPUT_ELEMENT_DESC[2];
+		static D3D12_INPUT_ELEMENT_DESC input3DLayOut[2];
 
 		input3DLayOut[0] =
 		{

@@ -5,10 +5,10 @@
 /// <summary>
 /// それぞれのステージが切り替わった際に現在のステージ数を知らせるUI
 /// </summary>
-class AnnounceStageUI
+class AnnouncementOfStageUI
 {
 public:
-	AnnounceStageUI();
+	AnnouncementOfStageUI();
 
 	void Init();
 	void Update();

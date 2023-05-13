@@ -4,7 +4,7 @@
 #include"../KazLibrary/Imgui/MyImgui.h"
 #include"../KazLibrary/Helper/KazHelper.h"
 
-AnnounceStageUI::AnnounceStageUI()
+AnnouncementOfStageUI::AnnouncementOfStageUI()
 {
 	flameTex.data.handleData = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::StageUIPath + "Flame.png");
 	areaTex[0].data.handleData = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::StageUIPath + "A.png");
@@ -26,7 +26,7 @@ AnnounceStageUI::AnnounceStageUI()
 	basePos = { 640.0f,150.0f };
 }
 
-void AnnounceStageUI::Init()
+void AnnouncementOfStageUI::Init()
 {
 	flameTex.data.transform.scale = { 0.0f,0.1f };
 	larpScale = { 0.0f,0.1f };
@@ -46,7 +46,7 @@ void AnnounceStageUI::Init()
 	}
 }
 
-void AnnounceStageUI::Update()
+void AnnouncementOfStageUI::Update()
 {
 	if (startFlag)
 	{
@@ -134,7 +134,7 @@ void AnnounceStageUI::Update()
 
 }
 
-void AnnounceStageUI::Draw()
+void AnnouncementOfStageUI::Draw()
 {
 	for (int i = 0; i < areaNum; ++i)
 	{
@@ -143,7 +143,7 @@ void AnnounceStageUI::Draw()
 	flameTex.Draw();
 }
 
-void AnnounceStageUI::AnnounceStage(int STAGE_NUM)
+void AnnouncementOfStageUI::AnnounceStage(int STAGE_NUM)
 {
 	stageNum = STAGE_NUM;
 	startFlag = true;

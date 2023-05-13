@@ -10,12 +10,12 @@ void CSLightingPass(uint3 groupId : SV_GroupID)
     float diffuse = saturate(dot(-light, normalGBuffer[groupId.xy].xyz));
     float brightness = diffuse + 0.3f;
 
-    //法線に情報を何も書いていなければライトの影響を受けない
     if(normalGBuffer[groupId.xy].w == 0.0f)
     {
         brightness = 1.0f;
     }
 
+    //法線に情報を何も書いていなければライトの影響を受けない
     finalGBuffer[groupId.xy] = albedoGBuffer[groupId.xy] * float4(brightness,brightness,brightness,1);
 }
 //ライティングパス---------------------------------------

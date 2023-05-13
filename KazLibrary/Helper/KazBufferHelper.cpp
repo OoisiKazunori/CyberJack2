@@ -108,7 +108,7 @@ KazBufferHelper::BufferResourceData KazBufferHelper::SetUAVTexBuffer(int width, 
 {
 	D3D12_RESOURCE_DESC desc =
 		CD3DX12_RESOURCE_DESC::Tex2D(
-			DXGI_FORMAT_B8G8R8A8_UNORM,
+			DXGI_FORMAT_R32G32B32A32_FLOAT,
 			width,
 			(UINT)height,
 			(UINT16)1,
@@ -119,7 +119,7 @@ KazBufferHelper::BufferResourceData KazBufferHelper::SetUAVTexBuffer(int width, 
 
 	KazBufferHelper::BufferResourceData data
 	(
-		CD3DX12_HEAP_PROPERTIES(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0),
+		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
 		desc,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,

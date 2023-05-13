@@ -173,7 +173,7 @@ private:
 	//ƒQ[ƒ€ƒNƒŠƒA‰æ–Ê--------------------------------------------
 
 	//UI--------------------------------------
-	AnnounceStageUI stageUI;
+	AnnouncementOfStageUI stageUI;
 
 
 	RESOURCE_HANDLE bgmSoundHandle, lockSoundHandle;
