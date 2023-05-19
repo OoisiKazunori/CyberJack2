@@ -5,7 +5,7 @@ ModelLoader::ModelLoader()
 {
 }
 
-std::shared_ptr<ModelData> ModelLoader::Load()
+std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName)
 {
 	//(フローチャート)
 	//ファイルが存在するかどうか
@@ -15,27 +15,6 @@ std::shared_ptr<ModelData> ModelLoader::Load()
 	//(問題点)
 	//モデル読み込み時の自由な対応(頂点情報を自由に引き出したい)
 
-	ModelFileType type = ModelFileType::OBJ;
-	switch (type)
-	{
-	case ModelLoader::ModelFileType::NONE:
-		break;
-	case ModelLoader::ModelFileType::OBJ:
-		m_modelArray.emplace_back(std::make_shared<ModelData>(objLoad.Load("")));
-		break;
-	case ModelLoader::ModelFileType::FBX:
-		break;
-	case ModelLoader::ModelFileType::GLTF:
-		break;
-	default:
-		break;
-	}
-
-	return m_modelArray.back();
-}
-
-ModelData OBJLoader::Load(std::string fileName)
-{
 	//ファイル読み込み
 	std::ifstream file;
 	file.open(fileName);
@@ -46,18 +25,9 @@ ModelData OBJLoader::Load(std::string fileName)
 		static_assert(true);
 	}
 
-	//名前の登録
-	std::vector<DirectX::XMFLOAT3>positions;
-	std::vector<DirectX::XMFLOAT3>normals;
-	std::vector<DirectX::XMFLOAT2>texcoords;
-	std::vector<USHORT> indexArray;
-
-	unsigned int indexCountNum = 0;
-
-	LocalMateriaData materialData;
-
-	std::string filePass = fileName;
-	for (size_t i = fileName.length() - 1; 0 < i; i--)
+	//ファイルパス確認
+	string filePass = fileName;
+	for (size_t i = filePass.length() - 1; 0 < i; i--)
 	{
 		if (filePass[i] == '/')
 		{
@@ -68,7 +38,83 @@ ModelData OBJLoader::Load(std::string fileName)
 			filePass.pop_back();
 		}
 	}
-	std::string filename;
+
+	ModelData modelData;
+	ModelFileType type = ModelFileType::OBJ;
+	switch (type)
+	{
+	case ModelLoader::ModelFileType::NONE:
+		break;
+	case ModelLoader::ModelFileType::OBJ:
+		modelData = objLoad.Load(file, filePass);
+		break;
+	case ModelLoader::ModelFileType::FBX:
+		break;
+	case ModelLoader::ModelFileType::GLTF:
+		break;
+	default:
+		break;
+	}
+
+	//生成されているか確認
+	if (modelData.vertexData.verticesArray.size() <= 0 || modelData.vertexData.indexArray.size() <= 0)
+	{
+		ErrorCheck(fileName + "の読み込みに失敗しました\n");
+		assert(1);
+	}
+	SucceedCheck(fileName + "の読み込みに成功しました\n");
+
+
+	//頂点、インデックスバッファ生成
+	std::vector<Vertex>vertexData = GetVertexDataArray(modelData.vertexData);
+	m_Poly.vertBuffer = m_test.GenerateVertexBuffer(vertexData.data(), sizeof(Vertex), vertexData.size());
+	m_Poly.indexBuffer = m_test.GenerateIndexBuffer(modelData.vertexData.indexArray);
+	m_Poly.index = KazRenderHelper::SetDrawIndexInstanceCommandData(
+		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
+		KazBufferHelper::SetVertexBufferView(m_Poly.vertBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(vertexData.size(), sizeof(Vertex)), sizeof(vertexData[0])),
+		KazBufferHelper::SetIndexBufferView(m_Poly.indexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(modelData.vertexData.indexArray.size(), sizeof(USHORT))),
+		static_cast<UINT>(modelData.vertexData.indexArray.size()),
+		1
+	);
+
+	m_modelArray.emplace_back(std::make_shared<ModelInfomation>(modelData, m_Poly));
+
+	return m_modelArray.back();
+}
+
+std::vector<Vertex> ModelLoader::GetVertexDataArray(const VertexData &data)
+{
+	std::vector<Vertex>result(data.indexArray.size());
+
+	for (int i = 0; i < result.size(); ++i)
+	{
+		USHORT index = data.indexArray[i];
+		result[index].pos = data.verticesArray[index].ConvertXMFLOAT3();
+		result[index].uv = data.uvArray[index].ConvertXMFLOAT2();
+		result[index].normal = data.normalArray[index].ConvertXMFLOAT3();
+	}
+
+	return result;
+}
+
+ModelData OBJLoader::Load(std::ifstream &file, std::string fileDir)
+{
+	//単体の情報の登録---------------------------------------
+	std::vector<KazMath::Vec3<float>>positions;
+	std::vector<KazMath::Vec3<float>>normals;
+	std::vector<KazMath::Vec2<float>>texcoords;
+	std::vector<USHORT> indexArray;
+	//単体の情報の登録---------------------------------------
+
+	//モデルの頂点の配列に合わせた情報の組み込み
+	std::vector<KazMath::Vec3<float>>vertexPosArray;
+	std::vector<KazMath::Vec3<float>>normalArray;
+	std::vector<KazMath::Vec2<float>>texcoordArray;
+
+
+	unsigned int indexCountNum = 0;
+
+	LocalMateriaData materialData;
 
 	//一行ずつ読み込む
 	std::string line;
@@ -85,7 +131,7 @@ ModelData OBJLoader::Load(std::string fileName)
 		if (key == "v")
 		{
 			//XYZ読み込み
-			DirectX::XMFLOAT3 position{};
+			KazMath::Vec3<float> position{};
 			line_stream >> position.x;
 			line_stream >> position.y;
 			line_stream >> position.z;
@@ -112,6 +158,12 @@ ModelData OBJLoader::Load(std::string fileName)
 				index_stream.seekg(1, std::ios_base::cur);
 				index_stream >> indexNormal;
 
+
+				vertexPosArray.emplace_back(positions[indexPos - 1]);
+				texcoordArray.emplace_back(texcoords[indexTexcoord - 1]);
+				normalArray.emplace_back(normals[indexNormal - 1]);
+
+
 				// インデックスデータの追加
 				if (faceIndexCount >= 3) {
 					// 四角形ポリゴンの4点目なので、
@@ -134,7 +186,7 @@ ModelData OBJLoader::Load(std::string fileName)
 		//UV読み込み
 		if (key == "vt")
 		{
-			DirectX::XMFLOAT2 texcoord{};
+			KazMath::Vec2<float> texcoord{};
 			line_stream >> texcoord.x;
 			line_stream >> texcoord.y;
 
@@ -150,7 +202,7 @@ ModelData OBJLoader::Load(std::string fileName)
 		//法線読み込み
 		if (key == "vn")
 		{
-			DirectX::XMFLOAT3 normal{};
+			KazMath::Vec3<float> normal{};
 			line_stream >> normal.x;
 			line_stream >> normal.y;
 			line_stream >> normal.z;
@@ -161,8 +213,9 @@ ModelData OBJLoader::Load(std::string fileName)
 		//マテリアル情報読み込み
 		if (key == "mtllib")
 		{
+			std::string filename;
 			line_stream >> filename;
-			materialData = LoadMaterial(filePass, filePass + filename);
+			materialData = LoadMaterial(fileDir, fileDir + filename);
 		}
 
 	}
@@ -184,15 +237,6 @@ ModelData OBJLoader::Load(std::string fileName)
 	vertexPosArray[vertexPosArray.size() - 1].pos = { positions[indexPos - 1].x,positions[indexPos - 1].y,positions[indexPos - 1].z };
 	vertexPosArray[vertexPosArray.size() - 1].uv = texcoords[indexTexcoord - 1];
 	vertexPosArray[vertexPosArray.size() - 1].normal = normals[indexNormal - 1];*/
-
-
-	if (positions.size() <= 0 || indexArray.size() <= 0)
-	{
-		ErrorCheck(fileName + "の読み込みに失敗しました\n");
-		static_assert(true);
-	}
-	SucceedCheck(fileName + "の読み込みに成功しました\n");
-
 
 
 	////頂点データとインデックスバッファの生成、転送---------------------------------------
@@ -232,7 +276,16 @@ ModelData OBJLoader::Load(std::string fileName)
 	//resource[setHandle].vertices = positions;
 	//resource[setHandle].index = indiKeepData;
 
-
 	ModelData loadData;
+	loadData.vertexData.verticesArray = vertexPosArray;
+	loadData.vertexData.uvArray = texcoordArray;
+	loadData.vertexData.normalArray = normalArray;
+	loadData.vertexData.indexArray = indexArray;
+
+	loadData.materialData.ambient = materialData.ambient;
+	loadData.materialData.diffuse = materialData.diffuse;
+	loadData.materialData.specular = materialData.specular;
+	loadData.materialData.textureBuffer = materialData.textureBuffer;
+
 	return loadData;
 }

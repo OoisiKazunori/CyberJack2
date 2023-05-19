@@ -10,6 +10,9 @@
 #include"../Buffer/Polygon.h"
 #include"../KazLibrary/Helper/Compute.h"
 
+#include"../KazLibrary/Loader/ObjResourceMgr.h"
+#include"../KazLibrary/Loader/ModelLoader.h"
+
 class RenderScene :public SceneBase
 {
 public:

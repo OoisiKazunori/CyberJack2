@@ -5,7 +5,6 @@ RenderScene::RenderScene()
 {
 	endGameFlag = false;
 
-
 	boxData = boxBuffer.GenerateBoxBuffer(1.0f);
 
 	{
@@ -77,6 +76,11 @@ RenderScene::RenderScene()
 		gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 		testRArray[0]->GetDrawData()->buffer.emplace_back(gBuffer[0]);
 	}
+
+	RESOURCE_HANDLE handle = ObjResourceMgr::Instance()->LoadModel(KazFilePathName::TestPath + "hamster.obj");
+	ObjResourceMgr::Instance()->GetResourceData(handle);
+	std::shared_ptr<ModelInfomation> model = ModelLoader::Instance()->Load(KazFilePathName::TestPath + "hamster.obj");
+
 
 	//フォワードレンダリングで描画する立方体
 	{

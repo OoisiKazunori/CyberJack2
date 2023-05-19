@@ -1,6 +1,8 @@
 #pragma once
 #include"../KazLibrary/Math/KazMath.h"
 #include"Loader/TextureResourceMgr.h"
+#include"../Buffer/Polygon.h"
+#include"../Helper/ISinglton.h"
 #include<vector>
 #include<fstream>
 #include<sstream>
@@ -10,6 +12,7 @@ struct VertexData
 	std::vector<KazMath::Vec3<float>> verticesArray;
 	std::vector<KazMath::Vec2<float>> uvArray;
 	std::vector<KazMath::Vec3<float>> normalArray;
+	std::vector<USHORT>indexArray;
 };
 
 struct MaterialData
@@ -17,6 +20,7 @@ struct MaterialData
 	KazMath::Vec3<float> ambient;//アンビエント
 	KazMath::Vec3<float> diffuse;//ディフューズ
 	KazMath::Vec3<float> specular;//スペキュラー
+	KazBufferHelper::BufferData textureBuffer;
 };
 
 struct AnimationData
@@ -45,7 +49,7 @@ class OBJLoader
 public:
 	OBJLoader()
 	{};
-	ModelData Load(std::string fileName);
+	ModelData Load(std::ifstream &fileName, std::string fileDir);
 
 private:
 	std::vector<std::string> fileNameArray;
@@ -53,11 +57,12 @@ private:
 	struct LocalMateriaData
 	{
 		std::string name;//マテリアル名
-		DirectX::XMFLOAT3 ambient;//アンビエント
-		DirectX::XMFLOAT3 diffuse;//ディフューズ
-		DirectX::XMFLOAT3 specular;//スペキュラー
+		KazMath::Vec3<float> ambient;//アンビエント
+		KazMath::Vec3<float> diffuse;//ディフューズ
+		KazMath::Vec3<float> specular;//スペキュラー
 		float alpha;//α
 		std::string textureFilename;//テクスチャファイル名
+		KazBufferHelper::BufferData textureBuffer;
 
 		LocalMateriaData()
 		{
@@ -88,7 +93,7 @@ private:
 
 		LocalMateriaData materialLoadData;
 
-		RESOURCE_HANDLE lHandle = -1;
+		std::string textureFilePass;
 
 		std::string line;
 		while (getline(file, line))
@@ -131,28 +136,38 @@ private:
 			if (key == "map_Kd")
 			{
 				line_stream >> materialLoadData.textureFilename;
-				lHandle = TextureResourceMgr::Instance()->LoadGraph(FILE_NAME + materialLoadData.textureFilename);
 			}
 		}
 
 		file.close();
 
+		materialLoadData.textureBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer(FILE_NAME + materialLoadData.textureFilename);
 		return materialLoadData;
 	}
 };
 
 
+struct ModelInfomation
+{
+	ModelData modelData;
+	PolygonIndexData vertexBufferData;
+
+	ModelInfomation(const ModelData &model, const PolygonIndexData &vertexBuffer) :modelData(model), vertexBufferData(vertexBuffer)
+	{
+	}
+};
 
 /// <summary>
 /// モデルの読み込み
 /// 現在OBJのみ対応
 /// </summary>
-class ModelLoader
+class ModelLoader :public ISingleton<ModelLoader>
 {
 public:
 
 	ModelLoader();
-	std::shared_ptr<ModelData> Load();
+	std::shared_ptr<ModelInfomation> Load(std::string fileName);
+	std::vector<Vertex>GetVertexDataArray(const VertexData &data);
 
 
 private:
@@ -167,5 +182,7 @@ private:
 
 	OBJLoader objLoad;
 
-	std::vector<std::shared_ptr<ModelData>> m_modelArray;
+	std::vector<std::shared_ptr<ModelInfomation>> m_modelArray;
+	PolygonBuffer m_test;
+	PolygonIndexData m_Poly;
 };
