@@ -8,7 +8,7 @@
 #include"../Pipeline/Shader.h"
 #include"../KazLibrary/Buffer/BufferDuplicateBlocking.h"
 #include"../KazLibrary/Buffer/DrawFuncData.h"
-
+#include"../KazLibrary/Loader/ModelLoader.h"
 
 /// <summary>
 /// スタックされた情報を元にラスタライズで描画する
@@ -174,6 +174,30 @@ namespace DrawFunc
 		return lDrawCallData;
 	};
 
+	//OBJモデルのポリゴン表示(インデックスあり)
+	static DrawCallData SetDrawOBJIndexData(DrawingByRasterize *CALL_DATA_PTR, const KazRenderHelper::DrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	{
+		DrawCallData lDrawCallData(CALL_DATA_PTR);
+		//頂点情報
+		lDrawCallData.drawIndexInstanceCommandData = VERTEX_DATA;
+		//行列情報
+		lDrawCallData.bufferResourceDataArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX)),
+			GRAPHICS_PRAMTYPE_DATA,
+			GRAPHICS_RANGE_TYPE_CBV_VIEW
+		);
+
+		//マテリアル情報
+		lDrawCallData.bufferResourceDataArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(MaterialBufferData)),
+			GRAPHICS_PRAMTYPE_DATA2,
+			GRAPHICS_RANGE_TYPE_CBV_VIEW
+		);		//パイプライン情報のセット
+		lDrawCallData.pipelineData = PIPELINE_DATA;
+
+		return lDrawCallData;
+	};
+
 	//行列情報のみ
 	static DrawCallData SetTransformData(DrawingByRasterize *CALL_DATA_PTR, const KazRenderHelper::DrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
 	{
@@ -270,6 +294,18 @@ namespace DrawFunc
 			//色
 			DirectX::XMFLOAT4 lColor = COLOR.ConvertColorRateToXMFLOAT4();
 			lData->buffer[1].bufferWrapper->TransData(&lColor, sizeof(DirectX::XMFLOAT4));
+		};
+
+		void DrawOBJ(const KazMath::Transform3D &TRANSFORM, float ALPHA, int CAMERA_INDEX, const DirectX::XMMATRIX &MOTHER_MAT)
+		{
+			//スタック用のバッファを呼び出し、そこに入っているバッファを使用して転送する
+			DrawingByRasterize::DrawData *lData = GetDrawData();
+			//行列
+			DirectX::XMMATRIX lMat =
+				KazMath::CaluWorld(TRANSFORM, { 0.0f,1.0f,0.0f }, { 0.0f,0.0f,1.0f }) *
+				CameraMgr::Instance()->GetViewMatrix() *
+				CameraMgr::Instance()->GetPerspectiveMatProjection();
+			lData->buffer[0].bufferWrapper->TransData(&lMat, sizeof(DirectX::XMMATRIX));
 		};
 
 		void DrawTexPlane(const KazMath::Transform3D &TRANSFORM, const KazMath::Color &COLOR, int CAMERA_INDEX, const DirectX::XMMATRIX &MOTHER_MAT)

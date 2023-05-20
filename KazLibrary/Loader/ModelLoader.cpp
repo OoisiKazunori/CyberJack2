@@ -88,10 +88,9 @@ std::vector<Vertex> ModelLoader::GetVertexDataArray(const VertexData &data)
 
 	for (int i = 0; i < result.size(); ++i)
 	{
-		USHORT index = data.indexArray[i];
-		result[index].pos = data.verticesArray[index].ConvertXMFLOAT3();
-		result[index].uv = data.uvArray[index].ConvertXMFLOAT2();
-		result[index].normal = data.normalArray[index].ConvertXMFLOAT3();
+		result[i].pos = data.verticesArray[i].ConvertXMFLOAT3();
+		result[i].uv = data.uvArray[i].ConvertXMFLOAT2();
+		result[i].normal = data.normalArray[i].ConvertXMFLOAT3();
 	}
 
 	return result;

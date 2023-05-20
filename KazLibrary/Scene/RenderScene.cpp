@@ -19,7 +19,7 @@ RenderScene::RenderScene()
 		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 
 		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, gBuffer[0].bufferWrapper->GetBuffer().Get());
-		gBuffer[0].CreateViewHandle(view);
+		gBuffer[0].bufferWrapper->CreateViewHandle(view);
 		gBuffer[0].elementNum = 1280 * 720;
 		gBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 		gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
@@ -36,7 +36,7 @@ RenderScene::RenderScene()
 		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 
 		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, gBuffer[1].bufferWrapper->GetBuffer().Get());
-		gBuffer[1].CreateViewHandle(view);
+		gBuffer[1].bufferWrapper->CreateViewHandle(view);
 		gBuffer[1].elementNum = 1280 * 720;
 		gBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 		gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
@@ -53,7 +53,7 @@ RenderScene::RenderScene()
 		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 
 		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, finalGBuffer.bufferWrapper->GetBuffer().Get());
-		finalGBuffer.CreateViewHandle(view);
+		finalGBuffer.bufferWrapper->CreateViewHandle(view);
 		finalGBuffer.elementNum = 1280 * 720;
 		finalGBuffer.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 		finalGBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA3;
@@ -79,25 +79,31 @@ RenderScene::RenderScene()
 
 	RESOURCE_HANDLE handle = ObjResourceMgr::Instance()->LoadModel(KazFilePathName::TestPath + "hamster.obj");
 	ObjResourceMgr::Instance()->GetResourceData(handle);
-	std::shared_ptr<ModelInfomation> model = ModelLoader::Instance()->Load(KazFilePathName::TestPath + "hamster.obj");
-
+	model = ModelLoader::Instance()->Load(KazFilePathName::TestPath + "hamster.obj");
 
 	//フォワードレンダリングで描画する立方体
 	{
-		boxNormalData = boxNormalBuffer.GenerateBoxNormalBuffer(1.0f);
+		boxNormalData = model->vertexBufferData;
 		DrawFunc::PipelineGenerateData lData;
-		lData.desc = DrawFuncPipelineData::SetPosNormal();
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DefferdRender.hlsl", "VSPosNormalmain", "vs_6_4", SHADER_TYPE_VERTEX);
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DefferdRender.hlsl", "PSPosNormalmain", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.desc = DrawFuncPipelineData::SetPosUvNormal();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DefferdRender.hlsl", "VSPosNormalUvmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DefferdRender.hlsl", "PSPosNormalUvmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
 		testRArray[1] = std::make_unique<DrawFunc::KazRender>(
-			DrawFunc::SetDrawPolygonIndexData(&rasterizeRenderer, boxNormalData.index, lData)
+			DrawFunc::SetDrawOBJIndexData(&rasterizeRenderer, boxNormalData.index, lData)
 			);
 
-		gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-		gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA4;
-		testRArray[1]->GetDrawData()->buffer.emplace_back(gBuffer[0]);
-		testRArray[1]->GetDrawData()->buffer.emplace_back(gBuffer[1]);
+		testRArray[1]->GetDrawData()->buffer.emplace_back(model->modelData.materialData.textureBuffer);
+		testRArray[1]->GetDrawData()->buffer.back().rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
+		testRArray[1]->GetDrawData()->buffer.back().rootParamType = GRAPHICS_PRAMTYPE_TEX;
+
+		MaterialBufferData data = model->modelData.materialData.GetMaterialData();
+		testRArray[1]->GetDrawData()->buffer[1].bufferWrapper->TransData(&data, sizeof(MaterialBufferData));
+
+		//gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+		//gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA4;
+		//testRArray[1]->GetDrawData()->buffer.emplace_back(gBuffer[0]);
+		//testRArray[1]->GetDrawData()->buffer.emplace_back(gBuffer[1]);
 	}
 
 	//G-Bufferの描画確認用の板ポリ
@@ -167,6 +173,8 @@ RenderScene::RenderScene()
 
 	transformArray[0].pos = { 0.0f,0.0f,0.0f };
 	transformArray[1].pos = { 10.0f,0.0f,0.0f };
+	transformArray[1].scale = { 1.0f,1.0f,1.0f };
+
 	transformArray[2].pos = { 1280.0f,720.0f,0.0f };
 	transformArray[2].scale = { 0.25f,0.25f,0.0f };
 	transformArray[3].pos = { 1280.0f,525.0f,0.0f };
@@ -290,7 +298,7 @@ void RenderScene::Draw()
 	RenderTargetStatus::Instance()->ClearDoubuleBuffer(BG_COLOR);
 
 	testRArray[0]->DrawCall(transformArray[0], colorArray[0], 0, motherMat);
-	testRArray[1]->DrawCall(transformArray[1], colorArray[1], 0, motherMat);
+	testRArray[1]->DrawOBJ(transformArray[1], 1.0f, 0, motherMat);
 	testRArray[2]->DrawTexPlane(transformArray[2], colorArray[2], 0, motherMat);
 
 	normalGBufferRender->DrawTexPlane(transformArray[3], colorArray[2], 0, motherMat);

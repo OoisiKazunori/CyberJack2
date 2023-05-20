@@ -73,3 +73,48 @@ float4 PSPosNormalmain(ColorNormalOutput input) : SV_TARGET
     return input.color * float4(brightness, brightness, brightness, 1);
 }
 //色、法線対応---------------------------------------
+
+
+
+//uv、法線対応---------------------------------------
+struct PosUvNormalOutput
+{
+    float4 svpos : SV_POSITION; //システム用頂点座標
+    float3 normal : NORMAL; //法線ベクトル
+    float2 uv : TEXCOORD;
+};
+
+PosUvNormalOutput VSPosNormalUvmain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD)
+{
+    PosUvNormalOutput op;
+    op.svpos = mul(mat,pos);
+    op.uv = uv;
+    op.normal = normal;
+    return op;
+}
+
+
+Texture2D<float4>tex:register(t0);
+SamplerState smp :register(s0);
+
+cbuffer MaterialBuffer :register(b1)
+{
+    float3 ambient;
+    float3 diffuse;
+    float3 specular;
+    float alpha;
+}
+
+float4 PSPosNormalUvmain(PosUvNormalOutput input) : SV_TARGET
+{
+	float3 light = normalize(float3(1,-1,1));			//右下奥向きのライト
+	float light_diffuse = saturate(dot(-light, input.normal));//環境光...diffuseを[0,1]の範囲にClampする
+	
+	float3 shade_color;
+	shade_color = ambient + 0.5;			  //アンビエント
+	shade_color += diffuse * light_diffuse; //ディフューズ項
+
+	float4 texColor = tex.Sample(smp, input.uv);
+	return float4(texColor.rgb, alpha);
+}
+//uv、法線対応---------------------------------------

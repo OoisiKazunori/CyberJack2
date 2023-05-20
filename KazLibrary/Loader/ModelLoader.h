@@ -7,6 +7,18 @@
 #include<fstream>
 #include<sstream>
 
+//バッファ生成用の構造体
+struct MaterialBufferData
+{
+	DirectX::XMFLOAT3 ambient;//アンビエント
+	float pad;
+	DirectX::XMFLOAT3 diffuse;//ディフューズ
+	float pad2;
+	DirectX::XMFLOAT3 specular;//スペキュラー
+	float alpha;
+};
+
+
 struct VertexData
 {
 	std::vector<KazMath::Vec3<float>> verticesArray;
@@ -21,6 +33,16 @@ struct MaterialData
 	KazMath::Vec3<float> diffuse;//ディフューズ
 	KazMath::Vec3<float> specular;//スペキュラー
 	KazBufferHelper::BufferData textureBuffer;
+
+	MaterialBufferData GetMaterialData()
+	{
+		MaterialBufferData material;
+		material.diffuse = { diffuse.x,diffuse.y,diffuse.z };
+		material.ambient = { ambient.x,ambient.y,ambient.z };
+		material.specular = { specular.x,specular.y,specular.z };
+		material.alpha = 1.0f;
+		return material;
+	}
 };
 
 struct AnimationData
@@ -38,7 +60,11 @@ struct ModelData
 	MaterialData materialData;
 	//ボーン情報
 	AnimationData animationData;
+
 };
+
+
+
 
 
 /// <summary>

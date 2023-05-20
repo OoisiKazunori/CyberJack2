@@ -114,6 +114,9 @@ RESOURCE_HANDLE TextureResourceMgr::LoadGraph(std::string RESOURCE)
 	);
 
 
+	bufferArray[elementNum].rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
+	bufferArray[elementNum].bufferWrapper->CreateViewHandle(std::vector<RESOURCE_HANDLE>({ num }));
+
 	return num;
 }
 
@@ -197,7 +200,7 @@ KazBufferHelper::BufferData TextureResourceMgr::LoadGraphBuffer(std::string RESO
 	);
 
 	bufferArray[elementNum].rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
-	bufferArray[elementNum].CreateViewHandle(std::vector<RESOURCE_HANDLE>({ num }));
+	bufferArray[elementNum].bufferWrapper->CreateViewHandle(std::vector<RESOURCE_HANDLE>({ num }));
 
 	return bufferArray[elementNum];
 }

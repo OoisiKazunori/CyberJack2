@@ -61,6 +61,8 @@ private:
 	PolygonIndexData planeData;
 	PolygonIndexData boxNormalData;
 
+	std::shared_ptr<ModelInfomation> model;
+
 	DispatchComputeShader::DispatchData dispatchData;
 
 

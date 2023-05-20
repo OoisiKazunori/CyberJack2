@@ -159,8 +159,23 @@ namespace KazBufferHelper
 			}
 		};
 
+
+		void CreateViewHandle(std::vector<RESOURCE_HANDLE>HANDLE_ARRAY)
+		{
+			viewHandle = HANDLE_ARRAY;
+		}
+		void CreateViewHandle(RESOURCE_HANDLE HANDLE)
+		{
+			viewHandle.emplace_back(HANDLE);
+		}
+		const RESOURCE_HANDLE &GetViewHandle()const
+		{
+			return viewHandle[0];
+		}
+
 	private:
 		std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 1>buffer;
+		std::vector<RESOURCE_HANDLE> viewHandle;
 		UINT GetIndex()const
 		{
 			return 0;
@@ -187,19 +202,6 @@ namespace KazBufferHelper
 		{
 		}
 
-		void CreateViewHandle(std::vector<RESOURCE_HANDLE>HANDLE_ARRAY)
-		{
-			viewHandle = HANDLE_ARRAY;
-		}
-		void CreateViewHandle(RESOURCE_HANDLE HANDLE)
-		{
-			viewHandle.emplace_back(HANDLE);
-		}
-		const RESOURCE_HANDLE &GetViewHandle()const
-		{
-			return viewHandle[0];
-		}
-
 		void operator=(const BufferData &rhs)
 		{
 			rangeType = rhs.rangeType;
@@ -207,12 +209,10 @@ namespace KazBufferHelper
 			bufferSize = rhs.bufferSize;
 			bufferWrapper = rhs.bufferWrapper;
 			counterWrapper = rhs.counterWrapper;
-			viewHandle = rhs.viewHandle;
 			elementNum = rhs.elementNum;
 		};
 
 	private:
-		std::vector<RESOURCE_HANDLE> viewHandle;
 	};
 
 
