@@ -375,6 +375,9 @@ void GLTFLoader::Load(std::ifstream &fileName, std::string fileDir)
 	std::string filepass("Resource/Test/Triangle.gltf");
 	std::string Ext(".gltf");
 
+
+	//GLTFSDKから引用---------------------------------------
+	//https://github.com/microsoft/glTF-SDK/blob/master/GLTFSDK.Samples/Deserialize/Source/main.cpp
 	auto modelFilePath = std::experimental::filesystem::path(filepass);
 	if (modelFilePath.is_relative())
 	{
@@ -432,23 +435,24 @@ void GLTFLoader::Load(std::ifstream &fileName, std::string fileDir)
 
 	//PrintDocumentInfo(doc);
 	//PrintResourceInfo(doc, *resourceReader);
+	//https://github.com/microsoft/glTF-SDK/blob/master/GLTFSDK.Samples/Deserialize/Source/main.cpp
+	//GLTFSDKから引用---------------------------------------
 
+
+	std::vector<Microsoft::glTF::Node>node;
+	//ノードの読み込み
 	for (const auto &gltfNode : doc.nodes.Elements())
 	{
 		gltfNode.rotation;
-
-
+		gltfNode.scale;
+		gltfNode.translation;
 		bool debug = false;
-
 	}
-
-	//tinygltf::Model model;
-	//tinygltf::TinyGLTF loader;
-	//std::string err, warn;
-	//bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, "Resource/Model/Triangle.gltf");
-	////sceneを取得(固定で0)
-	//auto scene = model.scenes[0];
-
+	//メッシュの読み込み
+	for (const auto &gltfMesh : doc.meshes.Elements())
+	{
+		bool debug = false;
+	}
 };
 
 ModelInfomation::ModelInfomation(const ModelData &model, const PolygonIndexData &vertexBuffer) :modelData(model), vertexBufferData(vertexBuffer)
