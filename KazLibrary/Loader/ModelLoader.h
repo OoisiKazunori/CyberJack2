@@ -7,6 +7,47 @@
 #include<fstream>
 #include<sstream>
 
+#define TINYGLTF_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#define TINYGLTF_NO_STB_IMAGE_WRITE  // 書き出しを使用しないため。
+#pragma push_macro("min")
+#pragma push_macro("max")
+#pragma push_macro("snprintf")
+#undef min
+#undef max
+#undef snprintf
+#pragma warning(push,0)
+#pragma warning(disable: ALL_CODE_ANALYSIS_WARNINGS)
+#pragma warning(push,0)
+#pragma warning(disable : 4996)
+#pragma warning(push,0)
+#pragma warning(disable : 2039)
+#include<GLTFSDK/GLTF.h>
+#include<GLTFSDK/GLTFResourceReader.h>
+#include<GLTFSDK/GLTFResourceWriter.h>
+#include<GLTFSDK/Deserialize.h>
+#include<GLTFSDK/GLBResourceReader.h>
+#include<GLTFSDK/GLBResourceWriter.h>
+#include<GLTFSDK/IStreamReader.h>
+#pragma warning(pop)
+#pragma warning(pop)
+#pragma warning(pop)
+#pragma pop_macro("min")
+#pragma pop_macro("max")
+#pragma pop_macro("snprintf")
+
+
+#include <filesystem> // C++17 standard header file name
+#include <fstream>
+#include <iostream>
+#if _MSC_VER > 1922 && !defined(_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING)
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#endif
+
+#include <experimental/filesystem>
+
+
 //バッファ生成用の構造体
 struct MaterialBufferData
 {
@@ -34,15 +75,7 @@ struct MaterialData
 	KazMath::Vec3<float> specular;//スペキュラー
 	KazBufferHelper::BufferData textureBuffer;
 
-	MaterialBufferData GetMaterialData()
-	{
-		MaterialBufferData material;
-		material.diffuse = { diffuse.x,diffuse.y,diffuse.z };
-		material.ambient = { ambient.x,ambient.y,ambient.z };
-		material.specular = { specular.x,specular.y,specular.z };
-		material.alpha = 1.0f;
-		return material;
-	}
+	MaterialBufferData GetMaterialData();
 };
 
 struct AnimationData
@@ -73,8 +106,6 @@ struct ModelData
 class OBJLoader
 {
 public:
-	OBJLoader()
-	{};
 	ModelData Load(std::ifstream &fileName, std::string fileDir);
 
 private:
@@ -90,86 +121,12 @@ private:
 		std::string textureFilename;//テクスチャファイル名
 		KazBufferHelper::BufferData textureBuffer;
 
-		LocalMateriaData()
-		{
-			ambient = { 0.3f,0.3f,0.3f };
-			diffuse = { 0.0f,0.0f,0.0f };
-			specular = { 0.0f,0.0f,0.0f };
-			alpha = 1.0;
-		}
+		LocalMateriaData();
 
-		void Delete()
-		{
-			ambient = { 0.0f,0.0f,0.0f };
-			diffuse = { 0.0f,0.0f,0.0f };
-			specular = { 0.0f,0.0f,0.0f };
-			alpha = 0.0;
-		}
+		void Delete();
 	};
 
-	LocalMateriaData LoadMaterial(const std::string &FILE_NAME, std::string MTL_RESOURE)
-	{
-
-		std::ifstream file;
-		file.open(MTL_RESOURE);
-		if (file.fail())
-		{
-			return LocalMateriaData();
-		}
-
-		LocalMateriaData materialLoadData;
-
-		std::string textureFilePass;
-
-		std::string line;
-		while (getline(file, line))
-		{
-			std::istringstream line_stream(line);
-
-
-			std::string key;
-			getline(line_stream, key, ' ');
-
-			//先頭のタブ文字は無視する
-			if (key[0] == '\t')
-			{
-				key.erase(key.begin());
-			}
-
-
-			if (key == "newmtl")
-			{
-				line_stream >> materialLoadData.name;
-			}
-			if (key == "Ka")
-			{
-				line_stream >> materialLoadData.ambient.x;
-				line_stream >> materialLoadData.ambient.y;
-				line_stream >> materialLoadData.ambient.z;
-			}
-			if (key == "Kd")
-			{
-				line_stream >> materialLoadData.diffuse.x;
-				line_stream >> materialLoadData.diffuse.y;
-				line_stream >> materialLoadData.diffuse.z;
-			}
-			if (key == "Ks")
-			{
-				line_stream >> materialLoadData.specular.x;
-				line_stream >> materialLoadData.specular.y;
-				line_stream >> materialLoadData.specular.z;
-			}
-			if (key == "map_Kd")
-			{
-				line_stream >> materialLoadData.textureFilename;
-			}
-		}
-
-		file.close();
-
-		materialLoadData.textureBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer(FILE_NAME + materialLoadData.textureFilename);
-		return materialLoadData;
-	}
+	LocalMateriaData LoadMaterial(const std::string &FILE_NAME, std::string MTL_RESOURE);
 };
 
 
@@ -178,10 +135,18 @@ struct ModelInfomation
 	ModelData modelData;
 	PolygonIndexData vertexBufferData;
 
-	ModelInfomation(const ModelData &model, const PolygonIndexData &vertexBuffer) :modelData(model), vertexBufferData(vertexBuffer)
-	{
-	}
+	ModelInfomation(const ModelData &model, const PolygonIndexData &vertexBuffer);
 };
+
+
+class GLTFLoader
+{
+public:
+	void Load(std::ifstream &fileName, std::string fileDir);
+
+};
+
+
 
 /// <summary>
 /// モデルの読み込み
@@ -190,14 +155,6 @@ struct ModelInfomation
 class ModelLoader :public ISingleton<ModelLoader>
 {
 public:
-
-	ModelLoader();
-	std::shared_ptr<ModelInfomation> Load(std::string fileName);
-	std::vector<Vertex>GetVertexDataArray(const VertexData &data);
-
-
-private:
-
 	enum class ModelFileType
 	{
 		NONE,
@@ -206,9 +163,38 @@ private:
 		GLTF
 	};
 
+	ModelLoader();
+	std::shared_ptr<ModelInfomation> Load(std::string fileName, ModelFileType type);
+	std::vector<Vertex>GetVertexDataArray(const VertexData &data);
+
+
+private:
+
+
 	OBJLoader objLoad;
+	GLTFLoader glTFLoad;
 
 	std::vector<std::shared_ptr<ModelInfomation>> m_modelArray;
 	PolygonBuffer m_test;
 	PolygonIndexData m_Poly;
+};
+
+class StreamReader : public Microsoft::glTF::IStreamReader
+{
+public:
+	StreamReader(std::experimental::filesystem::path pathBase) : m_pathBase(std::move(pathBase)) { }
+
+	std::shared_ptr<std::istream> GetInputStream(const std::string &filename) const override
+	{
+		auto streamPath = m_pathBase / std::experimental::filesystem::u8path(filename);
+		auto stream = std::make_shared<std::ifstream>(streamPath, std::ios_base::binary);
+		if (!stream || !(*stream))
+		{
+			throw std::runtime_error("Unable to create valid input stream.");
+		}
+		return stream;
+	}
+
+private:
+	std::experimental::filesystem::path m_pathBase;
 };

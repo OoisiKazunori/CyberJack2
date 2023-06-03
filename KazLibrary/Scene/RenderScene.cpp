@@ -79,7 +79,8 @@ RenderScene::RenderScene()
 
 	RESOURCE_HANDLE handle = ObjResourceMgr::Instance()->LoadModel(KazFilePathName::TestPath + "hamster.obj");
 	ObjResourceMgr::Instance()->GetResourceData(handle);
-	model = ModelLoader::Instance()->Load(KazFilePathName::TestPath + "hamster.obj");
+	model = ModelLoader::Instance()->Load(KazFilePathName::TestPath + "hamster.obj", ModelLoader::ModelFileType::OBJ);
+	ModelLoader::Instance()->Load(KazFilePathName::TestPath + "Triangle.gltf", ModelLoader::ModelFileType::GLTF);
 
 	//フォワードレンダリングで描画する立方体
 	{

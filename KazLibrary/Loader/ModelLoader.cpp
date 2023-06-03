@@ -5,7 +5,7 @@ ModelLoader::ModelLoader()
 {
 }
 
-std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName)
+std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName, ModelFileType type)
 {
 	//(フローチャート)
 	//ファイルが存在するかどうか
@@ -40,7 +40,7 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName)
 	}
 
 	ModelData modelData;
-	ModelFileType type = ModelFileType::OBJ;
+
 	switch (type)
 	{
 	case ModelLoader::ModelFileType::NONE:
@@ -51,6 +51,7 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName)
 	case ModelLoader::ModelFileType::FBX:
 		break;
 	case ModelLoader::ModelFileType::GLTF:
+		glTFLoad.Load(file, filePass);
 		break;
 	default:
 		break;
@@ -287,4 +288,179 @@ ModelData OBJLoader::Load(std::ifstream &file, std::string fileDir)
 	loadData.materialData.textureBuffer = materialData.textureBuffer;
 
 	return loadData;
+}
+
+OBJLoader::LocalMateriaData OBJLoader::LoadMaterial(const std::string &FILE_NAME, std::string MTL_RESOURE)
+{
+
+	std::ifstream file;
+	file.open(MTL_RESOURE);
+	if (file.fail())
+	{
+		return LocalMateriaData();
+	}
+
+	LocalMateriaData materialLoadData;
+
+	std::string textureFilePass;
+
+	std::string line;
+	while (getline(file, line))
+	{
+		std::istringstream line_stream(line);
+
+
+		std::string key;
+		getline(line_stream, key, ' ');
+
+		//先頭のタブ文字は無視する
+		if (key[0] == '\t')
+		{
+			key.erase(key.begin());
+		}
+
+
+		if (key == "newmtl")
+		{
+			line_stream >> materialLoadData.name;
+		}
+		if (key == "Ka")
+		{
+			line_stream >> materialLoadData.ambient.x;
+			line_stream >> materialLoadData.ambient.y;
+			line_stream >> materialLoadData.ambient.z;
+		}
+		if (key == "Kd")
+		{
+			line_stream >> materialLoadData.diffuse.x;
+			line_stream >> materialLoadData.diffuse.y;
+			line_stream >> materialLoadData.diffuse.z;
+		}
+		if (key == "Ks")
+		{
+			line_stream >> materialLoadData.specular.x;
+			line_stream >> materialLoadData.specular.y;
+			line_stream >> materialLoadData.specular.z;
+		}
+		if (key == "map_Kd")
+		{
+			line_stream >> materialLoadData.textureFilename;
+		}
+	}
+
+	file.close();
+
+	materialLoadData.textureBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer(FILE_NAME + materialLoadData.textureFilename);
+	return materialLoadData;
+}
+
+OBJLoader::LocalMateriaData::LocalMateriaData()
+{
+	ambient = { 0.3f,0.3f,0.3f };
+	diffuse = { 0.0f,0.0f,0.0f };
+	specular = { 0.0f,0.0f,0.0f };
+	alpha = 1.0;
+}
+
+void OBJLoader::LocalMateriaData::Delete()
+{
+	ambient = { 0.0f,0.0f,0.0f };
+	diffuse = { 0.0f,0.0f,0.0f };
+	specular = { 0.0f,0.0f,0.0f };
+	alpha = 0.0;
+}
+
+void GLTFLoader::Load(std::ifstream &fileName, std::string fileDir)
+{
+	std::string filepass("Resource/Test/Triangle.gltf");
+	std::string Ext(".gltf");
+
+	auto modelFilePath = std::experimental::filesystem::path(filepass);
+	if (modelFilePath.is_relative())
+	{
+		auto current = std::experimental::filesystem::current_path();
+		current /= modelFilePath;
+		current.swap(modelFilePath);
+	}
+	auto reader = std::make_unique<StreamReader>(modelFilePath.parent_path());
+	auto stream = reader->GetInputStream(modelFilePath.filename().string());
+
+	std::string manifest;
+
+	auto MakePathExt = [](const std::string &ext)
+	{
+		return "." + ext;
+	};
+
+	std::unique_ptr<Microsoft::glTF::GLTFResourceReader> resourceReader;
+
+	if (Ext == MakePathExt(Microsoft::glTF::GLTF_EXTENSION))
+	{
+		auto gltfResourceReader = std::make_unique<Microsoft::glTF::GLTFResourceReader>(std::move(reader));
+
+		std::stringstream manifestStream;
+
+		// Read the contents of the glTF file into a string using a std::stringstream
+		manifestStream << stream->rdbuf();
+		manifest = manifestStream.str();
+
+		resourceReader = std::move(gltfResourceReader);
+	}
+	else if (Ext == MakePathExt(Microsoft::glTF::GLB_EXTENSION))
+	{
+		auto glbResourceReader = std::make_unique<Microsoft::glTF::GLBResourceReader>(std::move(reader), std::move(stream));
+
+		manifest = glbResourceReader->GetJson(); // Get the manifest from the JSON chunk
+
+		resourceReader = std::move(glbResourceReader);
+	}
+
+	assert(resourceReader);
+
+	Microsoft::glTF::Document doc;
+	try
+	{
+		doc = Microsoft::glTF::Deserialize(manifest);
+	}
+	catch (const Microsoft::glTF::GLTFException &ex)
+	{
+		std::stringstream ss;
+		ss << "Microsoft::glTF::Deserialize failed: ";
+		ss << ex.what();
+		throw std::runtime_error(ss.str());
+	}
+
+	//PrintDocumentInfo(doc);
+	//PrintResourceInfo(doc, *resourceReader);
+
+	for (const auto &gltfNode : doc.nodes.Elements())
+	{
+		gltfNode.rotation;
+
+
+		bool debug = false;
+
+	}
+
+	//tinygltf::Model model;
+	//tinygltf::TinyGLTF loader;
+	//std::string err, warn;
+	//bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, "Resource/Model/Triangle.gltf");
+	////sceneを取得(固定で0)
+	//auto scene = model.scenes[0];
+
+};
+
+ModelInfomation::ModelInfomation(const ModelData &model, const PolygonIndexData &vertexBuffer) :modelData(model), vertexBufferData(vertexBuffer)
+{
+}
+
+MaterialBufferData MaterialData::GetMaterialData()
+{
+	MaterialBufferData material;
+	material.diffuse = { diffuse.x,diffuse.y,diffuse.z };
+	material.ambient = { ambient.x,ambient.y,ambient.z };
+	material.specular = { specular.x,specular.y,specular.z };
+	material.alpha = 1.0f;
+	return material;
 }

@@ -384,6 +384,9 @@
     <ClInclude Include="KazLibrary\Buffer\Polygon.h" />
     <ClInclude Include="KazLibrary\Helper\Compute.h" />
     <ClInclude Include="KazLibrary\Loader\ModelLoader.h" />
+    <ClInclude Include="lib\tinygltf\tiny_gltf.h" />
+    <ClInclude Include="lib\tinygltf\stb_image.h" />
+    <ClInclude Include="lib\tinygltf\stb_image_write.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
