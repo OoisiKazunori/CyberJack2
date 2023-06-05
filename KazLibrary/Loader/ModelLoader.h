@@ -62,6 +62,7 @@ struct MaterialBufferData
 
 struct VertexData
 {
+	std::string name;
 	std::vector<KazMath::Vec3<float>> verticesArray;
 	std::vector<KazMath::Vec2<float>> uvArray;
 	std::vector<KazMath::Vec3<float>> normalArray;
@@ -144,6 +145,13 @@ class GLTFLoader
 public:
 	void Load(std::ifstream &fileName, std::string fileDir);
 
+    // Uses the Document class to print some basic information about various top-level glTF entities
+    void PrintDocumentInfo(const Microsoft::glTF::Document &document);
+
+    // Uses the Document and GLTFResourceReader classes to print information about various glTF binary resources
+	void PrintResourceInfo(const Microsoft::glTF::Document &document, const Microsoft::glTF::GLTFResourceReader &resourceReader);
+
+	void PrintInfo(const std::experimental::filesystem::path &path);
 };
 
 
