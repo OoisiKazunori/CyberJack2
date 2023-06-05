@@ -185,7 +185,7 @@ private:
 	PolygonIndexData m_Poly;
 
 
-	PolygonBuffer m_testMultiMeshed;
+	std::vector<PolygonBuffer> m_testMultiMeshed;
 	PolygonMultiMeshedIndexData m_PolyMultiMeshed;
 };
 

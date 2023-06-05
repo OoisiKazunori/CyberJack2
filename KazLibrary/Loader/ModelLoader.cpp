@@ -74,10 +74,13 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName, ModelFi
 
 	for (const auto &meshData : modelData)
 	{
+		m_testMultiMeshed.emplace_back();
+
+
 		std::vector<Vertex>vertexData = GetVertexDataArray(meshData.vertexData, meshData.vertexData.indexArray);
 
-		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(m_testMultiMeshed.GenerateVertexBuffer(vertexData.data(), sizeof(Vertex), vertexData.size()));
-		std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(m_testMultiMeshed.GenerateIndexBuffer(meshData.vertexData.indexArray));
+		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(m_testMultiMeshed.back().GenerateVertexBuffer(vertexData.data(), sizeof(Vertex), vertexData.size()));
+		std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(m_testMultiMeshed.back().GenerateIndexBuffer(meshData.vertexData.indexArray));
 
 		m_PolyMultiMeshed.vertBuffer.emplace_back(vertexBuffer);
 		m_PolyMultiMeshed.indexBuffer.emplace_back(indexBuffer);
@@ -418,10 +421,10 @@ void OBJLoader::LocalMateriaData::Delete()
 
 std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string fileDir)
 {
-	std::string filepass("Resource/Test/Plane/plane.glb");
-	std::string Ext(".glb");
-	//std::string filepass("Resource/Test/glTF/Sponza.gltf");
-	//std::string Ext(".gltf");
+	//std::string filepass("Resource/Test/Plane/plane.glb");
+	//std::string Ext(".glb");
+	std::string filepass("Resource/Test/glTF/Sponza.gltf");
+	std::string Ext(".gltf");
 
 
 	//GLTFSDKから引用---------------------------------------
@@ -557,20 +560,20 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string
 				vertexInfo.verticesArray.emplace_back(KazMath::Vec3<float>(vertPos[vertIndex.x], vertPos[vertIndex.y], vertPos[vertIndex.z]));
 				vertexInfo.normalArray.emplace_back(KazMath::Vec3<float>(normal[vertIndex.x], normal[vertIndex.y], normal[vertIndex.z]));
 				vertexInfo.uvArray.emplace_back(KazMath::Vec2<float>(uv[uvIndex.x], uv[uvIndex.y]));
-
-
-				//アクセサーからインデックス情報の(???)を取得
-				auto accIndex(accsessor.Get(primitive.indicesAccessorId));
-				//インデックスデータを読み取る
-				std::vector<uint16_t>indices = resourceReader->ReadBinaryData<uint16_t>(doc, accIndex);
-				const auto INDEX_MAX_COUNT = accIndex.count;
-				for (int indexCount = 0; indexCount < INDEX_MAX_COUNT; indexCount += 3)
-				{
-					vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[indexCount + 1]));
-					vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[indexCount + 0]));
-					vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[indexCount + 2]));
-				}
 			}
+
+			//アクセサーからインデックス情報の(???)を取得
+			auto accIndex(accsessor.Get(primitive.indicesAccessorId));
+			//インデックスデータを読み取る
+			std::vector<uint16_t>indices = resourceReader->ReadBinaryData<uint16_t>(doc, accIndex);
+			const auto INDEX_MAX_COUNT = accIndex.count;
+			for (int indexCount = 0; indexCount < INDEX_MAX_COUNT; indexCount += 3)
+			{
+				vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[indexCount + 1]));
+				vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[indexCount + 0]));
+				vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[indexCount + 2]));
+			}
+
 			//メッシュ情報の追加
 			vertexInfo.name = meshName;
 

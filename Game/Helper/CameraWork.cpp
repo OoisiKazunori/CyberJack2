@@ -107,8 +107,8 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 		KeyBoradInputManager *input = KeyBoradInputManager::Instance();
 
 		debugCameraMove = { 0,0,0 };
-		float debugSpeed = 1.0f;
-		float debugSideSpeed = 1.0f;
+		float debugSpeed = 5.0f;
+		float debugSideSpeed = 5.0f;
 		if (input->InputState(DIK_D))
 		{
 			debugCameraMove.x = -debugSpeed;
@@ -145,7 +145,7 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 		}
 #pragma endregion
 		//デバック用
-		eyePos = KazMath::CaluEyePosForDebug(eyePos, debugCameraMove, angle, 0.1f);
+		eyePos = KazMath::CaluEyePosForDebug(eyePos, debugCameraMove, angle, 50.0f);
 		targetPos = KazMath::CaluTargetPosForDebug(eyePos, angle.x);
 	}
 

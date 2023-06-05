@@ -25,7 +25,7 @@ CameraMgr::CameraMgr() : orthographicMatProjectionDirtyFlag(orthographicMatProje
 				DirectX::XMConvertToRadians(60.0f),
 				static_cast<float>(WIN_X) / static_cast<float>(WIN_Y),
 				0.1f,
-				700.0f
+				100000.0f
 			);
 		perspectiveProjDirtyFlag[i] = std::make_unique<DirtySet>(perspectiveMatArray[i]);
 	}
