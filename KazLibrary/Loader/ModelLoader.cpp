@@ -545,14 +545,14 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string
 			//上で手に入れた情報を元に一つのメッシュ情報を追加---------------------------------------
 
 			const auto VERT_MAX_COUNT = accPos.count;
-			for (int i = 0; i < VERT_MAX_COUNT; ++i)
+			for (int vertCount = 0; vertCount < VERT_MAX_COUNT; ++vertCount)
 			{
 				const int TRIANGLE_VERT_NUM = 3;
 				const int UV_VERT_NUM = 2;
 
 				//三角面になるようにインデックスを決める
-				KazMath::Vec3<int>vertIndex(TRIANGLE_VERT_NUM * i, TRIANGLE_VERT_NUM * i + 1, TRIANGLE_VERT_NUM * i + 2);
-				KazMath::Vec2<int>uvIndex(UV_VERT_NUM * i, UV_VERT_NUM * i + 1);
+				KazMath::Vec3<int>vertIndex(TRIANGLE_VERT_NUM * vertCount, TRIANGLE_VERT_NUM * vertCount + 1, TRIANGLE_VERT_NUM * vertCount + 2);
+				KazMath::Vec2<int>uvIndex(UV_VERT_NUM * vertCount, UV_VERT_NUM * vertCount + 1);
 
 				vertexInfo.verticesArray.emplace_back(KazMath::Vec3<float>(vertPos[vertIndex.x], vertPos[vertIndex.y], vertPos[vertIndex.z]));
 				vertexInfo.normalArray.emplace_back(KazMath::Vec3<float>(normal[vertIndex.x], normal[vertIndex.y], normal[vertIndex.z]));
@@ -564,11 +564,11 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string
 				//インデックスデータを読み取る
 				std::vector<uint16_t>indices = resourceReader->ReadBinaryData<uint16_t>(doc, accIndex);
 				const auto INDEX_MAX_COUNT = accIndex.count;
-				for (int i = 0; i < INDEX_MAX_COUNT; i += 3)
+				for (int indexCount = 0; indexCount < INDEX_MAX_COUNT; indexCount += 3)
 				{
-					vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[i + 1]));
-					vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[i + 0]));
-					vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[i + 2]));
+					vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[indexCount + 1]));
+					vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[indexCount + 0]));
+					vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[indexCount + 2]));
 				}
 			}
 			//メッシュ情報の追加
