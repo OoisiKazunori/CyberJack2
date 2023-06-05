@@ -281,6 +281,7 @@ namespace DrawFuncPipelineData
 		//ラスタライザ
 		//背面カリング、塗りつぶし、深度クリッピング有効
 		CD3DX12_RASTERIZER_DESC rasterrize(D3D12_DEFAULT);
+		rasterrize.CullMode = D3D12_CULL_MODE_NONE;
 		gPipeline.RasterizerState = rasterrize;
 		//ブレンドモード
 		gPipeline.BlendState.RenderTarget[0] = SetAlphaBlend();

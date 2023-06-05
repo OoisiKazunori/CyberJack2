@@ -74,7 +74,7 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName, ModelFi
 
 	for (const auto &meshData : modelData)
 	{
-		std::vector<Vertex>vertexData = GetVertexDataArray(meshData.vertexData);
+		std::vector<Vertex>vertexData = GetVertexDataArray(meshData.vertexData, meshData.vertexData.indexArray);
 
 		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(m_testMultiMeshed.GenerateVertexBuffer(vertexData.data(), sizeof(Vertex), vertexData.size()));
 		std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(m_testMultiMeshed.GenerateIndexBuffer(meshData.vertexData.indexArray));
@@ -128,7 +128,18 @@ std::vector<Vertex> ModelLoader::GetVertexDataArray(const VertexData &data)
 		result[i].uv = data.uvArray[i].ConvertXMFLOAT2();
 		result[i].normal = data.normalArray[i].ConvertXMFLOAT3();
 	}
+	return result;
+}
 
+std::vector<Vertex> ModelLoader::GetVertexDataArray(const VertexData &data, const std::vector<USHORT> &indexArray)
+{
+	std::vector<Vertex>result(data.verticesArray.size());
+	for (int i = 0; i < data.verticesArray.size(); ++i)
+	{
+		result[i].pos = data.verticesArray[i].ConvertXMFLOAT3();
+		result[i].uv = data.uvArray[i].ConvertXMFLOAT2();
+		result[i].normal = data.normalArray[i].ConvertXMFLOAT3();
+	}
 	return result;
 }
 

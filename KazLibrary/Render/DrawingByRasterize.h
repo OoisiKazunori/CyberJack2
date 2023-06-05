@@ -215,6 +215,26 @@ namespace DrawFunc
 		return lDrawCallData;
 	};
 
+	//OBJモデルのポリゴン表示(インデックスあり、マテリアル無し)
+	static DrawCallData SetDrawOBJIndexNoMaterialData(DrawingByRasterize *CALL_DATA_PTR, const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	{
+		DrawCallData lDrawCallData(CALL_DATA_PTR);
+		//頂点情報
+		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VERTEX_DATA;
+		lDrawCallData.drawCommandType = DrawingByRasterize::VERT_TYPE::MULTI_MESHED;
+
+		//行列情報
+		lDrawCallData.bufferResourceDataArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX)),
+			GRAPHICS_PRAMTYPE_DATA,
+			GRAPHICS_RANGE_TYPE_CBV_VIEW
+		);
+
+		lDrawCallData.pipelineData = PIPELINE_DATA;
+
+		return lDrawCallData;
+	};
+
 	//行列情報のみ
 	static DrawCallData SetTransformData(DrawingByRasterize *CALL_DATA_PTR, const KazRenderHelper::DrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
 	{

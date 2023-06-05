@@ -171,6 +171,7 @@ public:
 	ModelLoader();
 	std::shared_ptr<ModelInfomation> Load(std::string fileName, ModelFileType type);
 	std::vector<Vertex>GetVertexDataArray(const VertexData &data);
+	std::vector<Vertex>GetVertexDataArray(const VertexData &data, const std::vector<USHORT>&indexArray);
 
 
 private:
