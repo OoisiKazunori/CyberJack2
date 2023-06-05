@@ -22,6 +22,16 @@ struct PolygonIndexData
 };
 
 /// <summary>
+/// 複数メッシュ対応の頂点情報とインデックスのポリゴン
+/// </summary>
+struct PolygonMultiMeshedIndexData
+{
+	std::vector<std::shared_ptr<KazBufferHelper::BufferData>> vertBuffer;
+	std::vector<std::shared_ptr<KazBufferHelper::BufferData>> indexBuffer;
+	KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData index;
+};
+
+/// <summary>
 /// オブジェクトを描画する為に必要な頂点とインデックスの情報を持つ
 /// </summary>
 class PolygonBuffer

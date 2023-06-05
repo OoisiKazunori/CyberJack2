@@ -80,25 +80,24 @@ RenderScene::RenderScene()
 	RESOURCE_HANDLE handle = ObjResourceMgr::Instance()->LoadModel(KazFilePathName::TestPath + "hamster.obj");
 	ObjResourceMgr::Instance()->GetResourceData(handle);
 	model = ModelLoader::Instance()->Load(KazFilePathName::TestPath + "hamster.obj", ModelLoader::ModelFileType::OBJ);
-	ModelLoader::Instance()->Load(KazFilePathName::TestPath + "Triangle.gltf", ModelLoader::ModelFileType::GLTF);
+	//ModelLoader::Instance()->Load(KazFilePathName::TestPath + "Triangle.gltf", ModelLoader::ModelFileType::GLTF);
 
 	//フォワードレンダリングで描画する立方体
 	{
-		boxNormalData = model->vertexBufferData;
 		DrawFunc::PipelineGenerateData lData;
 		lData.desc = DrawFuncPipelineData::SetPosUvNormal();
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DefferdRender.hlsl", "VSPosNormalUvmain", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DefferdRender.hlsl", "PSPosNormalUvmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
 		testRArray[1] = std::make_unique<DrawFunc::KazRender>(
-			DrawFunc::SetDrawOBJIndexData(&rasterizeRenderer, boxNormalData.index, lData)
+			DrawFunc::SetDrawOBJIndexData(&rasterizeRenderer, model->vertexBufferData.index, lData)
 			);
 
-		testRArray[1]->GetDrawData()->buffer.emplace_back(model->modelData.materialData.textureBuffer);
+		testRArray[1]->GetDrawData()->buffer.emplace_back(model->modelData[0].materialData.textureBuffer);
 		testRArray[1]->GetDrawData()->buffer.back().rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
 		testRArray[1]->GetDrawData()->buffer.back().rootParamType = GRAPHICS_PRAMTYPE_TEX;
 
-		MaterialBufferData data = model->modelData.materialData.GetMaterialData();
+		MaterialBufferData data = model->modelData[0].materialData.GetMaterialData();
 		testRArray[1]->GetDrawData()->buffer[1].bufferWrapper->TransData(&data, sizeof(MaterialBufferData));
 
 		//gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA3;

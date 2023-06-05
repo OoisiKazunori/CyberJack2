@@ -60,7 +60,7 @@ void DrawingByRasterize::Update()
 			}
 
 
-			
+
 
 
 			RootSignatureDataTest lRootSignatureGenerateData;
@@ -91,8 +91,6 @@ void DrawingByRasterize::Update()
 			graphicDataArray[lGenerateIndex].pipelineData.pRootSignature = rootSignatureBufferMgr.GetBuffer(graphicDataArray[lGenerateIndex].rootsignatureHandle).Get();
 			graphicDataArray[lGenerateIndex].pipelineHandle = piplineBufferMgr.GeneratePipeline(graphicDataArray[lGenerateIndex].pipelineData);
 			ErrorCheck(graphicDataArray[lGenerateIndex].pipelineHandle, graphicDataArray[lGenerateIndex].drawCallData);
-
-
 			graphicDataArray[lGenerateIndex].generateFlag = true;
 		}
 	}
@@ -118,14 +116,20 @@ void DrawingByRasterize::Draw()
 		//ルートシグネチャーの情報を元にバッファを積む
 		SetBufferOnCmdList(graphicDataArray[lDrawIndex].buffer, rootSignatureBufferMgr.GetRootParam(lRootSignatureHandle));
 
-		//頂点情報を積む。IndexBufferViewのバイト数が0の場合はDrawInstanceを使用していると推測する
-		if (graphicDataArray[lDrawIndex].drawIndexInstanceCommandData.indexBufferView.SizeInBytes != 0)
+		//描画コマンド実行
+		switch (graphicDataArray[lDrawIndex].drawCommandType)
 		{
+		case VERT_TYPE::INDEX:
 			DrawIndexInstanceCommand(graphicDataArray[lDrawIndex].drawIndexInstanceCommandData);
-		}
-		else
-		{
+			break;
+		case VERT_TYPE::INSTANCE:
 			DrawInstanceCommand(graphicDataArray[lDrawIndex].drawInstanceCommandData);
+			break;
+		case VERT_TYPE::MULTI_MESHED:
+			MultiMeshedDrawIndexInstanceCommand(graphicDataArray[lDrawIndex].drawMultiMeshesIndexInstanceCommandData);
+			break;
+		default:
+			break;
 		}
 	}
 }
@@ -180,6 +184,27 @@ void DrawingByRasterize::SetBufferOnCmdList(const std::vector<KazBufferHelper::B
 			break;
 		}
 	}
+}
+
+void DrawingByRasterize::MultiMeshedDrawIndexInstanceCommand(const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData &DATA)
+{
+	//描画命令-----------------------------------------------------------------------------------------------------
+	const int COMMAND_MAX_DATA = static_cast<int>(DATA.vertexBufferDrawData.size());
+
+	for (int i = 0; i < COMMAND_MAX_DATA; ++i)
+	{
+		DirectX12CmdList::Instance()->cmdList->IASetPrimitiveTopology(DATA.topology);
+		DirectX12CmdList::Instance()->cmdList->IASetVertexBuffers(DATA.vertexBufferDrawData[i].slot, DATA.vertexBufferDrawData[i].numViews, &DATA.vertexBufferDrawData[i].vertexBufferView);
+		DirectX12CmdList::Instance()->cmdList->IASetIndexBuffer(&DATA.indexBufferView[i]);
+		DirectX12CmdList::Instance()->cmdList->DrawIndexedInstanced(
+			DATA.drawIndexInstancedData[i].indexCountPerInstance,
+			DATA.drawIndexInstancedData[i].instanceCount,
+			DATA.drawIndexInstancedData[i].startIndexLocation,
+			DATA.drawIndexInstancedData[i].baseVertexLocation,
+			DATA.drawIndexInstancedData[i].startInstanceLocation
+		);
+	}
+	//描画命令-----------------------------------------------------------------------------------------------------
 }
 
 void DrawingByRasterize::DrawIndexInstanceCommand(const KazRenderHelper::DrawIndexInstanceCommandData &DATA)

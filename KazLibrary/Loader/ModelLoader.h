@@ -86,15 +86,12 @@ struct AnimationData
 	//アニメーション時間
 };
 
-struct ModelData
+struct ModelMeshData
 {
 	//頂点情報
 	VertexData vertexData;
 	//マテリアル情報
 	MaterialData materialData;
-	//ボーン情報
-	AnimationData animationData;
-
 };
 
 
@@ -107,7 +104,7 @@ struct ModelData
 class OBJLoader
 {
 public:
-	ModelData Load(std::ifstream &fileName, std::string fileDir);
+	ModelMeshData Load(std::ifstream &fileName, std::string fileDir);
 
 private:
 	std::vector<std::string> fileNameArray;
@@ -133,17 +130,17 @@ private:
 
 struct ModelInfomation
 {
-	ModelData modelData;
-	PolygonIndexData vertexBufferData;
+	std::vector<ModelMeshData> modelData;
+	PolygonMultiMeshedIndexData vertexBufferData;
 
-	ModelInfomation(const ModelData &model, const PolygonIndexData &vertexBuffer);
+	ModelInfomation(const std::vector<ModelMeshData> &model, const PolygonMultiMeshedIndexData &vertexBuffer);
 };
 
 
 class GLTFLoader
 {
 public:
-	void Load(std::ifstream &fileName, std::string fileDir);
+	std::vector<ModelMeshData> Load(std::ifstream &fileName, std::string fileDir);
 
     // Uses the Document class to print some basic information about various top-level glTF entities
     void PrintDocumentInfo(const Microsoft::glTF::Document &document);
@@ -185,6 +182,10 @@ private:
 	std::vector<std::shared_ptr<ModelInfomation>> m_modelArray;
 	PolygonBuffer m_test;
 	PolygonIndexData m_Poly;
+
+
+	PolygonBuffer m_testMultiMeshed;
+	PolygonMultiMeshedIndexData m_PolyMultiMeshed;
 };
 
 class StreamReader : public Microsoft::glTF::IStreamReader

@@ -1,6 +1,16 @@
 #include "KazRenderHelper.h"
 #include"../KazLibrary/Helper/KazHelper.h"
 
+KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData KazRenderHelper::SetMultiMeshedDrawIndexInstanceCommandData(const D3D_PRIMITIVE_TOPOLOGY &TOPOLOGY, std::vector<KazRenderHelper::IASetVertexBuffersData> VERTEX_BUFFER_DATA, std::vector<D3D12_INDEX_BUFFER_VIEW> INDEX_BUFFER_VIEW_ARRAY, std::vector<KazRenderHelper::DrawIndexedInstancedData> DRAW_INDEX_DATA)
+{
+	MultipleMeshesDrawIndexInstanceCommandData result;
+	result.topology = TOPOLOGY;
+	result.vertexBufferDrawData = VERTEX_BUFFER_DATA;
+	result.indexBufferView = INDEX_BUFFER_VIEW_ARRAY;
+	result.drawIndexInstancedData = DRAW_INDEX_DATA;
+	return result;
+}
+
 KazRenderHelper::DrawIndexInstanceCommandData KazRenderHelper::SetDrawIndexInstanceCommandData(const D3D_PRIMITIVE_TOPOLOGY &TOPOLOGY, const D3D12_VERTEX_BUFFER_VIEW &VERTEX_VIEW, const D3D12_INDEX_BUFFER_VIEW &INDEX_VIEW, UINT INDECIES_NUM, UINT INSTANCE_NUM)
 {
 	KazRenderHelper::DrawIndexInstanceCommandData result;

@@ -33,6 +33,20 @@ namespace KazRenderHelper
 		UINT slot;
 		UINT numViews;
 		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+
+		IASetVertexBuffersData()
+		{};
+		IASetVertexBuffersData(UINT SLOT, UINT NUM_VIEWS, D3D12_VERTEX_BUFFER_VIEW VIEW):slot(SLOT),numViews(NUM_VIEWS), vertexBufferView(VIEW)
+		{};
+	};
+
+	//複数メッシュ用の頂点、インデックス情報
+	struct MultipleMeshesDrawIndexInstanceCommandData
+	{
+		D3D_PRIMITIVE_TOPOLOGY topology;
+		std::vector<KazRenderHelper::IASetVertexBuffersData> vertexBufferDrawData;
+		std::vector<D3D12_INDEX_BUFFER_VIEW> indexBufferView;
+		std::vector<KazRenderHelper::DrawIndexedInstancedData> drawIndexInstancedData;
 	};
 
 	struct DrawIndexInstanceCommandData
@@ -51,6 +65,7 @@ namespace KazRenderHelper
 	};
 
 
+	MultipleMeshesDrawIndexInstanceCommandData SetMultiMeshedDrawIndexInstanceCommandData(const D3D_PRIMITIVE_TOPOLOGY &TOPOLOGY, std::vector<KazRenderHelper::IASetVertexBuffersData> VERTEX_BUFFER_DATA, std::vector<D3D12_INDEX_BUFFER_VIEW> INDEX_BUFFER_VIEW_ARRAY, std::vector<KazRenderHelper::DrawIndexedInstancedData> DRAW_INDEX_DATA);
 	DrawIndexInstanceCommandData SetDrawIndexInstanceCommandData(const D3D_PRIMITIVE_TOPOLOGY &TOPOLOGY, const D3D12_VERTEX_BUFFER_VIEW &VERTEX_VIEW, const D3D12_INDEX_BUFFER_VIEW &INDEX_VIEW, UINT INDECIES_NUM, UINT INSTANCE_NUM);
 	DrawInstanceCommandData SetDrawInstanceCommandData(const D3D_PRIMITIVE_TOPOLOGY &TOPOLOGY, const D3D12_VERTEX_BUFFER_VIEW &VERTEX_VIEW, UINT VERTEX_NUM, UINT INSTANCE_NUM);
 

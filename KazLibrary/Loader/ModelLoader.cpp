@@ -39,26 +39,26 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName, ModelFi
 		}
 	}
 
-	ModelData modelData;
+	std::vector<ModelMeshData> modelData;
 
 	switch (type)
 	{
 	case ModelLoader::ModelFileType::NONE:
 		break;
 	case ModelLoader::ModelFileType::OBJ:
-		modelData = objLoad.Load(file, filePass);
+		modelData.emplace_back(objLoad.Load(file, filePass));
 		break;
 	case ModelLoader::ModelFileType::FBX:
 		break;
 	case ModelLoader::ModelFileType::GLTF:
-		glTFLoad.Load(file, filePass);
+		modelData = glTFLoad.Load(file, filePass);
 		break;
 	default:
 		break;
 	}
 
 	//生成されているか確認
-	if (modelData.vertexData.verticesArray.size() <= 0 || modelData.vertexData.indexArray.size() <= 0)
+	if (modelData.back().vertexData.verticesArray.size() <= 0 || modelData.back().vertexData.indexArray.size() <= 0)
 	{
 		ErrorCheck(fileName + "の読み込みに失敗しました\n");
 		assert(1);
@@ -66,19 +66,54 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName, ModelFi
 	SucceedCheck(fileName + "の読み込みに成功しました\n");
 
 
-	//頂点、インデックスバッファ生成
-	std::vector<Vertex>vertexData = GetVertexDataArray(modelData.vertexData);
-	m_Poly.vertBuffer = m_test.GenerateVertexBuffer(vertexData.data(), sizeof(Vertex), vertexData.size());
-	m_Poly.indexBuffer = m_test.GenerateIndexBuffer(modelData.vertexData.indexArray);
-	m_Poly.index = KazRenderHelper::SetDrawIndexInstanceCommandData(
+
+	PolygonMultiMeshedIndexData data;
+	std::vector<KazRenderHelper::IASetVertexBuffersData> setVertDataArray;
+	std::vector<D3D12_INDEX_BUFFER_VIEW> indexBufferViewArray;
+	std::vector<KazRenderHelper::DrawIndexedInstancedData>drawCommandDataArray;
+
+	for (const auto &meshData : modelData)
+	{
+		std::vector<Vertex>vertexData = GetVertexDataArray(meshData.vertexData);
+
+		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(m_testMultiMeshed.GenerateVertexBuffer(vertexData.data(), sizeof(Vertex), vertexData.size()));
+		std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(m_testMultiMeshed.GenerateIndexBuffer(meshData.vertexData.indexArray));
+
+		m_PolyMultiMeshed.vertBuffer.emplace_back(vertexBuffer);
+		m_PolyMultiMeshed.indexBuffer.emplace_back(indexBuffer);
+		//頂点情報
+		setVertDataArray.emplace_back();
+		setVertDataArray.back().numViews = 1;
+		setVertDataArray.back().slot = 0;
+		setVertDataArray.back().vertexBufferView = KazBufferHelper::SetVertexBufferView(vertexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(vertexData.size(), sizeof(Vertex)), sizeof(vertexData[0]));
+
+		//インデックス情報
+		indexBufferViewArray.emplace_back(
+			KazBufferHelper::SetIndexBufferView(
+				indexBuffer->bufferWrapper->GetGpuAddress(),
+				KazBufferHelper::GetBufferSize<BUFFER_SIZE>(meshData.vertexData.indexArray.size(), sizeof(USHORT))
+			)
+		);
+
+		//描画コマンド情報
+		KazRenderHelper::DrawIndexedInstancedData result;
+		result.indexCountPerInstance = static_cast<UINT>(meshData.vertexData.indexArray.size());
+		result.instanceCount = 1;
+		result.startIndexLocation = 0;
+		result.baseVertexLocation = 0;
+		result.startInstanceLocation = 0;
+		drawCommandDataArray.emplace_back(result);
+
+	}
+
+	m_PolyMultiMeshed.index = KazRenderHelper::SetMultiMeshedDrawIndexInstanceCommandData(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-		KazBufferHelper::SetVertexBufferView(m_Poly.vertBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(vertexData.size(), sizeof(Vertex)), sizeof(vertexData[0])),
-		KazBufferHelper::SetIndexBufferView(m_Poly.indexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(modelData.vertexData.indexArray.size(), sizeof(USHORT))),
-		static_cast<UINT>(modelData.vertexData.indexArray.size()),
-		1
+		setVertDataArray,
+		indexBufferViewArray,
+		drawCommandDataArray
 	);
 
-	m_modelArray.emplace_back(std::make_shared<ModelInfomation>(modelData, m_Poly));
+	m_modelArray.emplace_back(std::make_shared<ModelInfomation>(modelData, m_PolyMultiMeshed));
 
 	return m_modelArray.back();
 }
@@ -97,7 +132,7 @@ std::vector<Vertex> ModelLoader::GetVertexDataArray(const VertexData &data)
 	return result;
 }
 
-ModelData OBJLoader::Load(std::ifstream &file, std::string fileDir)
+ModelMeshData OBJLoader::Load(std::ifstream &file, std::string fileDir)
 {
 	//単体の情報の登録---------------------------------------
 	std::vector<KazMath::Vec3<float>>positions;
@@ -276,7 +311,7 @@ ModelData OBJLoader::Load(std::ifstream &file, std::string fileDir)
 	//resource[setHandle].vertices = positions;
 	//resource[setHandle].index = indiKeepData;
 
-	ModelData loadData;
+	ModelMeshData loadData;
 	loadData.vertexData.verticesArray = vertexPosArray;
 	loadData.vertexData.uvArray = texcoordArray;
 	loadData.vertexData.normalArray = normalArray;
@@ -370,7 +405,7 @@ void OBJLoader::LocalMateriaData::Delete()
 	alpha = 0.0;
 }
 
-void GLTFLoader::Load(std::ifstream &fileName, std::string fileDir)
+std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string fileDir)
 {
 	std::string filepass("Resource/Test/Plane/plane.glb");
 	std::string Ext(".glb");
@@ -454,7 +489,7 @@ void GLTFLoader::Load(std::ifstream &fileName, std::string fileDir)
 
 
 	//モデル一つ分のメッシュの塊
-	std::vector<VertexData> meshData;
+	std::vector<ModelMeshData> meshData;
 
 	//メッシュの読み込み
 	for (const auto &meshes : doc.meshes.Elements())
@@ -469,7 +504,7 @@ void GLTFLoader::Load(std::ifstream &fileName, std::string fileDir)
 		for (const auto &primitive : meshes.primitives)
 		{
 			//メッシュ一個分の情報
-			VertexData modelData;
+			VertexData vertexInfo;
 			/*
 			1...Attribute(頂点情報)から引数に指定した名前を元にアクセサーを取り出す為のIDを手に入れる。
 			2...IDからアクセサーを取り出す
@@ -508,9 +543,9 @@ void GLTFLoader::Load(std::ifstream &fileName, std::string fileDir)
 				KazMath::Vec3<int>vertIndex(TRIANGLE_VERT_NUM * i, TRIANGLE_VERT_NUM * i + 1, TRIANGLE_VERT_NUM * i + 2);
 				KazMath::Vec2<int>uvIndex(UV_VERT_NUM * i, UV_VERT_NUM * i + 1);
 
-				modelData.verticesArray.emplace_back(KazMath::Vec3<float>(vertPos[vertIndex.x], vertPos[vertIndex.y], vertPos[vertIndex.z]));
-				modelData.normalArray.emplace_back(KazMath::Vec3<float>(normal[vertIndex.x], normal[vertIndex.y], normal[vertIndex.z]));
-				modelData.uvArray.emplace_back(KazMath::Vec2<float>(uv[uvIndex.x], uv[uvIndex.y]));
+				vertexInfo.verticesArray.emplace_back(KazMath::Vec3<float>(vertPos[vertIndex.x], vertPos[vertIndex.y], vertPos[vertIndex.z]));
+				vertexInfo.normalArray.emplace_back(KazMath::Vec3<float>(normal[vertIndex.x], normal[vertIndex.y], normal[vertIndex.z]));
+				vertexInfo.uvArray.emplace_back(KazMath::Vec2<float>(uv[uvIndex.x], uv[uvIndex.y]));
 
 
 				//アクセサーからインデックス情報の(???)を取得
@@ -520,19 +555,21 @@ void GLTFLoader::Load(std::ifstream &fileName, std::string fileDir)
 				const auto INDEX_MAX_COUNT = accIndex.count;
 				for (int i = 0; i < INDEX_MAX_COUNT; i += 3)
 				{
-					modelData.indexArray.emplace_back(static_cast<USHORT>(indices[i + 1]));
-					modelData.indexArray.emplace_back(static_cast<USHORT>(indices[i + 0]));
-					modelData.indexArray.emplace_back(static_cast<USHORT>(indices[i + 2]));
+					vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[i + 1]));
+					vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[i + 0]));
+					vertexInfo.indexArray.emplace_back(static_cast<USHORT>(indices[i + 2]));
 				}
 			}
 			//メッシュ情報の追加
-			modelData.name = meshName;
-			meshData.emplace_back(modelData);
+			vertexInfo.name = meshName;
 
+			meshData.emplace_back();
+			meshData.back().vertexData = vertexInfo;
 			//上で手に入れた情報を元に一つのメッシュ情報を追加---------------------------------------
 		}
-
 	}
+
+	return meshData;
 }
 
 void GLTFLoader::PrintDocumentInfo(const Microsoft::glTF::Document &document)
@@ -730,7 +767,7 @@ void GLTFLoader::PrintInfo(const std::experimental::filesystem::path &path)
 	PrintResourceInfo(document, *resourceReader);
 }
 
-ModelInfomation::ModelInfomation(const ModelData &model, const PolygonIndexData &vertexBuffer) :modelData(model), vertexBufferData(vertexBuffer)
+ModelInfomation::ModelInfomation(const std::vector<ModelMeshData> &model, const PolygonMultiMeshedIndexData &vertexBuffer) :modelData(model), vertexBufferData(vertexBuffer)
 {
 }
 

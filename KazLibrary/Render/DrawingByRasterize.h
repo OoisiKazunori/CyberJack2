@@ -21,13 +21,22 @@ public:
 	void Update();
 	void Draw();
 
+	enum class VERT_TYPE
+	{
+		INDEX,
+		INSTANCE,
+		MULTI_MESHED
+	};
+
 	struct DrawData
 	{
 		bool generateFlag;
 
 		//頂点情報
+		KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData drawMultiMeshesIndexInstanceCommandData;
 		KazRenderHelper::DrawIndexInstanceCommandData drawIndexInstanceCommandData;
 		KazRenderHelper::DrawInstanceCommandData drawInstanceCommandData;
+		VERT_TYPE drawCommandType;
 
 		//パイプライン情報
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineData;
@@ -93,6 +102,7 @@ private:
 	void SetBufferOnCmdList(const  std::vector<KazBufferHelper::BufferData> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM);
 
 	//頂点情報のセット
+	void MultiMeshedDrawIndexInstanceCommand(const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData &DATA);
 	void DrawIndexInstanceCommand(const KazRenderHelper::DrawIndexInstanceCommandData &DATA);
 	void DrawInstanceCommand(const KazRenderHelper::DrawInstanceCommandData &DATA);
 
@@ -142,6 +152,9 @@ namespace DrawFunc
 		//頂点情報
 		KazRenderHelper::DrawIndexInstanceCommandData drawIndexInstanceCommandData;
 		KazRenderHelper::DrawInstanceCommandData drawInstanceCommandData;
+		KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData drawMultiMeshesIndexInstanceCommandData;
+		DrawingByRasterize::VERT_TYPE drawCommandType;
+
 
 		//パイプライン情報
 		PipelineGenerateData pipelineData;
@@ -157,6 +170,8 @@ namespace DrawFunc
 		DrawCallData lDrawCallData(CALL_DATA_PTR);
 		//頂点情報
 		lDrawCallData.drawIndexInstanceCommandData = VERTEX_DATA;
+		lDrawCallData.drawCommandType = DrawingByRasterize::VERT_TYPE::INDEX;
+
 		//行列情報
 		lDrawCallData.bufferResourceDataArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX)),
@@ -175,11 +190,13 @@ namespace DrawFunc
 	};
 
 	//OBJモデルのポリゴン表示(インデックスあり)
-	static DrawCallData SetDrawOBJIndexData(DrawingByRasterize *CALL_DATA_PTR, const KazRenderHelper::DrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	static DrawCallData SetDrawOBJIndexData(DrawingByRasterize *CALL_DATA_PTR, const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData(CALL_DATA_PTR);
 		//頂点情報
-		lDrawCallData.drawIndexInstanceCommandData = VERTEX_DATA;
+		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VERTEX_DATA;
+		lDrawCallData.drawCommandType = DrawingByRasterize::VERT_TYPE::MULTI_MESHED;
+
 		//行列情報
 		lDrawCallData.bufferResourceDataArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX)),
@@ -204,6 +221,8 @@ namespace DrawFunc
 		DrawCallData lDrawCallData(CALL_DATA_PTR);
 		//頂点情報
 		lDrawCallData.drawIndexInstanceCommandData = VERTEX_DATA;
+		lDrawCallData.drawCommandType = DrawingByRasterize::VERT_TYPE::INDEX;
+
 		//行列情報
 		lDrawCallData.bufferResourceDataArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX)),
@@ -222,6 +241,8 @@ namespace DrawFunc
 		DrawCallData lDrawCallData(CALL_DATA_PTR);
 		//頂点情報
 		lDrawCallData.drawInstanceCommandData = VERTEX_DATA;
+		lDrawCallData.drawCommandType = DrawingByRasterize::VERT_TYPE::INSTANCE;
+
 		//行列情報
 		lDrawCallData.bufferResourceDataArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX)),
@@ -255,6 +276,8 @@ namespace DrawFunc
 			//頂点情報のセット
 			lData->drawInstanceCommandData = INIT_DATA.drawInstanceCommandData;
 			lData->drawIndexInstanceCommandData = INIT_DATA.drawIndexInstanceCommandData;
+			lData->drawMultiMeshesIndexInstanceCommandData = INIT_DATA.drawMultiMeshesIndexInstanceCommandData;
+			lData->drawCommandType = INIT_DATA.drawCommandType;
 
 			//パイプラインの設定
 			lData->pipelineData = INIT_DATA.pipelineData.desc;

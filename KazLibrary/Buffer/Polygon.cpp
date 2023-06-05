@@ -100,6 +100,7 @@ PolygonIndexData PolygonBuffer::GenerateBoxBuffer(float scale)
 	PolygonIndexData result;
 	result.vertBuffer = GenerateVertexBuffer(lVertices.data(), sizeof(DirectX::XMFLOAT3), lVertices.size());
 	result.indexBuffer = GenerateIndexBuffer(lIndices);
+
 	result.index = KazRenderHelper::SetDrawIndexInstanceCommandData(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
 		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVertices.size(), sizeof(DirectX::XMFLOAT3)), sizeof(lVertices[0])),
