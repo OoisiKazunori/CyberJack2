@@ -37,6 +37,9 @@ public:
 		KazRenderHelper::DrawIndexInstanceCommandData drawIndexInstanceCommandData;
 		KazRenderHelper::DrawInstanceCommandData drawInstanceCommandData;
 		VERT_TYPE drawCommandType;
+		//マテリアル情報
+		std::vector<std::vector<KazBufferHelper::BufferData>> materialBuffer;
+
 
 		//パイプライン情報
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineData;
@@ -102,7 +105,7 @@ private:
 	void SetBufferOnCmdList(const  std::vector<KazBufferHelper::BufferData> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM);
 
 	//頂点情報のセット
-	void MultiMeshedDrawIndexInstanceCommand(const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData &DATA);
+	void MultiMeshedDrawIndexInstanceCommand(const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData &DATA, const std::vector<std::vector<KazBufferHelper::BufferData>> &MATERIAL_BUFFER, std::vector<RootSignatureParameter> ROOT_PARAM);
 	void DrawIndexInstanceCommand(const KazRenderHelper::DrawIndexInstanceCommandData &DATA);
 	void DrawInstanceCommand(const KazRenderHelper::DrawInstanceCommandData &DATA);
 
@@ -154,6 +157,7 @@ namespace DrawFunc
 		KazRenderHelper::DrawInstanceCommandData drawInstanceCommandData;
 		KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData drawMultiMeshesIndexInstanceCommandData;
 		DrawingByRasterize::VERT_TYPE drawCommandType;
+		std::vector<std::vector<KazBufferHelper::BufferData>> materialBuffer;
 
 
 		//パイプライン情報
@@ -215,13 +219,17 @@ namespace DrawFunc
 		return lDrawCallData;
 	};
 
-	//OBJモデルのポリゴン表示(インデックスあり、マテリアル無し)
-	static DrawCallData SetDrawOBJIndexNoMaterialData(DrawingByRasterize *CALL_DATA_PTR, const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	//OBJモデルのポリゴン表示(インデックスあり、マテリアルあり)
+	static DrawCallData SetDrawOBJIndexNoMaterialData(DrawingByRasterize *CALL_DATA_PTR, const ModelInfomation &MODEL_DATA, const PipelineGenerateData &PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData(CALL_DATA_PTR);
 		//頂点情報
-		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VERTEX_DATA;
+		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = MODEL_DATA.vertexBufferData.index;
 		lDrawCallData.drawCommandType = DrawingByRasterize::VERT_TYPE::MULTI_MESHED;
+		for (auto &obj : MODEL_DATA.modelData)
+		{
+			lDrawCallData.materialBuffer.emplace_back().emplace_back(obj.materialData.textureBuffer);
+		}
 
 		//行列情報
 		lDrawCallData.bufferResourceDataArray.emplace_back(
@@ -297,6 +305,7 @@ namespace DrawFunc
 			lData->drawInstanceCommandData = INIT_DATA.drawInstanceCommandData;
 			lData->drawIndexInstanceCommandData = INIT_DATA.drawIndexInstanceCommandData;
 			lData->drawMultiMeshesIndexInstanceCommandData = INIT_DATA.drawMultiMeshesIndexInstanceCommandData;
+			lData->materialBuffer = INIT_DATA.materialBuffer;
 			lData->drawCommandType = INIT_DATA.drawCommandType;
 
 			//パイプラインの設定

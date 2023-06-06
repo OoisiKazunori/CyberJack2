@@ -60,29 +60,31 @@ void DrawingByRasterize::Update()
 			}
 
 
-
-
-
 			RootSignatureDataTest lRootSignatureGenerateData;
-			//ルートシグネチャの生成
+
+
+			if (graphicDataArray[lGenerateIndex].materialBuffer.size() != 0)
+			{
+				const int FIRST_MESH_INDEX = 0;
+				//マテリアルバッファを見てルートシグネチャーの情報詰め込み
+				//全メッシュ共通で入るマテリアル情報のスタックを見てルートシグネチャーの最初に積める
+				for (int i = 0; i < graphicDataArray[lGenerateIndex].materialBuffer[FIRST_MESH_INDEX].size(); ++i)
+				{
+					lRootSignatureGenerateData.rangeArray.emplace_back
+					(
+						graphicDataArray[lGenerateIndex].materialBuffer[FIRST_MESH_INDEX][i].rangeType,
+						graphicDataArray[lGenerateIndex].materialBuffer[FIRST_MESH_INDEX][i].rootParamType
+					);
+				}
+			}
+			//その他バッファを見てルートシグネチャーの情報詰め込み
 			for (int i = 0; i < graphicDataArray[lGenerateIndex].buffer.size(); ++i)
 			{
-				if (lGenerateIndex == 2 && graphicDataArray[lGenerateIndex].buffer[i].rangeType == GRAPHICS_RANGE_TYPE_UAV_DESC)
-				{
-					lRootSignatureGenerateData.rangeArray.emplace_back
-					(
-						GRAPHICS_RANGE_TYPE_UAV_DESC,
-						graphicDataArray[lGenerateIndex].buffer[i].rootParamType
-					);
-				}
-				else
-				{
-					lRootSignatureGenerateData.rangeArray.emplace_back
-					(
-						graphicDataArray[lGenerateIndex].buffer[i].rangeType,
-						graphicDataArray[lGenerateIndex].buffer[i].rootParamType
-					);
-				}
+				lRootSignatureGenerateData.rangeArray.emplace_back
+				(
+					graphicDataArray[lGenerateIndex].buffer[i].rangeType,
+					graphicDataArray[lGenerateIndex].buffer[i].rootParamType
+				);
 			}
 			graphicDataArray[lGenerateIndex].rootsignatureHandle = rootSignatureBufferMgr.GenerateRootSignature(lRootSignatureGenerateData);
 
@@ -111,7 +113,6 @@ void DrawingByRasterize::Draw()
 		DirectX12CmdList::Instance()->cmdList->SetPipelineState(
 			piplineBufferMgr.GetBuffer(lPipelineHandle).Get()
 		);
-
 		//ルートシグネチャーの情報を元にバッファを積む
 		SetBufferOnCmdList(graphicDataArray[lDrawIndex].buffer, rootSignatureBufferMgr.GetRootParam(lRootSignatureHandle));
 
@@ -125,7 +126,7 @@ void DrawingByRasterize::Draw()
 			DrawInstanceCommand(graphicDataArray[lDrawIndex].drawInstanceCommandData);
 			break;
 		case VERT_TYPE::MULTI_MESHED:
-			MultiMeshedDrawIndexInstanceCommand(graphicDataArray[lDrawIndex].drawMultiMeshesIndexInstanceCommandData);
+			MultiMeshedDrawIndexInstanceCommand(graphicDataArray[lDrawIndex].drawMultiMeshesIndexInstanceCommandData, graphicDataArray[lDrawIndex].materialBuffer, rootSignatureBufferMgr.GetRootParam(lRootSignatureHandle));
 			break;
 		default:
 			break;
@@ -185,13 +186,16 @@ void DrawingByRasterize::SetBufferOnCmdList(const std::vector<KazBufferHelper::B
 	}
 }
 
-void DrawingByRasterize::MultiMeshedDrawIndexInstanceCommand(const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData &DATA)
+void DrawingByRasterize::MultiMeshedDrawIndexInstanceCommand(const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData &DATA, const std::vector<std::vector<KazBufferHelper::BufferData>> &MATERIAL_BUFFER, std::vector<RootSignatureParameter> ROOT_PARAM)
 {
 	//描画命令-----------------------------------------------------------------------------------------------------
 	const int COMMAND_MAX_DATA = static_cast<int>(DATA.vertexBufferDrawData.size());
 
 	for (int i = 0; i < COMMAND_MAX_DATA; ++i)
 	{
+		//マテリアル情報のスタック
+		SetBufferOnCmdList(MATERIAL_BUFFER[i], ROOT_PARAM);
+
 		DirectX12CmdList::Instance()->cmdList->IASetPrimitiveTopology(DATA.topology);
 		DirectX12CmdList::Instance()->cmdList->IASetVertexBuffers(DATA.vertexBufferDrawData[i].slot, DATA.vertexBufferDrawData[i].numViews, &DATA.vertexBufferDrawData[i].vertexBufferView);
 		DirectX12CmdList::Instance()->cmdList->IASetIndexBuffer(&DATA.indexBufferView[i]);

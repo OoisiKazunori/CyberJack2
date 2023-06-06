@@ -20,9 +20,12 @@ PosUvNormalOutput VSPosNormalUvmain(float4 pos : POSITION,float3 normal : NORMAL
     return op;
 }
 
+Texture2D<float4>tex:register(t0);
+SamplerState smp :register(s0);
+
 float4 PSPosNormalUvmain(PosUvNormalOutput input) : SV_TARGET
 {
-	float4 texColor = float4(input.uv.x,input.uv.y,1,1);
+	float4 texColor = tex.Sample(smp,input.uv);
 	return float4(texColor.rgb, 1.0f);
 }
 //uvÅAñ@ê¸ëŒâû---------------------------------------

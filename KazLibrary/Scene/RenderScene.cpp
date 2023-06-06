@@ -90,7 +90,7 @@ RenderScene::RenderScene()
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
 		testRArray[1] = std::make_unique<DrawFunc::KazRender>(
-			DrawFunc::SetDrawOBJIndexNoMaterialData(&rasterizeRenderer, model->vertexBufferData.index, lData)
+			DrawFunc::SetDrawOBJIndexNoMaterialData(&rasterizeRenderer, *model, lData)
 			);
 
 		//testRArray[1]->GetDrawData()->buffer.emplace_back(model->modelData[0].materialData.textureBuffer);

@@ -423,7 +423,8 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string
 {
 	//std::string filepass("Resource/Test/Plane/plane.glb");
 	//std::string Ext(".glb");
-	std::string filepass("Resource/Test/glTF/Sponza.gltf");
+	std::string FileDir("Resource/Test/glTF/");
+	std::string filepass(FileDir + "sponza.gltf");
 	std::string Ext(".gltf");
 
 
@@ -501,10 +502,35 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string
 		bool debug = false;
 	}
 
+	std::vector<MaterialData> modelMaterialDataArray;
+	//マテリアル情報の読み込み
+	for (const auto &material : doc.materials.Elements())
+	{
+		auto texID = material.metallicRoughness.baseColorTexture.textureId;
+		modelMaterialDataArray.emplace_back();
+
+		//テクスチャの取得
+		if (!texID.empty())
+		{
+			auto &texture = doc.textures.Get(texID);
+			auto &image = doc.images.Get(texture.id);
+			if (!image.uri.empty())
+			{
+				std::string textureFilePass(FileDir + image.uri);
+				//テクスチャ読み込み
+				modelMaterialDataArray.back().textureBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass);
+				modelMaterialDataArray.back().textureBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA;
+			}
+		}
+
+		//法線マップの取得
+		if (!texID.empty())
+		{
+		}
+	}
 
 	//モデル一つ分のメッシュの塊
 	std::vector<ModelMeshData> meshData;
-
 	//メッシュの読み込み
 	for (const auto &meshes : doc.meshes.Elements())
 	{
@@ -579,6 +605,13 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string
 
 			meshData.emplace_back();
 			meshData.back().vertexData = vertexInfo;
+			//マテリアルがあるのかどうか(現在はAlbedoのみ対応)
+			if (doc.materials.Has(primitive.materialId))
+			{
+				int materialIndex = static_cast<int>(doc.materials.GetIndex(primitive.materialId));
+				meshData.back().materialData.textureBuffer = modelMaterialDataArray[materialIndex].textureBuffer;
+			}
+
 			//上で手に入れた情報を元に一つのメッシュ情報を追加---------------------------------------
 		}
 	}
