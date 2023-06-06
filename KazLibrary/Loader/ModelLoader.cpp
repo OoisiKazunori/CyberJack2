@@ -506,14 +506,14 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string
 	//マテリアル情報の読み込み
 	for (const auto &material : doc.materials.Elements())
 	{
-		auto texID = material.metallicRoughness.baseColorTexture.textureId;
 		modelMaterialDataArray.emplace_back();
 
+		auto texID = material.metallicRoughness.baseColorTexture.textureId;
 		//テクスチャの取得
 		if (!texID.empty())
 		{
 			auto &texture = doc.textures.Get(texID);
-			auto &image = doc.images.Get(texture.id);
+			auto &image = doc.images.Get(texture.imageId);
 			if (!image.uri.empty())
 			{
 				std::string textureFilePass(FileDir + image.uri);
@@ -610,6 +610,10 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string
 			{
 				int materialIndex = static_cast<int>(doc.materials.GetIndex(primitive.materialId));
 				meshData.back().materialData.textureBuffer = modelMaterialDataArray[materialIndex].textureBuffer;
+			}
+			else
+			{
+				bool debug = false;
 			}
 
 			//上で手に入れた情報を元に一つのメッシュ情報を追加---------------------------------------
