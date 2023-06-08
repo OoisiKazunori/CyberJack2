@@ -82,16 +82,20 @@ RenderScene::RenderScene()
 	model = ModelLoader::Instance()->Load(KazFilePathName::TestPath + "hamster.obj", ModelLoader::ModelFileType::GLTF);
 	//ModelLoader::Instance()->Load(KazFilePathName::TestPath + "Triangle.gltf", ModelLoader::ModelFileType::GLTF);
 
-	//フォワードレンダリングで描画する立方体
+	//フォワードレンダリングで描画するモデル
 	{
 		DrawFunc::PipelineGenerateData lData;
-		lData.desc = DrawFuncPipelineData::SetPosUvNormal();
+		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSPosNormalUvmain", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
 		testRArray[1] = std::make_unique<DrawFunc::KazRender>(
 			DrawFunc::SetDrawOBJIndexNoMaterialData(&rasterizeRenderer, *model, lData)
 			);
+
+		testRArray[1]->GetDrawData()->buffer.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
+		testRArray[1]->GetDrawData()->buffer.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		testRArray[1]->GetDrawData()->buffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
 		//testRArray[1]->GetDrawData()->buffer.emplace_back(model->modelData[0].materialData.textureBuffer);
 		//testRArray[1]->GetDrawData()->buffer.back().rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
@@ -266,6 +270,7 @@ RenderScene::~RenderScene()
 void RenderScene::Init()
 {
 	camera.Init({});
+	lightVec = { 0.0f,1.0f,0.0f };
 }
 
 void RenderScene::PreInit()
@@ -285,10 +290,11 @@ void RenderScene::Update()
 	camera.Update({}, {}, true);
 	CameraMgr::Instance()->Camera(camera.GetEyePos(), camera.GetTargetPos(), { 0.0f,1.0f,0.0f });
 
-
-
 	rasterizeRenderer.Update();
 	compute.Update();
+
+	DirectX::XMFLOAT3 dir = lightVec.ConvertXMFLOAT3();	
+	testRArray[1]->GetDrawData()->buffer.back().bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 }
 
 void RenderScene::Draw()
@@ -307,6 +313,11 @@ void RenderScene::Draw()
 	compute.Compute();
 	rasterizeRenderer.Draw();
 
+	ImGui::Begin("Light");
+	ImGui::DragFloat("VecX", &lightVec.x);
+	ImGui::DragFloat("VecY", &lightVec.y);
+	ImGui::DragFloat("VecZ", &lightVec.z);
+	ImGui::End();
 }
 
 int RenderScene::SceneChange()

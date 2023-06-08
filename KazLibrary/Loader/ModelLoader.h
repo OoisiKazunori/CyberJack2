@@ -59,6 +59,14 @@ struct MaterialBufferData
 	float alpha;
 };
 
+struct VertexBufferData
+{
+	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT3 normal;
+	DirectX::XMFLOAT2 uv;
+	DirectX::XMFLOAT3 tangent;
+	DirectX::XMFLOAT3 binormal;
+};
 
 struct VertexData
 {
@@ -66,6 +74,8 @@ struct VertexData
 	std::vector<KazMath::Vec3<float>> verticesArray;
 	std::vector<KazMath::Vec2<float>> uvArray;
 	std::vector<KazMath::Vec3<float>> normalArray;
+	std::vector<KazMath::Vec3<float>> tangentArray;
+	std::vector<KazMath::Vec3<float>> binormalArray;
 	std::vector<USHORT>indexArray;
 };
 
@@ -74,7 +84,7 @@ struct MaterialData
 	KazMath::Vec3<float> ambient;//アンビエント
 	KazMath::Vec3<float> diffuse;//ディフューズ
 	KazMath::Vec3<float> specular;//スペキュラー
-	KazBufferHelper::BufferData textureBuffer;
+	std::vector<KazBufferHelper::BufferData> textureBuffer;
 
 	MaterialBufferData GetMaterialData();
 };
@@ -142,13 +152,21 @@ class GLTFLoader
 public:
 	std::vector<ModelMeshData> Load(std::ifstream &fileName, std::string fileDir);
 
-    // Uses the Document class to print some basic information about various top-level glTF entities
-    void PrintDocumentInfo(const Microsoft::glTF::Document &document);
 
-    // Uses the Document and GLTFResourceReader classes to print information about various glTF binary resources
+private:
+	// Uses the Document class to print some basic information about various top-level glTF entities
+	void PrintDocumentInfo(const Microsoft::glTF::Document &document);
+
+	// Uses the Document and GLTFResourceReader classes to print information about various glTF binary resources
 	void PrintResourceInfo(const Microsoft::glTF::Document &document, const Microsoft::glTF::GLTFResourceReader &resourceReader);
 
 	void PrintInfo(const std::experimental::filesystem::path &path);
+
+	KazMath::Vec3<int> GetVertIndex(int vertCount, int vecMaxNum)
+	{
+		//三角面になるようにインデックスを決める
+		return KazMath::Vec3<int>(vecMaxNum * vertCount, vecMaxNum * vertCount + 1, vecMaxNum * vertCount + 2);
+	}
 };
 
 
@@ -170,12 +188,11 @@ public:
 
 	ModelLoader();
 	std::shared_ptr<ModelInfomation> Load(std::string fileName, ModelFileType type);
-	std::vector<Vertex>GetVertexDataArray(const VertexData &data);
-	std::vector<Vertex>GetVertexDataArray(const VertexData &data, const std::vector<USHORT>&indexArray);
+	std::vector<VertexBufferData>GetVertexDataArray(const VertexData &data);
+	std::vector<VertexBufferData>GetVertexDataArray(const VertexData &data, const std::vector<USHORT> &indexArray);
 
 
 private:
-
 
 	OBJLoader objLoad;
 	GLTFLoader glTFLoad;

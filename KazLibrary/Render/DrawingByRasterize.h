@@ -228,7 +228,7 @@ namespace DrawFunc
 		lDrawCallData.drawCommandType = DrawingByRasterize::VERT_TYPE::MULTI_MESHED;
 		for (auto &obj : MODEL_DATA.modelData)
 		{
-			lDrawCallData.materialBuffer.emplace_back().emplace_back(obj.materialData.textureBuffer);
+			lDrawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
 		}
 
 		//çsóÒèÓïÒ

@@ -77,9 +77,9 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName, ModelFi
 		m_testMultiMeshed.emplace_back();
 
 
-		std::vector<Vertex>vertexData = GetVertexDataArray(meshData.vertexData, meshData.vertexData.indexArray);
+		std::vector<VertexBufferData>vertexData = GetVertexDataArray(meshData.vertexData, meshData.vertexData.indexArray);
 
-		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(m_testMultiMeshed.back().GenerateVertexBuffer(vertexData.data(), sizeof(Vertex), vertexData.size()));
+		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(m_testMultiMeshed.back().GenerateVertexBuffer(vertexData.data(), sizeof(VertexBufferData), vertexData.size()));
 		std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(m_testMultiMeshed.back().GenerateIndexBuffer(meshData.vertexData.indexArray));
 
 		m_PolyMultiMeshed.vertBuffer.emplace_back(vertexBuffer);
@@ -88,7 +88,7 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName, ModelFi
 		setVertDataArray.emplace_back();
 		setVertDataArray.back().numViews = 1;
 		setVertDataArray.back().slot = 0;
-		setVertDataArray.back().vertexBufferView = KazBufferHelper::SetVertexBufferView(vertexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(vertexData.size(), sizeof(Vertex)), sizeof(vertexData[0]));
+		setVertDataArray.back().vertexBufferView = KazBufferHelper::SetVertexBufferView(vertexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(vertexData.size(), sizeof(VertexBufferData)), sizeof(vertexData[0]));
 
 		//インデックス情報
 		indexBufferViewArray.emplace_back(
@@ -121,27 +121,42 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName, ModelFi
 	return m_modelArray.back();
 }
 
-std::vector<Vertex> ModelLoader::GetVertexDataArray(const VertexData &data)
+std::vector<VertexBufferData> ModelLoader::GetVertexDataArray(const VertexData &data)
 {
-	std::vector<Vertex>result(data.indexArray.size());
+	std::vector<VertexBufferData>result(data.indexArray.size());
 
 	for (int i = 0; i < result.size(); ++i)
 	{
 		result[i].pos = data.verticesArray[i].ConvertXMFLOAT3();
 		result[i].uv = data.uvArray[i].ConvertXMFLOAT2();
 		result[i].normal = data.normalArray[i].ConvertXMFLOAT3();
+		result[i].tangent = data.tangentArray[i].ConvertXMFLOAT3();
+		result[i].binormal = data.binormalArray[i].ConvertXMFLOAT3();
 	}
 	return result;
 }
 
-std::vector<Vertex> ModelLoader::GetVertexDataArray(const VertexData &data, const std::vector<USHORT> &indexArray)
+std::vector<VertexBufferData> ModelLoader::GetVertexDataArray(const VertexData &data, const std::vector<USHORT> &indexArray)
 {
-	std::vector<Vertex>result(data.verticesArray.size());
+	std::vector<VertexBufferData>result(data.verticesArray.size());
+
+	bool skipFlag = 0 < data.tangentArray.size();
+
 	for (int i = 0; i < data.verticesArray.size(); ++i)
 	{
 		result[i].pos = data.verticesArray[i].ConvertXMFLOAT3();
 		result[i].uv = data.uvArray[i].ConvertXMFLOAT2();
 		result[i].normal = data.normalArray[i].ConvertXMFLOAT3();
+		if (skipFlag)
+		{
+			result[i].tangent = data.tangentArray[i].ConvertXMFLOAT3();
+			result[i].binormal = data.binormalArray[i].ConvertXMFLOAT3();
+		}
+		else
+		{
+			result[i].tangent = {};
+			result[i].binormal = {};
+		}
 	}
 	return result;
 }
@@ -331,10 +346,10 @@ ModelMeshData OBJLoader::Load(std::ifstream &file, std::string fileDir)
 	loadData.vertexData.normalArray = normalArray;
 	loadData.vertexData.indexArray = indexArray;
 
-	loadData.materialData.ambient = materialData.ambient;
+	/*loadData.materialData.ambient = materialData.ambient;
 	loadData.materialData.diffuse = materialData.diffuse;
 	loadData.materialData.specular = materialData.specular;
-	loadData.materialData.textureBuffer = materialData.textureBuffer;
+	loadData.materialData.textureBuffer = materialData.textureBuffer;*/
 
 	return loadData;
 }
@@ -399,7 +414,7 @@ OBJLoader::LocalMateriaData OBJLoader::LoadMaterial(const std::string &FILE_NAME
 
 	file.close();
 
-	materialLoadData.textureBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer(FILE_NAME + materialLoadData.textureFilename);
+	//materialLoadData.textureBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer(FILE_NAME + materialLoadData.textureFilename);
 	return materialLoadData;
 }
 
@@ -518,14 +533,24 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string
 			{
 				std::string textureFilePass(FileDir + image.uri);
 				//テクスチャ読み込み
-				modelMaterialDataArray.back().textureBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass);
-				modelMaterialDataArray.back().textureBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA;
+				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
+				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 			}
 		}
 
 		//法線マップの取得
+		texID = material.normalTexture.textureId;
 		if (!texID.empty())
 		{
+			auto &texture = doc.textures.Get(texID);
+			auto &image = doc.images.Get(texture.imageId);
+			if (!image.uri.empty())
+			{
+				std::string textureFilePass(FileDir + image.uri);
+				//テクスチャ読み込み
+				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
+				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+			}
 		}
 	}
 
@@ -580,13 +605,37 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string
 				const int UV_VERT_NUM = 2;
 
 				//三角面になるようにインデックスを決める
-				KazMath::Vec3<int>vertIndex(TRIANGLE_VERT_NUM * vertCount, TRIANGLE_VERT_NUM * vertCount + 1, TRIANGLE_VERT_NUM * vertCount + 2);
-				KazMath::Vec2<int>uvIndex(UV_VERT_NUM * vertCount, UV_VERT_NUM * vertCount + 1);
+				KazMath::Vec3<int>vertIndex(GetVertIndex(vertCount, TRIANGLE_VERT_NUM));
+				KazMath::Vec3<int>uvIndex(GetVertIndex(vertCount, UV_VERT_NUM));
 
 				vertexInfo.verticesArray.emplace_back(KazMath::Vec3<float>(vertPos[vertIndex.x], vertPos[vertIndex.y], vertPos[vertIndex.z]));
 				vertexInfo.normalArray.emplace_back(KazMath::Vec3<float>(normal[vertIndex.x], normal[vertIndex.y], normal[vertIndex.z]));
 				vertexInfo.uvArray.emplace_back(KazMath::Vec2<float>(uv[uvIndex.x], uv[uvIndex.y]));
 			}
+
+
+			//タンジェント空間の計算...ポリゴンの表面を中心に、UV.xの向き=+X軸、UV.yの向き=+Y軸、法線の向き＝+Z軸とした空間
+			//(参考サイト)https://coposuke.hateblo.jp/entry/2020/12/21/144327)
+			if (primitive.HasAttribute(Microsoft::glTF::ACCESSOR_TANGENT))
+			{
+				auto &tangentID = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_TANGENT);
+				auto &accTangent = accsessor.Get(tangentID);
+				auto &vertTangent = resourceReader->ReadBinaryData<float>(doc, accTangent);
+
+				for (int i = 0; i < vertexInfo.verticesArray.size(); ++i)
+				{
+					const int TRIANGLE_VERT_NUM = 3;
+					KazMath::Vec3<int>vertIndex(GetVertIndex(i, TRIANGLE_VERT_NUM));
+					//タンジェント空間のU(tangent)V(binormal)座標を得る。
+					KazMath::Vec3<float>tangent(vertTangent[vertIndex.x], vertTangent[vertIndex.y], vertTangent[vertIndex.z]);
+					//法線と接戦の外積から得られる従法線(binormal)を得る
+					KazMath::Vec3<float>binNormal(vertexInfo.normalArray[i].Cross(tangent));
+					vertexInfo.tangentArray.emplace_back(tangent);
+					vertexInfo.binormalArray.emplace_back(binNormal);
+				}
+			}
+
+
 
 			//アクセサーからインデックス情報の(???)を取得
 			auto accIndex(accsessor.Get(primitive.indicesAccessorId));
@@ -609,7 +658,7 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string
 			if (doc.materials.Has(primitive.materialId))
 			{
 				int materialIndex = static_cast<int>(doc.materials.GetIndex(primitive.materialId));
-				meshData.back().materialData.textureBuffer = modelMaterialDataArray[materialIndex].textureBuffer;
+				meshData.back().materialData = modelMaterialDataArray[materialIndex];
 			}
 			else
 			{
