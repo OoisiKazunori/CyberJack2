@@ -68,7 +68,7 @@ void DrawingByRasterize::Update()
 				const int FIRST_MESH_INDEX = 0;
 				//マテリアルバッファを見てルートシグネチャーの情報詰め込み
 				//全メッシュ共通で入るマテリアル情報のスタックを見てルートシグネチャーの最初に積める
-				for (int i = 0; i < graphicDataArray[lGenerateIndex].materialBuffer[FIRST_MESH_INDEX].size(); ++i)
+				for (int i = 0; i < MATERIAL_TEXTURE_MAX; ++i)
 				{
 					lRootSignatureGenerateData.rangeArray.emplace_back
 					(
@@ -92,6 +92,7 @@ void DrawingByRasterize::Update()
 			//パイプラインの生成
 			graphicDataArray[lGenerateIndex].pipelineData.pRootSignature = rootSignatureBufferMgr.GetBuffer(graphicDataArray[lGenerateIndex].rootsignatureHandle).Get();
 			graphicDataArray[lGenerateIndex].pipelineHandle = piplineBufferMgr.GeneratePipeline(graphicDataArray[lGenerateIndex].pipelineData);
+			graphicDataArray[lGenerateIndex].pipelineHandle = -1;
 			ErrorCheck(graphicDataArray[lGenerateIndex].pipelineHandle, graphicDataArray[lGenerateIndex].drawCallData);
 			graphicDataArray[lGenerateIndex].generateFlag = true;
 		}

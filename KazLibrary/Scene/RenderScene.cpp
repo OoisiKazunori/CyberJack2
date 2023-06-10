@@ -80,7 +80,6 @@ RenderScene::RenderScene()
 	RESOURCE_HANDLE handle = ObjResourceMgr::Instance()->LoadModel(KazFilePathName::TestPath + "hamster.obj");
 	ObjResourceMgr::Instance()->GetResourceData(handle);
 	model = ModelLoader::Instance()->Load(KazFilePathName::TestPath + "hamster.obj", ModelLoader::ModelFileType::GLTF);
-	//ModelLoader::Instance()->Load(KazFilePathName::TestPath + "Triangle.gltf", ModelLoader::ModelFileType::GLTF);
 
 	//フォワードレンダリングで描画するモデル
 	{
@@ -90,9 +89,10 @@ RenderScene::RenderScene()
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
 		testRArray[1] = std::make_unique<DrawFunc::KazRender>(
-			DrawFunc::SetDrawOBJIndexNoMaterialData(&rasterizeRenderer, *model, lData)
+			DrawFunc::SetDrawGLTFIndexMaterialData(&rasterizeRenderer, *model, lData)
 			);
 
+		//ライト用の情報
 		testRArray[1]->GetDrawData()->buffer.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
 		testRArray[1]->GetDrawData()->buffer.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		testRArray[1]->GetDrawData()->buffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;

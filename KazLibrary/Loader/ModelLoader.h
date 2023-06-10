@@ -104,7 +104,13 @@ struct ModelMeshData
 	MaterialData materialData;
 };
 
-
+enum MaterialEnum
+{
+	MATERIAL_TEXTURE_NONE = -1,
+	MATERIAL_TEXTURE_ALBEDO,
+	MATERIAL_TEXTURE_NORMAL,
+	MATERIAL_TEXTURE_MAX,
+};
 
 
 

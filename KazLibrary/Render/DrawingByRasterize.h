@@ -145,8 +145,8 @@ namespace DrawFunc
 	//DrawFuncを使用する際に必要なデータ
 	struct DrawCallData
 	{
-		DrawCallData(DrawingByRasterize *CALL_DATA_PTR) :
-			callDataPtr(CALL_DATA_PTR)
+		DrawCallData(DrawingByRasterize *CALL_DATA_PTR, std::source_location location = std::source_location::current()) :
+			callDataPtr(CALL_DATA_PTR), callLocation(location)
 		{
 		};
 		//ラスタライザ描画呼び出し
@@ -165,11 +165,13 @@ namespace DrawFunc
 
 		//その他必要なバッファの設定
 		std::vector<DrawFuncBufferData>bufferResourceDataArray;
+
+		std::source_location callLocation;
 	};
 
 
 	//単色のポリゴン表示(インデックスあり)
-	static DrawCallData SetDrawPolygonIndexData(DrawingByRasterize *CALL_DATA_PTR, const KazRenderHelper::DrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	static DrawCallData SetDrawPolygonIndexData(DrawingByRasterize *CALL_DATA_PTR, const KazRenderHelper::DrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA, std::source_location location = std::source_location::current())
 	{
 		DrawCallData lDrawCallData(CALL_DATA_PTR);
 		//頂点情報
@@ -189,6 +191,8 @@ namespace DrawFunc
 			GRAPHICS_RANGE_TYPE_CBV_VIEW
 		);		//パイプライン情報のセット
 		lDrawCallData.pipelineData = PIPELINE_DATA;
+
+		lDrawCallData.callLocation = location;
 
 		return lDrawCallData;
 	};
@@ -220,7 +224,7 @@ namespace DrawFunc
 	};
 
 	//OBJモデルのポリゴン表示(インデックスあり、マテリアルあり)
-	static DrawCallData SetDrawOBJIndexNoMaterialData(DrawingByRasterize *CALL_DATA_PTR, const ModelInfomation &MODEL_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	static DrawCallData SetDrawGLTFIndexMaterialData(DrawingByRasterize *CALL_DATA_PTR, const ModelInfomation &MODEL_DATA, const PipelineGenerateData &PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData(CALL_DATA_PTR);
 		//頂点情報
@@ -294,7 +298,7 @@ namespace DrawFunc
 	class KazRender
 	{
 	public:
-		KazRender(const DrawCallData &INIT_DATA, std::source_location location = std::source_location::current()) :
+		KazRender(const DrawCallData &INIT_DATA) :
 			callData(INIT_DATA.callDataPtr),
 			handle(callData->GetHandle())
 		{
@@ -321,7 +325,7 @@ namespace DrawFunc
 			}
 
 			//デバック用の情報のセット
-			lData->drawCallData = location;
+			lData->drawCallData = INIT_DATA.callLocation;
 		};
 
 
