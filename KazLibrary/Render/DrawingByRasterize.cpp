@@ -3,7 +3,7 @@
 #include"../KazLibrary/Buffer/DescriptorHeapMgr.h"
 
 //テスト用、パイプラインのハンドル順にソートをかける
-int int_cmpr(const DrawingByRasterize::DrawData *a, const DrawingByRasterize::DrawData *b)
+int int_cmpr(const DrawFunc::DrawData *a, const DrawFunc::DrawData *b)
 {
 	RESOURCE_HANDLE lAHandle = a->pipelineHandle, lBHandle = b->pipelineHandle;
 
@@ -120,13 +120,13 @@ void DrawingByRasterize::Draw()
 		//描画コマンド実行
 		switch (graphicDataArray[lDrawIndex].drawCommandType)
 		{
-		case VERT_TYPE::INDEX:
+		case DrawFunc::VERT_TYPE::INDEX:
 			DrawIndexInstanceCommand(graphicDataArray[lDrawIndex].drawIndexInstanceCommandData);
 			break;
-		case VERT_TYPE::INSTANCE:
+		case DrawFunc::VERT_TYPE::INSTANCE:
 			DrawInstanceCommand(graphicDataArray[lDrawIndex].drawInstanceCommandData);
 			break;
-		case VERT_TYPE::MULTI_MESHED:
+		case DrawFunc::VERT_TYPE::MULTI_MESHED:
 			MultiMeshedDrawIndexInstanceCommand(graphicDataArray[lDrawIndex].drawMultiMeshesIndexInstanceCommandData, graphicDataArray[lDrawIndex].materialBuffer, rootSignatureBufferMgr.GetRootParam(lRootSignatureHandle));
 			break;
 		default:
@@ -151,9 +151,142 @@ RESOURCE_HANDLE DrawingByRasterize::GetHandle()
 	return lHandle;
 }
 
-DrawingByRasterize::DrawData *DrawingByRasterize::StackData(RESOURCE_HANDLE HANDLE)
+DrawFunc::DrawData *DrawingByRasterize::StackData(RESOURCE_HANDLE HANDLE)
 {
 	return &graphicDataArray[HANDLE];
+}
+
+void DrawingByRasterize::ObjectRender(const DrawFunc::DrawCallData &DRAW_DATA)
+{
+	kazCommandList.emplace_back(DRAW_DATA);
+}
+
+void DrawingByRasterize::Sort()
+{
+	renderInfomationForDirectX12Array.clear();
+
+	kazCommandList.sort([](DrawFunc::DrawCallData a, DrawFunc::DrawCallData b)
+		{
+			RESOURCE_HANDLE lAHandle = a.renderTargetHandle, lBHandle = b.renderTargetHandle;
+			if (lAHandle < lBHandle)
+			{
+				return 1;
+			}
+			else if (lBHandle < lAHandle)
+			{
+				return -1;
+			}
+			else
+			{
+				return 0;
+			}
+		});
+
+
+	//ソートが終わったらDirectX12のコマンドリストに命令出来るように描画情報を生成する。
+	for (auto &callData : kazCommandList)
+	{
+		DrawFunc::DrawData result;
+
+		//シェーダーのコンパイル
+		for (int i = 0; i < callData.pipelineData.shaderDataArray.size(); ++i)
+		{
+			RESOURCE_HANDLE lShaderHandle = shaderBufferMgr.GenerateShader(callData.pipelineData.shaderDataArray[i]);
+			ErrorCheck(lShaderHandle, callData.callLocation);
+
+			result.shaderHandleArray.emplace_back(lShaderHandle);
+			D3D12_SHADER_BYTECODE shaderByteCode = CD3DX12_SHADER_BYTECODE(shaderBufferMgr.GetBuffer(lShaderHandle)->GetBufferPointer(), shaderBufferMgr.GetBuffer(lShaderHandle)->GetBufferSize());
+			switch (result.shaderDataArray[i].shaderType)
+			{
+			case SHADER_TYPE_VERTEX:
+				result.pipelineData.VS = shaderByteCode;
+				break;
+			case SHADER_TYPE_PIXEL:
+				result.pipelineData.PS = shaderByteCode;
+				break;
+			case SHADER_TYPE_GEOMETORY:
+				result.pipelineData.GS = shaderByteCode;
+				break;
+			default:
+				break;
+			}
+		}
+
+
+		RootSignatureDataTest lRootSignatureGenerateData;
+
+
+		if (callData.materialBuffer.size() != 0)
+		{
+			const int FIRST_MESH_INDEX = 0;
+			//マテリアルバッファを見てルートシグネチャーの情報詰め込み
+			//全メッシュ共通で入るマテリアル情報のスタックを見てルートシグネチャーの最初に積める
+			for (int i = 0; i < MATERIAL_TEXTURE_MAX; ++i)
+			{
+				lRootSignatureGenerateData.rangeArray.emplace_back
+				(
+					callData.materialBuffer[FIRST_MESH_INDEX][i].rangeType,
+					callData.materialBuffer[FIRST_MESH_INDEX][i].rootParamType
+				);
+			}
+		}
+		//その他バッファを見てルートシグネチャーの情報詰め込み
+		for (int i = 0; i < callData.bufferResourceDataArray.size(); ++i)
+		{
+			lRootSignatureGenerateData.rangeArray.emplace_back
+			(
+				callData.bufferResourceDataArray[i].rangeType,
+				callData.bufferResourceDataArray[i].rootParam
+			);
+		}
+		result.rootsignatureHandle = rootSignatureBufferMgr.GenerateRootSignature(lRootSignatureGenerateData);
+
+
+		//パイプラインの生成
+		result.pipelineData.pRootSignature = rootSignatureBufferMgr.GetBuffer(result.rootsignatureHandle).Get();
+		result.pipelineHandle = piplineBufferMgr.GeneratePipeline(result.pipelineData);
+		ErrorCheck(result.pipelineHandle, callData.callLocation);
+
+		renderInfomationForDirectX12Array.emplace_back(result);
+	}
+
+
+	kazCommandList.clear();
+}
+
+void DrawingByRasterize::Render()
+{
+	for (auto &renderData : renderInfomationForDirectX12Array)
+	{
+		//パイプラインとルートシグネチャの生成
+		RESOURCE_HANDLE lPipelineHandle = renderData.pipelineHandle;
+		RESOURCE_HANDLE lRootSignatureHandle = renderData.rootsignatureHandle;
+
+		DirectX12CmdList::Instance()->cmdList->SetGraphicsRootSignature(
+			rootSignatureBufferMgr.GetBuffer(lRootSignatureHandle).Get()
+		);
+		DirectX12CmdList::Instance()->cmdList->SetPipelineState(
+			piplineBufferMgr.GetBuffer(lPipelineHandle).Get()
+		);
+		//ルートシグネチャーの情報を元にバッファを積む
+		SetBufferOnCmdList(renderData.buffer, rootSignatureBufferMgr.GetRootParam(lRootSignatureHandle));
+
+		//描画コマンド実行
+		switch (renderData.drawCommandType)
+		{
+		case DrawFunc::VERT_TYPE::INDEX:
+			DrawIndexInstanceCommand(renderData.drawIndexInstanceCommandData);
+			break;
+		case DrawFunc::VERT_TYPE::INSTANCE:
+			DrawInstanceCommand(renderData.drawInstanceCommandData);
+			break;
+		case DrawFunc::VERT_TYPE::MULTI_MESHED:
+			MultiMeshedDrawIndexInstanceCommand(renderData.drawMultiMeshesIndexInstanceCommandData, renderData.materialBuffer, rootSignatureBufferMgr.GetRootParam(lRootSignatureHandle));
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void DrawingByRasterize::SetBufferOnCmdList(const std::vector<KazBufferHelper::BufferData> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM)

@@ -462,6 +462,7 @@
     <ClInclude Include="KazLibrary\Render\BoxPolygonRender.h" />
     <ClInclude Include="KazLibrary\Render\CircleRender.h" />
     <ClInclude Include="KazLibrary\Render\DrawExcuteIndirect.h" />
+    <ClInclude Include="KazLibrary\Render\DrawFunc.h" />
     <ClInclude Include="KazLibrary\Render\DrawingByRasterize.h" />
     <ClInclude Include="KazLibrary\Render\FbxModelRender.h" />
     <ClInclude Include="KazLibrary\Render\GPUParticleRender.h" />

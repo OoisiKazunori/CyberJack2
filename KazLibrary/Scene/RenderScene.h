@@ -32,7 +32,7 @@ private:
 	DrawingByRasterize rasterizeRenderer;
 	DispatchComputeShader compute;
 
-	std::array<std::unique_ptr<DrawFunc::KazRender>, 3> testRArray;
+	//std::array<std::unique_ptr<DrawFunc::KazRender>, 3> testRArray;
 	std::array<KazMath::Transform3D, 5> transformArray;
 	std::array<KazMath::Color, 3> colorArray;
 	DirectX::XMMATRIX motherMat;
@@ -66,8 +66,8 @@ private:
 	DispatchComputeShader::DispatchData dispatchData;
 
 
-	std::unique_ptr<DrawFunc::KazRender>normalGBufferRender;
-	std::unique_ptr<DrawFunc::KazRender>finalGBufferRender;
+	//std::unique_ptr<DrawFunc::KazRender>normalGBufferRender;
+	//std::unique_ptr<DrawFunc::KazRender>finalGBufferRender;
 
 	KazMath::Vec3<float>lightVec;
 };

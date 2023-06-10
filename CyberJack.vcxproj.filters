@@ -387,6 +387,7 @@
     <ClInclude Include="lib\tinygltf\tiny_gltf.h" />
     <ClInclude Include="lib\tinygltf\stb_image.h" />
     <ClInclude Include="lib\tinygltf\stb_image_write.h" />
+    <ClInclude Include="KazLibrary\Render\DrawFunc.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
