@@ -307,7 +307,6 @@ void RenderScene::Update()
 		CameraMgr::Instance()->GetViewMatrix() *
 		CameraMgr::Instance()->GetPerspectiveMatProjection()
 	);
-
 	drawSponza.bufferResourceDataArray[0].bufferWrapper->TransData(&mat, sizeof(DirectX::XMMATRIX));
 	DirectX::XMFLOAT3 dir = lightVec.ConvertXMFLOAT3();
 	drawSponza.bufferResourceDataArray[1].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));

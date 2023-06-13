@@ -159,7 +159,6 @@ namespace KazBufferHelper
 			}
 		};
 
-
 		void CreateViewHandle(std::vector<RESOURCE_HANDLE>HANDLE_ARRAY)
 		{
 			viewHandle = HANDLE_ARRAY;
