@@ -1,5 +1,6 @@
 #include "RenderScene.h"
 #include"../KazLibrary/Helper/ResourceFilePass.h"
+#include"../KazLibrary/Input/KeyBoradInputManager.h"
 
 RenderScene::RenderScene()
 {
@@ -79,14 +80,14 @@ RenderScene::RenderScene()
 
 	RESOURCE_HANDLE handle = ObjResourceMgr::Instance()->LoadModel(KazFilePathName::TestPath + "hamster.obj");
 	ObjResourceMgr::Instance()->GetResourceData(handle);
-	model = ModelLoader::Instance()->Load(KazFilePathName::TestPath + "hamster.obj", ModelLoader::ModelFileType::GLTF);
+	model = ModelLoader::Instance()->Load("Resource/Test/glTF/hamster.obj");
 
 	//フォワードレンダリングで描画するモデル
 	{
-		//DrawFunc::PipelineGenerateData lData;
-		//lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
-		//lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSPosNormalUvmain", "vs_6_4", SHADER_TYPE_VERTEX);
-		//lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvmain", "ps_6_4", SHADER_TYPE_PIXEL);
+		DrawFunc::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSPosNormalUvmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
 		//testRArray[1] = std::make_unique<DrawFunc::KazRender>(
 		//	DrawFunc::SetDrawGLTFIndexMaterialData(&rasterizeRenderer, *model, lData)
@@ -108,6 +109,15 @@ RenderScene::RenderScene()
 		//gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA4;
 		//testRArray[1]->GetDrawData()->buffer.emplace_back(gBuffer[0]);
 		//testRArray[1]->GetDrawData()->buffer.emplace_back(gBuffer[1]);
+
+		//描画
+		drawSponza = DrawFunc::SetDrawGLTFIndexMaterialData(*model, lData);
+		//その他バッファ
+		drawSponza.bufferResourceDataArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
+		drawSponza.bufferResourceDataArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawSponza.bufferResourceDataArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		drawSponza.bufferResourceDataArray.back().bufferSize = sizeof(DirectX::XMFLOAT3);
+
 	}
 
 	//G-Bufferの描画確認用の板ポリ
@@ -261,6 +271,8 @@ RenderScene::RenderScene()
 		compute.Stack(computeData);
 	}
 
+
+
 }
 
 RenderScene::~RenderScene()
@@ -290,18 +302,30 @@ void RenderScene::Update()
 	camera.Update({}, {}, true);
 	CameraMgr::Instance()->Camera(camera.GetEyePos(), camera.GetTargetPos(), { 0.0f,1.0f,0.0f });
 
-	rasterizeRenderer.Update();
-	compute.Update();
+	DirectX::XMMATRIX mat(
+		transformArray[0].GetMat() *
+		CameraMgr::Instance()->GetViewMatrix() *
+		CameraMgr::Instance()->GetPerspectiveMatProjection()
+	);
 
-	DirectX::XMFLOAT3 dir = lightVec.ConvertXMFLOAT3();	
-	//testRArray[1]->GetDrawData()->buffer.back().bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
+	drawSponza.bufferResourceDataArray[0].bufferWrapper->TransData(&mat, sizeof(DirectX::XMMATRIX));
+	DirectX::XMFLOAT3 dir = lightVec.ConvertXMFLOAT3();
+	drawSponza.bufferResourceDataArray[1].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
+
+
+	//描画命令
+	if (KeyBoradInputManager::Instance()->InputState(DIK_SPACE))
+	{
+		rasterizeRenderer.ObjectRender(drawSponza);
+	}
+
+	rasterizeRenderer.Sort();
+	//compute.Update();
 }
 
 void RenderScene::Draw()
 {
 	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
-	RenderTargetStatus::Instance()->SetDoubleBufferFlame();
-	RenderTargetStatus::Instance()->ClearDoubuleBuffer(BG_COLOR);
 
 	//testRArray[0]->DrawCall(transformArray[0], colorArray[0], 0, motherMat);
 	//testRArray[1]->DrawOBJ(transformArray[1], 1.0f, 0, motherMat);
@@ -310,8 +334,8 @@ void RenderScene::Draw()
 	//normalGBufferRender->DrawTexPlane(transformArray[3], colorArray[2], 0, motherMat);
 	//finalGBufferRender->DrawTexPlane(transformArray[4], colorArray[2], 0, motherMat);
 
-	compute.Compute();
-	rasterizeRenderer.Draw();
+	//compute.Compute();
+	rasterizeRenderer.Render();
 
 	ImGui::Begin("Light");
 	ImGui::DragFloat("VecX", &lightVec.x);

@@ -217,6 +217,7 @@
     <ClCompile Include="KazLibrary\Buffer\DrawFuncData.cpp" />
     <ClCompile Include="KazLibrary\Buffer\Polygon.cpp" />
     <ClCompile Include="KazLibrary\Buffer\UavViewHandleMgr.cpp" />
+    <ClCompile Include="KazLibrary\Buffer\VertexBufferMgr.cpp" />
     <ClCompile Include="KazLibrary\Camera\CameraMgr.cpp" />
     <ClCompile Include="KazLibrary\Collision\BBDuringEquallyCoordinatePlace.cpp" />
     <ClCompile Include="KazLibrary\Collision\BoundingBox.cpp" />
@@ -403,6 +404,7 @@
     <ClInclude Include="KazLibrary\Buffer\DrawFuncData.h" />
     <ClInclude Include="KazLibrary\Buffer\Polygon.h" />
     <ClInclude Include="KazLibrary\Buffer\UavViewHandleMgr.h" />
+    <ClInclude Include="KazLibrary\Buffer\VertexBufferMgr.h" />
     <ClInclude Include="KazLibrary\Camera\CameraMgr.h" />
     <ClInclude Include="KazLibrary\Collision\BBDuringEquallyCoordinatePlace.h" />
     <ClInclude Include="KazLibrary\Collision\BoundingBox.h" />
@@ -462,7 +464,6 @@
     <ClInclude Include="KazLibrary\Render\BoxPolygonRender.h" />
     <ClInclude Include="KazLibrary\Render\CircleRender.h" />
     <ClInclude Include="KazLibrary\Render\DrawExcuteIndirect.h" />
-    <ClInclude Include="KazLibrary\Render\DrawFunc.h" />
     <ClInclude Include="KazLibrary\Render\DrawingByRasterize.h" />
     <ClInclude Include="KazLibrary\Render\FbxModelRender.h" />
     <ClInclude Include="KazLibrary\Render\GPUParticleRender.h" />

@@ -1,11 +1,12 @@
 #include "ModelLoader.h"
 #include"Helper/OutPutDebugStringAndCheckResult.h"
+#include"../KazLibrary/Buffer/VertexBufferMgr.h"
 
 ModelLoader::ModelLoader()
 {
 }
 
-std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName, ModelFileType type)
+std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName)
 {
 	//(フローチャート)
 	//ファイルが存在するかどうか
@@ -41,21 +42,7 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName, ModelFi
 
 	std::vector<ModelMeshData> modelData;
 
-	switch (type)
-	{
-	case ModelLoader::ModelFileType::NONE:
-		break;
-	case ModelLoader::ModelFileType::OBJ:
-		modelData.emplace_back(objLoad.Load(file, filePass));
-		break;
-	case ModelLoader::ModelFileType::FBX:
-		break;
-	case ModelLoader::ModelFileType::GLTF:
-		modelData = glTFLoad.Load(file, filePass);
-		break;
-	default:
-		break;
-	}
+	modelData = glTFLoad.Load(file, filePass);
 
 	//生成されているか確認
 	if (modelData.back().vertexData.verticesArray.size() <= 0 || modelData.back().vertexData.indexArray.size() <= 0)
@@ -66,57 +53,20 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName, ModelFi
 	SucceedCheck(fileName + "の読み込みに成功しました\n");
 
 
-
-	PolygonMultiMeshedIndexData data;
-	std::vector<KazRenderHelper::IASetVertexBuffersData> setVertDataArray;
-	std::vector<D3D12_INDEX_BUFFER_VIEW> indexBufferViewArray;
-	std::vector<KazRenderHelper::DrawIndexedInstancedData>drawCommandDataArray;
-
+	std::vector<VertexGenerateData> vertArray;
+	int dex = 0;
 	for (const auto &meshData : modelData)
 	{
-		m_testMultiMeshed.emplace_back();
-
-
 		std::vector<VertexBufferData>vertexData = GetVertexDataArray(meshData.vertexData, meshData.vertexData.indexArray);
-
-		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(m_testMultiMeshed.back().GenerateVertexBuffer(vertexData.data(), sizeof(VertexBufferData), vertexData.size()));
-		std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(m_testMultiMeshed.back().GenerateIndexBuffer(meshData.vertexData.indexArray));
-
-		m_PolyMultiMeshed.vertBuffer.emplace_back(vertexBuffer);
-		m_PolyMultiMeshed.indexBuffer.emplace_back(indexBuffer);
-		//頂点情報
-		setVertDataArray.emplace_back();
-		setVertDataArray.back().numViews = 1;
-		setVertDataArray.back().slot = 0;
-		setVertDataArray.back().vertexBufferView = KazBufferHelper::SetVertexBufferView(vertexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(vertexData.size(), sizeof(VertexBufferData)), sizeof(vertexData[0]));
-
-		//インデックス情報
-		indexBufferViewArray.emplace_back(
-			KazBufferHelper::SetIndexBufferView(
-				indexBuffer->bufferWrapper->GetGpuAddress(),
-				KazBufferHelper::GetBufferSize<BUFFER_SIZE>(meshData.vertexData.indexArray.size(), sizeof(USHORT))
-			)
-		);
-
-		//描画コマンド情報
-		KazRenderHelper::DrawIndexedInstancedData result;
-		result.indexCountPerInstance = static_cast<UINT>(meshData.vertexData.indexArray.size());
-		result.instanceCount = 1;
-		result.startIndexLocation = 0;
-		result.baseVertexLocation = 0;
-		result.startInstanceLocation = 0;
-		drawCommandDataArray.emplace_back(result);
-
+		vertexDataArray.emplace_back(vertexData);
+		//頂点バッファ生成用の情報をスタックする。
+		VertexGenerateData vertData(vertexDataArray[dex].data(), sizeof(VertexBufferData), vertexData.size(), sizeof(vertexData[0]), meshData.vertexData.indexArray);
+		vertArray.emplace_back(vertData);
+		++dex;
 	}
-
-	m_PolyMultiMeshed.index = KazRenderHelper::SetMultiMeshedDrawIndexInstanceCommandData(
-		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-		setVertDataArray,
-		indexBufferViewArray,
-		drawCommandDataArray
-	);
-
-	m_modelArray.emplace_back(std::make_shared<ModelInfomation>(modelData, m_PolyMultiMeshed));
+	//頂点バッファ生成
+	RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GenerateBuffer(vertArray);
+	m_modelArray.emplace_back(std::make_shared<ModelInfomation>(modelData, handle));
 
 	return m_modelArray.back();
 }
@@ -867,7 +817,7 @@ void GLTFLoader::PrintInfo(const std::experimental::filesystem::path &path)
 	PrintResourceInfo(document, *resourceReader);
 }
 
-ModelInfomation::ModelInfomation(const std::vector<ModelMeshData> &model, const PolygonMultiMeshedIndexData &vertexBuffer) :modelData(model), vertexBufferData(vertexBuffer)
+ModelInfomation::ModelInfomation(const std::vector<ModelMeshData> &model,RESOURCE_HANDLE vertHandle) :modelData(model), modelVertDataHandle(vertHandle)
 {
 }
 

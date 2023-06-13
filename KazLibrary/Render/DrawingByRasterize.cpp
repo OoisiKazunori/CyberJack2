@@ -27,114 +27,6 @@ DrawingByRasterize::DrawingByRasterize()
 {
 }
 
-void DrawingByRasterize::Update()
-{
-	//必要な情報を生成
-	for (int lGenerateIndex = 0; lGenerateIndex < graphicDataArray.size(); ++lGenerateIndex)
-	{
-		//パイプラインの情報を元に生成。パイプラインのハンドルを登録し、描画時にそのハンドルで参照するようにする
-		if (!graphicDataArray[lGenerateIndex].generateFlag)
-		{
-			//シェーダーのコンパイル
-			for (int i = 0; i < graphicDataArray[lGenerateIndex].shaderDataArray.size(); ++i)
-			{
-				RESOURCE_HANDLE lShaderHandle = shaderBufferMgr.GenerateShader(graphicDataArray[lGenerateIndex].shaderDataArray[i]);
-				ErrorCheck(lShaderHandle, graphicDataArray[lGenerateIndex].drawCallData);
-
-				graphicDataArray[lGenerateIndex].shaderHandleArray.emplace_back(lShaderHandle);
-				D3D12_SHADER_BYTECODE shaderByteCode = CD3DX12_SHADER_BYTECODE(shaderBufferMgr.GetBuffer(lShaderHandle)->GetBufferPointer(), shaderBufferMgr.GetBuffer(lShaderHandle)->GetBufferSize());
-				switch (graphicDataArray[lGenerateIndex].shaderDataArray[i].shaderType)
-				{
-				case SHADER_TYPE_VERTEX:
-					graphicDataArray[lGenerateIndex].pipelineData.VS = shaderByteCode;
-					break;
-				case SHADER_TYPE_PIXEL:
-					graphicDataArray[lGenerateIndex].pipelineData.PS = shaderByteCode;
-					break;
-				case SHADER_TYPE_GEOMETORY:
-					graphicDataArray[lGenerateIndex].pipelineData.GS = shaderByteCode;
-					break;
-				default:
-					break;
-				}
-			}
-
-
-			RootSignatureDataTest lRootSignatureGenerateData;
-
-
-			if (graphicDataArray[lGenerateIndex].materialBuffer.size() != 0)
-			{
-				const int FIRST_MESH_INDEX = 0;
-				//マテリアルバッファを見てルートシグネチャーの情報詰め込み
-				//全メッシュ共通で入るマテリアル情報のスタックを見てルートシグネチャーの最初に積める
-				for (int i = 0; i < MATERIAL_TEXTURE_MAX; ++i)
-				{
-					lRootSignatureGenerateData.rangeArray.emplace_back
-					(
-						graphicDataArray[lGenerateIndex].materialBuffer[FIRST_MESH_INDEX][i].rangeType,
-						graphicDataArray[lGenerateIndex].materialBuffer[FIRST_MESH_INDEX][i].rootParamType
-					);
-				}
-			}
-			//その他バッファを見てルートシグネチャーの情報詰め込み
-			for (int i = 0; i < graphicDataArray[lGenerateIndex].buffer.size(); ++i)
-			{
-				lRootSignatureGenerateData.rangeArray.emplace_back
-				(
-					graphicDataArray[lGenerateIndex].buffer[i].rangeType,
-					graphicDataArray[lGenerateIndex].buffer[i].rootParamType
-				);
-			}
-			graphicDataArray[lGenerateIndex].rootsignatureHandle = rootSignatureBufferMgr.GenerateRootSignature(lRootSignatureGenerateData);
-
-
-			//パイプラインの生成
-			graphicDataArray[lGenerateIndex].pipelineData.pRootSignature = rootSignatureBufferMgr.GetBuffer(graphicDataArray[lGenerateIndex].rootsignatureHandle).Get();
-			graphicDataArray[lGenerateIndex].pipelineHandle = piplineBufferMgr.GeneratePipeline(graphicDataArray[lGenerateIndex].pipelineData);
-			graphicDataArray[lGenerateIndex].pipelineHandle = -1;
-			ErrorCheck(graphicDataArray[lGenerateIndex].pipelineHandle, graphicDataArray[lGenerateIndex].drawCallData);
-			graphicDataArray[lGenerateIndex].generateFlag = true;
-		}
-	}
-}
-
-void DrawingByRasterize::Draw()
-{
-	//今までスタックした描画情報をもとに描画
-	for (int lDrawIndex = 0; lDrawIndex < graphicDataArray.size(); ++lDrawIndex)
-	{
-		//パイプラインとルートシグネチャの生成
-		RESOURCE_HANDLE lPipelineHandle = graphicDataArray[lDrawIndex].pipelineHandle;
-		RESOURCE_HANDLE lRootSignatureHandle = graphicDataArray[lDrawIndex].rootsignatureHandle;
-
-		DirectX12CmdList::Instance()->cmdList->SetGraphicsRootSignature(
-			rootSignatureBufferMgr.GetBuffer(lRootSignatureHandle).Get()
-		);
-		DirectX12CmdList::Instance()->cmdList->SetPipelineState(
-			piplineBufferMgr.GetBuffer(lPipelineHandle).Get()
-		);
-		//ルートシグネチャーの情報を元にバッファを積む
-		SetBufferOnCmdList(graphicDataArray[lDrawIndex].buffer, rootSignatureBufferMgr.GetRootParam(lRootSignatureHandle));
-
-		//描画コマンド実行
-		switch (graphicDataArray[lDrawIndex].drawCommandType)
-		{
-		case DrawFunc::VERT_TYPE::INDEX:
-			DrawIndexInstanceCommand(graphicDataArray[lDrawIndex].drawIndexInstanceCommandData);
-			break;
-		case DrawFunc::VERT_TYPE::INSTANCE:
-			DrawInstanceCommand(graphicDataArray[lDrawIndex].drawInstanceCommandData);
-			break;
-		case DrawFunc::VERT_TYPE::MULTI_MESHED:
-			MultiMeshedDrawIndexInstanceCommand(graphicDataArray[lDrawIndex].drawMultiMeshesIndexInstanceCommandData, graphicDataArray[lDrawIndex].materialBuffer, rootSignatureBufferMgr.GetRootParam(lRootSignatureHandle));
-			break;
-		default:
-			break;
-		}
-	}
-}
-
 void DrawingByRasterize::Clear()
 {
 	graphicDataArray.clear();
@@ -165,6 +57,7 @@ void DrawingByRasterize::Sort()
 {
 	renderInfomationForDirectX12Array.clear();
 
+	//レンダーターゲット順にソートをかける。
 	kazCommandList.sort([](DrawFunc::DrawCallData a, DrawFunc::DrawCallData b)
 		{
 			RESOURCE_HANDLE lAHandle = a.renderTargetHandle, lBHandle = b.renderTargetHandle;
@@ -188,6 +81,35 @@ void DrawingByRasterize::Sort()
 	{
 		DrawFunc::DrawData result;
 
+		result.drawMultiMeshesIndexInstanceCommandData = callData.drawMultiMeshesIndexInstanceCommandData;
+		result.drawInstanceCommandData = callData.drawInstanceCommandData;
+		result.drawIndexInstanceCommandData = callData.drawIndexInstanceCommandData;
+		result.drawCommandType = callData.drawCommandType;
+
+		result.materialBuffer = callData.materialBuffer;
+		result.buffer = callData.bufferResourceDataArray;
+		result.renderTargetHandle = callData.renderTargetHandle;
+
+		result.pipelineData = callData.pipelineData.desc;
+		switch (callData.pipelineData.blendMode)
+		{
+		case DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA:
+			result.pipelineData.BlendState.RenderTarget[0] = DrawFuncPipelineData::SetAlphaBlend();
+			break;
+		case DrawFuncPipelineData::PipelineBlendModeEnum::ADD:
+			result.pipelineData.BlendState.RenderTarget[0] = DrawFuncPipelineData::SetAddBlend();
+			break;
+		case DrawFuncPipelineData::PipelineBlendModeEnum::SUB:
+			result.pipelineData.BlendState.RenderTarget[0] = DrawFuncPipelineData::SetSubBlend();
+			break;
+		case DrawFuncPipelineData::PipelineBlendModeEnum::NONE:
+			result.pipelineData.BlendState.RenderTarget[0].BlendEnable = false;
+			break;
+		default:
+			break;
+		}
+
+
 		//シェーダーのコンパイル
 		for (int i = 0; i < callData.pipelineData.shaderDataArray.size(); ++i)
 		{
@@ -196,7 +118,7 @@ void DrawingByRasterize::Sort()
 
 			result.shaderHandleArray.emplace_back(lShaderHandle);
 			D3D12_SHADER_BYTECODE shaderByteCode = CD3DX12_SHADER_BYTECODE(shaderBufferMgr.GetBuffer(lShaderHandle)->GetBufferPointer(), shaderBufferMgr.GetBuffer(lShaderHandle)->GetBufferSize());
-			switch (result.shaderDataArray[i].shaderType)
+			switch (callData.pipelineData.shaderDataArray[i].shaderType)
 			{
 			case SHADER_TYPE_VERTEX:
 				result.pipelineData.VS = shaderByteCode;
@@ -212,10 +134,7 @@ void DrawingByRasterize::Sort()
 			}
 		}
 
-
 		RootSignatureDataTest lRootSignatureGenerateData;
-
-
 		if (callData.materialBuffer.size() != 0)
 		{
 			const int FIRST_MESH_INDEX = 0;
@@ -236,28 +155,43 @@ void DrawingByRasterize::Sort()
 			lRootSignatureGenerateData.rangeArray.emplace_back
 			(
 				callData.bufferResourceDataArray[i].rangeType,
-				callData.bufferResourceDataArray[i].rootParam
+				callData.bufferResourceDataArray[i].rootParamType
 			);
 		}
 		result.rootsignatureHandle = rootSignatureBufferMgr.GenerateRootSignature(lRootSignatureGenerateData);
 
-
 		//パイプラインの生成
 		result.pipelineData.pRootSignature = rootSignatureBufferMgr.GetBuffer(result.rootsignatureHandle).Get();
-		result.pipelineHandle = piplineBufferMgr.GeneratePipeline(result.pipelineData);
+		result.pipelineHandle = piplineBufferMgr.GeneratePipeline(
+			result.pipelineData,
+			PipelineDuplicateBlocking::PipelineDuplicateData(
+				lRootSignatureGenerateData, callData.pipelineData.shaderDataArray, callData.pipelineData.blendMode
+			)
+		);
 		ErrorCheck(result.pipelineHandle, callData.callLocation);
 
 		renderInfomationForDirectX12Array.emplace_back(result);
 	}
-
-
 	kazCommandList.clear();
 }
 
 void DrawingByRasterize::Render()
 {
+	RenderTargetStatus::Instance()->SetDoubleBufferFlame();
+	RenderTargetStatus::Instance()->ClearDoubuleBuffer(BG_COLOR);
+
+
+	RESOURCE_HANDLE preRenderTargetHandle = -1;
 	for (auto &renderData : renderInfomationForDirectX12Array)
 	{
+		//前回と違うハンドルが出たらレンダーターゲットを切り替える
+		if (renderData.renderTargetHandle != preRenderTargetHandle)
+		{
+			RenderTargetStatus::Instance()->PrepareToChangeBarrier(renderData.renderTargetHandle, preRenderTargetHandle);
+			RenderTargetStatus::Instance()->ClearRenderTarget(renderData.renderTargetHandle);
+		}
+		preRenderTargetHandle = renderData.renderTargetHandle;
+
 		//パイプラインとルートシグネチャの生成
 		RESOURCE_HANDLE lPipelineHandle = renderData.pipelineHandle;
 		RESOURCE_HANDLE lRootSignatureHandle = renderData.rootsignatureHandle;
@@ -287,6 +221,16 @@ void DrawingByRasterize::Render()
 			break;
 		}
 	}
+
+	if (preRenderTargetHandle != -1)
+	{
+		RenderTargetStatus::Instance()->PrepareToCloseBarrier(preRenderTargetHandle);
+		RenderTargetStatus::Instance()->SetDoubleBufferFlame();
+	}
+
+	shaderBufferMgr.Update();
+	rootSignatureBufferMgr.Update();
+	piplineBufferMgr.Update();
 }
 
 void DrawingByRasterize::SetBufferOnCmdList(const std::vector<KazBufferHelper::BufferData> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM)

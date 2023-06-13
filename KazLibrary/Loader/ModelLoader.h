@@ -147,9 +147,9 @@ private:
 struct ModelInfomation
 {
 	std::vector<ModelMeshData> modelData;
-	PolygonMultiMeshedIndexData vertexBufferData;
+	RESOURCE_HANDLE modelVertDataHandle;
 
-	ModelInfomation(const std::vector<ModelMeshData> &model, const PolygonMultiMeshedIndexData &vertexBuffer);
+	ModelInfomation(const std::vector<ModelMeshData> &model, RESOURCE_HANDLE vertHandle);
 };
 
 
@@ -193,7 +193,7 @@ public:
 	};
 
 	ModelLoader();
-	std::shared_ptr<ModelInfomation> Load(std::string fileName, ModelFileType type);
+	std::shared_ptr<ModelInfomation> Load(std::string fileName);
 	std::vector<VertexBufferData>GetVertexDataArray(const VertexData &data);
 	std::vector<VertexBufferData>GetVertexDataArray(const VertexData &data, const std::vector<USHORT> &indexArray);
 
@@ -204,12 +204,7 @@ private:
 	GLTFLoader glTFLoad;
 
 	std::vector<std::shared_ptr<ModelInfomation>> m_modelArray;
-	PolygonBuffer m_test;
-	PolygonIndexData m_Poly;
-
-
-	std::vector<PolygonBuffer> m_testMultiMeshed;
-	PolygonMultiMeshedIndexData m_PolyMultiMeshed;
+	std::vector<std::vector<VertexBufferData>>vertexDataArray;
 };
 
 class StreamReader : public Microsoft::glTF::IStreamReader

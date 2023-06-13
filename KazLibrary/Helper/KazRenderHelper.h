@@ -47,6 +47,13 @@ namespace KazRenderHelper
 		std::vector<KazRenderHelper::IASetVertexBuffersData> vertexBufferDrawData;
 		std::vector<D3D12_INDEX_BUFFER_VIEW> indexBufferView;
 		std::vector<KazRenderHelper::DrawIndexedInstancedData> drawIndexInstancedData;
+
+		void Finalize()
+		{
+			vertexBufferDrawData.clear();
+			indexBufferView.clear();
+			drawIndexInstancedData.clear();
+		}
 	};
 
 	struct DrawIndexInstanceCommandData

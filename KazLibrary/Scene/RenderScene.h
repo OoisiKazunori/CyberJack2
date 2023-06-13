@@ -69,6 +69,9 @@ private:
 	//std::unique_ptr<DrawFunc::KazRender>normalGBufferRender;
 	//std::unique_ptr<DrawFunc::KazRender>finalGBufferRender;
 
+	DrawFunc::DrawCallData drawSponza;
+	DrawFunc::DrawCallData plane;
+
 	KazMath::Vec3<float>lightVec;
 };
 

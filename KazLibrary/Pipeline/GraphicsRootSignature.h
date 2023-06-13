@@ -148,7 +148,7 @@ struct RootSignatureDataTest
 
 	RootSignatureDataTest()
 	{
-		samplerArray.push_back({});
+		samplerArray.emplace_back();
 
 		samplerArray[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 		samplerArray[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;

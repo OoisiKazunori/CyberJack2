@@ -2,36 +2,62 @@
 #include"DirectXCommon/DirectX12Device.h"
 #include"DirectXCommon/DirectX12CmdList.h"
 
-RESOURCE_HANDLE PipelineDuplicateBlocking::GeneratePipeline(const D3D12_GRAPHICS_PIPELINE_STATE_DESC &DATA)
+RESOURCE_HANDLE PipelineDuplicateBlocking::GeneratePipeline(const D3D12_GRAPHICS_PIPELINE_STATE_DESC &DATA, const PipelineDuplicateData &CHECK_DATA)
 {
 	//重複チェック
-	for (int i = 0; i < bufferGenerateDataArray.size(); ++i)
+	for (int i = 0; i < duplicateDataArray.size(); ++i)
 	{
-		bool lCheckFlag = false;
-		//bufferGenerateDataArray[i].VS.pShaderBytecode == DATA.VS.pShaderBytecode;
-
-		//重複を確認したら返す
-		if (lCheckFlag)
+		//比較する際に重要になる要素
+		/*
+		ルートシグネチャーの設定、シェーダーの設定、ブレンドモード
+		*/
+		if (!IsSameRootSignatureGenerated(CHECK_DATA.rootsignature, duplicateDataArray[i].rootsignature))
 		{
-			return i;
+			continue;
 		}
+		if (CHECK_DATA.shaderOption != duplicateDataArray[i].shaderOption)
+		{
+			continue;
+		}
+		if (CHECK_DATA.blendMode != duplicateDataArray[i].blendMode)
+		{
+			continue;
+		}
+		//重複を確認したら返す
+		return i;
 	}
 
+
 	//重複がなければ生成
-	RESOURCE_HANDLE lHandle = handle.GetHandle();
-	bufferArray.emplace_back();
-	HRESULT lResult = DirectX12Device::Instance()->dev->CreateGraphicsPipelineState(&DATA, IID_PPV_ARGS(&bufferArray[lHandle]));
+	RESOURCE_HANDLE outputHandle = handle.GetHandle();
+	HRESULT lResult = S_FALSE;
+	//末尾追加
+	if (bufferArray.size() <= outputHandle)
+	{
+		bufferArray.emplace_back();
+		duplicateDataArray.emplace_back(CHECK_DATA);
+		pipelineCount.emplace_back(outputHandle);
+		lResult = DirectX12Device::Instance()->dev->CreateGraphicsPipelineState(&DATA, IID_PPV_ARGS(&bufferArray[outputHandle]));
+	}
+	//ガベレージコレクション
+	else
+	{
+		duplicateDataArray[outputHandle] = CHECK_DATA;
+		pipelineCount[outputHandle].shaderHandle = outputHandle;
+		lResult = DirectX12Device::Instance()->dev->CreateGraphicsPipelineState(&DATA, IID_PPV_ARGS(&bufferArray[outputHandle]));
+	}
+
 	if (lResult != S_OK)
 	{
 		return -1;
 	}
-	return lHandle;
+	return outputHandle;
 }
 
 RESOURCE_HANDLE PipelineDuplicateBlocking::GeneratePipeline(const D3D12_COMPUTE_PIPELINE_STATE_DESC &DATA)
 {
 	//重複チェック
-	for (int i = 0; i < bufferGenerateDataArray.size(); ++i)
+	for (int i = 0; i < 0; ++i)
 	{
 		bool lCheckFlag = false;
 		//bufferGenerateDataArray[i].VS.pShaderBytecode == DATA.VS.pShaderBytecode;
@@ -46,6 +72,7 @@ RESOURCE_HANDLE PipelineDuplicateBlocking::GeneratePipeline(const D3D12_COMPUTE_
 	//重複がなければ生成
 	RESOURCE_HANDLE lHandle = handle.GetHandle();
 	bufferArray.emplace_back();
+	pipelineCount.emplace_back(lHandle);
 	HRESULT lResult = DirectX12Device::Instance()->dev->CreateComputePipelineState(&DATA, IID_PPV_ARGS(&bufferArray[lHandle]));
 	if (lResult != S_OK)
 	{
@@ -56,25 +83,63 @@ RESOURCE_HANDLE PipelineDuplicateBlocking::GeneratePipeline(const D3D12_COMPUTE_
 
 Microsoft::WRL::ComPtr<ID3D12PipelineState> PipelineDuplicateBlocking::GetBuffer(RESOURCE_HANDLE HANDLE)
 {
+	pipelineCount[HANDLE].Call();
 	return bufferArray[HANDLE];
+}
+
+void PipelineDuplicateBlocking::Update()
+{
+	for (auto &obj : pipelineCount)
+	{
+		//一度も使われていないデータは消去する。
+		if (obj.IsNotCall())
+		{
+			RESOURCE_HANDLE releaseHandle = obj.shaderHandle;
+			handle.DeleteHandle(releaseHandle);
+			bufferArray[releaseHandle].Reset();
+			pipelineCount[releaseHandle].Finalize();
+			duplicateDataArray[releaseHandle].Finalize();
+		}
+		obj.Reset();
+	}
 }
 
 RESOURCE_HANDLE ShaderDuplicateBlocking::GenerateShader(const ShaderOptionData &DATA)
 {
+	//重複確認
 	for (int i = 0; i < generateDataArray.size(); ++i)
 	{
-		if (generateDataArray[i].fileName == DATA.fileName &&
-			generateDataArray[i].entryPoint == DATA.entryPoint &&
-			generateDataArray[i].shaderModel == DATA.shaderModel)
+		if (generateDataArray[i] == DATA)
 		{
+			shaderCount[i].Call();
 			return i;
 		}
 	}
-	generateDataArray.emplace_back(DATA);
 
-	Shader lShader;
-	bufferArray.emplace_back(lShader.CompileShader(DATA));
-	return handle.GetHandle();
+	RESOURCE_HANDLE outputHandle = handle.GetHandle();
+	//末尾追加
+	if (bufferArray.size() <= outputHandle)
+	{
+		//ID追加
+		generateDataArray.emplace_back(DATA);
+		//シェーダー生成
+		Shader lShader;
+		bufferArray.emplace_back(lShader.CompileShader(DATA));
+		//呼び出し確認用
+		shaderCount.emplace_back(outputHandle);
+	}
+	//ガベレージコレクション
+	else
+	{
+		//ID追加
+		generateDataArray[outputHandle] = DATA;
+		//シェーダー生成
+		Shader lShader;
+		bufferArray[outputHandle] = lShader.CompileShader(DATA);
+		//呼び出し確認用
+		shaderCount[outputHandle].shaderHandle = outputHandle;
+	}
+	return outputHandle;
 }
 
 Microsoft::WRL::ComPtr<IDxcBlob> ShaderDuplicateBlocking::GetBuffer(RESOURCE_HANDLE HANDLE)
@@ -82,35 +147,34 @@ Microsoft::WRL::ComPtr<IDxcBlob> ShaderDuplicateBlocking::GetBuffer(RESOURCE_HAN
 	return bufferArray[HANDLE];
 }
 
+void ShaderDuplicateBlocking::Update()
+{
+	for (auto &obj : shaderCount)
+	{
+		//一度も使われていないデータは消去する。
+		if (obj.IsNotCall())
+		{
+			RESOURCE_HANDLE releaseHandle = obj.shaderHandle;
+			handle.DeleteHandle(releaseHandle);
+			bufferArray[releaseHandle].Reset();
+			shaderCount[releaseHandle].Finalize();
+			generateDataArray[releaseHandle].fileName = "";
+		}
+		obj.Reset();
+	}
+}
+
 RESOURCE_HANDLE RootSignatureDuplicateBlocking::GenerateRootSignature(const RootSignatureDataTest &DATA)
 {
 	//重複チェック
 	for (int i = 0; i < dataForDuplicateBlocking.size(); ++i)
 	{
-		//設定されたルートシグネチャの数が違う場合は再検索
-		if (dataForDuplicateBlocking[i].rangeArray.size() != DATA.rangeArray.size())
+		if (IsSameRootSignatureGenerated(DATA, dataForDuplicateBlocking[i]))
 		{
-			continue;
+			callDataArray[i].Call();
+			return i;
 		}
-
-		bool lContinueFlag = false;
-		//設定されている種類が違う場合は再検査
-		for (int duplicateIndex = 0; duplicateIndex < dataForDuplicateBlocking[i].rangeArray.size(); ++duplicateIndex)
-		{
-			if (dataForDuplicateBlocking[i].rangeArray[duplicateIndex].rangeType != DATA.rangeArray[duplicateIndex].rangeType)
-			{
-				lContinueFlag = true;
-				break;
-			}
-		}
-		if (lContinueFlag)
-		{
-			continue;
-		}
-
-		return i;
 	}
-	dataForDuplicateBlocking.emplace_back(DATA);
 
 	std::vector<CD3DX12_ROOT_PARAMETER> lRootparamArray(DATA.rangeArray.size());
 
@@ -239,17 +303,50 @@ RESOURCE_HANDLE RootSignatureDuplicateBlocking::GenerateRootSignature(const Root
 		return -1;
 	}
 
-	//パイプラインとパラムデータの保管
-	rootSignatureArray.emplace_back(lRootSignature, lParamArrayData);
-	return handle.GetHandle();
+	RESOURCE_HANDLE outputHandle = handle.GetHandle();
+	//ルートシグネチャーとパラムデータの保管
+	if (rootSignatureArray.size() <= outputHandle)
+	{
+		rootSignatureArray.emplace_back(lRootSignature, lParamArrayData);
+		callDataArray.emplace_back(outputHandle);
+		dataForDuplicateBlocking.emplace_back(DATA);
+	}
+	else
+	{
+		rootSignatureArray[outputHandle] = RootSignatureData(lRootSignature, lParamArrayData);
+		callDataArray[outputHandle].shaderHandle = outputHandle;
+		dataForDuplicateBlocking[outputHandle] = DATA;
+	}
+
+	return outputHandle;
 }
 
 Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignatureDuplicateBlocking::GetBuffer(RESOURCE_HANDLE HANDLE)
 {
+	callDataArray[HANDLE].Call();
 	return rootSignatureArray[HANDLE].buffer;
 }
 
 const std::vector<RootSignatureParameter> &RootSignatureDuplicateBlocking::GetRootParam(RESOURCE_HANDLE ROOTSIGNATURE_HANDLE)
 {
 	return rootSignatureArray[ROOTSIGNATURE_HANDLE].rootParamDataArray;
+}
+
+void RootSignatureDuplicateBlocking::Update()
+{
+	for (auto &obj : callDataArray)
+	{
+		//一度も使われていないデータは消去する。
+		if (obj.IsNotCall())
+		{
+			RESOURCE_HANDLE releaseHandle = obj.shaderHandle;
+			handle.DeleteHandle(releaseHandle);
+			rootSignatureArray[releaseHandle].buffer.Reset();
+			rootSignatureArray[releaseHandle].rootParamDataArray.clear();
+			dataForDuplicateBlocking[releaseHandle].rangeArray.clear();
+			dataForDuplicateBlocking[releaseHandle].samplerArray.clear();
+			callDataArray[releaseHandle].Finalize();
+		}
+		obj.Reset();
+	}
 }

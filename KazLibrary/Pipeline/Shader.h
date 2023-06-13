@@ -27,6 +27,12 @@ struct ShaderOptionData
 	ShaderOptionData() :fileName(""), entryPoint(""), shaderModel(""), shaderType(SHADER_TYPE_NONE)
 	{
 	};
+
+	bool operator==(const ShaderOptionData &rhs)const
+	{
+		return (fileName == rhs.fileName && entryPoint == rhs.entryPoint && shaderModel == rhs.shaderModel);
+	};
+
 };
 
 struct ShaderData

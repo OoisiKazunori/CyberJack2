@@ -15,10 +15,6 @@ class DrawingByRasterize
 public:
 	DrawingByRasterize();
 
-	void Update();
-	void Draw();
-
-
 	/// <summary>
 	/// 描画情報にスタックした情報の初期化
 	/// シーン切り替え時に呼び出し推奨

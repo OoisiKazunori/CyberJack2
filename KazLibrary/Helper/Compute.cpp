@@ -54,6 +54,9 @@ void DispatchComputeShader::Compute()
 		DirectX12CmdList::Instance()->cmdList->Dispatch(obj.dispatchData->x, obj.dispatchData->y, obj.dispatchData->z);
 	}
 
+	piplineBufferMgr.Update();
+	rootSignatureBufferMgr.Update();
+
 }
 
 void DispatchComputeShader::SetBufferOnCmdList(const std::vector<KazBufferHelper::BufferData> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM)
