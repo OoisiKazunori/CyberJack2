@@ -113,11 +113,10 @@ RenderScene::RenderScene()
 		//描画
 		drawSponza = DrawFunc::SetDrawGLTFIndexMaterialData(*model, lData);
 		//その他バッファ
-		drawSponza.bufferResourceDataArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
-		drawSponza.bufferResourceDataArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		drawSponza.bufferResourceDataArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-		drawSponza.bufferResourceDataArray.back().bufferSize = sizeof(DirectX::XMFLOAT3);
-
+		drawSponza.extraBufferArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
+		drawSponza.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawSponza.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		drawSponza.extraBufferArray.back().bufferSize = sizeof(DirectX::XMFLOAT3);
 	}
 
 	//G-Bufferの描画確認用の板ポリ
@@ -307,9 +306,9 @@ void RenderScene::Update()
 		CameraMgr::Instance()->GetViewMatrix() *
 		CameraMgr::Instance()->GetPerspectiveMatProjection()
 	);
-	drawSponza.bufferResourceDataArray[0].bufferWrapper->TransData(&mat, sizeof(DirectX::XMMATRIX));
+	drawSponza.extraBufferArray[0].bufferWrapper->TransData(&mat, sizeof(DirectX::XMMATRIX));
 	DirectX::XMFLOAT3 dir = lightVec.ConvertXMFLOAT3();
-	drawSponza.bufferResourceDataArray[1].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
+	drawSponza.extraBufferArray[1].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 
 
 	//描画命令

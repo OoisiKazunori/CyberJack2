@@ -87,7 +87,7 @@ void DrawingByRasterize::Sort()
 		result.drawCommandType = callData.drawCommandType;
 
 		result.materialBuffer = callData.materialBuffer;
-		result.buffer = callData.bufferResourceDataArray;
+		result.buffer = callData.extraBufferArray;
 		result.renderTargetHandle = callData.renderTargetHandle;
 
 		result.pipelineData = callData.pipelineData.desc;
@@ -150,12 +150,12 @@ void DrawingByRasterize::Sort()
 			}
 		}
 		//その他バッファを見てルートシグネチャーの情報詰め込み
-		for (int i = 0; i < callData.bufferResourceDataArray.size(); ++i)
+		for (int i = 0; i < callData.extraBufferArray.size(); ++i)
 		{
 			lRootSignatureGenerateData.rangeArray.emplace_back
 			(
-				callData.bufferResourceDataArray[i].rangeType,
-				callData.bufferResourceDataArray[i].rootParamType
+				callData.extraBufferArray[i].rangeType,
+				callData.extraBufferArray[i].rootParamType
 			);
 		}
 		result.rootsignatureHandle = rootSignatureBufferMgr.GenerateRootSignature(lRootSignatureGenerateData);

@@ -558,6 +558,7 @@ namespace DrawFunc
 		DrawCallData lDrawCallData;
 
 		lDrawCallData.pipelineData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+
 		//’¸“_î•ñ
 		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetBuffer(MODEL_DATA.modelVertDataHandle).index;
 		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
