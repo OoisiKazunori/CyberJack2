@@ -488,7 +488,7 @@ namespace DrawFunc
 		PipelineGenerateData pipelineData;
 
 		//その他必要なバッファの設定
-		std::vector<KazBufferHelper::BufferData>bufferResourceDataArray;
+		std::vector<KazBufferHelper::BufferData>extraBufferArray;
 
 		std::source_location callLocation;
 	};
@@ -503,18 +503,18 @@ namespace DrawFunc
 		lDrawCallData.drawCommandType = VERT_TYPE::INDEX;
 
 		//行列情報
-		lDrawCallData.bufferResourceDataArray.emplace_back(
+		lDrawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
 		);
-		lDrawCallData.bufferResourceDataArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.bufferResourceDataArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 		//色情報
-		lDrawCallData.bufferResourceDataArray.emplace_back(
+		lDrawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
 		);
-		lDrawCallData.bufferResourceDataArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.bufferResourceDataArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
 		//パイプライン情報のセット
 		lDrawCallData.pipelineData = PIPELINE_DATA;
@@ -533,18 +533,18 @@ namespace DrawFunc
 		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
 
 		//行列情報
-		lDrawCallData.bufferResourceDataArray.emplace_back(
+		lDrawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
 		);
-		lDrawCallData.bufferResourceDataArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.bufferResourceDataArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 		//マテリアル情報
-		lDrawCallData.bufferResourceDataArray.emplace_back(
+		lDrawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(MaterialBufferData))
 		);
-		lDrawCallData.bufferResourceDataArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.bufferResourceDataArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
 		//パイプライン情報のセット
 		lDrawCallData.pipelineData = PIPELINE_DATA;
@@ -568,12 +568,12 @@ namespace DrawFunc
 		}
 
 		//行列情報
-		lDrawCallData.bufferResourceDataArray.emplace_back(
+		lDrawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
 		);
-		lDrawCallData.bufferResourceDataArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.bufferResourceDataArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		lDrawCallData.bufferResourceDataArray.back().bufferSize = sizeof(DirectX::XMMATRIX);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		lDrawCallData.extraBufferArray.back().bufferSize = sizeof(DirectX::XMMATRIX);
 
 		lDrawCallData.pipelineData = PIPELINE_DATA;
 		lDrawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
@@ -590,11 +590,11 @@ namespace DrawFunc
 		lDrawCallData.drawCommandType = VERT_TYPE::INDEX;
 
 		//行列情報
-		lDrawCallData.bufferResourceDataArray.emplace_back(
+		lDrawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
 		);
-		lDrawCallData.bufferResourceDataArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.bufferResourceDataArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 		lDrawCallData.pipelineData = PIPELINE_DATA;
 
@@ -611,18 +611,18 @@ namespace DrawFunc
 		lDrawCallData.drawCommandType = VERT_TYPE::INSTANCE;
 
 		//行列情報
-		lDrawCallData.bufferResourceDataArray.emplace_back(
+		lDrawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
 		);
-		lDrawCallData.bufferResourceDataArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.bufferResourceDataArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 		//色情報
-		lDrawCallData.bufferResourceDataArray.emplace_back(
+		lDrawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
 		);
-		lDrawCallData.bufferResourceDataArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.bufferResourceDataArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
 		//パイプライン情報のセット
 		lDrawCallData.pipelineData = PIPELINE_DATA;
