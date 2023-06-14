@@ -215,6 +215,7 @@
     <ClCompile Include="KazLibrary\Buffer\CreateMeshBuffer.cpp" />
     <ClCompile Include="KazLibrary\Buffer\DescriptorHeapMgr.cpp" />
     <ClCompile Include="KazLibrary\Buffer\DrawFuncData.cpp" />
+    <ClCompile Include="KazLibrary\Buffer\GBufferMgr.cpp" />
     <ClCompile Include="KazLibrary\Buffer\Polygon.cpp" />
     <ClCompile Include="KazLibrary\Buffer\UavViewHandleMgr.cpp" />
     <ClCompile Include="KazLibrary\Buffer\VertexBufferMgr.cpp" />
@@ -402,6 +403,7 @@
     <ClInclude Include="KazLibrary\Buffer\CreateMeshBuffer.h" />
     <ClInclude Include="KazLibrary\Buffer\DescriptorHeapMgr.h" />
     <ClInclude Include="KazLibrary\Buffer\DrawFuncData.h" />
+    <ClInclude Include="KazLibrary\Buffer\GBufferMgr.h" />
     <ClInclude Include="KazLibrary\Buffer\Polygon.h" />
     <ClInclude Include="KazLibrary\Buffer\UavViewHandleMgr.h" />
     <ClInclude Include="KazLibrary\Buffer\VertexBufferMgr.h" />

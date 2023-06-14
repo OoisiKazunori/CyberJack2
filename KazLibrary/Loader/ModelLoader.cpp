@@ -464,7 +464,6 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string
 		gltfNode.rotation;
 		gltfNode.scale;
 		gltfNode.translation;
-		bool debug = false;
 	}
 
 	std::vector<MaterialData> modelMaterialDataArray;

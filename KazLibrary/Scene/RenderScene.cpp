@@ -1,6 +1,7 @@
 #include "RenderScene.h"
 #include"../KazLibrary/Helper/ResourceFilePass.h"
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
+#include"../KazLibrary/Buffer/GBufferMgr.h"
 
 RenderScene::RenderScene()
 {
@@ -8,58 +9,8 @@ RenderScene::RenderScene()
 
 	boxData = boxBuffer.GenerateBoxBuffer(1.0f);
 
-	{
-		gBuffer[0] = KazBufferHelper::SetUAVTexBuffer(1280, 720, "G-Buffer_Albedo");
-		RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
 
-		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-		uavDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-		uavDesc.Buffer.FirstElement = 0;
-		uavDesc.Buffer.NumElements = 1280 * 720;
-		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
-
-		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, gBuffer[0].bufferWrapper->GetBuffer().Get());
-		gBuffer[0].bufferWrapper->CreateViewHandle(view);
-		gBuffer[0].elementNum = 1280 * 720;
-		gBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-	}
-	{
-		gBuffer[1] = KazBufferHelper::SetUAVTexBuffer(1280, 720, "G-Buffer_Normal");
-		RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
-
-		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-		uavDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-		uavDesc.Buffer.FirstElement = 0;
-		uavDesc.Buffer.NumElements = 1280 * 720;
-		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
-
-		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, gBuffer[1].bufferWrapper->GetBuffer().Get());
-		gBuffer[1].bufferWrapper->CreateViewHandle(view);
-		gBuffer[1].elementNum = 1280 * 720;
-		gBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-	}
-	{
-		finalGBuffer = KazBufferHelper::SetUAVTexBuffer(1280, 720, "G-Buffer_Final");
-		RESOURCE_HANDLE view = UavViewHandleMgr::Instance()->GetHandle();
-
-		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-		uavDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-		uavDesc.Buffer.FirstElement = 0;
-		uavDesc.Buffer.NumElements = 1280 * 720;
-		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
-
-		DescriptorHeapMgr::Instance()->CreateBufferView(view, uavDesc, finalGBuffer.bufferWrapper->GetBuffer().Get());
-		finalGBuffer.bufferWrapper->CreateViewHandle(view);
-		finalGBuffer.elementNum = 1280 * 720;
-		finalGBuffer.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		finalGBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-	}
-	//ワールド座標、ラフネス、メタルネス、スぺキュラ、オブジェクトが反射するか屈折するか(インデックス)、Albedo、法線、カメラ座標(定数バッファでも可能)
+	GBufferMgr::Instance()->GetBuffer(GBufferMgr::ALBEDO);
 
 
 	//G-Bufferに書き込む予定のオブジェクト
@@ -325,12 +276,6 @@ void RenderScene::Draw()
 {
 	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
 
-	//testRArray[0]->DrawCall(transformArray[0], colorArray[0], 0, motherMat);
-	//testRArray[1]->DrawOBJ(transformArray[1], 1.0f, 0, motherMat);
-	//testRArray[2]->DrawTexPlane(transformArray[2], colorArray[2], 0, motherMat);
-
-	//normalGBufferRender->DrawTexPlane(transformArray[3], colorArray[2], 0, motherMat);
-	//finalGBufferRender->DrawTexPlane(transformArray[4], colorArray[2], 0, motherMat);
 
 	//compute.Compute();
 	rasterizeRenderer.Render();
