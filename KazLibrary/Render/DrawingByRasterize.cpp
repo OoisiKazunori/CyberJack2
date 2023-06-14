@@ -3,7 +3,7 @@
 #include"../KazLibrary/Buffer/DescriptorHeapMgr.h"
 
 //テスト用、パイプラインのハンドル順にソートをかける
-int int_cmpr(const DrawFunc::DrawData *a, const DrawFunc::DrawData *b)
+int int_cmpr(const DrawFuncData::DrawData *a, const DrawFuncData::DrawData *b)
 {
 	RESOURCE_HANDLE lAHandle = a->pipelineHandle, lBHandle = b->pipelineHandle;
 
@@ -43,12 +43,12 @@ RESOURCE_HANDLE DrawingByRasterize::GetHandle()
 	return lHandle;
 }
 
-DrawFunc::DrawData *DrawingByRasterize::StackData(RESOURCE_HANDLE HANDLE)
+DrawFuncData::DrawData *DrawingByRasterize::StackData(RESOURCE_HANDLE HANDLE)
 {
 	return &graphicDataArray[HANDLE];
 }
 
-void DrawingByRasterize::ObjectRender(const DrawFunc::DrawCallData &DRAW_DATA)
+void DrawingByRasterize::ObjectRender(const DrawFuncData::DrawCallData &DRAW_DATA)
 {
 	kazCommandList.emplace_back(DRAW_DATA);
 }
@@ -58,7 +58,7 @@ void DrawingByRasterize::Sort()
 	renderInfomationForDirectX12Array.clear();
 
 	//レンダーターゲット順にソートをかける。
-	kazCommandList.sort([](DrawFunc::DrawCallData a, DrawFunc::DrawCallData b)
+	kazCommandList.sort([](DrawFuncData::DrawCallData a, DrawFuncData::DrawCallData b)
 		{
 			RESOURCE_HANDLE lAHandle = a.renderTargetHandle, lBHandle = b.renderTargetHandle;
 			if (lAHandle < lBHandle)
@@ -79,7 +79,7 @@ void DrawingByRasterize::Sort()
 	//ソートが終わったらDirectX12のコマンドリストに命令出来るように描画情報を生成する。
 	for (auto &callData : kazCommandList)
 	{
-		DrawFunc::DrawData result;
+		DrawFuncData::DrawData result;
 
 		result.drawMultiMeshesIndexInstanceCommandData = callData.drawMultiMeshesIndexInstanceCommandData;
 		result.drawInstanceCommandData = callData.drawInstanceCommandData;
@@ -208,13 +208,13 @@ void DrawingByRasterize::Render()
 		//描画コマンド実行
 		switch (renderData.drawCommandType)
 		{
-		case DrawFunc::VERT_TYPE::INDEX:
+		case DrawFuncData::VERT_TYPE::INDEX:
 			DrawIndexInstanceCommand(renderData.drawIndexInstanceCommandData);
 			break;
-		case DrawFunc::VERT_TYPE::INSTANCE:
+		case DrawFuncData::VERT_TYPE::INSTANCE:
 			DrawInstanceCommand(renderData.drawInstanceCommandData);
 			break;
-		case DrawFunc::VERT_TYPE::MULTI_MESHED:
+		case DrawFuncData::VERT_TYPE::MULTI_MESHED:
 			MultiMeshedDrawIndexInstanceCommand(renderData.drawMultiMeshesIndexInstanceCommandData, renderData.materialBuffer, rootSignatureBufferMgr.GetRootParam(lRootSignatureHandle));
 			break;
 		default:

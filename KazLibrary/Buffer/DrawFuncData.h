@@ -407,7 +407,7 @@ namespace DrawFuncPipelineData
 	}
 };
 
-namespace DrawFunc
+namespace DrawFuncData
 {
 	class DrawingByRasterize;
 	enum class VERT_TYPE
@@ -425,7 +425,7 @@ namespace DrawFunc
 		KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData drawMultiMeshesIndexInstanceCommandData;
 		KazRenderHelper::DrawIndexInstanceCommandData drawIndexInstanceCommandData;
 		KazRenderHelper::DrawInstanceCommandData drawInstanceCommandData;
-		DrawFunc::VERT_TYPE drawCommandType;
+		DrawFuncData::VERT_TYPE drawCommandType;
 		//É}ÉeÉäÉAÉãèÓïÒ
 		std::vector<std::vector<KazBufferHelper::BufferData>> materialBuffer;
 
@@ -629,7 +629,4 @@ namespace DrawFunc
 
 		return lDrawCallData;
 	};
-
-	static void DrawOBJ();
-
 }

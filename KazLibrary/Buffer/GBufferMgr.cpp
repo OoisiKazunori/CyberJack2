@@ -1,6 +1,7 @@
 #include "GBufferMgr.h"
 #include"../KazLibrary/Buffer/UavViewHandleMgr.h"
 #include"../KazLibrary/Buffer/DescriptorHeapMgr.h"
+#include"../KazLibrary/Helper/ResourceFilePass.h"
 
 //ワールド座標、ラフネス、メタルネス、スぺキュラ、オブジェクトが反射するか屈折するか(インデックス)、Albedo、法線、カメラ座標(定数バッファでも可能)
 GBufferMgr::GBufferMgr()
@@ -69,9 +70,46 @@ GBufferMgr::GBufferMgr()
 		m_gBufferArray.emplace_back(buffer);
 	}
 
+
+	//クリア処理
+	{
+		m_gBufferClearArray = m_gBufferArray;
+
+		//設定
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};
+		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+		desc.NodeMask = 0;
+		m_computeData.desc = desc;
+		//シェーダーのパス
+		m_computeData.shaderData = ShaderOptionData(KazFilePathName::ComputeShaderPath + "ClearGBuffer.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE);
+
+		DispatchComputeShader::DispatchData dispatchData;
+		//ディスパッチのアドレス
+		dispatchData.x = 1280;
+		dispatchData.y = 720;
+		dispatchData.z = 1;
+		m_computeData.dispatchData = &dispatchData;
+
+		m_gBufferClearArray[ALBEDO].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		m_gBufferClearArray[NORMAL].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+
+		//セットするバッファ
+		m_computeData.bufferArray =
+		{
+			m_gBufferClearArray[ALBEDO],
+			m_gBufferClearArray[NORMAL]
+		};
+	}
+
+
 }
 
 KazBufferHelper::BufferData GBufferMgr::GetBuffer(BufferType arg_type)
 {
 	return m_gBufferArray[arg_type];
+}
+
+DispatchComputeShader::ComputeData GBufferMgr::ClearData()
+{
+	return m_computeData;
 }

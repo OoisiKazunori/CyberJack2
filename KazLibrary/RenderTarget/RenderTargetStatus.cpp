@@ -82,11 +82,11 @@ void RenderTargetStatus::SetDoubleBufferFlame()
 void RenderTargetStatus::ClearDoubuleBuffer(DirectX::XMFLOAT3 COLOR)
 {
 	//レンダータゲットのクリア
-	float ClearColor[] = { COLOR.x / 255.0f,COLOR.y / 255.0f,COLOR.z / 255.0f, 1.0f };
+	float clearColor[] = { COLOR.x / 255.0f,COLOR.y / 255.0f,COLOR.z / 255.0f, 1.0f };
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvH;
 	rtvH = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
 	rtvH.ptr += bbIndex * DirectX12Device::Instance()->dev->GetDescriptorHandleIncrementSize(heapDesc.Type);
-	DirectX12CmdList::Instance()->cmdList->ClearRenderTargetView(rtvH, ClearColor, 0, nullptr);
+	DirectX12CmdList::Instance()->cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
 
 	CD3DX12_RECT rect(0, 0, static_cast<long>(WIN_X), static_cast<long>(WIN_Y));
 	CD3DX12_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(WIN_X), static_cast<float>(WIN_Y));

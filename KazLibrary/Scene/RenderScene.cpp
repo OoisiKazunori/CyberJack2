@@ -2,6 +2,7 @@
 #include"../KazLibrary/Helper/ResourceFilePass.h"
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
 #include"../KazLibrary/Buffer/GBufferMgr.h"
+#include"../KazLibrary/Render/DrawFunc.h"
 
 RenderScene::RenderScene()
 {
@@ -35,7 +36,7 @@ RenderScene::RenderScene()
 
 	//フォワードレンダリングで描画するモデル
 	{
-		DrawFunc::PipelineGenerateData lData;
+		DrawFuncData::PipelineGenerateData lData;
 		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSPosNormalUvmain", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvmain", "ps_6_4", SHADER_TYPE_PIXEL);
@@ -62,7 +63,7 @@ RenderScene::RenderScene()
 		//testRArray[1]->GetDrawData()->buffer.emplace_back(gBuffer[1]);
 
 		//描画
-		drawSponza = DrawFunc::SetDrawGLTFIndexMaterialData(*model, lData);
+		drawSponza = DrawFuncData::SetDrawGLTFIndexMaterialData(*model, lData);
 		//その他バッファ
 		drawSponza.extraBufferArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
 		drawSponza.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
