@@ -17,7 +17,7 @@ public:
 	/// </summary>
 	/// <param name="cmdAllocator">コマンドアロケーター</param>
 	void CreateCmdList(ID3D12CommandAllocator *cmdAllocator);
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList;
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList5> cmdList;
 private:
 	HRESULT result;
 
