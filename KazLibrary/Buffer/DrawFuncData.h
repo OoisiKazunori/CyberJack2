@@ -483,6 +483,9 @@ namespace DrawFunc
 		VERT_TYPE drawCommandType;
 		std::vector<std::vector<KazBufferHelper::BufferData>> materialBuffer;
 
+		//頂点情報が格納されているデータのハンドル
+		RESOURCE_HANDLE m_modelVertDataHandle;
+
 		RESOURCE_HANDLE renderTargetHandle;
 		//パイプライン情報
 		PipelineGenerateData pipelineData;
@@ -560,6 +563,7 @@ namespace DrawFunc
 		lDrawCallData.pipelineData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
 
 		//頂点情報
+		lDrawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
 		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetBuffer(MODEL_DATA.modelVertDataHandle).index;
 		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
 		for (auto &obj : MODEL_DATA.modelData)

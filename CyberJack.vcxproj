@@ -262,6 +262,7 @@
     <ClCompile Include="KazLibrary\Pipeline\PreCreateBasePipeLine.cpp" />
     <ClCompile Include="KazLibrary\Pipeline\PreCreateBaseRootSignature.cpp" />
     <ClCompile Include="KazLibrary\Pipeline\Shader.cpp" />
+    <ClCompile Include="KazLibrary\Raytracing\Blas.cpp" />
     <ClCompile Include="KazLibrary\RenderTarget\GaussianBuler.cpp" />
     <ClCompile Include="KazLibrary\RenderTarget\RenderTargetStatus.cpp" />
     <ClCompile Include="KazLibrary\Render\BackGroundForDebug.cpp" />
@@ -457,6 +458,7 @@
     <ClInclude Include="KazLibrary\Pipeline\PreCreateBasePipeLine.h" />
     <ClInclude Include="KazLibrary\Pipeline\PreCreateBaseRootSignature.h" />
     <ClInclude Include="KazLibrary\Pipeline\Shader.h" />
+    <ClInclude Include="KazLibrary\Raytracing\Blas.h" />
     <ClInclude Include="KazLibrary\RenderTarget\GaussianBuler.h" />
     <ClInclude Include="KazLibrary\RenderTarget\RenderTargetStatus.h" />
     <ClInclude Include="KazLibrary\Render\BackGroundForDebug.h" />
