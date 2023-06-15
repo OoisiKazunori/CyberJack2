@@ -9,6 +9,7 @@ struct MultiRenderTargetData
 {
 	DirectX::XMFLOAT3 backGroundColor;
 	KazMath::Vec2<UINT> graphSize;
+	DXGI_FORMAT format;
 	MultiRenderTargetData()
 	{};
 };
@@ -66,6 +67,7 @@ public:
 
 	RESOURCE_HANDLE CreateRenderTarget(const KazMath::Vec2<UINT> &GRAPH_SIZE, const DirectX::XMFLOAT3 &CLEAR_COLOR, const DXGI_FORMAT &FORMAT);
 	std::vector<RESOURCE_HANDLE> CreateMultiRenderTarget(const std::vector<MultiRenderTargetData> &MULTIRENDER_TARGET_DATA, const DXGI_FORMAT &FORMAT);
+	std::vector<RESOURCE_HANDLE> CreateMultiRenderTarget(const std::vector<MultiRenderTargetData> &MULTIRENDER_TARGET_DATA);
 	ID3D12Resource *GetBufferData(RESOURCE_HANDLE HANDLE)const;
 	D3D12_GPU_DESCRIPTOR_HANDLE GetViewData(RESOURCE_HANDLE HANDLE);
 

@@ -23,6 +23,7 @@ public:
 	/// <param name="arg_type">バッファの種類</param>
 	/// <returns>指定したG-Buffer</returns>
 	KazBufferHelper::BufferData GetBuffer(BufferType arg_type);
+	std::vector<RESOURCE_HANDLE> GetRenderTarget();
 
 	/// <summary>
 	/// 各G-Bufferをコンピュートシェーダーでクリアする用のデータ
@@ -43,5 +44,7 @@ private:
 	//クリア用の情報
 	DispatchComputeShader::ComputeData m_computeData;
 
+	//G-Buffer用のレンダーターゲット
+	std::vector<RESOURCE_HANDLE>m_gBufferRenderTargetHandleArray;
 };
 

@@ -2,11 +2,12 @@
 #include"../KazLibrary/Buffer/UavViewHandleMgr.h"
 #include"../KazLibrary/Buffer/DescriptorHeapMgr.h"
 #include"../KazLibrary/Helper/ResourceFilePass.h"
+#include"RenderTarget/RenderTargetStatus.h"
 
 //ワールド座標、ラフネス、メタルネス、スぺキュラ、オブジェクトが反射するか屈折するか(インデックス)、Albedo、法線、カメラ座標(定数バッファでも可能)
 GBufferMgr::GBufferMgr()
 {
-	KazMath::Vec2<int>winSize(1280, 720);
+	KazMath::Vec2<UINT>winSize(1280, 720);
 
 	//Albedo
 	{
@@ -102,11 +103,35 @@ GBufferMgr::GBufferMgr()
 	}
 
 
+	//G-Buffer用のレンダーターゲット生成
+	{
+		std::vector<MultiRenderTargetData> multiRenderTargetArray(2);
+		//アルベド
+		multiRenderTargetArray[ALBEDO].backGroundColor = { 0.0f,0.0f,0.0f };
+		multiRenderTargetArray[ALBEDO].graphSize = winSize;
+		multiRenderTargetArray[ALBEDO].format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		//ノーマル
+		multiRenderTargetArray[NORMAL].backGroundColor = { 0.0f,0.0f,0.0f };
+		multiRenderTargetArray[NORMAL].graphSize = winSize;
+		multiRenderTargetArray[NORMAL].format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		m_gBufferRenderTargetHandleArray = RenderTargetStatus::Instance()->CreateMultiRenderTarget(multiRenderTargetArray);
+
+		//ラフネス、メタルネス、スぺキュラ、屈折判定(0...反射しない、1...反射する、2...屈折する)
+		//multiRenderTargetArray[2].backGroundColor = BG_COLOR;
+		//multiRenderTargetArray[2].graphSize = winSize;
+		//multiRenderTargetArray[2].format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	}
+
 }
 
 KazBufferHelper::BufferData GBufferMgr::GetBuffer(BufferType arg_type)
 {
 	return m_gBufferArray[arg_type];
+}
+
+std::vector<RESOURCE_HANDLE> GBufferMgr::GetRenderTarget()
+{
+	return m_gBufferRenderTargetHandleArray;
 }
 
 DispatchComputeShader::ComputeData GBufferMgr::ClearData()

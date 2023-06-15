@@ -38,29 +38,15 @@ RenderScene::RenderScene()
 	{
 		DrawFuncData::PipelineGenerateData lData;
 		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSPosNormalUvmain", "vs_6_4", SHADER_TYPE_VERTEX);
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
-		//testRArray[1] = std::make_unique<DrawFunc::KazRender>(
-		//	DrawFunc::SetDrawGLTFIndexMaterialData(&rasterizeRenderer, *model, lData)
-		//	);
+		//その他設定
+		lData.desc.NumRenderTargets = 2;
+		lData.desc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		lData.desc.RTVFormats[1] = DXGI_FORMAT_R32G32B32A32_FLOAT;
 
-		////ライト用の情報
-		//testRArray[1]->GetDrawData()->buffer.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
-		//testRArray[1]->GetDrawData()->buffer.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		//testRArray[1]->GetDrawData()->buffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
-		//testRArray[1]->GetDrawData()->buffer.emplace_back(model->modelData[0].materialData.textureBuffer);
-		//testRArray[1]->GetDrawData()->buffer.back().rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
-		//testRArray[1]->GetDrawData()->buffer.back().rootParamType = GRAPHICS_PRAMTYPE_TEX;
-
-		//MaterialBufferData data = model->modelData[0].materialData.GetMaterialData();
-		//testRArray[1]->GetDrawData()->buffer[1].bufferWrapper->TransData(&data, sizeof(MaterialBufferData));
-
-		//gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-		//gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA4;
-		//testRArray[1]->GetDrawData()->buffer.emplace_back(gBuffer[0]);
-		//testRArray[1]->GetDrawData()->buffer.emplace_back(gBuffer[1]);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdMain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdMain", "ps_6_4", SHADER_TYPE_PIXEL);
 
 		//描画
 		drawSponza = DrawFuncData::SetDrawGLTFIndexMaterialData(*model, lData);
@@ -69,6 +55,8 @@ RenderScene::RenderScene()
 		drawSponza.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		drawSponza.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 		drawSponza.extraBufferArray.back().bufferSize = sizeof(DirectX::XMFLOAT3);
+
+		drawSponza.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
 	}
 
 	//G-Bufferの描画確認用の板ポリ
@@ -266,8 +254,8 @@ void RenderScene::Update()
 	//描画命令
 	if (KeyBoradInputManager::Instance()->InputState(DIK_SPACE))
 	{
-		rasterizeRenderer.ObjectRender(drawSponza);
 	}
+	rasterizeRenderer.ObjectRender(drawSponza);
 
 	rasterizeRenderer.Sort();
 	//compute.Update();

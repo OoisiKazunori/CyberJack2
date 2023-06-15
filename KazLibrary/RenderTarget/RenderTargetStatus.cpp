@@ -195,7 +195,7 @@ RESOURCE_HANDLE RenderTargetStatus::CreateRenderTarget(const KazMath::Vec2<UINT>
 	resource.Height = GRAPH_SIZE.y;
 	resource.Width = static_cast<UINT64>(GRAPH_SIZE.x);
 	resource.Format = FORMAT;
-	float clearValue[] = { CLEAR_COLOR.x,CLEAR_COLOR.y ,CLEAR_COLOR.z,1.0f };
+	float clearValue[] = { CLEAR_COLOR.x / 255.0f,CLEAR_COLOR.y / 255.0f ,CLEAR_COLOR.z / 255.0f,1.0f };
 	D3D12_CLEAR_VALUE clearColor = CD3DX12_CLEAR_VALUE(FORMAT, clearValue);
 
 
@@ -258,7 +258,7 @@ std::vector<RESOURCE_HANDLE> RenderTargetStatus::CreateMultiRenderTarget(const s
 		resource.Height = MULTIRENDER_TARGET_DATA[i].graphSize.y;
 		resource.Width = static_cast<UINT64>(MULTIRENDER_TARGET_DATA[i].graphSize.x);
 		resource.Format = FORMAT;
-		float clearValue[] = { MULTIRENDER_TARGET_DATA[i].backGroundColor.x,MULTIRENDER_TARGET_DATA[i].backGroundColor.y ,MULTIRENDER_TARGET_DATA[i].backGroundColor.z,1.0f };
+		float clearValue[] = { MULTIRENDER_TARGET_DATA[i].backGroundColor.x / 255.0f,MULTIRENDER_TARGET_DATA[i].backGroundColor.y / 255.0f ,MULTIRENDER_TARGET_DATA[i].backGroundColor.z / 255.0f,1.0f };
 		D3D12_CLEAR_VALUE clearColor = CD3DX12_CLEAR_VALUE(FORMAT, clearValue);
 
 
@@ -300,6 +300,72 @@ std::vector<RESOURCE_HANDLE> RenderTargetStatus::CreateMultiRenderTarget(const s
 
 
 		handles.push_back(buffNum);
+	}
+
+	renderTargetData[buffers->handle->CaluNowHandle(buffNum)] = handles;
+	return handles;
+}
+
+std::vector<RESOURCE_HANDLE> RenderTargetStatus::CreateMultiRenderTarget(const std::vector<MultiRenderTargetData> &MULTIRENDER_TARGET_DATA)
+{
+	//ÉrÉÖÅ[ÇÃê∂ê¨
+	std::vector<RESOURCE_HANDLE> handles;
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+	RESOURCE_HANDLE buffNum = -1;
+	for (int i = 0; i < MULTIRENDER_TARGET_DATA.size(); ++i)
+	{
+		srvDesc.Format = MULTIRENDER_TARGET_DATA[i].format;
+
+		D3D12_RESOURCE_DESC resource = RenderTargetStatus::Instance()->copyBuffer->GetDesc();
+		resource.Height = MULTIRENDER_TARGET_DATA[i].graphSize.y;
+		resource.Width = static_cast<UINT64>(MULTIRENDER_TARGET_DATA[i].graphSize.x);
+		resource.Format = srvDesc.Format;
+		float clearValue[] = { MULTIRENDER_TARGET_DATA[i].backGroundColor.x / 255.0f,MULTIRENDER_TARGET_DATA[i].backGroundColor.y / 255.0f ,MULTIRENDER_TARGET_DATA[i].backGroundColor.z / 255.0f,1.0f };
+		D3D12_CLEAR_VALUE clearColor = CD3DX12_CLEAR_VALUE(srvDesc.Format, clearValue);
+
+
+
+		KazBufferHelper::BufferResourceData data
+		(
+			CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE,
+			resource,
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+			&clearColor,
+			"ShaderResourceRenderTarget"
+		);
+		buffNum = buffers->CreateBuffer(data);
+
+
+		//DescriptorHeapMgr::Instance()->CreateBufferView(num, rtvDesc, buffers->GetBufferData(num).Get());
+		DescriptorHeapMgr::Instance()->CreateBufferView(buffNum, srvDesc, buffers->GetBufferData(buffNum).Get());
+		clearColors[buffers->handle->CaluNowHandle(buffNum)] = { clearValue[0] ,clearValue[1] ,clearValue[2] ,clearValue[3] };
+
+
+		multiPassRTVHanlde = multiPassRTVHeap->GetCPUDescriptorHandleForHeapStart();
+		for (int bufferNum = 0; bufferNum < buffers->handle->CaluNowHandle(buffNum); bufferNum++)
+		{
+			multiPassRTVHanlde.ptr
+				+= DirectX12Device::Instance()->dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		}
+
+		//RTVÇÃçÏê¨
+		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+		rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+		rtvDesc.Format = srvDesc.Format;
+		//SRÇégÇ¡ÇƒRTVÇÃê∂ê¨
+		DirectX12Device::Instance()->dev->CreateRenderTargetView(
+			buffers->GetBufferData(buffNum).Get(),
+			&rtvDesc,
+			multiPassRTVHanlde
+		);
+
+		handles.emplace_back(buffNum);
 	}
 
 	renderTargetData[buffers->handle->CaluNowHandle(buffNum)] = handles;

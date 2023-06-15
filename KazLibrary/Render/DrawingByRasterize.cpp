@@ -91,22 +91,25 @@ void DrawingByRasterize::Sort()
 		result.renderTargetHandle = callData.renderTargetHandle;
 
 		result.pipelineData = callData.pipelineData.desc;
-		switch (callData.pipelineData.blendMode)
+		for (UINT i = 0; i < result.pipelineData.NumRenderTargets; ++i)
 		{
-		case DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA:
-			result.pipelineData.BlendState.RenderTarget[0] = DrawFuncPipelineData::SetAlphaBlend();
-			break;
-		case DrawFuncPipelineData::PipelineBlendModeEnum::ADD:
-			result.pipelineData.BlendState.RenderTarget[0] = DrawFuncPipelineData::SetAddBlend();
-			break;
-		case DrawFuncPipelineData::PipelineBlendModeEnum::SUB:
-			result.pipelineData.BlendState.RenderTarget[0] = DrawFuncPipelineData::SetSubBlend();
-			break;
-		case DrawFuncPipelineData::PipelineBlendModeEnum::NONE:
-			result.pipelineData.BlendState.RenderTarget[0].BlendEnable = false;
-			break;
-		default:
-			break;
+			switch (callData.pipelineData.blendMode)
+			{
+			case DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA:
+				result.pipelineData.BlendState.RenderTarget[i] = DrawFuncPipelineData::SetAlphaBlend();
+				break;
+			case DrawFuncPipelineData::PipelineBlendModeEnum::ADD:
+				result.pipelineData.BlendState.RenderTarget[i] = DrawFuncPipelineData::SetAddBlend();
+				break;
+			case DrawFuncPipelineData::PipelineBlendModeEnum::SUB:
+				result.pipelineData.BlendState.RenderTarget[i] = DrawFuncPipelineData::SetSubBlend();
+				break;
+			case DrawFuncPipelineData::PipelineBlendModeEnum::NONE:
+				result.pipelineData.BlendState.RenderTarget[i].BlendEnable = false;
+				break;
+			default:
+				break;
+			}
 		}
 
 
