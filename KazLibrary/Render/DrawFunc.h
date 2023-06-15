@@ -11,5 +11,7 @@ namespace DrawFunc
 		arg_callData.extraBufferArray[0].bufferWrapper->TransData(&mat, sizeof(DirectX::XMMATRIX));
 		//テクスチャ情報
 		arg_callData.extraBufferArray[1] = arg_texture;
+		arg_callData.extraBufferArray[1].rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
+		arg_callData.extraBufferArray[1].rootParamType = GRAPHICS_PRAMTYPE_DATA;
 	}
 }

@@ -628,4 +628,31 @@ namespace DrawFuncData
 		return lDrawCallData;
 	};
 
+	//行列情報とテクスチャ
+	static DrawCallData SetTexPlaneData(const PipelineGenerateData &PIPELINE_DATA)
+	{
+		DrawCallData lDrawCallData;
+
+		RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GeneratePlaneBuffer();
+		//頂点情報
+		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetBuffer(handle).index;
+		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
+
+		//行列情報
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
+		//テクスチャ情報
+		lDrawCallData.extraBufferArray.emplace_back();
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
+		lDrawCallData.pipelineData = PIPELINE_DATA;
+
+		return lDrawCallData;
+	};
+
 }

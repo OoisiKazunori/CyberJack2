@@ -44,7 +44,13 @@ RenderScene::RenderScene()
 	}
 
 	{
-		//plane = DrawFuncData::SetTransformData();
+		DrawFuncData::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetTex();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
+
+
+		plane = DrawFuncData::SetTexPlaneData(lData);
 
 	}
 	//G-Buffer‚Ì•`‰æŠm”F—p‚Ì”Âƒ|ƒŠ
@@ -240,8 +246,10 @@ void RenderScene::Update()
 
 	//Albedo•`‰æ
 	{
-		KazMath::Transform2D transform({ 1280.0f / 2.0f,720.0f / 2.0f }, { 1280.0f,720.0f });
-		//DrawFunc::DrawTextureIn2D(plane, transform, );
+		KazMath::Transform2D transform({ 1280.0f,720.0f}, { 1280.0f,720.0f });
+
+		RESOURCE_HANDLE handle = GBufferMgr::Instance()->GetRenderTarget()[0];
+		DrawFunc::DrawTextureIn2D(plane, transform, RenderTargetStatus::Instance()->GetBuffer(handle));
 	}
 	//–@ü•`‰æ
 
@@ -250,6 +258,7 @@ void RenderScene::Update()
 	{
 	}
 	rasterizeRenderer.ObjectRender(drawSponza);
+	rasterizeRenderer.ObjectRender(plane);
 
 	rasterizeRenderer.Sort();
 	//compute.Update();

@@ -216,6 +216,11 @@ ID3D12Resource *RenderTargetStatus::GetBufferData(RESOURCE_HANDLE HANDLE)const
 	return buffers[HANDLE].bufferWrapper->GetBuffer().Get();
 }
 
+const KazBufferHelper::BufferData &RenderTargetStatus::GetBuffer(RESOURCE_HANDLE HANDLE)
+{
+	return buffers[renderTargetHandle.CaluNowHandle(HANDLE)];
+}
+
 D3D12_GPU_DESCRIPTOR_HANDLE RenderTargetStatus::GetViewData(RESOURCE_HANDLE HANDLE)
 {
 	return DescriptorHeapMgr::Instance()->GetGpuDescriptorView(HANDLE);
@@ -341,6 +346,8 @@ RESOURCE_HANDLE RenderTargetStatus::GenerateRenderTargetBuffer(const MultiRender
 		&rtvDesc,
 		multiPassRTVHanlde
 	);
+
+	buffers[handle].bufferWrapper->CreateViewHandle(descriptorHandle);
 
 	return descriptorHandle;
 }

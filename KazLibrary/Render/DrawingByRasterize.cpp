@@ -63,15 +63,15 @@ void DrawingByRasterize::Sort()
 			RESOURCE_HANDLE lAHandle = a.renderTargetHandle, lBHandle = b.renderTargetHandle;
 			if (lAHandle < lBHandle)
 			{
-				return 1;
+				return true;
 			}
 			else if (lBHandle < lAHandle)
 			{
-				return -1;
+				return false;
 			}
 			else
 			{
-				return 0;
+				return true;
 			}
 		});
 
@@ -275,7 +275,10 @@ void DrawingByRasterize::MultiMeshedDrawIndexInstanceCommand(const KazRenderHelp
 	for (int i = 0; i < COMMAND_MAX_DATA; ++i)
 	{
 		//マテリアル情報のスタック
-		SetBufferOnCmdList(MATERIAL_BUFFER[i], ROOT_PARAM);
+		if (MATERIAL_BUFFER.size() != 0)
+		{
+			SetBufferOnCmdList(MATERIAL_BUFFER[i], ROOT_PARAM);
+		}
 
 		DirectX12CmdList::Instance()->cmdList->IASetPrimitiveTopology(DATA.topology);
 		DirectX12CmdList::Instance()->cmdList->IASetVertexBuffers(DATA.vertexBufferDrawData[i].slot, DATA.vertexBufferDrawData[i].numViews, &DATA.vertexBufferDrawData[i].vertexBufferView);

@@ -492,6 +492,7 @@ DirectX::XMMATRIX KazMath::CaluWorld(const KazMath::Transform2D &TRANSFORM)
 {
 	BaseMatWorldData baseMatWorldData;
 	baseMatWorldData.matWorld = DirectX::XMMatrixIdentity();
+	baseMatWorldData.matWorld *= DirectX::XMMatrixScaling(TRANSFORM.scale.x, TRANSFORM.scale.y, 1.0f);
 	baseMatWorldData.matWorld *= DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(TRANSFORM.rotation));
 	baseMatWorldData.matWorld *= DirectX::XMMatrixTranslationFromVector(TRANSFORM.pos.ConvertXMVECTOR());
 	return baseMatWorldData.matWorld;

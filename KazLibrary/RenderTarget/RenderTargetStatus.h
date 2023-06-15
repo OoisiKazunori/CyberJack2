@@ -69,6 +69,7 @@ public:
 	std::vector<RESOURCE_HANDLE> CreateMultiRenderTarget(const std::vector<MultiRenderTargetData> &MULTIRENDER_TARGET_DATA, const DXGI_FORMAT &FORMAT);
 	std::vector<RESOURCE_HANDLE> CreateMultiRenderTarget(const std::vector<MultiRenderTargetData> &MULTIRENDER_TARGET_DATA);
 	ID3D12Resource *GetBufferData(RESOURCE_HANDLE HANDLE)const;
+	const KazBufferHelper::BufferData &GetBuffer(RESOURCE_HANDLE HANDLE);
 	D3D12_GPU_DESCRIPTOR_HANDLE GetViewData(RESOURCE_HANDLE HANDLE);
 
 
