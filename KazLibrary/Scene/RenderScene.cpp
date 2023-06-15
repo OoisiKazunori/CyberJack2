@@ -50,7 +50,8 @@ RenderScene::RenderScene()
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
 
-		plane = DrawFuncData::SetTexPlaneData(lData);
+		albedoPlane = DrawFuncData::SetTexPlaneData(lData);
+		normalPlane = DrawFuncData::SetTexPlaneData(lData);
 
 	}
 	//G-Buffer‚Ì•`‰æŠm”F—p‚Ì”Âƒ|ƒŠ
@@ -249,18 +250,17 @@ void RenderScene::Update()
 		KazMath::Transform2D transform({ 1280.0f,720.0f}, { 1280.0f,720.0f });
 
 		RESOURCE_HANDLE handle = GBufferMgr::Instance()->GetRenderTarget()[0];
-		DrawFunc::DrawTextureIn2D(plane, transform, RenderTargetStatus::Instance()->GetBuffer(handle));
+		if (drawAlbedoFlag)
+		{
+			DrawFunc::DrawTextureIn2D(albedoPlane, transform, RenderTargetStatus::Instance()->GetBuffer(handle));
+		}
+		handle = GBufferMgr::Instance()->GetRenderTarget()[1];
+		if (drawNormalFlag)
+		{
+			DrawFunc::DrawTextureIn2D(normalPlane, transform, RenderTargetStatus::Instance()->GetBuffer(handle));
+		}
 	}
 	//–@ü•`‰æ
-
-	//•`‰æ–½—ß
-	if (KeyBoradInputManager::Instance()->InputState(DIK_SPACE))
-	{
-	}
-	rasterizeRenderer.ObjectRender(drawSponza);
-	rasterizeRenderer.ObjectRender(plane);
-
-	rasterizeRenderer.Sort();
 	//compute.Update();
 }
 
@@ -268,7 +268,18 @@ void RenderScene::Draw()
 {
 	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
 
+	rasterizeRenderer.ObjectRender(drawSponza);
 
+	if (drawAlbedoFlag)
+	{
+		rasterizeRenderer.ObjectRender(albedoPlane);
+	}
+	if (drawNormalFlag)
+	{
+		rasterizeRenderer.ObjectRender(normalPlane);
+	}
+
+	rasterizeRenderer.Sort();
 	//compute.Compute();
 	rasterizeRenderer.Render();
 
@@ -276,6 +287,8 @@ void RenderScene::Draw()
 	ImGui::DragFloat("VecX", &lightVec.x);
 	ImGui::DragFloat("VecY", &lightVec.y);
 	ImGui::DragFloat("VecZ", &lightVec.z);
+	ImGui::Checkbox("Albedo", &drawAlbedoFlag);
+	ImGui::Checkbox("Normal", &drawNormalFlag);
 	ImGui::End();
 }
 

@@ -71,7 +71,7 @@ void DrawingByRasterize::Sort()
 			}
 			else
 			{
-				return true;
+				return false;
 			}
 		});
 
