@@ -6,6 +6,10 @@
 #include"../KazLibrary/Buffer/VertexBufferMgr.h"
 #include <source_location>
 
+namespace Raytracing {
+	class Blas;
+}
+
 namespace DrawFuncPipelineData
 {
 	enum class PipelineBlendModeEnum
@@ -459,7 +463,7 @@ namespace DrawFunc
 	};
 	struct DrawFuncBufferData
 	{
-		DrawFuncBufferData(const KazBufferHelper::BufferResourceData &DATA, GraphicsRootParamType ROOT_PARAM, GraphicsRangeType RANGE_TYPE) :
+		DrawFuncBufferData(const KazBufferHelper::BufferResourceData& DATA, GraphicsRootParamType ROOT_PARAM, GraphicsRangeType RANGE_TYPE) :
 			resourceData(DATA), rootParam(ROOT_PARAM), rangeType(RANGE_TYPE)
 		{};
 
@@ -468,6 +472,12 @@ namespace DrawFunc
 		GraphicsRangeType rangeType;
 	};
 
+	//DrawCallData内で使用するレイトレーシング関連の情報
+	struct RaytracingData {
+		std::vector<std::shared_ptr<Raytracing::Blas>> m_blas;	//レイトレーシングに使用するBlas。レイトレーシングを行う場合、これをBlasVectorに参照を保存する。
+		bool m_isRaytracingInitialized;							//レイトレーシングに必要な情報が初期化されているか。
+		bool m_isRaytracingEnable;								//レイトレーシングが有効化されているか。 m_isRaytracingInitialized(初期化されている) and m_isRaytracingEnable(有効化されている) 時にTLASに保存される。 ラスタライズの描画は行うけどレイトレは一旦切る場合に使用することを考慮して作成しました。距離によってカリングしたりする場合ですね！
+	};
 
 	//DrawFuncを使用する際に必要なデータ
 	struct DrawCallData
@@ -476,12 +486,20 @@ namespace DrawFunc
 			callLocation(location), renderTargetHandle(-1)
 		{
 		};
+		/// <summary>
+		/// レイトレーシングを準備
+		/// </summary>
+		/// <param name="arg_isOpaque"> このオブジェクトは半透明か？AnyhitShaderが呼ばれるかどうかをここで判断する。 </param>
+		void SetupRaytracing(bool arg_isOpaque);
 		//頂点情報
 		KazRenderHelper::DrawIndexInstanceCommandData drawIndexInstanceCommandData;
 		KazRenderHelper::DrawInstanceCommandData drawInstanceCommandData;
 		KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData drawMultiMeshesIndexInstanceCommandData;
 		VERT_TYPE drawCommandType;
 		std::vector<std::vector<KazBufferHelper::BufferData>> materialBuffer;
+
+		//レイトレーシングに使用する情報
+		RaytracingData m_raytracingData;
 
 		//頂点情報が格納されているデータのハンドル
 		RESOURCE_HANDLE m_modelVertDataHandle;
@@ -498,7 +516,7 @@ namespace DrawFunc
 
 
 	//単色のポリゴン表示(インデックスあり)
-	static DrawCallData SetDrawPolygonIndexData(const KazRenderHelper::DrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA, std::source_location location = std::source_location::current())
+	static DrawCallData SetDrawPolygonIndexData(const KazRenderHelper::DrawIndexInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA, std::source_location location = std::source_location::current())
 	{
 		DrawCallData lDrawCallData;
 		//頂点情報
@@ -528,7 +546,7 @@ namespace DrawFunc
 	};
 
 	//OBJモデルのポリゴン表示(インデックスあり)
-	static DrawCallData SetDrawOBJIndexData(const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	static DrawCallData SetDrawOBJIndexData(const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
 		//頂点情報
@@ -556,7 +574,7 @@ namespace DrawFunc
 	};
 
 	//モデルのポリゴン表示(インデックスあり、マテリアルあり)
-	static DrawCallData SetDrawGLTFIndexMaterialData(const ModelInfomation &MODEL_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	static DrawCallData SetDrawGLTFIndexMaterialData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
 
@@ -566,7 +584,7 @@ namespace DrawFunc
 		lDrawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
 		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetBuffer(MODEL_DATA.modelVertDataHandle).index;
 		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
-		for (auto &obj : MODEL_DATA.modelData)
+		for (auto& obj : MODEL_DATA.modelData)
 		{
 			lDrawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
 		}
@@ -586,7 +604,7 @@ namespace DrawFunc
 	};
 
 	//行列情報のみ
-	static DrawCallData SetTransformData(const KazRenderHelper::DrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	static DrawCallData SetTransformData(const KazRenderHelper::DrawIndexInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
 		//頂点情報
@@ -607,7 +625,7 @@ namespace DrawFunc
 
 
 	//単色のポリゴン表示(インデックスなし)
-	static DrawCallData SetDrawPolygonData(const KazRenderHelper::DrawInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	static DrawCallData SetDrawPolygonData(const KazRenderHelper::DrawInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
 		//頂点情報

@@ -8,7 +8,7 @@
 #include "../Buffer/VertexBufferMgr.h"
 #include <memory>
 
-Blas::Blas(bool IsOpaque, RESOURCE_HANDLE arg_vertexDataHandle, int arg_meshNumber)
+Raytracing::Blas::Blas(bool IsOpaque, RESOURCE_HANDLE arg_vertexDataHandle, int arg_meshNumber)
 {
 
 	/*===== コンストラクタ =====*/
@@ -23,7 +23,7 @@ Blas::Blas(bool IsOpaque, RESOURCE_HANDLE arg_vertexDataHandle, int arg_meshNumb
 
 }
 
-uint8_t* Blas::WriteShaderRecord(uint8_t* arg_dst, UINT arg_recordSize, Microsoft::WRL::ComPtr<ID3D12StateObject>& arg_stageObject, LPCWSTR arg_hitGroupName)
+uint8_t* Raytracing::Blas::WriteShaderRecord(uint8_t* arg_dst, UINT arg_recordSize, Microsoft::WRL::ComPtr<ID3D12StateObject>& arg_stageObject, LPCWSTR arg_hitGroupName)
 {
 
 	/*===== シェーダーレコードを書き込む =====*/
@@ -59,7 +59,7 @@ uint8_t* Blas::WriteShaderRecord(uint8_t* arg_dst, UINT arg_recordSize, Microsof
 
 }
 
-D3D12_RAYTRACING_GEOMETRY_DESC Blas::GetGeometryDesc(bool arg_isOpaque)
+D3D12_RAYTRACING_GEOMETRY_DESC Raytracing::Blas::GetGeometryDesc(bool arg_isOpaque)
 {
 
 	/*===== Blasの形状設定に必要な構造体を返す =====*/
@@ -92,7 +92,7 @@ D3D12_RAYTRACING_GEOMETRY_DESC Blas::GetGeometryDesc(bool arg_isOpaque)
 
 }
 
-void Blas::BuildBlas(const D3D12_RAYTRACING_GEOMETRY_DESC& arg_geomDesc)
+void Raytracing::Blas::BuildBlas(const D3D12_RAYTRACING_GEOMETRY_DESC& arg_geomDesc)
 {
 
 	/*===== Blasを構築 =====*/
@@ -160,7 +160,7 @@ void Blas::BuildBlas(const D3D12_RAYTRACING_GEOMETRY_DESC& arg_geomDesc)
 
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> Blas::CreateBuffer(size_t arg_size, D3D12_RESOURCE_FLAGS arg_flags, D3D12_RESOURCE_STATES arg_initState, D3D12_HEAP_TYPE arg_heapType, const wchar_t* arg_bufferName)
+Microsoft::WRL::ComPtr<ID3D12Resource> Raytracing::Blas::CreateBuffer(size_t arg_size, D3D12_RESOURCE_FLAGS arg_flags, D3D12_RESOURCE_STATES arg_initState, D3D12_HEAP_TYPE arg_heapType, const wchar_t* arg_bufferName)
 {
 
 	/*===== バッファを生成 =====*/
