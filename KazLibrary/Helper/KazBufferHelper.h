@@ -210,7 +210,6 @@ namespace KazBufferHelper
 			counterWrapper = rhs.counterWrapper;
 			elementNum = rhs.elementNum;
 		};
-
 	private:
 	};
 

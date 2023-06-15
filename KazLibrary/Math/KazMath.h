@@ -47,10 +47,9 @@ namespace KazMath
 		{
 			return DirectX::XMFLOAT2(static_cast<float>(x), static_cast<float>(y));
 		};
-		DirectX::XMVECTOR ConvertXMVECTOR()
+		DirectX::XMVECTOR ConvertXMVECTOR()const
 		{
-			DirectX::XMVECTOR result = { static_cast<float>(x), static_cast<float>(y), 0.0f, 0.0f };
-			return result;
+			return DirectX::XMVECTOR({ static_cast<float>(x), static_cast<float>(y), 0.0f, 0.0f });
 		};
 
 		Vec2<int>Int()const
@@ -597,7 +596,9 @@ namespace KazMath
 	};
 
 	struct Transform3D;
+	struct Transform2D;
 	DirectX::XMMATRIX CaluWorld(const KazMath::Transform3D &TRANSFORM, const Vec3<float> &Y_VEC, const Vec3<float> &Z_VEC);
+	DirectX::XMMATRIX CaluWorld(const KazMath::Transform2D &TRANSFORM);
 
 	/// <summary>
 	/// 3D空間上でオブジェクトを動かす際のデータです
@@ -691,6 +692,21 @@ namespace KazMath
 		{
 		};
 
+		Transform2D(const KazMath::Vec2<float> &arg_pos, const KazMath::Vec2<float> &arg_scale) :
+			positionDirtyFlag(&pos),
+			scaleDirtyFlag(&scale),
+			rotationDirtyFlag(&rotation),
+			pos(arg_pos),
+			scale(arg_scale),
+			rotation(0.0f)
+		{
+		};
+
+		DirectX::XMMATRIX GetMat(const Vec3<float> &Y_VEC = { 0.0f,1.0f,0.0f }, const Vec3<float> &Z_VEC = { 0.0f,0.0f,1.0f })const
+		{
+			return CaluWorld(*this);
+		}
+
 		bool Dirty()
 		{
 			return positionDirtyFlag.Dirty() || scaleDirtyFlag.Dirty() || rotationDirtyFlag.Dirty();
@@ -708,6 +724,9 @@ namespace KazMath
 			scale = OBJ.scale;
 			rotation = OBJ.rotation;
 		}
+
+	private:
+		DirectX::XMMATRIX matrix;
 	};
 
 	struct BaseMatWorldData

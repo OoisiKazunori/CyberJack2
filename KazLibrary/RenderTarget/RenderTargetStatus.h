@@ -75,14 +75,13 @@ public:
 	void DeleteRenderTarget(RESOURCE_HANDLE HANDLE);
 	void DeleteMultiRenderTarget(const std::vector<RESOURCE_HANDLE> &HANDLE);
 
-
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> multiPassRTVHeap;
 	Microsoft::WRL::ComPtr<ID3D12Resource> copyBuffer;
 
 	GraphicsDepthTest gDepth;
 	RESOURCE_HANDLE handle, handle2;
 
-	std::unique_ptr<CreateGpuBuffer> buffers;
+	HandleMaker renderTargetHandle;
+	std::vector<KazBufferHelper::BufferData> buffers;
 	int bbIndex;
 
 	static const int RENDERTARGET_MAX_NUM = 1000;
@@ -100,13 +99,8 @@ public:
 	static const int SWAPCHAIN_MAX_NUM = 2;
 private:
 
-
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> multiPassRTVHeap;
 	std::array<DirectX::XMFLOAT4, RENDERTARGET_MAX_NUM> clearColors;
-
-
-
-	
-	D3D12_CPU_DESCRIPTOR_HANDLE multiPassRTVHanlde;
 
 
 
@@ -120,4 +114,7 @@ private:
 		};
 	};
 	std::vector<RESOURCE_HANDLE> CountPass(RESOURCE_HANDLE HANDLE);
+
+	RESOURCE_HANDLE GenerateRenderTargetBuffer(const MultiRenderTargetData &arg_renderTargetBufferData);
+	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle(RESOURCE_HANDLE arg_handle);
 };

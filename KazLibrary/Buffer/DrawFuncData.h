@@ -493,6 +493,33 @@ namespace DrawFuncData
 		std::source_location callLocation;
 	};
 
+	//単色のポリゴン表示(インデックスなし)
+	static DrawCallData SetDrawPolygonData(const KazRenderHelper::DrawInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	{
+		DrawCallData lDrawCallData;
+		//頂点情報
+		lDrawCallData.drawInstanceCommandData = VERTEX_DATA;
+		lDrawCallData.drawCommandType = VERT_TYPE::INSTANCE;
+
+		//行列情報
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
+		//色情報
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+
+		//パイプライン情報のセット
+		lDrawCallData.pipelineData = PIPELINE_DATA;
+
+		return lDrawCallData;
+	};
 
 	//単色のポリゴン表示(インデックスあり)
 	static DrawCallData SetDrawPolygonIndexData(const KazRenderHelper::DrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA, std::source_location location = std::source_location::current())
@@ -601,32 +628,4 @@ namespace DrawFuncData
 		return lDrawCallData;
 	};
 
-
-	//単色のポリゴン表示(インデックスなし)
-	static DrawCallData SetDrawPolygonData(const KazRenderHelper::DrawInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
-	{
-		DrawCallData lDrawCallData;
-		//頂点情報
-		lDrawCallData.drawInstanceCommandData = VERTEX_DATA;
-		lDrawCallData.drawCommandType = VERT_TYPE::INSTANCE;
-
-		//行列情報
-		lDrawCallData.extraBufferArray.emplace_back(
-			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
-		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-
-		//色情報
-		lDrawCallData.extraBufferArray.emplace_back(
-			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
-		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-
-		//パイプライン情報のセット
-		lDrawCallData.pipelineData = PIPELINE_DATA;
-
-		return lDrawCallData;
-	};
 }

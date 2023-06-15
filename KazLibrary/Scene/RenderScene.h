@@ -72,6 +72,7 @@ private:
 	DrawFuncData::DrawCallData drawSponza;
 	DrawFuncData::DrawCallData plane;
 
+
 	KazMath::Vec3<float>lightVec;
 };
 

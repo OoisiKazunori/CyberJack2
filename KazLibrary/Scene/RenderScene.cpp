@@ -10,25 +10,9 @@ RenderScene::RenderScene()
 
 	boxData = boxBuffer.GenerateBoxBuffer(1.0f);
 
+	//G-Buffer生成
+	GBufferMgr::Instance();
 
-	GBufferMgr::Instance()->GetBuffer(GBufferMgr::ALBEDO);
-
-
-	//G-Bufferに書き込む予定のオブジェクト
-	//{
-	//	DrawFunc::PipelineGenerateData lData;
-	//	lData.desc = DrawFuncPipelineData::SetTest();
-	//	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DefferdRender.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
-	//	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DefferdRender.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
-
-
-	//	testRArray[0] = std::make_unique<DrawFunc::KazRender>(
-	//		DrawFunc::SetDrawPolygonIndexData(&rasterizeRenderer, boxData.index, lData)
-	//		);
-
-	//	gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-	//	testRArray[0]->GetDrawData()->buffer.emplace_back(gBuffer[0]);
-	//}
 
 	RESOURCE_HANDLE handle = ObjResourceMgr::Instance()->LoadModel(KazFilePathName::TestPath + "hamster.obj");
 	ObjResourceMgr::Instance()->GetResourceData(handle);
@@ -59,6 +43,10 @@ RenderScene::RenderScene()
 		drawSponza.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
 	}
 
+	{
+		//plane = DrawFuncData::SetTransformData();
+
+	}
 	//G-Bufferの描画確認用の板ポリ
 	//{
 	//	DrawFunc::PipelineGenerateData lData;
@@ -250,6 +238,12 @@ void RenderScene::Update()
 	DirectX::XMFLOAT3 dir = lightVec.ConvertXMFLOAT3();
 	drawSponza.extraBufferArray[1].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 
+	//Albedo描画
+	{
+		KazMath::Transform2D transform({ 1280.0f / 2.0f,720.0f / 2.0f }, { 1280.0f,720.0f });
+		//DrawFunc::DrawTextureIn2D(plane, transform, );
+	}
+	//法線描画
 
 	//描画命令
 	if (KeyBoradInputManager::Instance()->InputState(DIK_SPACE))

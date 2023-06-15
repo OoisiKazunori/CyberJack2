@@ -488,6 +488,15 @@ DirectX::XMMATRIX KazMath::CaluWorld(const KazMath::Transform3D &TRANSFORM, cons
 	return baseMatWorldData.matWorld;
 }
 
+DirectX::XMMATRIX KazMath::CaluWorld(const KazMath::Transform2D &TRANSFORM)
+{
+	BaseMatWorldData baseMatWorldData;
+	baseMatWorldData.matWorld = DirectX::XMMatrixIdentity();
+	baseMatWorldData.matWorld *= DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(TRANSFORM.rotation));
+	baseMatWorldData.matWorld *= DirectX::XMMatrixTranslationFromVector(TRANSFORM.pos.ConvertXMVECTOR());
+	return baseMatWorldData.matWorld;
+}
+
 void KazMath::Larp(float BASE_TRANSFORM, float *TRANSFORM, float MUL)
 {
 	float distance = BASE_TRANSFORM - *TRANSFORM;
