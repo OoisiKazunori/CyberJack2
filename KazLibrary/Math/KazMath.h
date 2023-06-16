@@ -647,10 +647,9 @@ namespace KazMath
 			scaleDirtyFlag.Record();
 			rotationDirtyFlag.Record();
 		};
-		DirectX::XMMATRIX GetMat(const Vec3<float> &Y_VEC = { 0.0f,1.0f,0.0f }, const Vec3<float> &Z_VEC = { 0.0f,0.0f,1.0f })
+		DirectX::XMMATRIX GetMat(const Vec3<float> &Y_VEC = { 0.0f,1.0f,0.0f }, const Vec3<float> &Z_VEC = { 0.0f,0.0f,1.0f })const
 		{
-			matrix = CaluWorld(*this, Y_VEC, Z_VEC);
-			return matrix;
+			return CaluWorld(*this, Y_VEC, Z_VEC);
 		}
 
 		void operator=(const KazMath::Transform3D &OBJ)

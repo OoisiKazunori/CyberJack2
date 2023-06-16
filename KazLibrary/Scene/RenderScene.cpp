@@ -35,11 +35,11 @@ RenderScene::RenderScene()
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdMain", "ps_6_4", SHADER_TYPE_PIXEL);
 
 		//•`‰æ
-		drawSponza = DrawFuncData::SetDrawGLTFIndexMaterialData(*model, lData);
+		drawSponza = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*model, lData);
 		//‚»‚Ì‘¼ƒoƒbƒtƒ@
 		drawSponza.extraBufferArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
 		drawSponza.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		drawSponza.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		drawSponza.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 		drawSponza.extraBufferArray.back().bufferSize = sizeof(DirectX::XMFLOAT3);
 
 		drawSponza.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
@@ -243,11 +243,12 @@ void RenderScene::Update()
 {
 	camera.Update({}, {}, true);
 	CameraMgr::Instance()->Camera(camera.GetEyePos(), camera.GetTargetPos(), { 0.0f,1.0f,0.0f });
-	CoordinateSpaceMatData transData(transformArray[0].GetMat(), CameraMgr::Instance()->GetViewMatrix(), CameraMgr::Instance()->GetPerspectiveMatProjection());
 
-	drawSponza.extraBufferArray[0].bufferWrapper->TransData(&transData, sizeof(CoordinateSpaceMatData));
+
+	DrawFunc::DrawModelInRaytracing(drawSponza, transformArray[0], DrawFunc::REFLECTION);
 	DirectX::XMFLOAT3 dir = lightVec.ConvertXMFLOAT3();
-	drawSponza.extraBufferArray[1].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
+	drawSponza.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
+
 
 	//Albedo•`‰æ
 	{

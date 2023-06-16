@@ -19,19 +19,9 @@ public:
 	};
 	GBufferMgr();
 
-	/// <summary>
-	/// 各バッファの入手
-	/// </summary>
-	/// <param name="arg_type">バッファの種類</param>
-	/// <returns>指定したG-Buffer</returns>
-	KazBufferHelper::BufferData GetBuffer(BufferType arg_type);
 	std::vector<RESOURCE_HANDLE> GetRenderTarget();
 	std::vector<DXGI_FORMAT> GetRenderTargetFormat();
 
-	/// <summary>
-	/// 各G-Bufferをコンピュートシェーダーでクリアする用のデータ
-	/// </summary>
-	DispatchComputeShader::ComputeData ClearData();
 
 	/// <summary>
 	/// デバック用の描画確認

@@ -7,7 +7,7 @@ cbuffer MatBuffer : register(b0)
     matrix projectionMat;
 }
 
-cbuffer MatBuffer : register(b1)
+cbuffer LightBufferB1 : register(b1)
 {
     float3 localLightDir;
 }
@@ -60,6 +60,11 @@ float4 PSPosNormalUvmain(PosUvNormalOutput input) : SV_TARGET
 
 //モデル、G-Buffer格納---------------------------------------
 
+cbuffer LightBufferB2 : register(b2)
+{
+    float3 localLightDirB2;
+}
+
 PosUvNormalOutput VSDefferdMain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
 {
     PosUvNormalOutput op;
@@ -70,7 +75,7 @@ PosUvNormalOutput VSDefferdMain(float4 pos : POSITION,float3 normal : NORMAL,flo
     op.uv = uv;
     op.normal = normal;
 
-    float4 lightDir = float4(localLightDir.xyz,0.0f);
+    float4 lightDir = float4(localLightDirB2.xyz,0.0f);
     lightDir = normalize(lightDir);
     //ローカル空間にあるライトをタンジェント空間に移動させる
     op.lightInTangentWorld = mul(lightDir,InvTangentMatrix(tangent,binormal,normal));
@@ -104,7 +109,8 @@ GBufferOutput PSDefferdMain(PosUvNormalOutput input) : SV_TARGET
     GBufferOutput output;
     output.albedo = texColor;
     output.normal.xyz = normalColor;
-    output.metalnessRoughness = mrColor;
+    float id = raytracingId;
+    output.metalnessRoughness = float4(mrColor.xyz,id);
     output.normal.a = 1.0f;
     output.world.xyz = input.worldPos.xyz;
     output.world.a = 1.0f;
