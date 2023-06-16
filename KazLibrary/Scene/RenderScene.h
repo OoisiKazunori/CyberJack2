@@ -78,6 +78,7 @@ private:
 		DrawFuncData::DrawCallData m_plane;
 	};
 	std::array<DrawGBufferData, 4>m_drawPlaneArray;
+	DrawGBufferData m_drawFinalPlane;
 
 	KazMath::Vec3<float>lightVec;
 };

@@ -36,6 +36,8 @@ GBufferMgr::GBufferMgr()
 		multiRenderTargetArray[WORLD].format = m_gBufferFormatArray[WORLD];
 		m_gBufferRenderTargetHandleArray = RenderTargetStatus::Instance()->CreateMultiRenderTarget(multiRenderTargetArray);
 	}
+
+	m_cameraPosBuffer = KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3));
 }
 
 std::vector<RESOURCE_HANDLE> GBufferMgr::GetRenderTarget()

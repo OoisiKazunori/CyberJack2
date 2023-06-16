@@ -27,6 +27,7 @@ namespace DrawFunc
 	{
 		//s—ñî•ñ
 		static CoordinateSpaceMatData transData(arg_transform.GetMat(), CameraMgr::Instance()->GetViewMatrix(), CameraMgr::Instance()->GetPerspectiveMatProjection());
+		transData.m_view = CameraMgr::Instance()->GetViewMatrix();
 		arg_callData.extraBufferArray[0].bufferWrapper->TransData(&transData, sizeof(CoordinateSpaceMatData));
 		//ID
 		UINT num = static_cast<UINT>(arg_type);
