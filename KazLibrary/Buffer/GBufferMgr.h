@@ -40,13 +40,6 @@ public:
 
 
 private:
-	//G-Bufferの格納
-	std::vector<KazBufferHelper::BufferData>m_gBufferArray;
-	//クリア用のG-Buffer格納場所
-	std::vector<KazBufferHelper::BufferData>m_gBufferClearArray;
-	//クリア用の情報
-	DispatchComputeShader::ComputeData m_computeData;
-
 	//G-Buffer用のレンダーターゲット
 	std::vector<RESOURCE_HANDLE>m_gBufferRenderTargetHandleArray;
 	std::vector<DXGI_FORMAT>m_gBufferFormatArray;
