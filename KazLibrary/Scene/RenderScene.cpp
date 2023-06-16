@@ -24,9 +24,11 @@ RenderScene::RenderScene()
 		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
 
 		//その他設定
-		lData.desc.NumRenderTargets = 2;
+		lData.desc.NumRenderTargets = 3;
 		lData.desc.RTVFormats[0] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::ALBEDO];
 		lData.desc.RTVFormats[1] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::NORMAL];
+		lData.desc.RTVFormats[2] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::R_M_S_ID];
+		//lData.desc.RTVFormats[3] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::WORLD];
 
 
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdMain", "vs_6_4", SHADER_TYPE_VERTEX);
@@ -49,9 +51,15 @@ RenderScene::RenderScene()
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
 
-
-		albedoPlane = DrawFuncData::SetTexPlaneData(lData);
-		normalPlane = DrawFuncData::SetTexPlaneData(lData);
+		for (int i = 0; i < m_drawPlaneArray.size(); ++i)
+		{
+			m_drawPlaneArray[i].m_drawFlag = false;
+			m_drawPlaneArray[i].m_plane = DrawFuncData::SetTexPlaneData(lData);
+		}
+		m_drawPlaneArray[0].m_bufferName = "Albedo";
+		m_drawPlaneArray[1].m_bufferName = "Normal";
+		m_drawPlaneArray[2].m_bufferName = "MetalnessRoughness";
+		//m_drawPlaneArray[3].m_bufferName = "World";
 
 	}
 	//G-Bufferの描画確認用の板ポリ
@@ -249,16 +257,16 @@ void RenderScene::Update()
 	{
 		KazMath::Transform2D transform({ 1280.0f,720.0f}, { 1280.0f,720.0f });
 
-		RESOURCE_HANDLE handle = GBufferMgr::Instance()->GetRenderTarget()[0];
-		if (drawAlbedoFlag)
+		for (int i = 0; i < m_drawPlaneArray.size(); ++i)
 		{
-			DrawFunc::DrawTextureIn2D(albedoPlane, transform, RenderTargetStatus::Instance()->GetBuffer(handle));
+			if (!m_drawPlaneArray[i].m_drawFlag)
+			{
+				continue;
+			}
+			RESOURCE_HANDLE handle = GBufferMgr::Instance()->GetRenderTarget()[i];
+			DrawFunc::DrawTextureIn2D(m_drawPlaneArray[i].m_plane, transform, RenderTargetStatus::Instance()->GetBuffer(handle));
 		}
-		handle = GBufferMgr::Instance()->GetRenderTarget()[1];
-		if (drawNormalFlag)
-		{
-			DrawFunc::DrawTextureIn2D(normalPlane, transform, RenderTargetStatus::Instance()->GetBuffer(handle));
-		}
+
 	}
 	//法線描画
 	//compute.Update();
@@ -270,13 +278,14 @@ void RenderScene::Draw()
 
 	rasterizeRenderer.ObjectRender(drawSponza);
 
-	if (drawAlbedoFlag)
+
+	for (int i = 0; i < m_drawPlaneArray.size(); ++i)
 	{
-		rasterizeRenderer.ObjectRender(albedoPlane);
-	}
-	if (drawNormalFlag)
-	{
-		rasterizeRenderer.ObjectRender(normalPlane);
+		if (!m_drawPlaneArray[i].m_drawFlag)
+		{
+			continue;
+		}
+		rasterizeRenderer.ObjectRender(m_drawPlaneArray[i].m_plane);
 	}
 
 	rasterizeRenderer.Sort();
@@ -287,8 +296,10 @@ void RenderScene::Draw()
 	ImGui::DragFloat("VecX", &lightVec.x);
 	ImGui::DragFloat("VecY", &lightVec.y);
 	ImGui::DragFloat("VecZ", &lightVec.z);
-	ImGui::Checkbox("Albedo", &drawAlbedoFlag);
-	ImGui::Checkbox("Normal", &drawNormalFlag);
+	for (auto &obj : m_drawPlaneArray)
+	{
+		ImGui::Checkbox(obj.m_bufferName.c_str(), &obj.m_drawFlag);
+	}
 	ImGui::End();
 }
 

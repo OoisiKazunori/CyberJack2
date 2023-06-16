@@ -73,6 +73,7 @@ struct GBufferOutput
 {
     float4 albedo : SV_TARGET0;
     float4 normal : SV_TARGET1;
+    float4 metalnessRoughness : SV_TARGET2;
 };
 
 GBufferOutput PSDefferdMain(PosUvNormalOutput input) : SV_TARGET
@@ -88,9 +89,12 @@ GBufferOutput PSDefferdMain(PosUvNormalOutput input) : SV_TARGET
 
 	float4 texColor = AlbedoTex.Sample(smp,input.uv);
 
+    float4 mrColor = MetalnessRoughnessTex.Sample(smp,input.uv);
+
     GBufferOutput output;
     output.albedo = texColor;
     output.normal.xyz = normalColor;
+    output.metalnessRoughness = mrColor;
     output.normal.a = 1.0f;
 	return output;
 }

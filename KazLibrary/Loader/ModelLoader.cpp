@@ -501,6 +501,21 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string
 				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 			}
 		}
+
+		//メタルネスの取得
+		texID = material.metallicRoughness.metallicRoughnessTexture.textureId;
+		if (!texID.empty())
+		{
+			auto &texture = doc.textures.Get(texID);
+			auto &image = doc.images.Get(texture.imageId);
+			if (!image.uri.empty())
+			{
+				std::string textureFilePass(FileDir + image.uri);
+				//テクスチャ読み込み
+				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
+				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+			}
+		}
 	}
 
 	//モデル一つ分のメッシュの塊

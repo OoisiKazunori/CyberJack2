@@ -13,7 +13,9 @@ public:
 	{
 		NONE = -1,
 		ALBEDO,
-		NORMAL
+		NORMAL,
+		R_M_S_ID,
+		WORLD
 	};
 	GBufferMgr();
 

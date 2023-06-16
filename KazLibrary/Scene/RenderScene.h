@@ -70,9 +70,14 @@ private:
 	//std::unique_ptr<DrawFunc::KazRender>finalGBufferRender;
 
 	DrawFuncData::DrawCallData drawSponza;
-	bool drawAlbedoFlag, drawNormalFlag;
-	DrawFuncData::DrawCallData albedoPlane,normalPlane;
 
+	struct DrawGBufferData
+	{
+		std::string m_bufferName;
+		bool m_drawFlag;
+		DrawFuncData::DrawCallData m_plane;
+	};
+	std::array<DrawGBufferData, 3>m_drawPlaneArray;
 
 	KazMath::Vec3<float>lightVec;
 };
