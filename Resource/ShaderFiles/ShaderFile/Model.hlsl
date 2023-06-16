@@ -2,7 +2,9 @@
 
 cbuffer MatBuffer : register(b0)
 {
-    matrix mat; //3D変換行列
+    matrix worldMat;
+    matrix viewMat;
+    matrix projectionMat;
 }
 
 cbuffer MatBuffer : register(b1)
@@ -17,12 +19,16 @@ struct PosUvNormalOutput
     float3 normal : NORMAL; //法線ベクトル
     float2 uv : TEXCOORD;
     float3 lightInTangentWorld : TANGENT;
+    float3 worldPos : POSITION;
 };
 
 PosUvNormalOutput VSPosNormalUvmain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
 {
     PosUvNormalOutput op;
-    op.svpos = mul(mat,pos);
+    op.svpos = mul(worldMat,pos);
+    op.worldPos = op.svpos;
+    op.svpos = mul(viewMat,op.svpos);
+    op.svpos = mul(projectionMat,op.svpos);
     op.uv = uv;
     op.normal = normal;
 
@@ -57,7 +63,10 @@ float4 PSPosNormalUvmain(PosUvNormalOutput input) : SV_TARGET
 PosUvNormalOutput VSDefferdMain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
 {
     PosUvNormalOutput op;
-    op.svpos = mul(mat,pos);
+    op.svpos = mul(worldMat,pos);
+    op.worldPos = op.svpos;
+    op.svpos = mul(viewMat,op.svpos);
+    op.svpos = mul(projectionMat,op.svpos);
     op.uv = uv;
     op.normal = normal;
 
@@ -74,6 +83,7 @@ struct GBufferOutput
     float4 albedo : SV_TARGET0;
     float4 normal : SV_TARGET1;
     float4 metalnessRoughness : SV_TARGET2;
+    float4 world : SV_TARGET3;
 };
 
 GBufferOutput PSDefferdMain(PosUvNormalOutput input) : SV_TARGET
@@ -96,6 +106,8 @@ GBufferOutput PSDefferdMain(PosUvNormalOutput input) : SV_TARGET
     output.normal.xyz = normalColor;
     output.metalnessRoughness = mrColor;
     output.normal.a = 1.0f;
+    output.world.xyz = input.worldPos.xyz;
+    output.world.a = 1.0f;
 	return output;
 }
 

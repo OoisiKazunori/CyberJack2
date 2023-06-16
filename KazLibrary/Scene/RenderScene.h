@@ -77,7 +77,7 @@ private:
 		bool m_drawFlag;
 		DrawFuncData::DrawCallData m_plane;
 	};
-	std::array<DrawGBufferData, 3>m_drawPlaneArray;
+	std::array<DrawGBufferData, 4>m_drawPlaneArray;
 
 	KazMath::Vec3<float>lightVec;
 };

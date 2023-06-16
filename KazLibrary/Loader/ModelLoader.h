@@ -47,6 +47,17 @@
 
 #include <experimental/filesystem>
 
+struct CoordinateSpaceMatData
+{
+	DirectX::XMMATRIX m_world;
+	DirectX::XMMATRIX m_view;
+	DirectX::XMMATRIX m_projective;
+
+	CoordinateSpaceMatData(DirectX::XMMATRIX arg_worldMat, DirectX::XMMATRIX arg_viewMat, DirectX::XMMATRIX arg_projectiveMat):
+		m_world(arg_worldMat), m_view(arg_viewMat), m_projective(arg_projectiveMat)
+	{};
+};
+
 
 //バッファ生成用の構造体
 struct MaterialBufferData

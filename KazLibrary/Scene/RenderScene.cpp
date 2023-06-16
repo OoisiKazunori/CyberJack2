@@ -24,11 +24,11 @@ RenderScene::RenderScene()
 		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
 
 		//その他設定
-		lData.desc.NumRenderTargets = 3;
+		lData.desc.NumRenderTargets = static_cast<UINT>(GBufferMgr::Instance()->GetRenderTargetFormat().size());
 		lData.desc.RTVFormats[0] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::ALBEDO];
 		lData.desc.RTVFormats[1] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::NORMAL];
 		lData.desc.RTVFormats[2] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::R_M_S_ID];
-		//lData.desc.RTVFormats[3] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::WORLD];
+		lData.desc.RTVFormats[3] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::WORLD];
 
 
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdMain", "vs_6_4", SHADER_TYPE_VERTEX);
@@ -59,7 +59,7 @@ RenderScene::RenderScene()
 		m_drawPlaneArray[0].m_bufferName = "Albedo";
 		m_drawPlaneArray[1].m_bufferName = "Normal";
 		m_drawPlaneArray[2].m_bufferName = "MetalnessRoughness";
-		//m_drawPlaneArray[3].m_bufferName = "World";
+		m_drawPlaneArray[3].m_bufferName = "World";
 
 	}
 	//G-Bufferの描画確認用の板ポリ
@@ -243,13 +243,9 @@ void RenderScene::Update()
 {
 	camera.Update({}, {}, true);
 	CameraMgr::Instance()->Camera(camera.GetEyePos(), camera.GetTargetPos(), { 0.0f,1.0f,0.0f });
+	CoordinateSpaceMatData transData(transformArray[0].GetMat(), CameraMgr::Instance()->GetViewMatrix(), CameraMgr::Instance()->GetPerspectiveMatProjection());
 
-	DirectX::XMMATRIX mat(
-		transformArray[0].GetMat() *
-		CameraMgr::Instance()->GetViewMatrix() *
-		CameraMgr::Instance()->GetPerspectiveMatProjection()
-	);
-	drawSponza.extraBufferArray[0].bufferWrapper->TransData(&mat, sizeof(DirectX::XMMATRIX));
+	drawSponza.extraBufferArray[0].bufferWrapper->TransData(&transData, sizeof(CoordinateSpaceMatData));
 	DirectX::XMFLOAT3 dir = lightVec.ConvertXMFLOAT3();
 	drawSponza.extraBufferArray[1].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 

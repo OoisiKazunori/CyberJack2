@@ -596,11 +596,11 @@ namespace DrawFuncData
 
 		//çsóÒèÓïÒ
 		lDrawCallData.extraBufferArray.emplace_back(
-			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
+			KazBufferHelper::SetConstBufferData(sizeof(CoordinateSpaceMatData))
 		);
 		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		lDrawCallData.extraBufferArray.back().bufferSize = sizeof(DirectX::XMMATRIX);
+		lDrawCallData.extraBufferArray.back().bufferSize = sizeof(CoordinateSpaceMatData);
 
 		lDrawCallData.pipelineData = PIPELINE_DATA;
 		lDrawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
