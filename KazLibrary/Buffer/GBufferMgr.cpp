@@ -106,14 +106,18 @@ GBufferMgr::GBufferMgr()
 	//G-Buffer用のレンダーターゲット生成
 	{
 		std::vector<MultiRenderTargetData> multiRenderTargetArray(2);
+		m_gBufferFormatArray.resize(2);
+		m_gBufferFormatArray[ALBEDO] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		m_gBufferFormatArray[NORMAL] = DXGI_FORMAT_R11G11B10_FLOAT;
+
 		//アルベド
 		multiRenderTargetArray[ALBEDO].backGroundColor = { 0.0f,0.0f,0.0f };
 		multiRenderTargetArray[ALBEDO].graphSize = winSize;
-		multiRenderTargetArray[ALBEDO].format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		multiRenderTargetArray[ALBEDO].format = m_gBufferFormatArray[ALBEDO];
 		//ノーマル
 		multiRenderTargetArray[NORMAL].backGroundColor = { 0.0f,0.0f,0.0f };
 		multiRenderTargetArray[NORMAL].graphSize = winSize;
-		multiRenderTargetArray[NORMAL].format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		multiRenderTargetArray[NORMAL].format = m_gBufferFormatArray[NORMAL];
 		m_gBufferRenderTargetHandleArray = RenderTargetStatus::Instance()->CreateMultiRenderTarget(multiRenderTargetArray);
 
 		//ラフネス、メタルネス、スぺキュラ、屈折判定(0...反射しない、1...反射する、2...屈折する)
@@ -132,6 +136,11 @@ KazBufferHelper::BufferData GBufferMgr::GetBuffer(BufferType arg_type)
 std::vector<RESOURCE_HANDLE> GBufferMgr::GetRenderTarget()
 {
 	return m_gBufferRenderTargetHandleArray;
+}
+
+std::vector<DXGI_FORMAT> GBufferMgr::GetRenderTargetFormat()
+{
+	return m_gBufferFormatArray;
 }
 
 DispatchComputeShader::ComputeData GBufferMgr::ClearData()

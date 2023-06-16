@@ -25,8 +25,8 @@ RenderScene::RenderScene()
 
 		//‚»‚Ì‘¼Ý’è
 		lData.desc.NumRenderTargets = 2;
-		lData.desc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		lData.desc.RTVFormats[1] = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		lData.desc.RTVFormats[0] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::ALBEDO];
+		lData.desc.RTVFormats[1] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::NORMAL];
 
 
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdMain", "vs_6_4", SHADER_TYPE_VERTEX);

@@ -24,6 +24,7 @@ public:
 	/// <returns>指定したG-Buffer</returns>
 	KazBufferHelper::BufferData GetBuffer(BufferType arg_type);
 	std::vector<RESOURCE_HANDLE> GetRenderTarget();
+	std::vector<DXGI_FORMAT> GetRenderTargetFormat();
 
 	/// <summary>
 	/// 各G-Bufferをコンピュートシェーダーでクリアする用のデータ
@@ -46,5 +47,6 @@ private:
 
 	//G-Buffer用のレンダーターゲット
 	std::vector<RESOURCE_HANDLE>m_gBufferRenderTargetHandleArray;
+	std::vector<DXGI_FORMAT>m_gBufferFormatArray;
 };
 
