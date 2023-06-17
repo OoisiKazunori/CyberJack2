@@ -25,11 +25,10 @@ RenderScene::RenderScene()
 
 		//その他設定
 		lData.desc.NumRenderTargets = static_cast<UINT>(GBufferMgr::Instance()->GetRenderTargetFormat().size());
-		lData.desc.RTVFormats[0] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::ALBEDO];
-		lData.desc.RTVFormats[1] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::NORMAL];
-		lData.desc.RTVFormats[2] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::R_M_S_ID];
-		lData.desc.RTVFormats[3] = GBufferMgr::Instance()->GetRenderTargetFormat()[GBufferMgr::WORLD];
-
+		for (int i = 0; i < GBufferMgr::Instance()->GetRenderTargetFormat().size(); ++i)
+		{
+			lData.desc.RTVFormats[i] = GBufferMgr::Instance()->GetRenderTargetFormat()[i];
+		}
 
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdMain", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdMain", "ps_6_4", SHADER_TYPE_PIXEL);
@@ -65,14 +64,11 @@ RenderScene::RenderScene()
 	{
 		DrawFuncData::PipelineGenerateData lData;
 		lData.desc = DrawFuncPipelineData::SetTex();
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "GBufferDrawFinal.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "GBufferDrawFinal.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
 		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::NONE;
 
 		m_drawFinalPlane.m_plane = DrawFuncData::SetTexPlaneData(lData);
-		//アルベドは追加済み
-		//法線用
-		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back();
 		m_drawFinalPlane.m_bufferName = "Final";
 	}
 
@@ -215,12 +211,8 @@ void RenderScene::Update()
 		}
 
 		//合成結果
-		RESOURCE_HANDLE albedoHandle = GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::ALBEDO];
-		RESOURCE_HANDLE normalHandle = GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::NORMAL];
-		DrawFunc::DrawTextureIn2D(m_drawFinalPlane.m_plane, transform, RenderTargetStatus::Instance()->GetBuffer(albedoHandle));
-		m_drawFinalPlane.m_plane.extraBufferArray.back() = RenderTargetStatus::Instance()->GetBuffer(normalHandle);
-		m_drawFinalPlane.m_plane.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
-		m_drawFinalPlane.m_plane.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		RESOURCE_HANDLE finaleHandle = GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::FINAL];
+		DrawFunc::DrawTextureIn2D(m_drawFinalPlane.m_plane, transform, RenderTargetStatus::Instance()->GetBuffer(finaleHandle));
 	}
 	//法線描画
 	//compute.Update();

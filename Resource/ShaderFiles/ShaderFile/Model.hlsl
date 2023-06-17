@@ -89,11 +89,12 @@ struct GBufferOutput
     float4 normal : SV_TARGET1;
     float4 metalnessRoughness : SV_TARGET2;
     float4 world : SV_TARGET3;
+    float4 final : SV_TARGET4;
 };
 
 GBufferOutput PSDefferdMain(PosUvNormalOutput input) : SV_TARGET
 {
-    float3 normalColor = NormalTex.Sample(smp,input.uv);
+    float4 normalColor = NormalTex.Sample(smp,input.uv);
     //-表現を入れる為に、0~255の半分を0.0f地点にするよう計算する。
     //-1.0f ~ 1.0f
     float3 normalVec = 2 * normalColor - 1.0f;
@@ -101,19 +102,17 @@ GBufferOutput PSDefferdMain(PosUvNormalOutput input) : SV_TARGET
 
     //タンジェント空間のベクトルを入れる
     float3 bright = dot(input.lightInTangentWorld,normalVec);
-
+    //アルベド
 	float4 texColor = AlbedoTex.Sample(smp,input.uv);
-
+    //メタル、ラフ
     float4 mrColor = MetalnessRoughnessTex.Sample(smp,input.uv);
 
     GBufferOutput output;
     output.albedo = texColor;
-    output.normal.xyz = normalColor;
-    float id = raytracingId;
-    output.metalnessRoughness = float4(mrColor.xyz,id);
-    output.normal.a = 1.0f;
-    output.world.xyz = input.worldPos.xyz;
-    output.world.a = 1.0f;
+    output.normal = normalColor;
+    output.metalnessRoughness = float4(mrColor.xyz,raytracingId);
+    output.world = float4(input.worldPos,1.0f);
+    output.final = float4(texColor.xyz * bright,texColor.a);
 	return output;
 }
 

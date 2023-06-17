@@ -15,7 +15,9 @@ public:
 		ALBEDO,
 		NORMAL,
 		R_M_S_ID,
-		WORLD
+		WORLD,
+		FINAL,
+		MAX
 	};
 	GBufferMgr();
 
