@@ -216,6 +216,10 @@ void RenderScene::Update()
 	}
 	//法線描画
 	//compute.Update();
+
+	//Blasの配列をクリア
+	m_blasVector.Update();
+
 }
 
 void RenderScene::Draw()

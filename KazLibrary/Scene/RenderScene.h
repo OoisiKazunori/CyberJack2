@@ -13,6 +13,8 @@
 #include"../KazLibrary/Loader/ObjResourceMgr.h"
 #include"../KazLibrary/Loader/ModelLoader.h"
 
+#include"Raytracing/BlasVector.h"
+
 class RenderScene :public SceneBase
 {
 public:
@@ -64,6 +66,9 @@ private:
 	std::shared_ptr<ModelInfomation> model;
 
 	DispatchComputeShader::DispatchData dispatchData;
+
+	//レイトレにモデルを組み込む用の配列クラス
+	Raytracing::BlasVector m_blasVector;
 
 
 	//std::unique_ptr<DrawFunc::KazRender>normalGBufferRender;
