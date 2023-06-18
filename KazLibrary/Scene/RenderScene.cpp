@@ -247,6 +247,16 @@ void RenderScene::Draw()
 	//compute.Compute();
 	rasterizeRenderer.Render();
 
+
+	/*----- レイトレ描画開始 -----*/
+
+	//Tlasを構築 or 再構築する。
+	m_tlas.Build(m_blasVector);
+
+
+	/*----- レイトレ描画終了 -----*/
+
+
 	ImGui::Begin("Light");
 	ImGui::DragFloat("VecX", &lightVec.x);
 	ImGui::DragFloat("VecY", &lightVec.y);

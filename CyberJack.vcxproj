@@ -265,6 +265,7 @@
     <ClCompile Include="KazLibrary\Pipeline\Shader.cpp" />
     <ClCompile Include="KazLibrary\Raytracing\Blas.cpp" />
     <ClCompile Include="KazLibrary\Raytracing\BlasVector.cpp" />
+    <ClCompile Include="KazLibrary\Raytracing\Tlas.cpp" />
     <ClCompile Include="KazLibrary\RenderTarget\GaussianBuler.cpp" />
     <ClCompile Include="KazLibrary\RenderTarget\RenderTargetStatus.cpp" />
     <ClCompile Include="KazLibrary\Render\BackGroundForDebug.cpp" />
@@ -464,6 +465,7 @@
     <ClInclude Include="KazLibrary\Pipeline\Shader.h" />
     <ClInclude Include="KazLibrary\Raytracing\Blas.h" />
     <ClInclude Include="KazLibrary\Raytracing\BlasVector.h" />
+    <ClInclude Include="KazLibrary\Raytracing\Tlas.h" />
     <ClInclude Include="KazLibrary\RenderTarget\GaussianBuler.h" />
     <ClInclude Include="KazLibrary\RenderTarget\RenderTargetStatus.h" />
     <ClInclude Include="KazLibrary\Render\BackGroundForDebug.h" />

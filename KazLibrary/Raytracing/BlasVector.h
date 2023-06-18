@@ -58,6 +58,12 @@ namespace Raytracing
 		/// <returns> 書き込み後のポインタ </returns>
 		uint8_t* WriteShaderRecord(uint8_t* arg_dest, UINT arg_recordSize, Microsoft::WRL::ComPtr<ID3D12StateObject>& arg_stateObject, LPCWSTR arg_hitGroup);
 
+		/// <summary>
+		/// Instance配列の先頭アドレスを返す。
+		/// </summary>
+		/// <returns></returns>
+		inline void* GetInstanceData() { return m_instanceDesc.data(); }
+
 	};
 
 }

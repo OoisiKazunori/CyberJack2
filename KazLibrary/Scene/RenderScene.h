@@ -14,6 +14,7 @@
 #include"../KazLibrary/Loader/ModelLoader.h"
 
 #include"Raytracing/BlasVector.h"
+#include"Raytracing/Tlas.h"
 
 class RenderScene :public SceneBase
 {
@@ -69,6 +70,8 @@ private:
 
 	//レイトレにモデルを組み込む用の配列クラス
 	Raytracing::BlasVector m_blasVector;
+	//レイトレで描画するための情報
+	Raytracing::Tlas m_tlas;
 
 
 	//std::unique_ptr<DrawFunc::KazRender>normalGBufferRender;
