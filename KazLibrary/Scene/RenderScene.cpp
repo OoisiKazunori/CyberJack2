@@ -4,11 +4,15 @@
 #include"../KazLibrary/Buffer/GBufferMgr.h"
 #include"../KazLibrary/Render/DrawFunc.h"
 
+#include"Raytracing/HitGroupMgr.h"
+
 RenderScene::RenderScene()
 {
 	endGameFlag = false;
 
 	boxData = boxBuffer.GenerateBoxBuffer(1.0f);
+
+	HitGroupMgr::Instance()->Setting();
 
 	//G-Bufferê∂ê¨
 	GBufferMgr::Instance();
@@ -261,7 +265,7 @@ void RenderScene::Draw()
 	ImGui::DragFloat("VecX", &lightVec.x);
 	ImGui::DragFloat("VecY", &lightVec.y);
 	ImGui::DragFloat("VecZ", &lightVec.z);
-	for (auto &obj : m_drawPlaneArray)
+	for (auto& obj : m_drawPlaneArray)
 	{
 		ImGui::Checkbox(obj.m_bufferName.c_str(), &obj.m_drawFlag);
 	}
