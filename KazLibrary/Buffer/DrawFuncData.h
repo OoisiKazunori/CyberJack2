@@ -411,7 +411,7 @@ namespace DrawFuncPipelineData
 	}
 };
 
-namespace DrawFunc
+namespace DrawFuncData
 {
 	class DrawingByRasterize;
 	enum class VERT_TYPE
@@ -429,7 +429,7 @@ namespace DrawFunc
 		KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData drawMultiMeshesIndexInstanceCommandData;
 		KazRenderHelper::DrawIndexInstanceCommandData drawIndexInstanceCommandData;
 		KazRenderHelper::DrawInstanceCommandData drawInstanceCommandData;
-		DrawFunc::VERT_TYPE drawCommandType;
+		DrawFuncData::VERT_TYPE drawCommandType;
 		//マテリアル情報
 		std::vector<std::vector<KazBufferHelper::BufferData>> materialBuffer;
 
@@ -514,6 +514,33 @@ namespace DrawFunc
 		std::source_location callLocation;
 	};
 
+	//単色のポリゴン表示(インデックスなし)
+	static DrawCallData SetDrawPolygonData(const KazRenderHelper::DrawInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	{
+		DrawCallData lDrawCallData;
+		//頂点情報
+		lDrawCallData.drawInstanceCommandData = VERTEX_DATA;
+		lDrawCallData.drawCommandType = VERT_TYPE::INSTANCE;
+
+		//行列情報
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
+		//色情報
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+
+		//パイプライン情報のセット
+		lDrawCallData.pipelineData = PIPELINE_DATA;
+
+		return lDrawCallData;
+	};
 
 	//単色のポリゴン表示(インデックスあり)
 	static DrawCallData SetDrawPolygonIndexData(const KazRenderHelper::DrawIndexInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA, std::source_location location = std::source_location::current())
@@ -591,17 +618,55 @@ namespace DrawFunc
 
 		//行列情報
 		lDrawCallData.extraBufferArray.emplace_back(
-			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
+			KazBufferHelper::SetConstBufferData(sizeof(CoordinateSpaceMatData))
 		);
 		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		lDrawCallData.extraBufferArray.back().bufferSize = sizeof(DirectX::XMMATRIX);
+		lDrawCallData.extraBufferArray.back().bufferSize = sizeof(CoordinateSpaceMatData);
 
 		lDrawCallData.pipelineData = PIPELINE_DATA;
 		lDrawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 
 		return lDrawCallData;
 	};
+
+	//モデルのポリゴン表示(インデックスあり、マテリアルあり)
+	static DrawCallData SetDrawGLTFIndexMaterialInRayTracingData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA)
+	{
+		DrawCallData lDrawCallData;
+
+		lDrawCallData.pipelineData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+
+		//頂点情報
+		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetBuffer(MODEL_DATA.modelVertDataHandle).index;
+		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
+		for (auto& obj : MODEL_DATA.modelData)
+		{
+			lDrawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
+		}
+
+		//行列情報
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(CoordinateSpaceMatData))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		lDrawCallData.extraBufferArray.back().bufferSize = sizeof(CoordinateSpaceMatData);
+
+		//レイトレ側での判断
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(UINT))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		lDrawCallData.extraBufferArray.back().bufferSize = sizeof(UINT);
+
+		lDrawCallData.pipelineData = PIPELINE_DATA;
+		lDrawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+
+		return lDrawCallData;
+	};
+
 
 	//行列情報のみ
 	static DrawCallData SetTransformData(const KazRenderHelper::DrawIndexInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA)
@@ -623,14 +688,15 @@ namespace DrawFunc
 		return lDrawCallData;
 	};
 
-
-	//単色のポリゴン表示(インデックスなし)
-	static DrawCallData SetDrawPolygonData(const KazRenderHelper::DrawInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA)
+	//行列情報とテクスチャ
+	static DrawCallData SetTexPlaneData(const PipelineGenerateData &PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
+
+		RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GeneratePlaneBuffer();
 		//頂点情報
-		lDrawCallData.drawInstanceCommandData = VERTEX_DATA;
-		lDrawCallData.drawCommandType = VERT_TYPE::INSTANCE;
+		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetBuffer(handle).index;
+		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
 
 		//行列情報
 		lDrawCallData.extraBufferArray.emplace_back(
@@ -639,110 +705,14 @@ namespace DrawFunc
 		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-		//色情報
-		lDrawCallData.extraBufferArray.emplace_back(
-			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
-		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		//テクスチャ情報
+		lDrawCallData.extraBufferArray.emplace_back();
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-		//パイプライン情報のセット
 		lDrawCallData.pipelineData = PIPELINE_DATA;
 
 		return lDrawCallData;
 	};
-
-
-	////クラスを使用した描画関数
-	//class KazRender
-	//{
-	//public:
-	//	KazRender(const DrawCallData &INIT_DATA) :
-	//		callData(INIT_DATA.callDataPtr),
-	//		handle(callData->GetHandle())
-	//	{
-	//		//バッファの生成
-	//		DrawData *lData = callData->StackData(handle);
-
-	//		//頂点情報のセット
-	//		lData->drawInstanceCommandData = INIT_DATA.drawInstanceCommandData;
-	//		lData->drawIndexInstanceCommandData = INIT_DATA.drawIndexInstanceCommandData;
-	//		lData->drawMultiMeshesIndexInstanceCommandData = INIT_DATA.drawMultiMeshesIndexInstanceCommandData;
-	//		lData->materialBuffer = INIT_DATA.materialBuffer;
-	//		lData->drawCommandType = INIT_DATA.drawCommandType;
-
-	//		//パイプラインの設定
-	//		lData->pipelineData = INIT_DATA.pipelineData.desc;
-	//		lData->shaderDataArray = INIT_DATA.pipelineData.shaderDataArray;
-
-	//		//その他必要なバッファのセット
-	//		for (int i = 0; i < INIT_DATA.bufferResourceDataArray.size(); ++i)
-	//		{
-	//			lData->buffer.emplace_back(INIT_DATA.bufferResourceDataArray[i].resourceData);
-	//			lData->buffer[i].rangeType = INIT_DATA.bufferResourceDataArray[i].rangeType;
-	//			lData->buffer[i].rootParamType = INIT_DATA.bufferResourceDataArray[i].rootParam;
-	//		}
-
-	//		//デバック用の情報のセット
-	//		lData->drawCallData = INIT_DATA.callLocation;
-	//	};
-
-
-	//	//よく使う処理は関数に纏める----------------------------------------
-
-	//	//用意したバッファのアクセス
-	//	DrawData *GetDrawData()
-	//	{
-	//		return callData->StackData(handle);
-	//	}
-
-	//	void DrawCall(const KazMath::Transform3D &TRANSFORM, const KazMath::Color &COLOR, int CAMERA_INDEX, const DirectX::XMMATRIX &MOTHER_MAT)
-	//	{
-	//		//スタック用のバッファを呼び出し、そこに入っているバッファを使用して転送する
-	//		DrawData *lData = GetDrawData();
-	//		//行列
-	//		DirectX::XMMATRIX lMat =
-	//			KazMath::CaluWorld(TRANSFORM, { 0.0f,1.0f,0.0f }, { 0.0f,0.0f,1.0f }) *
-	//			CameraMgr::Instance()->GetViewMatrix() *
-	//			CameraMgr::Instance()->GetPerspectiveMatProjection();
-	//		lData->buffer[0].bufferWrapper->TransData(&lMat, sizeof(DirectX::XMMATRIX));
-	//		//色
-	//		DirectX::XMFLOAT4 lColor = COLOR.ConvertColorRateToXMFLOAT4();
-	//		lData->buffer[1].bufferWrapper->TransData(&lColor, sizeof(DirectX::XMFLOAT4));
-	//	};
-
-	//	void DrawOBJ(const KazMath::Transform3D &TRANSFORM, float ALPHA, int CAMERA_INDEX, const DirectX::XMMATRIX &MOTHER_MAT)
-	//	{
-	//		//スタック用のバッファを呼び出し、そこに入っているバッファを使用して転送する
-	//		DrawData *lData = GetDrawData();
-	//		//行列
-	//		DirectX::XMMATRIX lMat =
-	//			KazMath::CaluWorld(TRANSFORM, { 0.0f,1.0f,0.0f }, { 0.0f,0.0f,1.0f }) *
-	//			CameraMgr::Instance()->GetViewMatrix() *
-	//			CameraMgr::Instance()->GetPerspectiveMatProjection();
-	//		lData->buffer[0].bufferWrapper->TransData(&lMat, sizeof(DirectX::XMMATRIX));
-	//	};
-
-	//	void DrawTexPlane(const KazMath::Transform3D &TRANSFORM, const KazMath::Color &COLOR, int CAMERA_INDEX, const DirectX::XMMATRIX &MOTHER_MAT)
-	//	{
-	//		//スタック用のバッファを呼び出し、そこに入っているバッファを使用して転送する
-	//		DrawData *lData = GetDrawData();
-	//		//行列
-	//		DirectX::XMMATRIX lMat =
-	//			KazMath::CaluWorld(TRANSFORM, { 0.0f,1.0f,0.0f }, { 0.0f,0.0f,1.0f }) *
-	//			//CameraMgr::Instance()->GetViewMatrix() *
-	//			CameraMgr::Instance()->GetOrthographicMatProjection();
-	//		lData->buffer[0].bufferWrapper->TransData(&lMat, sizeof(DirectX::XMMATRIX));
-	//	};
-
-	//	//よく使う処理は関数に纏める----------------------------------------
-
-	//private:
-	//	DrawingByRasterize *callData;
-	//	RESOURCE_HANDLE handle;
-	//};
-
-
-	static void DrawOBJ();
 
 }

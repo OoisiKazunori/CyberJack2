@@ -3,7 +3,7 @@
 #include"../KazLibrary/Buffer/DescriptorHeapMgr.h"
 
 //テスト用、パイプラインのハンドル順にソートをかける
-int int_cmpr(const DrawFunc::DrawData *a, const DrawFunc::DrawData *b)
+int int_cmpr(const DrawFuncData::DrawData *a, const DrawFuncData::DrawData *b)
 {
 	RESOURCE_HANDLE lAHandle = a->pipelineHandle, lBHandle = b->pipelineHandle;
 
@@ -43,12 +43,12 @@ RESOURCE_HANDLE DrawingByRasterize::GetHandle()
 	return lHandle;
 }
 
-DrawFunc::DrawData *DrawingByRasterize::StackData(RESOURCE_HANDLE HANDLE)
+DrawFuncData::DrawData *DrawingByRasterize::StackData(RESOURCE_HANDLE HANDLE)
 {
 	return &graphicDataArray[HANDLE];
 }
 
-void DrawingByRasterize::ObjectRender(const DrawFunc::DrawCallData &DRAW_DATA)
+void DrawingByRasterize::ObjectRender(const DrawFuncData::DrawCallData &DRAW_DATA)
 {
 	kazCommandList.emplace_back(DRAW_DATA);
 }
@@ -58,20 +58,20 @@ void DrawingByRasterize::Sort()
 	renderInfomationForDirectX12Array.clear();
 
 	//レンダーターゲット順にソートをかける。
-	kazCommandList.sort([](DrawFunc::DrawCallData a, DrawFunc::DrawCallData b)
+	kazCommandList.sort([](DrawFuncData::DrawCallData a, DrawFuncData::DrawCallData b)
 		{
 			RESOURCE_HANDLE lAHandle = a.renderTargetHandle, lBHandle = b.renderTargetHandle;
 			if (lAHandle < lBHandle)
 			{
-				return 1;
+				return true;
 			}
 			else if (lBHandle < lAHandle)
 			{
-				return -1;
+				return false;
 			}
 			else
 			{
-				return 0;
+				return false;
 			}
 		});
 
@@ -79,7 +79,7 @@ void DrawingByRasterize::Sort()
 	//ソートが終わったらDirectX12のコマンドリストに命令出来るように描画情報を生成する。
 	for (auto &callData : kazCommandList)
 	{
-		DrawFunc::DrawData result;
+		DrawFuncData::DrawData result;
 
 		result.drawMultiMeshesIndexInstanceCommandData = callData.drawMultiMeshesIndexInstanceCommandData;
 		result.drawInstanceCommandData = callData.drawInstanceCommandData;
@@ -91,22 +91,25 @@ void DrawingByRasterize::Sort()
 		result.renderTargetHandle = callData.renderTargetHandle;
 
 		result.pipelineData = callData.pipelineData.desc;
-		switch (callData.pipelineData.blendMode)
+		for (UINT i = 0; i < result.pipelineData.NumRenderTargets; ++i)
 		{
-		case DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA:
-			result.pipelineData.BlendState.RenderTarget[0] = DrawFuncPipelineData::SetAlphaBlend();
-			break;
-		case DrawFuncPipelineData::PipelineBlendModeEnum::ADD:
-			result.pipelineData.BlendState.RenderTarget[0] = DrawFuncPipelineData::SetAddBlend();
-			break;
-		case DrawFuncPipelineData::PipelineBlendModeEnum::SUB:
-			result.pipelineData.BlendState.RenderTarget[0] = DrawFuncPipelineData::SetSubBlend();
-			break;
-		case DrawFuncPipelineData::PipelineBlendModeEnum::NONE:
-			result.pipelineData.BlendState.RenderTarget[0].BlendEnable = false;
-			break;
-		default:
-			break;
+			switch (callData.pipelineData.blendMode)
+			{
+			case DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA:
+				result.pipelineData.BlendState.RenderTarget[i] = DrawFuncPipelineData::SetAlphaBlend();
+				break;
+			case DrawFuncPipelineData::PipelineBlendModeEnum::ADD:
+				result.pipelineData.BlendState.RenderTarget[i] = DrawFuncPipelineData::SetAddBlend();
+				break;
+			case DrawFuncPipelineData::PipelineBlendModeEnum::SUB:
+				result.pipelineData.BlendState.RenderTarget[i] = DrawFuncPipelineData::SetSubBlend();
+				break;
+			case DrawFuncPipelineData::PipelineBlendModeEnum::NONE:
+				result.pipelineData.BlendState.RenderTarget[i].BlendEnable = false;
+				break;
+			default:
+				break;
+			}
 		}
 
 
@@ -208,13 +211,13 @@ void DrawingByRasterize::Render()
 		//描画コマンド実行
 		switch (renderData.drawCommandType)
 		{
-		case DrawFunc::VERT_TYPE::INDEX:
+		case DrawFuncData::VERT_TYPE::INDEX:
 			DrawIndexInstanceCommand(renderData.drawIndexInstanceCommandData);
 			break;
-		case DrawFunc::VERT_TYPE::INSTANCE:
+		case DrawFuncData::VERT_TYPE::INSTANCE:
 			DrawInstanceCommand(renderData.drawInstanceCommandData);
 			break;
-		case DrawFunc::VERT_TYPE::MULTI_MESHED:
+		case DrawFuncData::VERT_TYPE::MULTI_MESHED:
 			MultiMeshedDrawIndexInstanceCommand(renderData.drawMultiMeshesIndexInstanceCommandData, renderData.materialBuffer, rootSignatureBufferMgr.GetRootParam(lRootSignatureHandle));
 			break;
 		default:
@@ -272,7 +275,10 @@ void DrawingByRasterize::MultiMeshedDrawIndexInstanceCommand(const KazRenderHelp
 	for (int i = 0; i < COMMAND_MAX_DATA; ++i)
 	{
 		//マテリアル情報のスタック
-		SetBufferOnCmdList(MATERIAL_BUFFER[i], ROOT_PARAM);
+		if (MATERIAL_BUFFER.size() != 0)
+		{
+			SetBufferOnCmdList(MATERIAL_BUFFER[i], ROOT_PARAM);
+		}
 
 		DirectX12CmdList::Instance()->cmdList->IASetPrimitiveTopology(DATA.topology);
 		DirectX12CmdList::Instance()->cmdList->IASetVertexBuffers(DATA.vertexBufferDrawData[i].slot, DATA.vertexBufferDrawData[i].numViews, &DATA.vertexBufferDrawData[i].vertexBufferView);

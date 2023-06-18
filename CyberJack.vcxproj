@@ -215,6 +215,7 @@
     <ClCompile Include="KazLibrary\Buffer\CreateMeshBuffer.cpp" />
     <ClCompile Include="KazLibrary\Buffer\DescriptorHeapMgr.cpp" />
     <ClCompile Include="KazLibrary\Buffer\DrawFuncData.cpp" />
+    <ClCompile Include="KazLibrary\Buffer\GBufferMgr.cpp" />
     <ClCompile Include="KazLibrary\Buffer\Polygon.cpp" />
     <ClCompile Include="KazLibrary\Buffer\UavViewHandleMgr.cpp" />
     <ClCompile Include="KazLibrary\Buffer\VertexBufferMgr.cpp" />
@@ -270,6 +271,7 @@
     <ClCompile Include="KazLibrary\Render\BoxPolygonRender.cpp" />
     <ClCompile Include="KazLibrary\Render\CircleRender.cpp" />
     <ClCompile Include="KazLibrary\Render\DrawExcuteIndirect.cpp" />
+    <ClCompile Include="KazLibrary\Render\DrawFunc.cpp" />
     <ClCompile Include="KazLibrary\Render\DrawingByRasterize.cpp" />
     <ClCompile Include="KazLibrary\Render\FbxModelRender.cpp" />
     <ClCompile Include="KazLibrary\Render\GPUParticleRender.cpp" />
@@ -403,6 +405,7 @@
     <ClInclude Include="KazLibrary\Buffer\CreateMeshBuffer.h" />
     <ClInclude Include="KazLibrary\Buffer\DescriptorHeapMgr.h" />
     <ClInclude Include="KazLibrary\Buffer\DrawFuncData.h" />
+    <ClInclude Include="KazLibrary\Buffer\GBufferMgr.h" />
     <ClInclude Include="KazLibrary\Buffer\Polygon.h" />
     <ClInclude Include="KazLibrary\Buffer\UavViewHandleMgr.h" />
     <ClInclude Include="KazLibrary\Buffer\VertexBufferMgr.h" />
@@ -466,6 +469,7 @@
     <ClInclude Include="KazLibrary\Render\BoxPolygonRender.h" />
     <ClInclude Include="KazLibrary\Render\CircleRender.h" />
     <ClInclude Include="KazLibrary\Render\DrawExcuteIndirect.h" />
+    <ClInclude Include="KazLibrary\Render\DrawFunc.h" />
     <ClInclude Include="KazLibrary\Render\DrawingByRasterize.h" />
     <ClInclude Include="KazLibrary\Render\FbxModelRender.h" />
     <ClInclude Include="KazLibrary\Render\GPUParticleRender.h" />

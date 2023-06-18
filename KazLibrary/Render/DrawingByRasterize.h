@@ -25,17 +25,17 @@ public:
 	//描画情報のスタック----------------------------------------
 
 	RESOURCE_HANDLE GetHandle();
-	DrawFunc::DrawData *StackData(RESOURCE_HANDLE HANDLE);
+	DrawFuncData::DrawData *StackData(RESOURCE_HANDLE HANDLE);
 	//描画情報のスタック----------------------------------------
 
 	//新システムでの描画命令
-	void ObjectRender(const DrawFunc::DrawCallData &DRAW_DATA);
+	void ObjectRender(const DrawFuncData::DrawCallData &DRAW_DATA);
 	void Sort();
 	void Render();
 
 private:
 	HandleMaker drawHandle;
-	std::vector<DrawFunc::DrawData> graphicDataArray;
+	std::vector<DrawFuncData::DrawData> graphicDataArray;
 
 	//パイプラインの情報----------------------------------------
 
@@ -59,9 +59,9 @@ private:
 
 	//新しい描画命令の受け取り
 	//描画情報
-	std::vector<DrawFunc::DrawData> renderInfomationForDirectX12Array;
+	std::vector<DrawFuncData::DrawData> renderInfomationForDirectX12Array;
 	//描画命令の受け取り
-	std::list<DrawFunc::DrawCallData> kazCommandList;
+	std::list<DrawFuncData::DrawCallData> kazCommandList;
 
 
 	//描画に必要なバッファをコマンドリストに積む

@@ -1,5 +1,6 @@
 #include "CameraMgr.h"
 #include"../Math/KazMath.h"
+#include"Buffer/GBufferMgr.h"
 
 CameraMgr::CameraMgr() : orthographicMatProjectionDirtyFlag(orthographicMatProjection)
 {
@@ -48,6 +49,8 @@ void CameraMgr::Camera(const KazMath::Vec3<float> &EYE_POS, const KazMath::Vec3<
 	DirectX::XMFLOAT3 target = { TARGET_POS.x,TARGET_POS.y ,TARGET_POS.z };
 	DirectX::XMFLOAT3 up = { UP.x,UP.y,UP.z };
 	CameraAxis cameraAxis;
+
+	GBufferMgr::Instance()->SetCameraPos(eye);
 
 
 	bool eyeAll0 = (eye.x == 0 && eye.y == 0 && eye.z == 0);

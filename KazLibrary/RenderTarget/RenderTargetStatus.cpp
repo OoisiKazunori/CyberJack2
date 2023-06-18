@@ -6,9 +6,7 @@
 
 RenderTargetStatus::RenderTargetStatus()
 {
-	buffers = std::make_unique<CreateGpuBuffer>();
-
-	buffers->handle->SetHandleSize(DescriptorHeapMgr::Instance()->GetSize(DESCRIPTORHEAP_MEMORY_TEXTURE_RENDERTARGET));
+	renderTargetHandle.SetHandleSize(DescriptorHeapMgr::Instance()->GetSize(DESCRIPTORHEAP_MEMORY_TEXTURE_RENDERTARGET));
 }
 
 RenderTargetStatus::~RenderTargetStatus()
@@ -34,7 +32,7 @@ void RenderTargetStatus::CreateDoubleBuffer(Microsoft::WRL::ComPtr<IDXGISwapChai
 
 		//ディスクリプタヒープのハンドルを取得
 		D3D12_CPU_DESCRIPTOR_HANDLE lHandle = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
-		backBuffers.push_back(backBuffer[i]);
+		backBuffers.emplace_back(backBuffer[i]);
 
 		//裏か表かでアドレスがずれる
 		lHandle.ptr += i * DirectX12Device::Instance()->dev->GetDescriptorHandleIncrementSize(heapDesc.Type);
@@ -54,11 +52,8 @@ void RenderTargetStatus::CreateDoubleBuffer(Microsoft::WRL::ComPtr<IDXGISwapChai
 	handle2 = gDepth.CreateBuffer();
 
 
-
-	//RenderTarget用のヒープ
-	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;	//レンダーターゲットビュー
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	heapDesc.NumDescriptors = 1000;
-	//マルチパスレンダリング用のデスクリプタヒープ生成
 	DirectX12Device::Instance()->dev->CreateDescriptorHeap(
 		&heapDesc,
 		IID_PPV_ARGS(multiPassRTVHeap.ReleaseAndGetAddressOf())
@@ -73,8 +68,7 @@ void RenderTargetStatus::SetDoubleBufferFlame()
 
 	gDepth.Clear(handle);
 	//レンダータゲットの設定
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvH;
-	rtvH = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvH = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
 	rtvH.ptr += bbIndex * DirectX12Device::Instance()->dev->GetDescriptorHandleIncrementSize(heapDesc.Type);
 	DirectX12CmdList::Instance()->cmdList->OMSetRenderTargets(1, &rtvH, false, &gDepth.dsvH[handle]);
 }
@@ -82,11 +76,10 @@ void RenderTargetStatus::SetDoubleBufferFlame()
 void RenderTargetStatus::ClearDoubuleBuffer(DirectX::XMFLOAT3 COLOR)
 {
 	//レンダータゲットのクリア
-	float ClearColor[] = { COLOR.x / 255.0f,COLOR.y / 255.0f,COLOR.z / 255.0f, 1.0f };
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvH;
-	rtvH = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
+	float clearColor[] = { COLOR.x / 255.0f,COLOR.y / 255.0f,COLOR.z / 255.0f, 1.0f };
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvH = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
 	rtvH.ptr += bbIndex * DirectX12Device::Instance()->dev->GetDescriptorHandleIncrementSize(heapDesc.Type);
-	DirectX12CmdList::Instance()->cmdList->ClearRenderTargetView(rtvH, ClearColor, 0, nullptr);
+	DirectX12CmdList::Instance()->cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
 
 	CD3DX12_RECT rect(0, 0, static_cast<long>(WIN_X), static_cast<long>(WIN_Y));
 	CD3DX12_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(WIN_X), static_cast<float>(WIN_Y));
@@ -117,7 +110,7 @@ void RenderTargetStatus::PrepareToChangeBarrier(RESOURCE_HANDLE OPEN_RENDERTARGE
 		for (int i = 0; i < closeRendertargetPass.size(); ++i)
 		{
 			//指定のレンダータゲットを閉じる
-			ChangeBarrier(buffers->GetBufferData(closeRendertargetPass[i]).Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			ChangeBarrier(buffers[i].bufferWrapper->GetBuffer(closeRendertargetPass[i]).Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		}
 	}
 
@@ -125,7 +118,7 @@ void RenderTargetStatus::PrepareToChangeBarrier(RESOURCE_HANDLE OPEN_RENDERTARGE
 	for (int i = 0; i < openRendertargetPass.size(); ++i)
 	{
 		//指定のレンダータゲットでバリアをあける
-		ChangeBarrier(buffers->GetBufferData(openRendertargetPass[i]).Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		ChangeBarrier(buffers[i].bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	}
 
 
@@ -133,9 +126,7 @@ void RenderTargetStatus::PrepareToChangeBarrier(RESOURCE_HANDLE OPEN_RENDERTARGE
 	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>rtvHs;
 	for (int i = 0; i < openRendertargetPass.size(); ++i)
 	{
-		UINT lHandle = static_cast<UINT>(buffers->handle->CaluNowHandle(openRendertargetPass[i]));
-		D3D12_CPU_DESCRIPTOR_HANDLE rtvH = multiPassRTVHeap->GetCPUDescriptorHandleForHeapStart();
-		rtvH.ptr += DirectX12Device::Instance()->dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV) * lHandle;
+		D3D12_CPU_DESCRIPTOR_HANDLE rtvH = GetRTVHandle(openRendertargetPass[i]);
 		rtvHs.push_back(rtvH);
 	}
 
@@ -144,10 +135,11 @@ void RenderTargetStatus::PrepareToChangeBarrier(RESOURCE_HANDLE OPEN_RENDERTARGE
 
 void RenderTargetStatus::PrepareToCloseBarrier(RESOURCE_HANDLE RENDERTARGET_HANDLE)
 {
-	std::vector<RESOURCE_HANDLE>  closeRendertargetPass = CountPass(RENDERTARGET_HANDLE);
+	std::vector<RESOURCE_HANDLE> closeRendertargetPass = CountPass(RENDERTARGET_HANDLE);
 	for (int i = 0; i < closeRendertargetPass.size(); ++i)
 	{
-		ChangeBarrier(buffers->GetBufferData(closeRendertargetPass[i]).Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		unsigned int handle = static_cast<unsigned int>(renderTargetHandle.CaluNowHandle(closeRendertargetPass[i]));
+		ChangeBarrier(buffers[handle].bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	}
 }
 
@@ -160,18 +152,16 @@ void RenderTargetStatus::ClearRenderTarget(RESOURCE_HANDLE RENDERTARGET_HANDLE)
 	std::vector<RESOURCE_HANDLE> openHandle = CountPass(RENDERTARGET_HANDLE);
 	for (int i = 0; i < openHandle.size(); ++i)
 	{
-		unsigned int lHandle = static_cast<unsigned int>(buffers->handle->CaluNowHandle(openHandle[i]));
-		D3D12_CPU_DESCRIPTOR_HANDLE rtvH = multiPassRTVHeap->GetCPUDescriptorHandleForHeapStart();
-		rtvH.ptr += DirectX12Device::Instance()->dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV) * lHandle;
+		unsigned int handle = static_cast<unsigned int>(renderTargetHandle.CaluNowHandle(openHandle[i]));
+		D3D12_CPU_DESCRIPTOR_HANDLE rtvH = GetRTVHandle(openHandle[i]);
 
-		RESOURCE_HANDLE clearHandle = buffers->handle->CaluNowHandle(openHandle[i]);
-		float ClearColor[] = { clearColors[clearHandle].x,clearColors[clearHandle].y ,clearColors[clearHandle].z ,clearColors[clearHandle].w };
+		float ClearColor[] = { clearColors[handle].x,clearColors[handle].y ,clearColors[handle].z ,clearColors[handle].w };
 		DirectX12CmdList::Instance()->cmdList->ClearRenderTargetView(rtvH, ClearColor, 0, nullptr);
 
 		DirectX::XMUINT2 graphSize =
 		{
-			static_cast<uint32_t>(buffers->GetBufferData(openHandle[i])->GetDesc().Width),
-			static_cast<uint32_t>(buffers->GetBufferData(openHandle[i])->GetDesc().Height)
+			static_cast<uint32_t>(buffers[handle].bufferWrapper->GetBuffer()->GetDesc().Width),
+			static_cast<uint32_t>(buffers[handle].bufferWrapper->GetBuffer()->GetDesc().Height)
 		};
 		CD3DX12_RECT rect(0, 0, graphSize.x, graphSize.y);
 		CD3DX12_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(graphSize.x), static_cast<float>(graphSize.y));
@@ -182,133 +172,53 @@ void RenderTargetStatus::ClearRenderTarget(RESOURCE_HANDLE RENDERTARGET_HANDLE)
 
 RESOURCE_HANDLE RenderTargetStatus::CreateRenderTarget(const KazMath::Vec2<UINT> &GRAPH_SIZE, const DirectX::XMFLOAT3 &CLEAR_COLOR, const DXGI_FORMAT &FORMAT)
 {
-	//ビューの生成
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Format = FORMAT;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	//レンダーターゲット用のバッファ生成準備
+	MultiRenderTargetData bufferData;
+	bufferData.backGroundColor = { CLEAR_COLOR.x / 255.0f,CLEAR_COLOR.y / 255.0f,CLEAR_COLOR.z / 255.0f };
+	bufferData.format = FORMAT;
+	bufferData.graphSize = GRAPH_SIZE;
+	//生成
+	RESOURCE_HANDLE handle = GenerateRenderTargetBuffer(bufferData);
+	//ハンドル格納
+	renderTargetData[renderTargetHandle.CaluNowHandle(handle)].emplace_back(handle);
 
-
-
-	D3D12_RESOURCE_DESC resource = RenderTargetStatus::Instance()->copyBuffer->GetDesc();
-	resource.Height = GRAPH_SIZE.y;
-	resource.Width = static_cast<UINT64>(GRAPH_SIZE.x);
-	resource.Format = FORMAT;
-	float clearValue[] = { CLEAR_COLOR.x,CLEAR_COLOR.y ,CLEAR_COLOR.z,1.0f };
-	D3D12_CLEAR_VALUE clearColor = CD3DX12_CLEAR_VALUE(FORMAT, clearValue);
-
-
-
-	KazBufferHelper::BufferResourceData data
-	(
-		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		resource,
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-		&clearColor,
-		"ShaderResourceRenderTarget"
-	);
-	RESOURCE_HANDLE lHandle = buffers->CreateBuffer(data);
-
-
-	DescriptorHeapMgr::Instance()->CreateBufferView(lHandle, srvDesc, buffers->GetBufferData(lHandle).Get());
-	clearColors[buffers->handle->CaluNowHandle(lHandle)] = { clearValue[0],clearValue[1],clearValue[2],clearValue[3] };
-
-
-	multiPassRTVHanlde = multiPassRTVHeap->GetCPUDescriptorHandleForHeapStart();
-	for (int i = 0; i < buffers->handle->CaluNowHandle(lHandle); i++)
-	{
-		multiPassRTVHanlde.ptr
-			+= DirectX12Device::Instance()->dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	}
-
-	//RTVの作成
-	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-	rtvDesc.Format = FORMAT;
-	//SRを使ってRTVの生成
-	DirectX12Device::Instance()->dev->CreateRenderTargetView(
-		buffers->GetBufferData(lHandle).Get(),
-		&rtvDesc,
-		multiPassRTVHanlde
-	);
-
-	std::vector<RESOURCE_HANDLE> lHandles;
-	lHandles.push_back(lHandle);
-	renderTargetData[buffers->handle->CaluNowHandle(lHandle)] = lHandles;
-	return lHandle;
+	return handle;
 }
 
 std::vector<RESOURCE_HANDLE> RenderTargetStatus::CreateMultiRenderTarget(const std::vector<MultiRenderTargetData> &MULTIRENDER_TARGET_DATA, const DXGI_FORMAT &FORMAT)
 {
-	//ビューの生成
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Format = FORMAT;
-	srvDesc.Texture2D.MipLevels = 1;
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
 	std::vector<RESOURCE_HANDLE> handles;
-
-	RESOURCE_HANDLE buffNum = -1;
 	for (int i = 0; i < MULTIRENDER_TARGET_DATA.size(); ++i)
 	{
-		D3D12_RESOURCE_DESC resource = RenderTargetStatus::Instance()->copyBuffer->GetDesc();
-		resource.Height = MULTIRENDER_TARGET_DATA[i].graphSize.y;
-		resource.Width = static_cast<UINT64>(MULTIRENDER_TARGET_DATA[i].graphSize.x);
-		resource.Format = FORMAT;
-		float clearValue[] = { MULTIRENDER_TARGET_DATA[i].backGroundColor.x,MULTIRENDER_TARGET_DATA[i].backGroundColor.y ,MULTIRENDER_TARGET_DATA[i].backGroundColor.z,1.0f };
-		D3D12_CLEAR_VALUE clearColor = CD3DX12_CLEAR_VALUE(FORMAT, clearValue);
-
-
-
-		KazBufferHelper::BufferResourceData data
-		(
-			CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE,
-			resource,
-			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-			&clearColor,
-			"ShaderResourceRenderTarget"
-		);
-		buffNum = buffers->CreateBuffer(data);
-
-
-		//DescriptorHeapMgr::Instance()->CreateBufferView(num, rtvDesc, buffers->GetBufferData(num).Get());
-		DescriptorHeapMgr::Instance()->CreateBufferView(buffNum, srvDesc, buffers->GetBufferData(buffNum).Get());
-		clearColors[buffers->handle->CaluNowHandle(buffNum)] = { clearValue[0],clearValue[1],clearValue[2],clearValue[3] };
-
-
-		multiPassRTVHanlde = multiPassRTVHeap->GetCPUDescriptorHandleForHeapStart();
-		for (int bufferNum = 0; bufferNum < buffers->handle->CaluNowHandle(buffNum); bufferNum++)
-		{
-			multiPassRTVHanlde.ptr
-				+= DirectX12Device::Instance()->dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		}
-
-		//RTVの作成
-		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-		rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-		rtvDesc.Format = FORMAT;
-		//SRを使ってRTVの生成
-		DirectX12Device::Instance()->dev->CreateRenderTargetView(
-			buffers->GetBufferData(buffNum).Get(),
-			&rtvDesc,
-			multiPassRTVHanlde
-		);
-
-
-		handles.push_back(buffNum);
+		MultiRenderTargetData bufferData = MULTIRENDER_TARGET_DATA[i];
+		bufferData.format = FORMAT;
+		RESOURCE_HANDLE handle = GenerateRenderTargetBuffer(bufferData);
+		handles.emplace_back(handle);
 	}
+	renderTargetData[renderTargetHandle.CaluNowHandle(handles.front())] = handles;
+	return handles;
+}
 
-	renderTargetData[buffers->handle->CaluNowHandle(buffNum)] = handles;
+std::vector<RESOURCE_HANDLE> RenderTargetStatus::CreateMultiRenderTarget(const std::vector<MultiRenderTargetData> &MULTIRENDER_TARGET_DATA)
+{
+	std::vector<RESOURCE_HANDLE> handles;
+	for (int i = 0; i < MULTIRENDER_TARGET_DATA.size(); ++i)
+	{
+		RESOURCE_HANDLE handle = GenerateRenderTargetBuffer(MULTIRENDER_TARGET_DATA[i]);
+		handles.emplace_back(handle);
+	}
+	renderTargetData[renderTargetHandle.CaluNowHandle(handles.front())] = handles;
 	return handles;
 }
 
 ID3D12Resource *RenderTargetStatus::GetBufferData(RESOURCE_HANDLE HANDLE)const
 {
-	return buffers->GetBufferData(HANDLE).Get();
+	return buffers[HANDLE].bufferWrapper->GetBuffer().Get();
+}
+
+const KazBufferHelper::BufferData &RenderTargetStatus::GetBuffer(RESOURCE_HANDLE HANDLE)
+{
+	return buffers[renderTargetHandle.CaluNowHandle(HANDLE)];
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE RenderTargetStatus::GetViewData(RESOURCE_HANDLE HANDLE)
@@ -318,7 +228,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE RenderTargetStatus::GetViewData(RESOURCE_HANDLE HAND
 
 void RenderTargetStatus::DeleteRenderTarget(RESOURCE_HANDLE HANDLE)
 {
-	buffers->ReleaseBuffer(HANDLE);
+	buffers[HANDLE].bufferWrapper->Release();
 	DescriptorHeapMgr::Instance()->Release(HANDLE);
 
 	for (int i = 0; i < renderTargetData.size(); ++i)
@@ -340,7 +250,7 @@ void RenderTargetStatus::DeleteMultiRenderTarget(const std::vector<RESOURCE_HAND
 {
 	for (int i = 0; i < HANDLE.size(); ++i)
 	{
-		buffers->ReleaseBuffer(HANDLE[i]);
+		buffers[HANDLE[i]].bufferWrapper->Release();
 		DescriptorHeapMgr::Instance()->Release(HANDLE[i]);
 	}
 
@@ -384,4 +294,68 @@ std::vector<RESOURCE_HANDLE> RenderTargetStatus::CountPass(RESOURCE_HANDLE HANDL
 	}
 	assert(0);
 	return std::vector<RESOURCE_HANDLE>();
+}
+
+RESOURCE_HANDLE RenderTargetStatus::GenerateRenderTargetBuffer(const MultiRenderTargetData &arg_renderTargetBufferData)
+{
+	//ビューの生成
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Format = arg_renderTargetBufferData.format;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+
+
+	D3D12_RESOURCE_DESC resource = RenderTargetStatus::Instance()->copyBuffer->GetDesc();
+	resource.Height = arg_renderTargetBufferData.graphSize.y;
+	resource.Width = static_cast<UINT64>(arg_renderTargetBufferData.graphSize.x);
+	resource.Format = arg_renderTargetBufferData.format;
+	float clearValue[] = { arg_renderTargetBufferData.backGroundColor.x / 255.0f,arg_renderTargetBufferData.backGroundColor.y / 255.0f ,arg_renderTargetBufferData.backGroundColor.z / 255.0f,1.0f };
+	D3D12_CLEAR_VALUE clearColor = CD3DX12_CLEAR_VALUE(resource.Format, clearValue);
+
+
+
+	KazBufferHelper::BufferResourceData data
+	(
+		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		resource,
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		&clearColor,
+		"ShaderResourceRenderTarget"
+	);
+	buffers.emplace_back(data);
+
+	RESOURCE_HANDLE descriptorHandle = renderTargetHandle.GetHandle();
+	RESOURCE_HANDLE handle = renderTargetHandle.CaluNowHandle(descriptorHandle);
+
+	DescriptorHeapMgr::Instance()->CreateBufferView(descriptorHandle, srvDesc, buffers[handle].bufferWrapper->GetBuffer().Get());
+	clearColors[handle] = { clearValue[0],clearValue[1],clearValue[2],clearValue[3] };
+
+	D3D12_CPU_DESCRIPTOR_HANDLE multiPassRTVHanlde = multiPassRTVHeap->GetCPUDescriptorHandleForHeapStart();
+	multiPassRTVHanlde.ptr += DirectX12Device::Instance()->dev->GetDescriptorHandleIncrementSize(heapDesc.Type) * handle;
+
+	//RTVの作成
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.Format = resource.Format;
+	//SRを使ってRTVの生成
+	DirectX12Device::Instance()->dev->CreateRenderTargetView(
+		buffers[handle].bufferWrapper->GetBuffer().Get(),
+		&rtvDesc,
+		multiPassRTVHanlde
+	);
+
+	buffers[handle].bufferWrapper->CreateViewHandle(descriptorHandle);
+
+	return descriptorHandle;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE RenderTargetStatus::GetRTVHandle(RESOURCE_HANDLE arg_handle)
+{
+	UINT lHandle = static_cast<UINT>(renderTargetHandle.CaluNowHandle(arg_handle));
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvH = multiPassRTVHeap->GetCPUDescriptorHandleForHeapStart();
+	rtvH.ptr += DirectX12Device::Instance()->dev->GetDescriptorHandleIncrementSize(heapDesc.Type) * lHandle;
+	return rtvH;
 }

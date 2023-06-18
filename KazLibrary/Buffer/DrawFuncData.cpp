@@ -1,7 +1,7 @@
 #include "DrawFuncData.h"
 #include "../Raytracing/Blas.h"
 
-void DrawFunc::DrawCallData::SetupRaytracing(bool arg_isOpaque)
+void DrawFuncData::DrawCallData::SetupRaytracing(bool arg_isOpaque)
 {
 
 	/*-- レイトレーシングの準備関数 --*/

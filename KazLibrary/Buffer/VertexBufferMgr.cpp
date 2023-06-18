@@ -69,6 +69,60 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(std::vector<VertexGenerateData> 
 	return outputHandle;
 }
 
+RESOURCE_HANDLE VertexBufferMgr::GeneratePlaneBuffer()
+{
+	vertexBufferArray.back().emplace_back(std::make_unique<PolygonBuffer>());
+	PolygonIndexData index = vertexBufferArray.back().back()->GeneratePlaneTexBuffer({ 1.0f,1.0f }, { 1,1 });
+
+
+	std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(index.vertBuffer);
+	std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(index.indexBuffer);
+
+
+	std::vector<KazRenderHelper::IASetVertexBuffersData> setVertDataArray;
+	std::vector<D3D12_INDEX_BUFFER_VIEW> indexBufferViewArray;
+	std::vector<KazRenderHelper::DrawIndexedInstancedData>drawCommandDataArray;
+
+	//頂点情報
+	setVertDataArray.emplace_back();
+	setVertDataArray.back().numViews = 1;
+	setVertDataArray.back().slot = 0;
+	setVertDataArray.back().vertexBufferView = 
+		KazBufferHelper::SetVertexBufferView(
+			vertexBuffer->bufferWrapper->GetGpuAddress(),
+			KazBufferHelper::GetBufferSize<BUFFER_SIZE>(4, sizeof(PolygonBuffer::VertUvData)),
+			sizeof(PolygonBuffer::VertUvData)
+		);
+
+	//インデックス情報
+	indexBufferViewArray.emplace_back(
+		KazBufferHelper::SetIndexBufferView(
+			indexBuffer->bufferWrapper->GetGpuAddress(),
+			KazBufferHelper::GetBufferSize<BUFFER_SIZE>(6, sizeof(USHORT))
+		)
+	);
+
+	//描画コマンド情報
+	KazRenderHelper::DrawIndexedInstancedData result;
+	result.indexCountPerInstance = static_cast<UINT>(6);
+	result.instanceCount = 1;
+	result.startIndexLocation = 0;
+	result.baseVertexLocation = 0;
+	result.startInstanceLocation = 0;
+	drawCommandDataArray.emplace_back(result);
+
+	drawDataArray.emplace_back();
+	drawDataArray.back().vertBuffer.emplace_back(vertexBuffer);
+	drawDataArray.back().indexBuffer.emplace_back(indexBuffer);
+	drawDataArray.back().index.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	drawDataArray.back().index.vertexBufferDrawData = setVertDataArray;
+	drawDataArray.back().index.indexBufferView = indexBufferViewArray;
+	drawDataArray.back().index.drawIndexInstancedData = drawCommandDataArray;
+
+	RESOURCE_HANDLE outputHandle = handle.GetHandle();
+	return outputHandle;
+}
+
 void VertexBufferMgr::ReleaseBuffer(RESOURCE_HANDLE HANDLE)
 {
 	drawDataArray[HANDLE].index.Finalize();

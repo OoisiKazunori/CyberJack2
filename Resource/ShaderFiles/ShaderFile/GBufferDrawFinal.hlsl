@@ -17,11 +17,13 @@ VSOutput VSmain(float4 pos : POSITION, float2 uv : TEXCOORD)
 	return op;
 }
 
-Texture2D<float4> tex : register(t0);
+Texture2D<float4> AlbedoTex : register(t0);
+Texture2D<float4> NormalTex : register(t1);
 SamplerState smp : register(s0);
 
 float4 PSmain(VSOutput input) : SV_TARGET
 {
-    float4 output = float4(tex.Sample(smp, input.uv));    
+    float4 output = AlbedoTex.Sample(smp, input.uv);
+    output = NormalTex.Sample(smp, input.uv);
     return output;
 }
