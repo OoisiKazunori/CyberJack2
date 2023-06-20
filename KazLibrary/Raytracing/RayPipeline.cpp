@@ -274,74 +274,25 @@ namespace Raytracing {
 
 	}
 
-	//void RayPipeline::TraceRay(std::weak_ptr<RaytracingOutput> Output, std::weak_ptr<RaytracingOutput> GBuffer0, std::weak_ptr<RaytracingOutput> GBuffer1, std::weak_ptr<RaytracingOutput> RenderUAV)
-	//{
+	void RayPipeline::TraceRay(Tlas arg_tlas)
+	{
 
-	//	/*===== レイトレーシングを実行 =====*/
+		/*===== レイトレーシングを実行 =====*/
 
-	//	//グローバルルートシグネチャで使うと宣言しているリソースらをセット。
-	//	ID3D12DescriptorHeap* descriptorHeaps[] = { DescriptorHeapMgr::Instance()->GetHeap().Get() };
-	//	DirectX12CmdList::Instance()->cmdList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-	//	DirectX12CmdList::Instance()->cmdList->SetComputeRootSignature(GetGlobalRootSig()->GetRootSig().Get());
+		//グローバルルートシグネチャで使うと宣言しているリソースらをセット。
+		DescriptorHeapMgr::Instance()->SetDescriptorHeap();
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootSignature(GetGlobalRootSig()->GetRootSig().Get());
 
-	//	//TLASを設定。
-	//	DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(0, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(Tlas::Instance()->GetDescHeapHandle()));
+		//TLASを設定。
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(0, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(arg_tlas.GetDescHeapHandle()));
 
-	//	//出力用UAVを設定。
-	//	Output.lock()->SetComputeRootDescriptorTalbe(1);
-	//	GBuffer0.lock()->SetComputeRootDescriptorTalbe(2);
-	//	GBuffer1.lock()->SetComputeRootDescriptorTalbe(3);
-	//	RenderUAV.lock()->SetComputeRootDescriptorTalbe(4);
+		//パイプラインを設定。
+		DirectX12CmdList::Instance()->cmdList->SetPipelineState1(m_stateObject.Get());
 
-	//	//パイプラインを設定。
-	//	DirectX12CmdList::Instance()->cmdList->SetPipelineState1(m_stateObject.Get());
+		//レイトレーシングを実行。
+		DirectX12CmdList::Instance()->cmdList->DispatchRays(&m_dispatchRayDesc);
 
-	//	//レイトレーシングを実行。
-	//	DirectX12CmdList::Instance()->cmdList->DispatchRays(&m_dispatchRayDesc);
-
-
-
-
-	//	/*===== コピーコマンドを積む =====*/
-
-	//	D3D12_RESOURCE_BARRIER barrierToUAV[] = { CD3DX12_RESOURCE_BARRIER::UAV(
-	//	Output.lock()->GetRaytracingOutput().Get()),CD3DX12_RESOURCE_BARRIER::UAV(
-	//	GBuffer0.lock()->GetRaytracingOutput().Get()),CD3DX12_RESOURCE_BARRIER::UAV(
-	//	GBuffer1.lock()->GetRaytracingOutput().Get()),CD3DX12_RESOURCE_BARRIER::UAV(
-	//	RenderUAV.lock()->GetRaytracingOutput().Get())
-	//	};
-
-	//	DirectX12CmdList::Instance()->cmdList->ResourceBarrier(3, barrierToUAV);
-
-
-	//	auto backBufferIndex = DirectX12::Instance()->swapchain->GetCurrentBackBufferIndex();
-	//	D3D12_RESOURCE_BARRIER barriers[] = {
-	//		CD3DX12_RESOURCE_BARRIER::Transition(
-	//		DirectX12::Instance()->backBuffers[backBufferIndex].Get(),
-	//		D3D12_RESOURCE_STATE_RENDER_TARGET,
-	//		D3D12_RESOURCE_STATE_COPY_DEST),
-	//	};
-	//	DirectX12CmdList::Instance()->cmdList->ResourceBarrier(_countof(barriers), barriers);
-
-	//	Output.lock()->SetResourceBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
-
-	//	DirectX12CmdList::Instance()->cmdList->CopyResource(DirectX12::Instance()->backBuffers[backBufferIndex].Get(), Output.lock()->GetRaytracingOutput().Get());
-
-	//	Output.lock()->SetResourceBarrier(D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-
-	//	//レンダーターゲットのリソースバリアをもとに戻す。
-	//	D3D12_RESOURCE_BARRIER endBarriers[] = {
-
-	//	CD3DX12_RESOURCE_BARRIER::Transition(
-	//	DirectX12::Instance()->backBuffers[backBufferIndex].Get(),
-	//	D3D12_RESOURCE_STATE_COPY_DEST,
-	//	D3D12_RESOURCE_STATE_RENDER_TARGET)
-
-	//	};
-
-	//	DirectX12CmdList::Instance()->cmdList->ResourceBarrier(_countof(endBarriers), endBarriers);
-
-	//}
+	}
 
 	UINT RayPipeline::GetLargestDataSizeInHitGroup()
 	{

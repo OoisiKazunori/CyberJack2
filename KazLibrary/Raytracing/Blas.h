@@ -14,9 +14,9 @@ namespace Raytracing {
 
 		/*===== メンバ変数 =====*/
 
-		Microsoft::WRL::ComPtr<ID3D12Resource> m_blasBuffer_;		//Blasのバッファ
-		Microsoft::WRL::ComPtr<ID3D12Resource> m_scratchBuffer_;	//Blasを形成する際に必要なバッファ
-		Microsoft::WRL::ComPtr<ID3D12Resource> m_updateBuffer_;		//Blasのアップロード用バッファ
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_blasBuffer;		//Blasのバッファ
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_scratchBuffer;	//Blasを形成する際に必要なバッファ
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_updateBuffer;		//Blasのアップロード用バッファ
 
 		RESOURCE_HANDLE m_vertexDataHandle;							//頂点データを保存してあるデータのハンドル
 		int m_meshNumber;											//複数メッシュの描画をしている際に使用する。このBlasは頂点データのどのメッシュを参照するかの情報。
@@ -37,7 +37,7 @@ namespace Raytracing {
 		/// Blasのバッファを返す。
 		/// </summary>
 		/// <returns> Blasのバッファ </returns>
-		inline Microsoft::WRL::ComPtr<ID3D12Resource> GetBlasBuffer() { return m_blasBuffer_; }
+		inline Microsoft::WRL::ComPtr<ID3D12Resource> GetBlasBuffer() { return m_blasBuffer; }
 
 		/// <summary> 
 		/// 参照元のシェーダーレコードにアクセスして書き込む。
@@ -81,7 +81,7 @@ namespace Raytracing {
 			memcpy(arg_dst, arg_descriptor, sizeof(arg_descriptor));
 			return static_cast<UINT>((sizeof(arg_descriptor)));
 		}
-		inline UINT WriteGPUDescriptor(void* arg_dst, const D3D12_GPU_VIRTUAL_ADDRESS* arg_descriptor)
+		inline UINT WriteGPUVirtualAddress(void* arg_dst, const D3D12_GPU_VIRTUAL_ADDRESS* arg_descriptor)
 		{
 			memcpy(arg_dst, arg_descriptor, sizeof(arg_descriptor));
 			return static_cast<UINT>((sizeof(arg_descriptor)));

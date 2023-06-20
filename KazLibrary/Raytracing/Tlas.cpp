@@ -124,7 +124,7 @@ namespace Raytracing {
 			m_descHeapIndex = UavViewHandleMgr::Instance()->GetHandle();
 
 			//ヒープの先頭にバッファを生成。
-			DescriptorHeapMgr::Instance()->CreateBufferView(m_descHeapIndex, srvDesc, m_tlasBuffer.Get());
+			DescriptorHeapMgr::Instance()->CreateAccelerationStructure(m_descHeapIndex, srvDesc);
 
 		}
 		else {
@@ -136,7 +136,7 @@ namespace Raytracing {
 			srvDesc.RaytracingAccelerationStructure.Location = m_tlasBuffer->GetGPUVirtualAddress();
 
 			//すでにバッファを生成してある位置に上書きする形で生成。
-			DescriptorHeapMgr::Instance()->CreateBufferView(m_descHeapIndex, srvDesc, m_tlasBuffer.Get());
+			DescriptorHeapMgr::Instance()->CreateAccelerationStructure(m_descHeapIndex, srvDesc);
 
 		}
 

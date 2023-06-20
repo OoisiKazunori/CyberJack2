@@ -18,6 +18,8 @@ public:
 	void CreateBufferView(RESOURCE_HANDLE HANDLE, const D3D12_UNORDERED_ACCESS_VIEW_DESC &BUFFER_VIEW, ID3D12Resource *ADDRESS, ID3D12Resource *COUNTER_RESOURCE = nullptr);
 	void Release(RESOURCE_HANDLE HANDLE);
 
+	void CreateAccelerationStructure(RESOURCE_HANDLE HANDLE, const D3D12_SHADER_RESOURCE_VIEW_DESC& BUFFER_VIEW);
+
 
 	BufferMemorySize GetSize(const BufferMemory &TYPE)const;
 	const D3D12_GPU_DESCRIPTOR_HANDLE GetGpuDescriptorView(RESOURCE_HANDLE HANDLE);

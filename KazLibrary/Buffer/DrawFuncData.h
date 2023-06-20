@@ -489,7 +489,7 @@ namespace DrawFuncData
 		/// <summary>
 		/// レイトレーシングを準備
 		/// </summary>
-		/// <param name="arg_isOpaque"> このオブジェクトは半透明か？AnyhitShaderが呼ばれるかどうかをここで判断する。 </param>
+		/// <param name="arg_isOpaque"> このオブジェクトは不透明か？AnyhitShaderが呼ばれるかどうかをここで判断する。 </param>
 		void SetupRaytracing(bool arg_isOpaque);
 		//頂点情報
 		KazRenderHelper::DrawIndexInstanceCommandData drawIndexInstanceCommandData;
@@ -638,6 +638,7 @@ namespace DrawFuncData
 		lDrawCallData.pipelineData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
 
 		//頂点情報
+		lDrawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
 		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetBuffer(MODEL_DATA.modelVertDataHandle).index;
 		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
 		for (auto &obj : MODEL_DATA.modelData)

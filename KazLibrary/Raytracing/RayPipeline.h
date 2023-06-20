@@ -7,6 +7,7 @@
 #include <wrl.h>
 #include <memory>
 #include "../Raytracing/BlasVector.h"
+#include "../Raytracing/Tlas.h"
 #include "HitGroupMgr.h"
 
 namespace Raytracing {
@@ -107,7 +108,7 @@ namespace Raytracing {
 		/// <summary>
 		/// レイトレ実行。
 		/// </summary>
-		//void TraceRay(std::weak_ptr<RaytracingOutput> arg_output, std::weak_ptr<RaytracingOutput> arg_gBuffer0, std::weak_ptr<RaytracingOutput> arg_gBuffer1, std::weak_ptr<RaytracingOutput> arg_renderUAV);
+		void TraceRay(Tlas arg_tlas);
 
 		//各種ゲッタ
 		Microsoft::WRL::ComPtr<ID3D12StateObject> GetStateObject() { return m_stateObject; }

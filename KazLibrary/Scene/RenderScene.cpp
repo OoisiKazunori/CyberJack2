@@ -44,6 +44,9 @@ RenderScene::RenderScene()
 		drawSponza.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT3);
 
 		drawSponza.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+
+		//レイトレの準備をする。
+		drawSponza.SetupRaytracing(true);
 	}
 
 	{
@@ -229,6 +232,9 @@ void RenderScene::Draw()
 	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
 
 	rasterizeRenderer.ObjectRender(drawSponza);
+	for (int index = 0; index < static_cast<int>(drawSponza.m_raytracingData.m_blas.size()); ++index) {
+		m_blasVector.Add(drawSponza.m_raytracingData.m_blas[index], transformArray[0].GetMat());
+	}
 
 
 	for (int i = 0; i < m_drawPlaneArray.size(); ++i)
@@ -257,6 +263,9 @@ void RenderScene::Draw()
 
 	//レイトレ用のデータを構築。
 	m_rayPipeline->BuildShaderTable(m_blasVector);
+
+	//レイトレ実行。
+	m_rayPipeline->TraceRay(m_tlas);
 
 
 	/*----- レイトレ描画終了 -----*/
