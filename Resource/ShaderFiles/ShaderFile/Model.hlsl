@@ -120,7 +120,7 @@ GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
     //メタル、ラフ
     float4 mrColor = MetalnessRoughnessTex.Sample(smp,input.uv);
 
-
+    //タンジェント空間からローカル空間の法線に直した
     float3 nLocal = CalucurateTangentToLocal(normalVec,input.normal,input.tangent,input.binormal);
     bright = dot(normalize(localLightDirB2),nLocal);
 
