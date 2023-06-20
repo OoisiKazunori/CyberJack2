@@ -19,7 +19,7 @@ namespace Raytracing {
 		initData.m_CH = { L"mainCHS",true };
 		initData.m_AH = { L"mainAnyHit",true };
 		initData.m_IS = { L"",false };
-		initData.m_SRVcount = 3;
+		initData.m_SRVcount = 2;
 		initData.m_UAVcount = 0;
 		initData.m_CBVcount = 0;
 		m_hitGroup.push_back(std::make_shared<HitGroup>());

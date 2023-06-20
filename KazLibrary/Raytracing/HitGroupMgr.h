@@ -14,13 +14,13 @@ namespace Raytracing {
 	/// <summary>
 	/// HitGroupを管理、保存するクラス。現在は1つのHitGroupしか無いが、増やす予定です。
 	/// </summary>
-	class HitGroupMgr {
+	class HitGroupMgr : public ISingleton<HitGroupMgr>{
 
 	private:
 
 		/*===== メンバ変数 =====*/
 
-		::std::vector<::std::shared_ptr<HitGroup>> m_hitGroup;	//ヒットグループ
+		std::vector<std::shared_ptr<HitGroup>> m_hitGroup;	//ヒットグループ
 
 
 	public:

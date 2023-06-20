@@ -4,15 +4,16 @@
 #include"../KazLibrary/Buffer/GBufferMgr.h"
 #include"../KazLibrary/Render/DrawFunc.h"
 
-#include"Raytracing/HitGroupMgr.h"
-
 RenderScene::RenderScene()
 {
 	endGameFlag = false;
 
 	boxData = boxBuffer.GenerateBoxBuffer(1.0f);
 
-	HitGroupMgr::Instance()->Setting();
+	Raytracing::HitGroupMgr::Instance()->Setting();
+	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS"}, {L"mainCHS", L"mainAnyHit"} });
+	int payloadSize = sizeof(float) * 3;
+	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 1, 1, 1, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
 	//G-Buffer生成
 	GBufferMgr::Instance();
@@ -256,6 +257,9 @@ void RenderScene::Draw()
 
 	//Tlasを構築 or 再構築する。
 	m_tlas.Build(m_blasVector);
+
+	//レイトレ用のデータを構築。
+	m_rayPipeline->BuildShaderTable(m_blasVector);
 
 
 	/*----- レイトレ描画終了 -----*/

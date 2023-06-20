@@ -15,6 +15,8 @@
 
 #include"Raytracing/BlasVector.h"
 #include"Raytracing/Tlas.h"
+#include"Raytracing/HitGroupMgr.h"
+#include"Raytracing/RayPipeline.h"
 
 class RenderScene :public SceneBase
 {
@@ -72,6 +74,9 @@ private:
 	Raytracing::BlasVector m_blasVector;
 	//レイトレで描画するための情報
 	Raytracing::Tlas m_tlas;
+	//レイトレ用パイプライン
+	std::vector<Raytracing::RayPipelineShaderData> m_pipelineShaders;
+	std::unique_ptr<Raytracing::RayPipeline> m_rayPipeline;
 
 
 	//std::unique_ptr<DrawFunc::KazRender>normalGBufferRender;

@@ -6,25 +6,26 @@
 #include <d3d12.h>
 #include <wrl.h>
 #include <memory>
+#include "../Raytracing/BlasVector.h"
 #include "HitGroupMgr.h"
 
 namespace Raytracing {
 
 	class RayRootsignature;
-	class RaytracingOutput;
+	//class RaytracingOutput;
 
 	/// <summary>
 	/// シェーダーテーブルに登録する各種シェーダーのエントリポイント名を保存したもの。
 	/// </summary>
 	struct RayPipelineShaderData {
 
-		std::string shaderPath_;					// シェーダーパス
-		std::vector<LPCWSTR> rayGenEnteryPoint_;	// エントリポイント
-		std::vector<LPCWSTR> missEntryPoint_;		// エントリポイント
-		std::vector<LPCWSTR> hitgroupEntryPoint_;	// エントリポイント
+		std::string m_shaderPath;					//シェーダーパス
+		std::vector<LPCWSTR> m_rayGenEntryPoint;	//エントリポイント
+		std::vector<LPCWSTR> m_missEntryPoint;		//エントリポイント
+		std::vector<LPCWSTR> m_hitgroupEntryPoint;	//エントリポイント
 		RayPipelineShaderData() {};
-		RayPipelineShaderData(const std::string& ShaderPath, const std::vector<LPCWSTR>& RGEntry, const std::vector<LPCWSTR>& MSEntry, const std::vector<LPCWSTR>& HGEntry)
-			:shaderPath_(ShaderPath), rayGenEnteryPoint_(RGEntry), missEntryPoint_(MSEntry), hitgroupEntryPoint_(HGEntry) {};
+		RayPipelineShaderData(const std::string& arg_shaderPath, const std::vector<LPCWSTR>& arg_RGEntry, const std::vector<LPCWSTR>& arg_MSEntry, const std::vector<LPCWSTR>& arg_HGEntry)
+			:m_shaderPath(arg_shaderPath), m_rayGenEntryPoint(arg_RGEntry), m_missEntryPoint(arg_MSEntry), m_hitgroupEntryPoint(arg_HGEntry) {};
 
 	};
 
@@ -37,31 +38,31 @@ namespace Raytracing {
 
 		/*===== メンバ変数 =====*/
 
-		std::vector<RayPipelineShaderData> shaderData_;			// 使用するシェーダーを纏めた構造体
-		std::vector<D3D12_SHADER_BYTECODE> shaderCode_;			// 使用するシェーダーのバイトコード
-		Microsoft::WRL::ComPtr<ID3D12StateObject> stateObject_;	// ステートオブジェクト
-		std::shared_ptr<RayRootsignature> globalRootSig_;		// グローバルルートシグネチャ
-		D3D12_DISPATCH_RAYS_DESC dispatchRayDesc_;				// レイ発射時の設定
-		Microsoft::WRL::ComPtr<ID3D12Resource> shaderTable_;	// シェーダーテーブル
-		void* shaderTalbeMapAddress_;							// シェーダーテーブルのデータ転送用Mapアドレス
-		Microsoft::WRL::ComPtr<ID3D12StateObjectProperties> rtsoProps_;
-		LPCWSTR hitGroupName_;
-		int numBlas_;											// パイプラインに組み込まれているBlasの数。BlasRefecenceVectorが保持している参照の数がこの変数の数を超えたらパイプラインを作り直す。
+		std::vector<RayPipelineShaderData> m_shaderData;		//使用するシェーダーを纏めた構造体
+		std::vector<D3D12_SHADER_BYTECODE> m_shaderCode;		//使用するシェーダーのバイトコード
+		Microsoft::WRL::ComPtr<ID3D12StateObject> m_stateObject;//ステートオブジェクト
+		std::shared_ptr<RayRootsignature> m_globalRootSig;		//グローバルルートシグネチャ
+		D3D12_DISPATCH_RAYS_DESC m_dispatchRayDesc;				//レイ発射時の設定
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_shaderTable;	//シェーダーテーブル
+		void* m_shaderTalbeMapAddress;							//シェーダーテーブルのデータ転送用Mapアドレス
+		Microsoft::WRL::ComPtr<ID3D12StateObjectProperties> m_rtsoProps;
+		LPCWSTR m_hitGroupName;
+		int m_numBlas;											//パイプラインに組み込まれているBlasの数。BlasRefecenceVectorが保持している参照の数がこの変数の数を超えたらパイプラインを作り直す。
 
 
-		// シェーダーテーブルの構築に必要な変数群
-		UINT raygenRecordSize_;
-		UINT missRecordSize_;
-		UINT hitgroupRecordSize_;
-		UINT hitgroupCount;
-		UINT raygenSize_;
-		UINT missSize_;
-		UINT hitGroupSize_;
-		UINT tableAlign_;
-		UINT hitgroupRegion_;
-		UINT tableSize_;
-		UINT raygenRegion_;
-		UINT missRegion_;
+		//シェーダーテーブルの構築に必要な変数群
+		UINT m_raygenRecordSize;
+		UINT m_missRecordSize;
+		UINT m_hitgroupRecordSize;
+		UINT m_hitgroupCount;
+		UINT m_raygenSize;
+		UINT m_missSize;
+		UINT m_hitGroupSize;
+		UINT m_tableAlign;
+		UINT m_hitgroupRegion;
+		UINT m_tableSize;
+		UINT m_raygenRegion;
+		UINT m_missRegion;
 
 
 	public:
@@ -79,36 +80,39 @@ namespace Raytracing {
 		/// <param name="PayloadSize"> シェーダーで使用するペイロードのサイズ </param>
 		/// <param name="AttribSize"> 重心座標などの計算に使用する構造体のサイズ 固定 </param>
 		/// <param name="ReflectionCount"> 最大レイ射出数 </param>
-		RayPipeline(const std::vector<RayPipelineShaderData>& InputData, HitGroupMgr::HITGROUP_ID UseHitGroup, int SRVCount, int CBVCount, int UAVCount, int PayloadSize, int AttribSize, int ReflectionCount = 4);
+		RayPipeline(const std::vector<RayPipelineShaderData>& arg_inputData, HitGroupMgr::HITGROUP_ID arg_useHitGroup, int arg_SRVCount, int arg_CBVCount, int arg_UAVCount, int arg_payloadSize, int arg_attribSize, int arg_reflectionCount = 4);
 
 		/// <summary>
 		/// シェーダーテーブルを構築。 毎フレーム全てのDrawが終わったときに呼ぶ。
 		/// </summary>
-		/// <param name="DispatchX"> 横の画面サイズ </param>
-		/// <param name="DispatchY"> 縦の画面サイズ </param>
-		void BuildShaderTable(int DispatchX = 1280, int DispatchY = 720);
+		/// <param name="arg_blacVector"> Blasの配列 </param>
+		/// <param name="arg_dispatchX"> 横の画面サイズ </param>
+		/// <param name="arg_dispatchY"> 縦の画面サイズ </param>
+		void BuildShaderTable(BlasVector arg_blacVector, int arg_dispatchX = 1280, int arg_dispatchY = 720);
 
 		/// <summary>
 		/// シェーダーテーブルを構築。
 		/// </summary>
-		/// <param name="DispatchX"> 横の画面サイズ </param>
-		/// <param name="DispatchY"> 縦の画面サイズ </param>
-		void ConstructionShaderTable(int DispatchX, int DispatchY);
+		/// <param name="arg_blacVector"> Blasの配列 </param>
+		/// <param name="arg_dispatchX"> 横の画面サイズ </param>
+		/// <param name="arg_dispatchY"> 縦の画面サイズ </param>
+		void ConstructionShaderTable(BlasVector arg_blacVector, int arg_dispatchX, int arg_dispatchY);
 
 		/// <summary>
 		/// HipGroupのデータをGPUに転送。 Blasのデータなどを送る。
 		/// </summary>
-		void MapHitGroupInfo();
+		/// <param name="arg_blacVector"> Blasの配列 </param>
+		void MapHitGroupInfo(BlasVector arg_blacVector);
 
 		/// <summary>
 		/// レイトレ実行。
 		/// </summary>
-		void TraceRay(std::weak_ptr<RaytracingOutput> Output, std::weak_ptr<RaytracingOutput> GBuffer0, std::weak_ptr<RaytracingOutput> GBuffer1, std::weak_ptr<RaytracingOutput> RenderUAV);
+		//void TraceRay(std::weak_ptr<RaytracingOutput> arg_output, std::weak_ptr<RaytracingOutput> arg_gBuffer0, std::weak_ptr<RaytracingOutput> arg_gBuffer1, std::weak_ptr<RaytracingOutput> arg_renderUAV);
 
-		// 各種ゲッタ
-		Microsoft::WRL::ComPtr<ID3D12StateObject> GetStateObject() { return stateObject_; }
-		D3D12_DISPATCH_RAYS_DESC GetDispatchRayDesc() { return dispatchRayDesc_; }
-		std::shared_ptr<RayRootsignature> GetGlobalRootSig() { return globalRootSig_; }
+		//各種ゲッタ
+		Microsoft::WRL::ComPtr<ID3D12StateObject> GetStateObject() { return m_stateObject; }
+		D3D12_DISPATCH_RAYS_DESC GetDispatchRayDesc() { return m_dispatchRayDesc; }
+		std::shared_ptr<RayRootsignature> GetGlobalRootSig() { return m_globalRootSig; }
 
 	private:
 
@@ -124,16 +128,17 @@ namespace Raytracing {
 		/// <param name="Size"> アラインメントしたいサイズ。 </param>
 		/// <param name="Align"> アラインメント </param>
 		/// <returns> 結果 </returns>
-		UINT RoundUp(size_t Size, UINT Align) {
-			return UINT(Size + Align - 1) & ~(Align - 1);
+		UINT RoundUp(size_t arg_aize, UINT arg_align) {
+			return UINT(arg_aize + arg_align - 1) & ~(arg_align - 1);
 		}
 
 		/// <summary>
 		/// シェーダーテーブルを書き込み、レイを設定する。--------------------------------------------------------------------------シェーダーテーブルの書き込みとレイの設定の関数を分ける。
 		/// </summary>
-		/// <param name="DispatchX"></param>
-		/// <param name="DispatchY"></param>
-		void WriteShadetTalbeAndSettingRay(int DispatchX, int DispatchY);
+		/// <param name="arg_blacVector"> Blasの配列 </param>
+		/// <param name="arg_dispatchX"></param>
+		/// <param name="arg_dispatchY"></param>
+		void WriteShadetTalbeAndSettingRay(BlasVector arg_blacVector, int arg_dispatchX, int arg_dispatchY);
 
 		/// <summary>
 		/// シェーダー識別子を書き込む。
@@ -141,7 +146,7 @@ namespace Raytracing {
 		/// <param name="Dst"> 書き込み先 </param>
 		/// <param name="ShaderId"> 書き込むID </param>
 		/// <returns> 書き込んだ後のハンドル </returns>
-		UINT WriteShaderIdentifier(void* Dst, const void* ShaderId);
+		UINT WriteShaderIdentifier(void* arg_dst, const void* arg_shaderId);
 
 		/// <summary>
 		/// RayGenerationシェーダーの数を取得。
@@ -164,7 +169,7 @@ namespace Raytracing {
 		/// <param name="HeapType"> ヒープの種類 </param>
 		/// <param name="Name"> バッファにつける名前 </param>
 		/// <returns> 生成されたバッファ </returns>
-		Microsoft::WRL::ComPtr<ID3D12Resource> CreateBuffer(size_t Size, D3D12_RESOURCE_FLAGS Flags, D3D12_RESOURCE_STATES InitialState, D3D12_HEAP_TYPE HeapType, const wchar_t* Name = nullptr);
+		Microsoft::WRL::ComPtr<ID3D12Resource> CreateBuffer(size_t arg_size, D3D12_RESOURCE_FLAGS arg_flags, D3D12_RESOURCE_STATES arg_initialState, D3D12_HEAP_TYPE arg_heapType, const wchar_t* arg_name = nullptr);
 
 	};
 
