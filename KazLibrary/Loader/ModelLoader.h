@@ -168,7 +168,7 @@ struct ModelInfomation
 class GLTFLoader
 {
 public:
-	std::vector<ModelMeshData> Load(std::ifstream &fileName, std::string fileDir);
+	std::vector<ModelMeshData> Load(std::string fileName, std::string fileDir);
 
 
 private:
@@ -205,7 +205,7 @@ public:
 	};
 
 	ModelLoader();
-	std::shared_ptr<ModelInfomation> Load(std::string fileName);
+	std::shared_ptr<ModelInfomation> Load(std::string arg_fileDir,std::string arg_fileName);
 	std::vector<VertexBufferData>GetVertexDataArray(const VertexData &data);
 	std::vector<VertexBufferData>GetVertexDataArray(const VertexData &data, const std::vector<USHORT> &indexArray);
 

@@ -600,7 +600,7 @@ namespace DrawFuncData
 		);
 		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		lDrawCallData.extraBufferArray.back().bufferSize = sizeof(CoordinateSpaceMatData);
+		lDrawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
 
 		lDrawCallData.pipelineData = PIPELINE_DATA;
 		lDrawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
@@ -629,7 +629,7 @@ namespace DrawFuncData
 		);
 		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		lDrawCallData.extraBufferArray.back().bufferSize = sizeof(CoordinateSpaceMatData);
+		lDrawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
 
 		//ƒŒƒCƒgƒŒ‘¤‚Å‚Ì”»’f
 		lDrawCallData.extraBufferArray.emplace_back(
@@ -637,7 +637,7 @@ namespace DrawFuncData
 		);
 		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-		lDrawCallData.extraBufferArray.back().bufferSize = sizeof(UINT);
+		lDrawCallData.extraBufferArray.back().structureSize = sizeof(UINT);
 
 		lDrawCallData.pipelineData = PIPELINE_DATA;
 		lDrawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;

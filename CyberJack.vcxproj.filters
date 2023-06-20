@@ -187,6 +187,7 @@
     <ClCompile Include="KazLibrary\Buffer\VertexBufferMgr.cpp" />
     <ClCompile Include="KazLibrary\Buffer\GBufferMgr.cpp" />
     <ClCompile Include="KazLibrary\Render\DrawFunc.cpp" />
+    <ClCompile Include="KazLibrary\Render\CPUParticle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />

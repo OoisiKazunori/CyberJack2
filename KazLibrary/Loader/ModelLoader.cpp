@@ -6,51 +6,29 @@ ModelLoader::ModelLoader()
 {
 }
 
-std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string fileName)
+std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string arg_fileDir, std::string arg_fileName)
 {
-	//(フローチャート)
-	//ファイルが存在するかどうか
-	//ファイルの拡張子から何のモデルか読み込むか
-	//読み込み処理(個別)
-	//頂点情報生成
-	//(問題点)
-	//モデル読み込み時の自由な対応(頂点情報を自由に引き出したい)
-
 	//ファイル読み込み
 	std::ifstream file;
-	file.open(fileName);
+	file.open(arg_fileDir+ arg_fileName);
 	if (file.fail())
 	{
-		std::string errorName = fileName + "の読み込みに失敗しました\n";
+		std::string errorName = arg_fileDir + arg_fileName + "の読み込みに失敗しました\n";
 		FailCheck(errorName);
 		static_assert(true);
 	}
 
-	//ファイルパス確認
-	string filePass = fileName;
-	for (size_t i = filePass.length() - 1; 0 < i; i--)
-	{
-		if (filePass[i] == '/')
-		{
-			break;
-		}
-		else
-		{
-			filePass.pop_back();
-		}
-	}
-
 	std::vector<ModelMeshData> modelData;
 
-	modelData = glTFLoad.Load(file, filePass);
+	modelData = glTFLoad.Load(arg_fileName, arg_fileDir);
 
 	//生成されているか確認
 	if (modelData.back().vertexData.verticesArray.size() <= 0 || modelData.back().vertexData.indexArray.size() <= 0)
 	{
-		ErrorCheck(fileName + "の読み込みに失敗しました\n");
+		ErrorCheck(arg_fileDir + arg_fileName + "の読み込みに失敗しました\n");
 		assert(1);
 	}
-	SucceedCheck(fileName + "の読み込みに成功しました\n");
+	SucceedCheck(arg_fileDir + arg_fileName + "の読み込みに成功しました\n");
 
 
 	std::vector<VertexGenerateData> vertArray;
@@ -384,12 +362,12 @@ void OBJLoader::LocalMateriaData::Delete()
 	alpha = 0.0;
 }
 
-std::vector<ModelMeshData> GLTFLoader::Load(std::ifstream &fileName, std::string fileDir)
+std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fileDir)
 {
 	//std::string filepass("Resource/Test/Plane/plane.glb");
 	//std::string Ext(".glb");
-	std::string FileDir("Resource/Test/glTF/");
-	std::string filepass(FileDir + "sponza.gltf");
+	std::string FileDir(fileDir);
+	std::string filepass(FileDir + fileName);
 	std::string Ext(".gltf");
 
 

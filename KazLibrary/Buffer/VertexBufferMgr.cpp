@@ -22,9 +22,9 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(std::vector<VertexGenerateData> 
 		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(vertexBufferArray.back().back()->GenerateVertexBuffer(meshData.verticesPos, meshData.structureSize, meshData.arraySize));
 		std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(vertexBufferArray.back().back()->GenerateIndexBuffer(meshData.indices));
 
-		vertexBuffer->bufferSize = sizeof(meshData.structureSize);
+		vertexBuffer->structureSize = meshData.structureSize;
 		vertexBuffer->elementNum = static_cast<UINT>(meshData.arraySize);
-		indexBuffer->bufferSize = sizeof(USHORT);
+		indexBuffer->structureSize = sizeof(USHORT);
 		indexBuffer->elementNum = static_cast<UINT>(meshData.indices.size());
 
 		//’¸“_î•ñ

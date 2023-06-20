@@ -14,9 +14,7 @@ RenderScene::RenderScene()
 	GBufferMgr::Instance();
 
 
-	RESOURCE_HANDLE handle = ObjResourceMgr::Instance()->LoadModel(KazFilePathName::TestPath + "hamster.obj");
-	ObjResourceMgr::Instance()->GetResourceData(handle);
-	model = ModelLoader::Instance()->Load("Resource/Test/glTF/hamster.obj");
+	model = ModelLoader::Instance()->Load("Resource/Test/glTF/", "sponza.gltf");
 
 	//フォワードレンダリングで描画するモデル
 	{
@@ -39,7 +37,7 @@ RenderScene::RenderScene()
 		drawSponza.extraBufferArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
 		drawSponza.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		drawSponza.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-		drawSponza.extraBufferArray.back().bufferSize = sizeof(DirectX::XMFLOAT3);
+		drawSponza.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT3);
 
 		drawSponza.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
 	}
