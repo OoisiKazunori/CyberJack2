@@ -45,7 +45,7 @@ RenderScene::RenderScene()
 
 		drawSponza.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
 
-		//レイトレの準備をする。
+		//レイトレの準備
 		drawSponza.SetupRaytracing(true);
 	}
 

@@ -6,8 +6,8 @@
 #include <d3d12.h>
 #include <wrl.h>
 #include <memory>
-#include "../Raytracing/BlasVector.h"
-#include "../Raytracing/Tlas.h"
+#include "BlasVector.h"
+#include "Tlas.h"
 #include "HitGroupMgr.h"
 
 namespace Raytracing {

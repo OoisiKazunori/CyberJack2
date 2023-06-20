@@ -20,11 +20,11 @@ struct ConstBufferData
 //頂点情報
 struct Vertex
 {
-    float3 Position;
-    float3 Normal;
+    float3 pos;
+    float3 normal;
     float2 uv;
-    float2 subUV;
-    float2 pad_;
+    float3 tangent;
+    float3 binormal;
 };
 
 //ペイロード
@@ -60,14 +60,13 @@ Vertex GetHitVertex(MyAttribute attrib, StructuredBuffer<Vertex> vertexBuffer, S
     {
         uint vtxIndex = indexBuffer[vertexId + index];
         float w = weights[index];
-        v.Position += vertexBuffer[vtxIndex].Position * w;
-        v.Normal += vertexBuffer[vtxIndex].Normal * w;
+        v.pos += vertexBuffer[vtxIndex].pos * w;
+        v.normal += vertexBuffer[vtxIndex].normal * w;
         v.uv += vertexBuffer[vtxIndex].uv * w;
-        v.subUV += vertexBuffer[vtxIndex].subUV * w;
         
         //メッシュの情報を保存。
-        meshInfo[index].Position = mul(float4(vertexBuffer[vtxIndex].Position, 1), ObjectToWorld4x3());
-        meshInfo[index].Normal = normalize(mul(vertexBuffer[vtxIndex].Normal, (float3x3) ObjectToWorld4x3()));
+        meshInfo[index].pos = mul(float4(vertexBuffer[vtxIndex].pos, 1), ObjectToWorld4x3());
+        meshInfo[index].normal = normalize(mul(vertexBuffer[vtxIndex].normal, (float3x3) ObjectToWorld4x3()));
         meshInfo[index].uv = vertexBuffer[vtxIndex].uv;
     }
 
