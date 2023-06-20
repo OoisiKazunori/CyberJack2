@@ -2,7 +2,6 @@
 
 //TLAS
 RaytracingAccelerationStructure gRtScene : register(t0);
-ConstantBuffer<ConstBufferData> gSceneParam : register(b0);
 
 //各リソース等
 StructuredBuffer<uint> indexBuffer : register(t0, space1);
@@ -11,7 +10,7 @@ StructuredBuffer<Vertex> vertexBuffer : register(t1, space1);
 SamplerState smp : register(s0, space1);
 
 //出力先UAV
-RWTexture2D<float4> finalColor : register(u0);
+//RWTexture2D<float4> finalColor : register(u0);
 
 
 //RayGenerationシェーダー
@@ -25,17 +24,18 @@ void mainRayGen()
     float2 d = (launchIndex.xy + 0.5) / dims.xy * 2.0 - 1.0;
     float aspect = dims.x / dims.y;
 
-    matrix mtxViewInv = gSceneParam.camera.mtxViewInv;
-    matrix mtxProjInv = gSceneParam.camera.mtxProjInv;
+    //matrix mtxViewInv = gSceneParam.camera.mtxViewInv;
+    //matrix mtxProjInv = gSceneParam.camera.mtxProjInv;
 
     //レイの設定
     RayDesc rayDesc;
-    rayDesc.Origin = mul(mtxViewInv, float4(0, 0, 0, 1)).xyz;
+    rayDesc.Origin = float4(0, 0, 0, 1);
+    rayDesc.Origin.xy += launchIndex * 2.0f;
 
-    float4 target = mul(mtxProjInv, float4(d.x, -d.y, 1, 1));
-    float3 dir = mul(mtxViewInv, float4(target.xyz, 0)).xyz;
+    //float4 target = mul(mtxProjInv, float4(d.x, -d.y, 1, 1));
+    //float3 dir = mul(mtxViewInv, float4(target.xyz, 0)).xyz;
 
-    rayDesc.Direction = normalize(dir);
+    rayDesc.Direction = normalize(float3(0,0,1));
     rayDesc.TMin = 0;
     rayDesc.TMax = 300000;
 
@@ -61,7 +61,7 @@ void mainRayGen()
     payloadData);
 
     //結果格納
-    finalColor[launchIndex.xy] = float4((payloadData.color_), 1);
+   //finalColor[launchIndex.xy] = float4((payloadData.color_), 1);
 
 }
 

@@ -10,6 +10,8 @@ namespace Raytracing
 
 	void BlasVector::Update()
 	{
+		m_refBlas.resize(0);
+		m_instanceDesc.resize(0);
 	}
 
 	void BlasVector::Add(std::weak_ptr<Blas> arg_refBlas, const DirectX::XMMATRIX& arg_worldMat)

@@ -2,21 +2,6 @@
 //円周率
 static const float PI = 3.141592653589f;
 
-//カメラ用の定数バッファ
-struct CameraConstBufferData
-{
-    matrix mtxView; //ビュー行列
-    matrix mtxProj; //プロジェクション行列
-    matrix mtxViewInv; //逆ビュー行列
-    matrix mtxProjInv; //逆プロジェクション行列
-};
-
-//定数バッファ
-struct ConstBufferData
-{
-    CameraConstBufferData camera;
-};
-
 //頂点情報
 struct Vertex
 {
