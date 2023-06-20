@@ -188,6 +188,7 @@
     <ClCompile Include="KazLibrary\Raytracing\Blas.cpp" />
     <ClCompile Include="KazLibrary\Buffer\GBufferMgr.cpp" />
     <ClCompile Include="KazLibrary\Render\DrawFunc.cpp" />
+    <ClCompile Include="KazLibrary\Render\CPUParticle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -392,7 +393,10 @@
     <ClInclude Include="lib\tinygltf\stb_image.h" />
     <ClInclude Include="lib\tinygltf\stb_image_write.h" />
     <ClInclude Include="KazLibrary\Buffer\VertexBufferMgr.h" />
+<<<<<<< HEAD
     <ClInclude Include="KazLibrary\Raytracing\Blas.h" />
+=======
+>>>>>>> origin/master
     <ClInclude Include="KazLibrary\Buffer\GBufferMgr.h" />
     <ClInclude Include="KazLibrary\Render\DrawFunc.h" />
   </ItemGroup>

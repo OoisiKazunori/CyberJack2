@@ -18,10 +18,7 @@ RenderScene::RenderScene()
 	//G-Buffer生成
 	GBufferMgr::Instance();
 
-
-	RESOURCE_HANDLE handle = ObjResourceMgr::Instance()->LoadModel(KazFilePathName::TestPath + "hamster.obj");
-	ObjResourceMgr::Instance()->GetResourceData(handle);
-	model = ModelLoader::Instance()->Load("Resource/Test/glTF/hamster.obj");
+	model = ModelLoader::Instance()->Load("Resource/Test/glTF/", "sponza.gltf");
 
 	//フォワードレンダリングで描画するモデル
 	{
@@ -44,7 +41,7 @@ RenderScene::RenderScene()
 		drawSponza.extraBufferArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
 		drawSponza.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		drawSponza.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-		drawSponza.extraBufferArray.back().bufferSize = sizeof(DirectX::XMFLOAT3);
+		drawSponza.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT3);
 
 		drawSponza.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
 	}
@@ -197,7 +194,7 @@ void RenderScene::Update()
 	CameraMgr::Instance()->Camera(camera.GetEyePos(), camera.GetTargetPos(), { 0.0f,1.0f,0.0f });
 
 
-	DrawFunc::DrawModelInRaytracing(drawSponza, transformArray[0], DrawFunc::REFLECTION);
+	DrawFunc::DrawModelInRaytracing(drawSponza, transformArray[0], DrawFunc::REFRACTION);
 	DirectX::XMFLOAT3 dir = lightVec.ConvertXMFLOAT3();
 	drawSponza.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 

@@ -622,7 +622,7 @@ namespace DrawFuncData
 		);
 		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		lDrawCallData.extraBufferArray.back().bufferSize = sizeof(CoordinateSpaceMatData);
+		lDrawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
 
 		lDrawCallData.pipelineData = PIPELINE_DATA;
 		lDrawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
@@ -631,7 +631,7 @@ namespace DrawFuncData
 	};
 
 	//モデルのポリゴン表示(インデックスあり、マテリアルあり)
-	static DrawCallData SetDrawGLTFIndexMaterialInRayTracingData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA)
+	static DrawCallData SetDrawGLTFIndexMaterialInRayTracingData(const ModelInfomation &MODEL_DATA, const PipelineGenerateData &PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
 
@@ -640,7 +640,7 @@ namespace DrawFuncData
 		//頂点情報
 		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetBuffer(MODEL_DATA.modelVertDataHandle).index;
 		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
-		for (auto& obj : MODEL_DATA.modelData)
+		for (auto &obj : MODEL_DATA.modelData)
 		{
 			lDrawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
 		}
@@ -651,7 +651,7 @@ namespace DrawFuncData
 		);
 		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		lDrawCallData.extraBufferArray.back().bufferSize = sizeof(CoordinateSpaceMatData);
+		lDrawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
 
 		//レイトレ側での判断
 		lDrawCallData.extraBufferArray.emplace_back(
@@ -659,7 +659,7 @@ namespace DrawFuncData
 		);
 		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-		lDrawCallData.extraBufferArray.back().bufferSize = sizeof(UINT);
+		lDrawCallData.extraBufferArray.back().structureSize = sizeof(UINT);
 
 		lDrawCallData.pipelineData = PIPELINE_DATA;
 		lDrawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
@@ -669,7 +669,7 @@ namespace DrawFuncData
 
 
 	//行列情報のみ
-	static DrawCallData SetTransformData(const KazRenderHelper::DrawIndexInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA)
+	static DrawCallData SetTransformData(const KazRenderHelper::DrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
 		//頂点情報

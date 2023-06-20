@@ -189,15 +189,15 @@ namespace KazBufferHelper
 		std::shared_ptr<ID3D12ResourceWrapper> counterWrapper;
 		GraphicsRangeType rangeType;
 		GraphicsRootParamType rootParamType;
-		UINT bufferSize;
+		UINT structureSize;
 		UINT elementNum;
 
-		BufferData(const KazBufferHelper::BufferResourceData &BUFFER_DATA) :rangeType(GRAPHICS_RANGE_TYPE_NONE), rootParamType(GRAPHICS_PRAMTYPE_NONE), bufferSize(0), elementNum(0)
+		BufferData(const KazBufferHelper::BufferResourceData &BUFFER_DATA) :rangeType(GRAPHICS_RANGE_TYPE_NONE), rootParamType(GRAPHICS_PRAMTYPE_NONE), structureSize(0), elementNum(0)
 		{
 			bufferWrapper = std::make_shared<ID3D12ResourceWrapper>();
 			bufferWrapper->CreateBuffer(BUFFER_DATA);
 		}
-		BufferData() :rangeType(GRAPHICS_RANGE_TYPE_NONE), rootParamType(GRAPHICS_PRAMTYPE_NONE), bufferSize(0), elementNum(0)
+		BufferData() :rangeType(GRAPHICS_RANGE_TYPE_NONE), rootParamType(GRAPHICS_PRAMTYPE_NONE), structureSize(0), elementNum(0)
 		{
 		}
 
@@ -205,7 +205,7 @@ namespace KazBufferHelper
 		{
 			rangeType = rhs.rangeType;
 			rootParamType = rhs.rootParamType;
-			bufferSize = rhs.bufferSize;
+			structureSize = rhs.structureSize;
 			bufferWrapper = rhs.bufferWrapper;
 			counterWrapper = rhs.counterWrapper;
 			elementNum = rhs.elementNum;
