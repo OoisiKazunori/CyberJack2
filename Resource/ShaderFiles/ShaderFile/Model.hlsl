@@ -120,13 +120,19 @@ GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
     //メタル、ラフ
     float4 mrColor = MetalnessRoughnessTex.Sample(smp,input.uv);
 
+    //ワールド空間の法線
+    float3 normal = mul(worldMat,float4(input.normal,1.0f));
+    float3 tangent = mul(worldMat,float4(input.tangent,1.0f));
+    float3 binormal = cross(normal,tangent);
+
+
     //タンジェント空間からローカル空間の法線に直した
-    float3 nLocal = CalucurateTangentToLocal(normalVec,input.normal,input.tangent,input.binormal);
-    bright = dot(normalize(localLightDirB2),nLocal);
+    float3 nWorld = CalucurateTangentToLocal(normalVec,normal,tangent,binormal);
+    bright = dot(normalize(localLightDirB2),nWorld);
 
     GBufferOutput output;
     output.albedo = texColor;
-    output.normal = float4(nLocal,1.0f);
+    output.normal = float4(nWorld,1.0f);
     output.metalnessRoughness = float4(mrColor.xyz,raytracingId);
     output.world = float4(input.worldPos,1.0f);
     output.final = float4(texColor.xyz * bright,texColor.a);
