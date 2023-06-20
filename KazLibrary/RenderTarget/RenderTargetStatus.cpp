@@ -166,7 +166,7 @@ void RenderTargetStatus::ClearRenderTarget(RESOURCE_HANDLE RENDERTARGET_HANDLE)
 		CD3DX12_RECT rect(0, 0, graphSize.x, graphSize.y);
 		CD3DX12_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(graphSize.x), static_cast<float>(graphSize.y));
 		DirectX12CmdList::Instance()->cmdList->RSSetViewports(static_cast<UINT>(openHandle.size()), &viewport);
-		DirectX12CmdList::Instance()->cmdList->RSSetScissorRects(static_cast<UINT>(openHandle.size()), &rect);
+		DirectX12CmdList::Instance()->cmdList->RSSetScissorRects(1, &rect);
 	}
 }
 
