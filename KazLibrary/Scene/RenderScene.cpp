@@ -68,6 +68,7 @@ RenderScene::RenderScene()
 
 		m_drawFinalPlane.m_plane = DrawFuncData::SetTexPlaneData(lData);
 		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back();
+		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back();
 		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3)));
 		m_drawFinalPlane.m_plane.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		m_drawFinalPlane.m_plane.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
@@ -217,8 +218,9 @@ void RenderScene::Update()
 		DrawFunc::DrawTextureIn2D(m_drawFinalPlane.m_plane, transform, RenderTargetStatus::Instance()->GetBuffer(albedoHandle));
 		m_drawFinalPlane.m_plane.extraBufferArray[2] = RenderTargetStatus::Instance()->GetBuffer(GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::NORMAL]);
 		m_drawFinalPlane.m_plane.extraBufferArray[2].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-
-		m_drawFinalPlane.m_plane.extraBufferArray[3].bufferWrapper->TransData(&lightVec.ConvertXMFLOAT3(), sizeof(DirectX::XMFLOAT3));
+		m_drawFinalPlane.m_plane.extraBufferArray[3] = RenderTargetStatus::Instance()->GetBuffer(GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::WORLD]);
+		m_drawFinalPlane.m_plane.extraBufferArray[3].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+		m_drawFinalPlane.m_plane.extraBufferArray[4].bufferWrapper->TransData(&lightVec.ConvertXMFLOAT3(), sizeof(DirectX::XMFLOAT3));
 	}
 	//–@ü•`‰æ
 	//compute.Update();
