@@ -288,14 +288,14 @@ namespace Raytracing {
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(0, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(arg_tlas.GetDescHeapHandle()));
 
 		//GBufferを構築。
-		/DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(1, DescriptorHeapMgr::Instance()->GetGpuDescriptorView();	//アルベド
-		//DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(2, DescriptorHeapMgr::Instance()->GetGpuDescriptorView();	//法線
-		//DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(3, DescriptorHeapMgr::Instance()->GetGpuDescriptorView();	//マテリアル
-		//DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(4, DescriptorHeapMgr::Instance()->GetGpuDescriptorView();	//ワールド座標
-		//DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(5, DescriptorHeapMgr::Instance()->GetGpuDescriptorView();	//ライティング合成結果
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(1, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::ALBEDO));	//アルベド
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(2, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::NORMAL));	//法線
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(3, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::R_M_S_ID));//マテリアル
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(4, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::WORLD));	//ワールド座標
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(5, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::FINAL));	//ライティング合成結果
 
 		//書き込み用UAV
-		//DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(6, DescriptorHeapMgr::Instance()->GetGpuDescriptorView();	//書き込み用
+		//DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(6, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::RAYTRACING_OUTPUT));	//レイトレ出力用
 
 		//パイプラインを設定。
 		DirectX12CmdList::Instance()->cmdList->SetPipelineState1(m_stateObject.Get());

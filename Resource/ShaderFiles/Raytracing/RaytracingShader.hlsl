@@ -17,7 +17,7 @@ Texture2D<float4> worldMap : register(t4);
 Texture2D<float4> sceneMap : register(t5);
 
 //出力先UAV
-RWTexture2D<float4> finalColor : register(u0);
+//RWTexture2D<float4> finalColor : register(u0);
 
 
 //RayGenerationシェーダー
@@ -27,6 +27,12 @@ void mainRayGen()
 
     uint2 launchIndex = DispatchRaysIndex().xy;
     float2 dims = float2(DispatchRaysDimensions().xy);
+    
+    float4 albedoColor = albedoMap[launchIndex];
+    float4 normalColor = normalMap[launchIndex];
+    float4 materialInfo = materialMap[launchIndex];
+    float4 worldColor = worldMap[launchIndex];
+    float4 sceneColor = sceneMap[launchIndex];
 
     //レイの設定
     RayDesc rayDesc;
@@ -55,8 +61,8 @@ void mainRayGen()
     rayDesc,
     payloadData);
 
-    //結果格納
-   finalColor[launchIndex.xy] = float4((payloadData.color_), 1);
+   //結果格納
+   //finalColor[launchIndex.xy] = float4((payloadData.color_), 1);
 
 }
 

@@ -39,7 +39,6 @@ GBufferMgr::GBufferMgr()
 		multiRenderTargetArray[FINAL].backGroundColor = { 0.0f,0.0f,0.0f };
 		multiRenderTargetArray[FINAL].graphSize = winSize;
 		multiRenderTargetArray[FINAL].format = m_gBufferFormatArray[FINAL];
-		m_gBufferRenderTargetHandleArray = RenderTargetStatus::Instance()->CreateMultiRenderTarget(multiRenderTargetArray);
 	}
 
 	m_cameraPosBuffer = KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3));
