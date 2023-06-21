@@ -80,5 +80,13 @@ private:
 	DrawGBufferData m_drawFinalPlane;
 
 	KazMath::Vec3<float>lightVec;
+	KazMath::Vec3<float>atem;
+
+	struct LightData
+	{
+		DirectX::XMFLOAT3 pos;
+		float pad;
+		DirectX::XMFLOAT3 atem;
+	};
 };
 

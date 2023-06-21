@@ -40,8 +40,7 @@ float4 PSmain(VSOutput input) : SV_TARGET
     lightV = normalize(lightV);
 
     //‹——£Œ¸ŠŒW”
-    float3 attenVec = attenVec;
-    float atten = 1.0f / (attenVec.x + attenVec.y * d + attenVec.z * d * d);
+    float atten = 400.0f / (attenVec.x + attenVec.y * d + attenVec.z * d * d);
     float bright = dot(lightV,worldNormalVec.xyz);
         
     float3 lightColor = float3(1.0f,1.0f,1.0f);

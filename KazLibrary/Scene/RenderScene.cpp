@@ -69,7 +69,7 @@ RenderScene::RenderScene()
 		m_drawFinalPlane.m_plane = DrawFuncData::SetTexPlaneData(lData);
 		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back();
 		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back();
-		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3)));
+		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(LightData)));
 		m_drawFinalPlane.m_plane.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		m_drawFinalPlane.m_plane.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 		m_drawFinalPlane.m_bufferName = "Final";
@@ -175,6 +175,8 @@ void RenderScene::Init()
 {
 	camera.Init({});
 	lightVec = { 0.0f,1.0f,0.0f };
+
+	atem = { 0.1f,0.1f,0.3f };
 }
 
 void RenderScene::PreInit()
@@ -220,7 +222,11 @@ void RenderScene::Update()
 		m_drawFinalPlane.m_plane.extraBufferArray[2].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 		m_drawFinalPlane.m_plane.extraBufferArray[3] = RenderTargetStatus::Instance()->GetBuffer(GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::WORLD]);
 		m_drawFinalPlane.m_plane.extraBufferArray[3].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-		m_drawFinalPlane.m_plane.extraBufferArray[4].bufferWrapper->TransData(&lightVec.ConvertXMFLOAT3(), sizeof(DirectX::XMFLOAT3));
+
+		LightData data;
+		data.pos = lightVec.ConvertXMFLOAT3();
+		data.atem = atem.ConvertXMFLOAT3();
+		m_drawFinalPlane.m_plane.extraBufferArray[4].bufferWrapper->TransData(&data, sizeof(LightData));
 	}
 	//ñ@ê¸ï`âÊ
 	//compute.Update();
@@ -255,6 +261,9 @@ void RenderScene::Draw()
 	ImGui::DragFloat("VecX", &lightVec.x);
 	ImGui::DragFloat("VecY", &lightVec.y);
 	ImGui::DragFloat("VecZ", &lightVec.z);
+	ImGui::DragFloat("AtemX", &atem.x);
+	ImGui::DragFloat("AtemY", &atem.y);
+	ImGui::DragFloat("AtemZ", &atem.z);
 	for (auto &obj : m_drawPlaneArray)
 	{
 		ImGui::Checkbox(obj.m_bufferName.c_str(), &obj.m_drawFlag);
