@@ -219,6 +219,7 @@ void RenderScene::Update()
 		RESOURCE_HANDLE finaleHandle = GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::FINAL];
 		DrawFunc::DrawTextureIn2D(m_drawFinalPlane.m_plane, transform, RenderTargetStatus::Instance()->GetBuffer(finaleHandle));
 	}
+
 	//–@ü•`‰æ
 	//compute.Update();
 
