@@ -8,17 +8,17 @@ RenderScene::RenderScene()
 {
 	endGameFlag = false;
 
-	boxData = boxBuffer.GenerateBoxBuffer(1.0f);
+	m_boxData = m_boxBuffer.GenerateBoxBuffer(1.0f);
 
 	Raytracing::HitGroupMgr::Instance()->Setting();
 	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS"}, {L"mainCHS", L"mainAnyHit"} });
 	int payloadSize = sizeof(float) * 3;
-	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 1, 0, 0, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
+	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 6, 0, 0, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
 	//G-Buffer生成
 	GBufferMgr::Instance();
 
-	model = ModelLoader::Instance()->Load("Resource/Test/glTF/", "sponza.gltf");
+	m_model = ModelLoader::Instance()->Load("Resource/Test/glTF/", "sponza.gltf");
 
 	//フォワードレンダリングで描画するモデル
 	{
@@ -36,17 +36,17 @@ RenderScene::RenderScene()
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdMain", "ps_6_4", SHADER_TYPE_PIXEL);
 
 		//描画
-		drawSponza = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*model, lData);
+		m_drawSponza = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_model, lData);
 		//その他バッファ
-		drawSponza.extraBufferArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
-		drawSponza.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		drawSponza.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-		drawSponza.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT3);
+		m_drawSponza.extraBufferArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
+		m_drawSponza.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		m_drawSponza.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+		m_drawSponza.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT3);
 
-		drawSponza.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+		m_drawSponza.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
 
 		//レイトレの準備
-		drawSponza.SetupRaytracing(true);
+		m_drawSponza.SetupRaytracing(true);
 	}
 
 	{
@@ -79,23 +79,23 @@ RenderScene::RenderScene()
 
 
 
-	transformArray[0].pos = { 0.0f,0.0f,0.0f };
-	transformArray[1].pos = { 10.0f,0.0f,0.0f };
-	transformArray[1].scale = { 1.0f,1.0f,1.0f };
+	m_transformArray[0].pos = { 0.0f,0.0f,0.0f };
+	m_transformArray[1].pos = { 10.0f,0.0f,0.0f };
+	m_transformArray[1].scale = { 1.0f,1.0f,1.0f };
 
-	transformArray[2].pos = { 1280.0f,720.0f,0.0f };
-	transformArray[2].scale = { 0.25f,0.25f,0.0f };
-	transformArray[3].pos = { 1280.0f,525.0f,0.0f };
-	transformArray[3].scale = { 0.25f,0.25f,0.0f };
-	transformArray[4].pos = { 1280.0f,300.0f,0.0f };
-	transformArray[4].scale = { 0.25f,0.25f,0.0f };
+	m_transformArray[2].pos = { 1280.0f,720.0f,0.0f };
+	m_transformArray[2].scale = { 0.25f,0.25f,0.0f };
+	m_transformArray[3].pos = { 1280.0f,525.0f,0.0f };
+	m_transformArray[3].scale = { 0.25f,0.25f,0.0f };
+	m_transformArray[4].pos = { 1280.0f,300.0f,0.0f };
+	m_transformArray[4].scale = { 0.25f,0.25f,0.0f };
 
 
-	colorArray[0] = { 155,155,155,255 };
-	colorArray[1] = { 155,0,0,155 };
-	colorArray[2] = { 0,155,0,55 };
+	m_colorArray[0] = { 155,155,155,255 };
+	m_colorArray[1] = { 155,0,0,155 };
+	m_colorArray[2] = { 0,155,0,55 };
 
-	texFlag = true;
+	m_texFlag = true;
 
 
 	//clearGBuffer.SetBuffer(testRArray[0]->GetDrawData()->buffer[2], GRAPHICS_PRAMTYPE_DATA);
@@ -113,25 +113,25 @@ RenderScene::RenderScene()
 		computeData.shaderData = ShaderOptionData(KazFilePathName::ComputeShaderPath + "DefferdRenderLightingPass.hlsl", "CSLightingPass", "cs_6_4", SHADER_TYPE_COMPUTE);
 
 		//ディスパッチのアドレス
-		dispatchData.x = 1280;
-		dispatchData.y = 720;
-		dispatchData.z = 1;
-		computeData.dispatchData = &dispatchData;
+		m_dispatchData.x = 1280;
+		m_dispatchData.y = 720;
+		m_dispatchData.z = 1;
+		computeData.dispatchData = &m_dispatchData;
 
-		gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-		finalGBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+		m_gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		m_gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		m_finalGBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 
 		//セットするバッファ
 		computeData.bufferArray =
 		{
-			finalGBuffer,
-			gBuffer[0],
-			gBuffer[1]
+			m_finalGBuffer,
+			m_gBuffer[0],
+			m_gBuffer[1]
 		};
 
 		//積む
-		compute.Stack(computeData);
+		m_compute.Stack(computeData);
 	}
 
 	//クリア処理
@@ -146,23 +146,23 @@ RenderScene::RenderScene()
 		computeData.shaderData = ShaderOptionData(KazFilePathName::ComputeShaderPath + "ClearGBuffer.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE);
 
 		//ディスパッチのアドレス
-		dispatchData.x = 1280;
-		dispatchData.y = 720;
-		dispatchData.z = 1;
-		computeData.dispatchData = &dispatchData;
+		m_dispatchData.x = 1280;
+		m_dispatchData.y = 720;
+		m_dispatchData.z = 1;
+		computeData.dispatchData = &m_dispatchData;
 
-		gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		m_gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		m_gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
 		//セットするバッファ
 		computeData.bufferArray =
 		{
-			gBuffer[0],
-			gBuffer[1]
+			m_gBuffer[0],
+			m_gBuffer[1]
 		};
 
 		//積む
-		compute.Stack(computeData);
+		m_compute.Stack(computeData);
 	}
 
 
@@ -175,8 +175,8 @@ RenderScene::~RenderScene()
 
 void RenderScene::Init()
 {
-	camera.Init({});
-	lightVec = { 0.0f,1.0f,0.0f };
+	m_camera.Init({});
+	m_lightVec = { 0.0f,1.0f,0.0f };
 }
 
 void RenderScene::PreInit()
@@ -193,13 +193,13 @@ void RenderScene::Input()
 
 void RenderScene::Update()
 {
-	camera.Update({}, {}, true);
-	CameraMgr::Instance()->Camera(camera.GetEyePos(), camera.GetTargetPos(), { 0.0f,1.0f,0.0f });
+	m_camera.Update({}, {}, true);
+	CameraMgr::Instance()->Camera(m_camera.GetEyePos(), m_camera.GetTargetPos(), { 0.0f,1.0f,0.0f });
 
 
-	DrawFunc::DrawModelInRaytracing(drawSponza, transformArray[0], DrawFunc::REFRACTION);
-	DirectX::XMFLOAT3 dir = lightVec.ConvertXMFLOAT3();
-	drawSponza.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
+	DrawFunc::DrawModelInRaytracing(m_drawSponza, m_transformArray[0], DrawFunc::REFRACTION);
+	DirectX::XMFLOAT3 dir = m_lightVec.ConvertXMFLOAT3();
+	m_drawSponza.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 
 
 	{
@@ -231,9 +231,9 @@ void RenderScene::Draw()
 {
 	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
 
-	rasterizeRenderer.ObjectRender(drawSponza);
-	for (int index = 0; index < static_cast<int>(drawSponza.m_raytracingData.m_blas.size()); ++index) {
-		m_blasVector.Add(drawSponza.m_raytracingData.m_blas[index], transformArray[0].GetMat());
+	m_rasterizeRenderer.ObjectRender(m_drawSponza);
+	for (int index = 0; index < static_cast<int>(m_drawSponza.m_raytracingData.m_blas.size()); ++index) {
+		m_blasVector.Add(m_drawSponza.m_raytracingData.m_blas[index], m_transformArray[0].GetMat());
 	}
 
 
@@ -243,17 +243,17 @@ void RenderScene::Draw()
 		{
 			continue;
 		}
-		rasterizeRenderer.ObjectRender(m_drawPlaneArray[i].m_plane);
+		m_rasterizeRenderer.ObjectRender(m_drawPlaneArray[i].m_plane);
 	}
 	//最終合成結果
 	if (m_drawFinalPlane.m_drawFlag)
 	{
-		rasterizeRenderer.ObjectRender(m_drawFinalPlane.m_plane);
+		m_rasterizeRenderer.ObjectRender(m_drawFinalPlane.m_plane);
 	}
 
-	rasterizeRenderer.Sort();
+	m_rasterizeRenderer.Sort();
 	//compute.Compute();
-	rasterizeRenderer.Render();
+	m_rasterizeRenderer.Render();
 
 
 	/*----- レイトレ描画開始 -----*/
@@ -272,9 +272,9 @@ void RenderScene::Draw()
 
 
 	ImGui::Begin("Light");
-	ImGui::DragFloat("VecX", &lightVec.x);
-	ImGui::DragFloat("VecY", &lightVec.y);
-	ImGui::DragFloat("VecZ", &lightVec.z);
+	ImGui::DragFloat("VecX", &m_lightVec.x);
+	ImGui::DragFloat("VecY", &m_lightVec.y);
+	ImGui::DragFloat("VecZ", &m_lightVec.z);
 	for (auto& obj : m_drawPlaneArray)
 	{
 		ImGui::Checkbox(obj.m_bufferName.c_str(), &obj.m_drawFlag);
