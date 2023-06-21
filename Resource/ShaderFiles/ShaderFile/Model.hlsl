@@ -65,15 +65,28 @@ cbuffer LightBufferB2 : register(b2)
     float3 localLightDirB2;
 }
 
-PosUvNormalOutput VSDefferdMain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
+struct PosUvNormalTangentBinormalOutput
 {
-    PosUvNormalOutput op;
+    float4 svpos : SV_POSITION; //システム用頂点座標
+    float3 normal : NORMAL; //法線ベクトル
+    float2 uv : TEXCOORD;
+    float3 lightInTangentWorld : TANGENT;
+    float3 worldPos : POSITION;
+    float3 tangent : TANGENT2;
+    float3 binormal : BINORMAL;
+};
+
+PosUvNormalTangentBinormalOutput VSDefferdMain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
+{
+    PosUvNormalTangentBinormalOutput op;
     op.svpos = mul(worldMat,pos);
     op.worldPos = op.svpos;
     op.svpos = mul(viewMat,op.svpos);
     op.svpos = mul(projectionMat,op.svpos);
     op.uv = uv;
     op.normal = normal;
+    op.binormal = binormal;
+    op.tangent = tangent;
 
     float4 lightDir = float4(localLightDirB2.xyz,0.0f);
     lightDir = normalize(lightDir);
@@ -92,7 +105,7 @@ struct GBufferOutput
     float4 final : SV_TARGET4;
 };
 
-GBufferOutput PSDefferdMain(PosUvNormalOutput input) : SV_TARGET
+GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
 {
     float4 normalColor = NormalTex.Sample(smp,input.uv);
     //-表現を入れる為に、0~255の半分を0.0f地点にするよう計算する。
@@ -107,9 +120,19 @@ GBufferOutput PSDefferdMain(PosUvNormalOutput input) : SV_TARGET
     //メタル、ラフ
     float4 mrColor = MetalnessRoughnessTex.Sample(smp,input.uv);
 
+    //ワールド空間の法線
+    float3 normal = mul(worldMat,float4(input.normal,1.0f));
+    float3 tangent = mul(worldMat,float4(input.tangent,1.0f));
+    float3 binormal = cross(normal,tangent);
+
+
+    //タンジェント空間からローカル空間の法線に直した
+    float3 nWorld = CalucurateTangentToLocal(normalVec,normal,tangent,binormal);
+    bright = dot(normalize(localLightDirB2),nWorld);
+
     GBufferOutput output;
     output.albedo = texColor;
-    output.normal = normalColor;
+    output.normal = float4(nWorld,1.0f);
     output.metalnessRoughness = float4(mrColor.xyz,raytracingId);
     output.world = float4(input.worldPos,1.0f);
     output.final = float4(texColor.xyz * bright,texColor.a);

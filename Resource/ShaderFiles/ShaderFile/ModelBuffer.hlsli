@@ -19,17 +19,14 @@ cbuffer MaterialID : register(b1)
 //ローカル空間 → 接空間 の変換行列
 float3 CalucurateLocalToTangent(float3 localVector,float3 normal,float3 tangent,float3 binNoraml)
 {
-    float3x3 mat = float3x3(tangent.xyz,binNoraml,normal);
-    float3 tangentVector = mul(mat,localVector);
+    float3 tangentVector = float3(dot(tangent,localVector),dot(binNoraml,localVector),dot(normal,localVector));
     return tangentVector;
 }
 
 //接空間 → ローカル空間の変換行列
-float3 CalucurateTangentToLocal(float3x3 tangentMat, float3 tangentVector,float3 normal,float3 tangent,float3 binNoraml)
+float3 CalucurateTangentToLocal(float3 tangentVector,float3 normal,float3 tangent,float3 binNoraml)
 {
-    float3x3 mat = float3x3(tangent.x,binNoraml.x,normal.x,tangent.y,binNoraml.y,normal.y,tangent.z,binNoraml.z,normal.z);
-    mat = transpose(tangentMat);
-    float3 localVector = mul(mat,tangentVector);
+    float3 localVector = tangent * tangentVector.x + binNoraml * tangentVector.y + normal * tangentVector.z;
     return localVector;
 }
 

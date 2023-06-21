@@ -349,6 +349,8 @@ RESOURCE_HANDLE RenderTargetStatus::GenerateRenderTargetBuffer(const MultiRender
 
 	buffers[handle].bufferWrapper->CreateViewHandle(descriptorHandle);
 
+	buffers[handle].rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
+
 	return descriptorHandle;
 }
 

@@ -716,4 +716,15 @@ namespace DrawFuncData
 		return lDrawCallData;
 	};
 
+
+	static DrawCallData SetLineData(const PipelineGenerateData &PIPELINE_DATA)
+	{
+		DrawCallData lDrawCallData;
+		//std::vector<VertexGenerateData>vertexMesh;
+		//vertexMesh.emplace_back();
+		//RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GenerateBuffer();
+		//SetDrawPolygonData(VertexBufferMgr::Instance()->GetBuffer(handle).index, PIPELINE_DATA);
+		return lDrawCallData;
+	};
+
 }

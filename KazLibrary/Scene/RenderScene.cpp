@@ -69,11 +69,16 @@ RenderScene::RenderScene()
 	{
 		DrawFuncData::PipelineGenerateData lData;
 		lData.desc = DrawFuncPipelineData::SetTex();
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "GBufferDrawFinal.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "GBufferDrawFinal.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
 		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::NONE;
 
 		m_drawFinalPlane.m_plane = DrawFuncData::SetTexPlaneData(lData);
+		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back();
+		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back();
+		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(LightData)));
+		m_drawFinalPlane.m_plane.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		m_drawFinalPlane.m_plane.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 		m_drawFinalPlane.m_bufferName = "Final";
 	}
 
@@ -175,8 +180,10 @@ RenderScene::~RenderScene()
 
 void RenderScene::Init()
 {
-	m_camera.Init({});
-	m_lightVec = { 0.0f,1.0f,0.0f };
+	camera.Init({});
+	lightVec = { 0.0f,1.0f,0.0f };
+
+	atem = { 0.1f,0.1f,0.3f };
 }
 
 void RenderScene::PreInit()
@@ -216,8 +223,17 @@ void RenderScene::Update()
 		}
 
 		//çáê¨åãâ 
-		RESOURCE_HANDLE finaleHandle = GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::FINAL];
-		DrawFunc::DrawTextureIn2D(m_drawFinalPlane.m_plane, transform, RenderTargetStatus::Instance()->GetBuffer(finaleHandle));
+		RESOURCE_HANDLE albedoHandle = GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::ALBEDO];
+		DrawFunc::DrawTextureIn2D(m_drawFinalPlane.m_plane, transform, RenderTargetStatus::Instance()->GetBuffer(albedoHandle));
+		m_drawFinalPlane.m_plane.extraBufferArray[2] = RenderTargetStatus::Instance()->GetBuffer(GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::NORMAL]);
+		m_drawFinalPlane.m_plane.extraBufferArray[2].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		m_drawFinalPlane.m_plane.extraBufferArray[3] = RenderTargetStatus::Instance()->GetBuffer(GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::WORLD]);
+		m_drawFinalPlane.m_plane.extraBufferArray[3].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+
+		LightData data;
+		data.pos = lightVec.ConvertXMFLOAT3();
+		data.atem = atem.ConvertXMFLOAT3();
+		m_drawFinalPlane.m_plane.extraBufferArray[4].bufferWrapper->TransData(&data, sizeof(LightData));
 	}
 
 	//ñ@ê¸ï`âÊ
@@ -273,10 +289,13 @@ void RenderScene::Draw()
 
 
 	ImGui::Begin("Light");
-	ImGui::DragFloat("VecX", &m_lightVec.x);
-	ImGui::DragFloat("VecY", &m_lightVec.y);
-	ImGui::DragFloat("VecZ", &m_lightVec.z);
-	for (auto& obj : m_drawPlaneArray)
+	ImGui::DragFloat("VecX", &lightVec.x);
+	ImGui::DragFloat("VecY", &lightVec.y);
+	ImGui::DragFloat("VecZ", &lightVec.z);
+	ImGui::DragFloat("AtemX", &atem.x);
+	ImGui::DragFloat("AtemY", &atem.y);
+	ImGui::DragFloat("AtemZ", &atem.z);
+	for (auto &obj : m_drawPlaneArray)
 	{
 		ImGui::Checkbox(obj.m_bufferName.c_str(), &obj.m_drawFlag);
 	}
