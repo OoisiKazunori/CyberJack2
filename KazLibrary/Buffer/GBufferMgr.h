@@ -40,11 +40,25 @@ public:
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(BufferType arg_type);
 
+	const KazBufferHelper::BufferData &GetFinalBuffer()
+	{
+		return m_finalGBuffer;
+	};
+
+	const KazBufferHelper::BufferData &GetRayTracingBuffer()
+	{
+		return m_raytracingGBuffer;
+	};
+
 private:
 	//G-Buffer用のレンダーターゲット
 	std::vector<RESOURCE_HANDLE>m_gBufferRenderTargetHandleArray;
 	std::vector<DXGI_FORMAT>m_gBufferFormatArray;
 
 	KazBufferHelper::BufferData m_cameraPosBuffer;
+
+	//最終合成結果
+	KazBufferHelper::BufferData m_finalGBuffer;
+	KazBufferHelper::BufferData m_raytracingGBuffer;
 };
 

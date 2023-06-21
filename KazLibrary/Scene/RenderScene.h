@@ -92,8 +92,8 @@ private:
 	std::array<DrawGBufferData, 4>m_drawPlaneArray;
 	DrawGBufferData m_drawFinalPlane;
 
-	KazMath::Vec3<float>lightVec;
-	KazMath::Vec3<float>atem;
+	KazMath::Vec3<float>m_lightVec;
+	KazMath::Vec3<float>m_atem;
 
 	struct LightData
 	{

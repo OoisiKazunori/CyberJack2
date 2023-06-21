@@ -79,6 +79,7 @@ RenderScene::RenderScene()
 		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(LightData)));
 		m_drawFinalPlane.m_plane.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		m_drawFinalPlane.m_plane.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back();
 		m_drawFinalPlane.m_bufferName = "Final";
 	}
 
@@ -180,10 +181,10 @@ RenderScene::~RenderScene()
 
 void RenderScene::Init()
 {
-	camera.Init({});
-	lightVec = { 0.0f,1.0f,0.0f };
+	m_camera.Init({});
+	m_lightVec = { 0.0f,1.0f,0.0f };
 
-	atem = { 0.1f,0.1f,0.3f };
+	m_atem = { 0.1f,0.1f,0.3f };
 }
 
 void RenderScene::PreInit()
@@ -231,9 +232,13 @@ void RenderScene::Update()
 		m_drawFinalPlane.m_plane.extraBufferArray[3].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 
 		LightData data;
-		data.pos = lightVec.ConvertXMFLOAT3();
-		data.atem = atem.ConvertXMFLOAT3();
+		data.pos = m_lightVec.ConvertXMFLOAT3();
+		data.atem = m_atem.ConvertXMFLOAT3();
 		m_drawFinalPlane.m_plane.extraBufferArray[4].bufferWrapper->TransData(&data, sizeof(LightData));
+		//ç≈èIçáê¨åãâ Çäiî[Ç∑ÇÈÅB
+		m_drawFinalPlane.m_plane.extraBufferArray[5] = GBufferMgr::Instance()->GetFinalBuffer();
+		m_drawFinalPlane.m_plane.extraBufferArray[5].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		m_drawFinalPlane.m_plane.extraBufferArray[5].rootParamType = GRAPHICS_PRAMTYPE_DATA;
 	}
 
 	//ñ@ê¸ï`âÊ
@@ -289,12 +294,12 @@ void RenderScene::Draw()
 
 
 	ImGui::Begin("Light");
-	ImGui::DragFloat("VecX", &lightVec.x);
-	ImGui::DragFloat("VecY", &lightVec.y);
-	ImGui::DragFloat("VecZ", &lightVec.z);
-	ImGui::DragFloat("AtemX", &atem.x);
-	ImGui::DragFloat("AtemY", &atem.y);
-	ImGui::DragFloat("AtemZ", &atem.z);
+	ImGui::DragFloat("VecX", &m_lightVec.x);
+	ImGui::DragFloat("VecY", &m_lightVec.y);
+	ImGui::DragFloat("VecZ", &m_lightVec.z);
+	ImGui::DragFloat("AtemX", &m_atem.x);
+	ImGui::DragFloat("AtemY", &m_atem.y);
+	ImGui::DragFloat("AtemZ", &m_atem.z);
 	for (auto &obj : m_drawPlaneArray)
 	{
 		ImGui::Checkbox(obj.m_bufferName.c_str(), &obj.m_drawFlag);

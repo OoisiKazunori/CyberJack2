@@ -39,6 +39,24 @@ GBufferMgr::GBufferMgr()
 		multiRenderTargetArray[FINAL].backGroundColor = { 0.0f,0.0f,0.0f };
 		multiRenderTargetArray[FINAL].graphSize = winSize;
 		multiRenderTargetArray[FINAL].format = m_gBufferFormatArray[FINAL];
+
+		m_gBufferRenderTargetHandleArray = RenderTargetStatus::Instance()->CreateMultiRenderTarget(multiRenderTargetArray);
+
+		m_finalGBuffer = KazBufferHelper::SetUAVTexBuffer(winSize.x, winSize.y);
+		m_finalGBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
+		DescriptorHeapMgr::Instance()->CreateBufferView(
+			m_finalGBuffer.bufferWrapper->GetViewHandle(),
+			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), winSize.x * winSize.y),
+			m_finalGBuffer.bufferWrapper->GetBuffer().Get()
+		);
+
+		m_raytracingGBuffer = KazBufferHelper::SetUAVTexBuffer(winSize.x, winSize.y);
+		m_raytracingGBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
+		DescriptorHeapMgr::Instance()->CreateBufferView(
+			m_raytracingGBuffer.bufferWrapper->GetViewHandle(),
+			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), winSize.x * winSize.y),
+			m_raytracingGBuffer.bufferWrapper->GetBuffer().Get()
+		);
 	}
 
 	m_cameraPosBuffer = KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3));

@@ -26,6 +26,7 @@ VSOutput VSmain(float4 pos : POSITION, float2 uv : TEXCOORD)
 Texture2D<float4> AlbedoTex : register(t0);
 Texture2D<float4> NormalTex : register(t1);
 Texture2D<float4> WorldTex : register(t2);
+RWTexture2D<float4> finalTex : register(u0);
 SamplerState smp : register(s0);
 
 float4 PSmain(VSOutput input) : SV_TARGET
@@ -51,5 +52,7 @@ float4 PSmain(VSOutput input) : SV_TARGET
 
     //çáê¨
     float4 outputColor = albedoColor;
+
+    finalTex[input.uv * uint2(1280,720)] = float4(outputColor.xyz * light,outputColor.a);
     return float4(outputColor.xyz * light,outputColor.a);
 }
