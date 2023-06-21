@@ -54,3 +54,9 @@ std::vector<DXGI_FORMAT> GBufferMgr::GetRenderTargetFormat()
 {
 	return m_gBufferFormatArray;
 }
+
+D3D12_GPU_DESCRIPTOR_HANDLE GBufferMgr::GetGPUHandle(BufferType arg_type)
+{
+	RESOURCE_HANDLE handle = RenderTargetStatus::Instance()->GetBuffer(m_gBufferRenderTargetHandleArray[arg_type]).bufferWrapper->GetViewHandle();
+	return DescriptorHeapMgr::Instance()->GetGpuDescriptorView(handle);
+}

@@ -38,6 +38,7 @@ public:
 	/// </summary>
 	void DebugDraw();
 
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(BufferType arg_type);
 
 private:
 	//G-Buffer用のレンダーターゲット
