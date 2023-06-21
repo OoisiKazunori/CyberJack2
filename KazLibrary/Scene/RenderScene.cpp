@@ -62,11 +62,15 @@ RenderScene::RenderScene()
 	{
 		DrawFuncData::PipelineGenerateData lData;
 		lData.desc = DrawFuncPipelineData::SetTex();
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "GBufferDrawFinal.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "GBufferDrawFinal.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
 		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::NONE;
 
 		m_drawFinalPlane.m_plane = DrawFuncData::SetTexPlaneData(lData);
+		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back();
+		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3)));
+		m_drawFinalPlane.m_plane.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		m_drawFinalPlane.m_plane.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 		m_drawFinalPlane.m_bufferName = "Final";
 	}
 
@@ -209,8 +213,12 @@ void RenderScene::Update()
 		}
 
 		//‡¬Œ‹‰Ê
-		RESOURCE_HANDLE finaleHandle = GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::FINAL];
-		DrawFunc::DrawTextureIn2D(m_drawFinalPlane.m_plane, transform, RenderTargetStatus::Instance()->GetBuffer(finaleHandle));
+		RESOURCE_HANDLE albedoHandle = GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::ALBEDO];
+		DrawFunc::DrawTextureIn2D(m_drawFinalPlane.m_plane, transform, RenderTargetStatus::Instance()->GetBuffer(albedoHandle));
+		m_drawFinalPlane.m_plane.extraBufferArray[2] = RenderTargetStatus::Instance()->GetBuffer(GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::NORMAL]);
+		m_drawFinalPlane.m_plane.extraBufferArray[2].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+
+		m_drawFinalPlane.m_plane.extraBufferArray[3].bufferWrapper->TransData(&lightVec.ConvertXMFLOAT3(), sizeof(DirectX::XMFLOAT3));
 	}
 	//–@ü•`‰æ
 	//compute.Update();

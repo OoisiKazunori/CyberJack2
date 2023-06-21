@@ -6,13 +6,18 @@ struct VSOutput
 
 cbuffer MatBuffer : register(b0)
 {
-    matrix mat; //3Dïœä∑çsóÒ
+    matrix Mat; //3Dïœä∑çsóÒ
+}
+
+cbuffer LightDir : register(b1)
+{
+    float3 WorldLightDir;
 }
 
 VSOutput VSmain(float4 pos : POSITION, float2 uv : TEXCOORD)
 {
 	VSOutput op;
-	op.svpos = mul(mat, pos);
+	op.svpos = mul(Mat, pos);
 	op.uv = uv;
 	return op;
 }
@@ -23,7 +28,9 @@ SamplerState smp : register(s0);
 
 float4 PSmain(VSOutput input) : SV_TARGET
 {
-    float4 output = AlbedoTex.Sample(smp, input.uv);
-    output = NormalTex.Sample(smp, input.uv);
-    return output;
+    float4 albedoColor = AlbedoTex.Sample(smp, input.uv);
+    float4 worldNormalVec = NormalTex.Sample(smp, input.uv);
+
+    float3 bright = dot(normalize(WorldLightDir),worldNormalVec.xyz);
+    return float4(albedoColor.xyz * bright,albedoColor.a);
 }
