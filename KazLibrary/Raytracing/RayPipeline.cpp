@@ -295,7 +295,7 @@ namespace Raytracing {
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(5, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::FINAL));	//ライティング合成結果
 
 		//書き込み用UAV
-		//DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(6, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::RAYTRACING_OUTPUT));	//レイトレ出力用
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(6, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetViewHandle()));	//レイトレ出力用
 
 		//パイプラインを設定。
 		DirectX12CmdList::Instance()->cmdList->SetPipelineState1(m_stateObject.Get());

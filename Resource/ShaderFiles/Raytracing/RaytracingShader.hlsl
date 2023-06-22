@@ -6,6 +6,7 @@ RaytracingAccelerationStructure gRtScene : register(t0);
 //各リソース等
 StructuredBuffer<uint> indexBuffer : register(t0, space1);
 StructuredBuffer<Vertex> vertexBuffer : register(t1, space1);
+Texture2D<float4> objectTexture : register(t2, space1);
 //サンプラー
 SamplerState smp : register(s0, space1);
 
@@ -17,7 +18,7 @@ Texture2D<float4> worldMap : register(t4);
 Texture2D<float4> sceneMap : register(t5);
 
 //出力先UAV
-//RWTexture2D<float4> finalColor : register(u0);
+RWTexture2D<float4> finalColor : register(u0);
 
 
 //RayGenerationシェーダー
@@ -33,36 +34,42 @@ void mainRayGen()
     float4 materialInfo = materialMap[launchIndex];
     float4 worldColor = worldMap[launchIndex];
     float4 sceneColor = sceneMap[launchIndex];
-
-    //レイの設定
-    RayDesc rayDesc;
-    rayDesc.Origin = float4(0, 0, 0, 1);
-    rayDesc.Origin.xy += launchIndex * 2.0f;
-
-    rayDesc.Direction = normalize(float3(0,0,1));
-    rayDesc.TMin = 0;
-    rayDesc.TMax = 300000;
-
-    //ペイロードの設定
-    Payload payloadData;
-    payloadData.color_ = float3(0, 0, 0);
     
-    RAY_FLAG flag = RAY_FLAG_NONE;
-    flag |= RAY_FLAG_CULL_BACK_FACING_TRIANGLES;    //背面カリング
-    
-    //レイを発射
-    TraceRay(
-    gRtScene, //TLAS
-    flag, //衝突判定制御をするフラグ
-    0xFF, //衝突判定対象のマスク値
-    0, //ray index
-    1, //MultiplierForGeometryContrib
-    0, //miss index
-    rayDesc,
-    payloadData);
+    //レイのIDをみて、レイを打つかどうかを判断
+    if (materialInfo.w != 0)
+    {
 
-   //結果格納
-   //finalColor[launchIndex.xy] = float4((payloadData.color_), 1);
+        //レイの設定
+        RayDesc rayDesc;
+        rayDesc.Origin = worldColor.xyz;
+
+        rayDesc.Direction = normalColor.xyz;
+        rayDesc.TMin = 0;
+        rayDesc.TMax = 300000;
+
+        //ペイロードの設定
+        Payload payloadData;
+        payloadData.color_ = float3(0, 0, 0);
+    
+        RAY_FLAG flag = RAY_FLAG_NONE;
+        flag |= RAY_FLAG_CULL_BACK_FACING_TRIANGLES; //背面カリング
+    
+        //レイを発射
+        TraceRay(
+        gRtScene, //TLAS
+        flag, //衝突判定制御をするフラグ
+        0xFF, //衝突判定対象のマスク値
+        0, //ray index
+        1, //MultiplierForGeometryContrib
+        0, //miss index
+        rayDesc,
+        payloadData);
+
+        //結果格納
+        finalColor[launchIndex.xy] = float4((payloadData.color_), 1);
+        
+        
+    }
 
 }
 
@@ -97,7 +104,8 @@ void shadowMS(inout Payload payload)
     Vertex meshInfo[3];
     Vertex vtx = GetHitVertex(attrib, vertexBuffer, indexBuffer, meshInfo);
     
-    payload.color_ = float3(0, 1, 0);
+    payload.color_ = float3(1,1,1);
+    payload.color_ = objectTexture.SampleLevel(smp, vtx.uv, 0).xyz;
     
 }
 

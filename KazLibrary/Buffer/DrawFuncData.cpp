@@ -10,9 +10,9 @@ void DrawFuncData::DrawCallData::SetupRaytracing(bool arg_isOpaque)
 	const int BLAS_COUNT = static_cast<int>(materialBuffer.size());
 	m_raytracingData.m_blas.resize(BLAS_COUNT);
 	for (int counter = 0; counter < BLAS_COUNT; ++counter) {
-		m_raytracingData.m_blas[counter] = std::make_shared<Raytracing::Blas>(arg_isOpaque, m_modelVertDataHandle, counter);
+		m_raytracingData.m_blas[counter] = std::make_shared<Raytracing::Blas>(arg_isOpaque, m_modelVertDataHandle, counter, materialBuffer[counter][0].bufferWrapper->GetViewHandle());
 	}
-
+	materialBuffer[0][0].bufferWrapper->GetViewHandle();
 	//レイトレがセットアップ済みの状態にする。
 	m_raytracingData.m_isRaytracingInitialized = true;
 
