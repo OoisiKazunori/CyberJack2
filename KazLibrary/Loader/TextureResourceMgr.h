@@ -107,6 +107,7 @@ private:
 
 	HandleMaker handle;
 	std::vector<KazBufferHelper::BufferData>bufferArray;
+	std::vector<KazBufferHelper::BufferData>cpuBufferArray;
 
 	friend ISingleton<TextureResourceMgr>;
 };
