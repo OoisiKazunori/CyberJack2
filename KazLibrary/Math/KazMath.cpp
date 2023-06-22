@@ -91,7 +91,7 @@ inline KazMath::Vec3<T> CaluAngle3D(const KazMath::Vec3<T> &POS, float ANGLE, co
 	float Radian;
 
 	oldV = POS;
-	Radian = ANGLE * PI_2F / 180.0f;
+	Radian = ANGLE * KazMath::PI_2F / 180.0f;
 
 	T Cos = static_cast<T>(cos(Radian));
 	T Sin = static_cast<T>(sin(Radian));
@@ -129,7 +129,7 @@ template <typename T>
 inline KazMath::Vec3<T> KazMath::CaluAPointToBPointVel(const KazMath::Vec3<T> &A_POINT, const KazMath::Vec3<T> &B_POINT, int FLAME, int MAX_FLAME)
 {
 	Vec3<T> distance = A_POINT - B_POINT;
-	Vec3<T> mul = static_cast<float>(FLAME) / static_cast<float>(MAXFLAME);
+	Vec3<T> mul = static_cast<float>(FLAME) / static_cast<float>(MAX_FLAME);
 	return distance * mul;
 }
 
@@ -415,7 +415,7 @@ DirectX::XMMATRIX KazMath::CaluFrontMatrix(const Vec3<float> &Y, const Vec3<floa
 
 int KazMath::RadianToAngle(float RADIAN)
 {
-	float anglef = RADIAN * (180.0f / PI_2F);
+	float anglef = RADIAN * (180.0f / KazMath::PI_2F);
 	double angled = std::ceil(std::abs(anglef));
 
 	return static_cast<int>(angled);
@@ -423,13 +423,13 @@ int KazMath::RadianToAngle(float RADIAN)
 
 float KazMath::AngleToRadian(int ANGLE)
 {
-	float radian = static_cast<float>(ANGLE) * (PI_2F / 180.0f);
+	float radian = static_cast<float>(ANGLE) * (KazMath::PI_2F / 180.0f);
 	return radian;
 }
 
 float KazMath::AngleToRadian(float ANGLE)
 {
-	float radian = ANGLE * (PI_2F / 180.0f);
+	float radian = ANGLE * (KazMath::PI_2F / 180.0f);
 	return radian;
 }
 

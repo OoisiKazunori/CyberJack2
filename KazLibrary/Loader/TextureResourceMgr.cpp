@@ -99,18 +99,36 @@ RESOURCE_HANDLE TextureResourceMgr::LoadGraph(std::string RESOURCE)
 	if (bufferArray.size() <= num)
 	{
 		bufferArray.emplace_back();
+		cpuBufferArray.emplace_back();
 	}
-	bufferArray[elementNum] = KazBufferHelper::SetShaderResourceBufferData(textureDesc);
+
+	cpuBufferArray[elementNum] = KazBufferHelper::SetShaderResourceBufferData(textureDesc);
+
+	bufferArray[elementNum] = KazBufferHelper::BufferResourceData
+	(
+		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		textureDesc,
+		D3D12_RESOURCE_STATE_COMMON,
+		nullptr,
+		"TextureBuffer-VRAM"
+	);
 
 	DescriptorHeapMgr::Instance()->CreateBufferView(num, srvDesc, bufferArray[elementNum].bufferWrapper->GetBuffer().Get());
 
-	bufferArray[elementNum].bufferWrapper->GetBuffer()->WriteToSubresource
+	cpuBufferArray[elementNum].bufferWrapper->GetBuffer()->WriteToSubresource
 	(
 		0,
 		nullptr,
 		img->pixels,
 		(UINT)img->rowPitch,
 		(UINT)img->slicePitch
+	);
+
+	bufferArray[elementNum].bufferWrapper->CopyBuffer(
+		cpuBufferArray[elementNum].bufferWrapper->GetBuffer(),
+		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_COPY_DEST
 	);
 
 
@@ -181,16 +199,27 @@ KazBufferHelper::BufferData TextureResourceMgr::LoadGraphBuffer(std::string RESO
 	RESOURCE_HANDLE num = handle.GetHandle();
 	RESOURCE_HANDLE elementNum = handle.CaluNowHandle(num);
 
-
 	if (bufferArray.size() <= num)
 	{
 		bufferArray.emplace_back();
+		cpuBufferArray.emplace_back();
 	}
-	bufferArray[elementNum] = KazBufferHelper::SetShaderResourceBufferData(textureDesc);
+
+	cpuBufferArray[elementNum] = KazBufferHelper::SetShaderResourceBufferData(textureDesc);
+
+	bufferArray[elementNum] = KazBufferHelper::BufferResourceData
+	(
+		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		textureDesc,
+		D3D12_RESOURCE_STATE_COMMON,
+		nullptr,
+		"TextureBuffer-VRAM"
+	);
 
 	DescriptorHeapMgr::Instance()->CreateBufferView(num, srvDesc, bufferArray[elementNum].bufferWrapper->GetBuffer().Get());
 
-	bufferArray[elementNum].bufferWrapper->GetBuffer()->WriteToSubresource
+	cpuBufferArray[elementNum].bufferWrapper->GetBuffer()->WriteToSubresource
 	(
 		0,
 		nullptr,
@@ -198,6 +227,13 @@ KazBufferHelper::BufferData TextureResourceMgr::LoadGraphBuffer(std::string RESO
 		(UINT)img->rowPitch,
 		(UINT)img->slicePitch
 	);
+
+	bufferArray[elementNum].bufferWrapper->CopyBuffer(
+		cpuBufferArray[elementNum].bufferWrapper->GetBuffer(),
+		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_COPY_DEST
+	);
+
 
 	bufferArray[elementNum].rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
 	bufferArray[elementNum].bufferWrapper->CreateViewHandle(std::vector<RESOURCE_HANDLE>({ num }));

@@ -13,6 +13,7 @@ KazBufferHelper::BufferResourceData KazBufferHelper::SetConstBufferData(const un
 	);
 	return data;
 }
+
 KazBufferHelper::BufferResourceData KazBufferHelper::SetShaderResourceBufferData(const D3D12_RESOURCE_DESC &TEXTURE_DATA, const std::string &BUFFER_NAME)
 {
 	BufferResourceData data
@@ -26,6 +27,7 @@ KazBufferHelper::BufferResourceData KazBufferHelper::SetShaderResourceBufferData
 	);
 	return data;
 }
+
 KazBufferHelper::BufferResourceData KazBufferHelper::SetVertexBufferData(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME)
 {
 	BufferResourceData data

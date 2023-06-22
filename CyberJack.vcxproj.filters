@@ -188,7 +188,14 @@
     <ClCompile Include="KazLibrary\Raytracing\Blas.cpp" />
     <ClCompile Include="KazLibrary\Buffer\GBufferMgr.cpp" />
     <ClCompile Include="KazLibrary\Render\DrawFunc.cpp" />
-    <ClCompile Include="KazLibrary\Render\CPUParticle.cpp" />
+    <ClCompile Include="KazLibrary\Raytracing\BlasVector.cpp" />
+    <ClCompile Include="KazLibrary\Raytracing\HitGroup.cpp" />
+    <ClCompile Include="KazLibrary\Raytracing\HitGroupMgr.cpp" />
+    <ClCompile Include="KazLibrary\Raytracing\RayPipeline.cpp" />
+    <ClCompile Include="KazLibrary\Raytracing\RayRootSignature.cpp" />
+    <ClCompile Include="KazLibrary\Raytracing\RayShaderData.cpp" />
+    <ClCompile Include="KazLibrary\Raytracing\RayShaderStorage.cpp" />
+    <ClCompile Include="KazLibrary\Raytracing\Tlas.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -393,12 +400,17 @@
     <ClInclude Include="lib\tinygltf\stb_image.h" />
     <ClInclude Include="lib\tinygltf\stb_image_write.h" />
     <ClInclude Include="KazLibrary\Buffer\VertexBufferMgr.h" />
-<<<<<<< HEAD
     <ClInclude Include="KazLibrary\Raytracing\Blas.h" />
-=======
->>>>>>> origin/master
     <ClInclude Include="KazLibrary\Buffer\GBufferMgr.h" />
     <ClInclude Include="KazLibrary\Render\DrawFunc.h" />
+    <ClInclude Include="KazLibrary\Raytracing\BlasVector.h" />
+    <ClInclude Include="KazLibrary\Raytracing\HitGroup.h" />
+    <ClInclude Include="KazLibrary\Raytracing\HitGroupMgr.h" />
+    <ClInclude Include="KazLibrary\Raytracing\RayPipeline.h" />
+    <ClInclude Include="KazLibrary\Raytracing\RayRootSignature.h" />
+    <ClInclude Include="KazLibrary\Raytracing\RayShaderData.h" />
+    <ClInclude Include="KazLibrary\Raytracing\RayShaderStorage.h" />
+    <ClInclude Include="KazLibrary\Raytracing\Tlas.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
