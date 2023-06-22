@@ -65,7 +65,8 @@ private:
 	PolygonIndexData m_planeData;
 	PolygonIndexData m_pboxNormalData;
 
-	std::shared_ptr<ModelInfomation> m_model;
+	std::shared_ptr<ModelInfomation> m_sponzaModel;
+	std::shared_ptr<ModelInfomation> m_suzanneModel;
 
 	DispatchComputeShader::DispatchData m_dispatchData;
 
@@ -82,6 +83,7 @@ private:
 	//std::unique_ptr<DrawFunc::KazRender>finalGBufferRender;
 
 	DrawFuncData::DrawCallData m_drawSponza;
+	DrawFuncData::DrawCallData m_drawSuzanne;
 
 	struct DrawGBufferData
 	{

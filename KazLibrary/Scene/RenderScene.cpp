@@ -18,7 +18,7 @@ RenderScene::RenderScene()
 	//G-Buffer生成
 	GBufferMgr::Instance();
 
-	m_model = ModelLoader::Instance()->Load("Resource/Test/glTF/", "sponza.gltf");
+	m_sponzaModel = ModelLoader::Instance()->Load("Resource/Test/glTF/Sponza/", "sponza.gltf");
 
 	//フォワードレンダリングで描画するモデル
 	{
@@ -36,7 +36,7 @@ RenderScene::RenderScene()
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdMain", "ps_6_4", SHADER_TYPE_PIXEL);
 
 		//描画
-		m_drawSponza = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_model, lData);
+		m_drawSponza = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_sponzaModel, lData);
 		//その他バッファ
 		m_drawSponza.extraBufferArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
 		m_drawSponza.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
@@ -48,6 +48,28 @@ RenderScene::RenderScene()
 		//レイトレの準備
 		m_drawSponza.SetupRaytracing(true);
 	}
+
+	{
+		m_suzanneModel = ModelLoader::Instance()->Load("Resource/Test/glTF/Suzanne/", "Suzanne.gltf");
+
+		DrawFuncData::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+
+		//その他設定
+		lData.desc.NumRenderTargets = static_cast<UINT>(GBufferMgr::Instance()->GetRenderTargetFormat().size());
+		for (int i = 0; i < GBufferMgr::Instance()->GetRenderTargetFormat().size(); ++i)
+		{
+			lData.desc.RTVFormats[i] = GBufferMgr::Instance()->GetRenderTargetFormat()[i];
+		}
+
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdMain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdMain", "ps_6_4", SHADER_TYPE_PIXEL);
+
+		//描画
+		m_drawSuzanne = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_suzanneModel, lData);
+		m_drawSuzanne.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+	}
+
 
 	{
 		DrawFuncData::PipelineGenerateData lData;
