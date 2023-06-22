@@ -14,7 +14,7 @@ GBufferMgr::GBufferMgr()
 		std::vector<MultiRenderTargetData> multiRenderTargetArray(MAX);
 		m_gBufferFormatArray.resize(MAX);
 		m_gBufferFormatArray[ALBEDO] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		m_gBufferFormatArray[NORMAL] = DXGI_FORMAT_R11G11B10_FLOAT;
+		m_gBufferFormatArray[NORMAL] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		m_gBufferFormatArray[R_M_S_ID] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		m_gBufferFormatArray[WORLD] = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		m_gBufferFormatArray[FINAL] = DXGI_FORMAT_R8G8B8A8_UNORM;

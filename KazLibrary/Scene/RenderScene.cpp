@@ -46,29 +46,50 @@ RenderScene::RenderScene()
 		m_drawSponza.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
 
 		//ÉåÉCÉgÉåÇÃèÄîı
-		m_drawSponza.SetupRaytracing(true);
+		//m_drawSponza.SetupRaytracing(true);
 	}
 
-	{
-		m_suzanneModel = ModelLoader::Instance()->Load("Resource/Test/glTF/Suzanne/", "Suzanne.gltf");
+	//{
+	//	//m_suzanneModel = ModelLoader::Instance()->Load("Resource/Test/glTF/Suzanne/", "Suzanne.gltf");
 
-		DrawFuncData::PipelineGenerateData lData;
-		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+	//	DrawFuncData::PipelineGenerateData lData;
+	//	lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
 
-		//ÇªÇÃëºê›íË
-		lData.desc.NumRenderTargets = static_cast<UINT>(GBufferMgr::Instance()->GetRenderTargetFormat().size());
-		for (int i = 0; i < GBufferMgr::Instance()->GetRenderTargetFormat().size(); ++i)
-		{
-			lData.desc.RTVFormats[i] = GBufferMgr::Instance()->GetRenderTargetFormat()[i];
-		}
+	//	//ÇªÇÃëºê›íË
+	//	lData.desc.NumRenderTargets = static_cast<UINT>(GBufferMgr::Instance()->GetRenderTargetFormat().size());
+	//	for (int i = 0; i < GBufferMgr::Instance()->GetRenderTargetFormat().size(); ++i)
+	//	{
+	//		lData.desc.RTVFormats[i] = GBufferMgr::Instance()->GetRenderTargetFormat()[i];
+	//	}
 
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdMain", "vs_6_4", SHADER_TYPE_VERTEX);
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdMain", "ps_6_4", SHADER_TYPE_PIXEL);
+	//	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdMain", "vs_6_4", SHADER_TYPE_VERTEX);
+	//	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdMain", "ps_6_4", SHADER_TYPE_PIXEL);
 
-		//ï`âÊ
-		m_drawSuzanne = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_suzanneModel, lData);
-		m_drawSuzanne.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
-	}
+	//	//ï`âÊ
+	//	m_drawSuzanne = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_suzanneModel, lData);
+	//	m_drawSuzanne.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+	//}
+
+	//{
+	//	//m_dragonModel = ModelLoader::Instance()->Load("Resource/Test/glTF/Dragon/", "DragonAttenuation.gltf");
+
+	//	DrawFuncData::PipelineGenerateData lData;
+	//	lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+
+	//	//ÇªÇÃëºê›íË
+	//	lData.desc.NumRenderTargets = static_cast<UINT>(GBufferMgr::Instance()->GetRenderTargetFormat().size());
+	//	for (int i = 0; i < GBufferMgr::Instance()->GetRenderTargetFormat().size(); ++i)
+	//	{
+	//		lData.desc.RTVFormats[i] = GBufferMgr::Instance()->GetRenderTargetFormat()[i];
+	//	}
+
+	//	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdMain", "vs_6_4", SHADER_TYPE_VERTEX);
+	//	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdMain", "ps_6_4", SHADER_TYPE_PIXEL);
+
+	//	//ï`âÊ
+	//	m_drawDragon = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_suzanneModel, lData);
+	//	m_drawDragon.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+	//}
 
 
 	{

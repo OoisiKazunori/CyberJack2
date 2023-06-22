@@ -67,6 +67,7 @@ private:
 
 	std::shared_ptr<ModelInfomation> m_sponzaModel;
 	std::shared_ptr<ModelInfomation> m_suzanneModel;
+	std::shared_ptr<ModelInfomation> m_dragonModel;
 
 	DispatchComputeShader::DispatchData m_dispatchData;
 
@@ -84,6 +85,7 @@ private:
 
 	DrawFuncData::DrawCallData m_drawSponza;
 	DrawFuncData::DrawCallData m_drawSuzanne;
+	DrawFuncData::DrawCallData m_drawDragon;
 
 	struct DrawGBufferData
 	{
