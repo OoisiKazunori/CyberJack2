@@ -1,4 +1,8 @@
-#include"ModelBuffer.hlsli"
+bool IsEnableToUseMaterialTex(float4 texColor)
+{
+    return texColor.a <= 0.0f;
+};
+
 
 struct VSOutput
 {
@@ -8,7 +12,8 @@ struct VSOutput
 
 cbuffer MatBuffer : register(b0)
 {
-    matrix Mat; 
+    matrix Mat;
+}
 
 cbuffer LightDir : register(b1)
 {
@@ -39,7 +44,7 @@ float4 PSmain(VSOutput input) : SV_TARGET
     //法線マップを使わないならAlbedoを出力する
     if(IsEnableToUseMaterialTex(worldNormalVec))
     {
-        return outputColor;
+        return albedoColor;
     }
 
     float3 lightV = LightWorldPos - worldPos.xyz;
