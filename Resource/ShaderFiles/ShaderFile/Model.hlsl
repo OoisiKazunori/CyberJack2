@@ -130,7 +130,6 @@ GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
     float3 nWorld = CalucurateTangentToLocal(normalVec,normal,tangent,binormal);
     bright = dot(normalize(localLightDirB2),nWorld);
 
-    //メタルネスラフネスのテクスチャが透明なら使わない
     if(IsEnableToUseMaterialTex(mrColor))
     {
         mrColor.xyz = float3(-1,-1,-1)

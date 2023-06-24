@@ -444,7 +444,7 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 		gltfNode.translation;
 	}
 
-	std::string errorFilePass("Resource/Test/MaterialError.png");
+	std::string errorFilePass("Resource/Test/MaterialErrorTex.png");
 	std::vector<MaterialData> modelMaterialDataArray;
 	//ƒ}ƒeƒŠƒAƒ‹î•ñ‚Ì“Ç‚İ‚İ
 	for (const auto &material : doc.materials.Elements())

@@ -1,3 +1,5 @@
+#include"ModelBuffer.hlsli"
+
 struct VSOutput
 {
     float4 svpos : SV_POSITION; //�V�X�e���p���_���W

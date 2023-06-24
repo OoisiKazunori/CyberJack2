@@ -47,4 +47,4 @@ matrix InvTangentMatrix(float3 tangent,float3 binormal,float3 normal)
 bool IsEnableToUseMaterialTex(float4 texColor)
 {
     return texColor.a <= 0.0f;
-}
+};
