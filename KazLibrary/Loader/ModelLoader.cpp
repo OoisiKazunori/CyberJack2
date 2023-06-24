@@ -444,6 +444,7 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 		gltfNode.translation;
 	}
 
+	std::string errorFilePass("Resource/Test/MaterialError.png");
 	std::vector<MaterialData> modelMaterialDataArray;
 	//マテリアル情報の読み込み
 	for (const auto &material : doc.materials.Elements())
@@ -463,6 +464,12 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
 				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 			}
+			else
+			{
+				//テクスチャ読み込み
+				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(errorFilePass));
+				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+			}
 		}
 
 		//法線マップの取得
@@ -478,6 +485,13 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
 				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 			}
+			//何もない場合は透明なテクスチャを送る
+			else
+			{
+				//テクスチャ読み込み
+				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(errorFilePass));
+				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+			}
 		}
 
 		//メタルネスの取得
@@ -491,6 +505,13 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 				std::string textureFilePass(FileDir + image.uri);
 				//テクスチャ読み込み
 				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
+				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+			}
+			//何もない場合は透明なテクスチャを送る
+			else
+			{
+				//テクスチャ読み込み
+				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(errorFilePass));
 				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 			}
 		}

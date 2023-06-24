@@ -1,36 +1,36 @@
-//ƒAƒ‹ƒxƒh—p‚Ìƒoƒbƒtƒ@
+//ï¿½Aï¿½ï¿½ï¿½xï¿½hï¿½pï¿½Ìƒoï¿½bï¿½tï¿½@
 Texture2D<float4>AlbedoTex:register(t0);
-//–@üƒ}ƒbƒv—p‚Ìƒoƒbƒtƒ@
+//ï¿½@ï¿½ï¿½ï¿½}ï¿½bï¿½vï¿½pï¿½Ìƒoï¿½bï¿½tï¿½@
 Texture2D<float4>NormalTex:register(t1);
-//ƒ‰ƒtƒlƒXAƒƒ^ƒ‹ƒlƒX—p‚Ìƒoƒbƒtƒ@
+//ï¿½ï¿½ï¿½tï¿½lï¿½Xï¿½Aï¿½ï¿½ï¿½^ï¿½ï¿½ï¿½lï¿½Xï¿½pï¿½Ìƒoï¿½bï¿½tï¿½@
 Texture2D<float4>MetalnessRoughnessTex:register(t2);
 
 SamplerState smp :register(s0);
 
 cbuffer MaterialID : register(b1)
 {
-    //0...‰½‚à‚µ‚È‚¢A1...”½Ë‚·‚éA2...‹üÜ‚·‚é
+    //0...ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½A1...ï¿½ï¿½ï¿½Ë‚ï¿½ï¿½ï¿½A2...ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½
     uint raytracingId;
 }
 
-//•ÏŠ·s—ñ‚ÌŒvZ‚ÌQlƒTƒCƒg
+//ï¿½ÏŠï¿½ï¿½sï¿½ï¿½ÌŒvï¿½Zï¿½ÌQï¿½lï¿½Tï¿½Cï¿½g
 //https://coposuke.hateblo.jp/entry/2020/12/21/144327
 
-//ƒ[ƒJƒ‹‹óŠÔ ¨ Ú‹óŠÔ ‚Ì•ÏŠ·s—ñ
+//ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ú‹ï¿½ï¿½ ï¿½Ì•ÏŠï¿½ï¿½sï¿½ï¿½
 float3 CalucurateLocalToTangent(float3 localVector,float3 normal,float3 tangent,float3 binNoraml)
 {
     float3 tangentVector = float3(dot(tangent,localVector),dot(binNoraml,localVector),dot(normal,localVector));
     return tangentVector;
 }
 
-//Ú‹óŠÔ ¨ ƒ[ƒJƒ‹‹óŠÔ‚Ì•ÏŠ·s—ñ
+//ï¿½Ú‹ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½ï¿½Ô‚Ì•ÏŠï¿½ï¿½sï¿½ï¿½
 float3 CalucurateTangentToLocal(float3 tangentVector,float3 normal,float3 tangent,float3 binNoraml)
 {
     float3 localVector = tangent * tangentVector.x + binNoraml * tangentVector.y + normal * tangentVector.z;
     return localVector;
 }
 
-//Ú‹óŠÔ‚Ì‹ts—ñ
+//ï¿½Ú‹ï¿½Ô‚Ì‹tï¿½sï¿½ï¿½
 matrix InvTangentMatrix(float3 tangent,float3 binormal,float3 normal)
 {
    float4x4 mat =
@@ -40,6 +40,11 @@ matrix InvTangentMatrix(float3 tangent,float3 binormal,float3 normal)
         float4(normal  ,0.0f),
         float4(0,0,0,1)
     };
-    //³‹K’¼ŒğŒn‚È‚Ì‚Å“]’u‚·‚ê‚Î‹ts—ñ‚É‚È‚é
+    //ï¿½ï¿½ï¿½Kï¿½ï¿½ï¿½ï¿½ï¿½nï¿½È‚Ì‚Å“]ï¿½uï¿½ï¿½ï¿½ï¿½Î‹tï¿½sï¿½ï¿½É‚È‚ï¿½
    return transpose(mat);
+}
+
+bool IsEnableToUseMaterialTex(float4 texColor)
+{
+    return texColor.a <= 0.0f;
 }

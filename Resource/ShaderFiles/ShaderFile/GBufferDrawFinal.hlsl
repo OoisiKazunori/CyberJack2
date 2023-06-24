@@ -1,12 +1,12 @@
 struct VSOutput
 {
-    float4 svpos : SV_POSITION; //ƒVƒXƒeƒ€—p’¸“_À•W
-    float2 uv : TEXCOORD; //uv’l
+    float4 svpos : SV_POSITION; //ï¿½Vï¿½Xï¿½eï¿½ï¿½ï¿½pï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½W
+    float2 uv : TEXCOORD; //uvï¿½l
 };
 
 cbuffer MatBuffer : register(b0)
 {
-    matrix Mat; //3D•ÏŠ·s—ñ
+    matrix Mat; //3Dï¿½ÏŠï¿½ï¿½sï¿½ï¿½
 }
 
 cbuffer LightDir : register(b1)
@@ -35,12 +35,18 @@ float4 PSmain(VSOutput input) : SV_TARGET
     float4 worldNormalVec = NormalTex.Sample(smp, input.uv);
     float4 worldPos = WorldTex.Sample(smp, input.uv);
 
-    //ƒ‰ƒCƒg‚ÌƒxƒNƒgƒ‹ŒvZ
+    //æ³•ç·šãƒãƒƒãƒ—ã‚’ä½¿ã‚ãªã„ãªã‚‰Albedoã‚’å‡ºåŠ›ã™ã‚‹
+    if(IsEnableToUseMaterialTex(worldNormalVec))
+    {
+        return outputColor;
+    }
+
+    //ï¿½ï¿½ï¿½Cï¿½gï¿½Ìƒxï¿½Nï¿½gï¿½ï¿½ï¿½vï¿½Z
     float3 lightV = LightWorldPos - worldPos.xyz;
     float d = length(lightV);
     lightV = normalize(lightV);
 
-    //‹——£Œ¸ŠŒW”
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½ï¿½
     float atten = 400.0f / (attenVec.x + attenVec.y * d + attenVec.z * d * d);
     float bright = dot(lightV,worldNormalVec.xyz);
         
@@ -50,9 +56,8 @@ float4 PSmain(VSOutput input) : SV_TARGET
     float3 light = (bright * atten + ambient) * lightColor;
     light = saturate(light);
 
-    //‡¬
+    //ï¿½ï¿½ï¿½ï¿½
     float4 outputColor = albedoColor;
-
     finalTex[input.uv * uint2(1280,720)] = float4(outputColor.xyz * light,outputColor.a);
     return float4(outputColor.xyz * light,outputColor.a);
 }

@@ -12,11 +12,11 @@ cbuffer LightBufferB1 : register(b1)
     float3 localLightDir;
 }
 
-//uvA–@ü‘Î‰---------------------------------------
+//uvï¿½Aï¿½@ï¿½ï¿½ï¿½Î‰ï¿½---------------------------------------
 struct PosUvNormalOutput
 {
-    float4 svpos : SV_POSITION; //ƒVƒXƒeƒ€—p’¸“_À•W
-    float3 normal : NORMAL; //–@üƒxƒNƒgƒ‹
+    float4 svpos : SV_POSITION; //ï¿½Vï¿½Xï¿½eï¿½ï¿½ï¿½pï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½W
+    float3 normal : NORMAL; //ï¿½@ï¿½ï¿½ï¿½xï¿½Nï¿½gï¿½ï¿½
     float2 uv : TEXCOORD;
     float3 lightInTangentWorld : TANGENT;
     float3 worldPos : POSITION;
@@ -34,7 +34,7 @@ PosUvNormalOutput VSPosNormalUvmain(float4 pos : POSITION,float3 normal : NORMAL
 
     float4 lightDir = float4(localLightDir.xyz,0.0f);
     lightDir = normalize(lightDir);
-    //ƒ[ƒJƒ‹‹óŠÔ‚É‚ ‚éƒ‰ƒCƒg‚ğƒ^ƒ“ƒWƒFƒ“ƒg‹óŠÔ‚ÉˆÚ“®‚³‚¹‚é
+    //ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½ï¿½Ô‚É‚ï¿½ï¿½éƒ‰ï¿½Cï¿½gï¿½ï¿½ï¿½^ï¿½ï¿½ï¿½Wï¿½Fï¿½ï¿½ï¿½gï¿½ï¿½Ô‚ÉˆÚ“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     op.lightInTangentWorld = mul(lightDir,InvTangentMatrix(tangent,binormal,normal));
 
     return op;
@@ -43,22 +43,22 @@ PosUvNormalOutput VSPosNormalUvmain(float4 pos : POSITION,float3 normal : NORMAL
 float4 PSPosNormalUvmain(PosUvNormalOutput input) : SV_TARGET
 {
     float3 normalColor = NormalTex.Sample(smp,input.uv);
-    //-•\Œ»‚ğ“ü‚ê‚éˆ×‚ÉA0~255‚Ì”¼•ª‚ğ0.0f’n“_‚É‚·‚é‚æ‚¤ŒvZ‚·‚éB
+    //-ï¿½\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×‚ÉA0~255ï¿½Ì”ï¿½ï¿½ï¿½ï¿½ï¿½0.0fï¿½nï¿½_ï¿½É‚ï¿½ï¿½ï¿½æ‚¤ï¿½vï¿½Zï¿½ï¿½ï¿½ï¿½B
     //-1.0f ~ 1.0f
     float3 normalVec = 2 * normalColor - 1.0f;
     normalVec = normalize(normalVec);
 
-    //ƒ^ƒ“ƒWƒFƒ“ƒg‹óŠÔ‚ÌƒxƒNƒgƒ‹‚ğ“ü‚ê‚é
+    //ï¿½^ï¿½ï¿½ï¿½Wï¿½Fï¿½ï¿½ï¿½gï¿½ï¿½Ô‚Ìƒxï¿½Nï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     float3 bright = dot(input.lightInTangentWorld,normalVec);
     //bright = max(0.0f,bright);
 
 	float4 texColor = AlbedoTex.Sample(smp,input.uv);
 	return float4(texColor.rgb * bright, 1.0f);
 }
-//uvA–@ü‘Î‰---------------------------------------
+//uvï¿½Aï¿½@ï¿½ï¿½ï¿½Î‰ï¿½---------------------------------------
 
 
-//ƒ‚ƒfƒ‹AG-BufferŠi”[---------------------------------------
+//ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½AG-Bufferï¿½iï¿½[---------------------------------------
 
 cbuffer LightBufferB2 : register(b2)
 {
@@ -67,8 +67,8 @@ cbuffer LightBufferB2 : register(b2)
 
 struct PosUvNormalTangentBinormalOutput
 {
-    float4 svpos : SV_POSITION; //ƒVƒXƒeƒ€—p’¸“_À•W
-    float3 normal : NORMAL; //–@üƒxƒNƒgƒ‹
+    float4 svpos : SV_POSITION; //ï¿½Vï¿½Xï¿½eï¿½ï¿½ï¿½pï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½W
+    float3 normal : NORMAL; //ï¿½@ï¿½ï¿½ï¿½xï¿½Nï¿½gï¿½ï¿½
     float2 uv : TEXCOORD;
     float3 lightInTangentWorld : TANGENT;
     float3 worldPos : POSITION;
@@ -90,7 +90,7 @@ PosUvNormalTangentBinormalOutput VSDefferdMain(float4 pos : POSITION,float3 norm
 
     float4 lightDir = float4(localLightDirB2.xyz,0.0f);
     lightDir = normalize(lightDir);
-    //ƒ[ƒJƒ‹‹óŠÔ‚É‚ ‚éƒ‰ƒCƒg‚ğƒ^ƒ“ƒWƒFƒ“ƒg‹óŠÔ‚ÉˆÚ“®‚³‚¹‚é
+    //ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½ï¿½Ô‚É‚ï¿½ï¿½éƒ‰ï¿½Cï¿½gï¿½ï¿½ï¿½^ï¿½ï¿½ï¿½Wï¿½Fï¿½ï¿½ï¿½gï¿½ï¿½Ô‚ÉˆÚ“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     op.lightInTangentWorld = mul(lightDir,InvTangentMatrix(tangent,binormal,normal));
 
     return op;
@@ -108,35 +108,41 @@ struct GBufferOutput
 GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
 {
     float4 normalColor = NormalTex.Sample(smp,input.uv);
-    //-•\Œ»‚ğ“ü‚ê‚éˆ×‚ÉA0~255‚Ì”¼•ª‚ğ0.0f’n“_‚É‚·‚é‚æ‚¤ŒvZ‚·‚éB
+    //-ï¿½\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×‚ÉA0~255ï¿½Ì”ï¿½ï¿½ï¿½ï¿½ï¿½0.0fï¿½nï¿½_ï¿½É‚ï¿½ï¿½ï¿½æ‚¤ï¿½vï¿½Zï¿½ï¿½ï¿½ï¿½B
     //-1.0f ~ 1.0f
     float3 normalVec = 2 * normalColor - 1.0f;
     normalVec = normalize(normalVec);
 
-    //ƒ^ƒ“ƒWƒFƒ“ƒg‹óŠÔ‚ÌƒxƒNƒgƒ‹‚ğ“ü‚ê‚é
+    //ï¿½^ï¿½ï¿½ï¿½Wï¿½Fï¿½ï¿½ï¿½gï¿½ï¿½Ô‚Ìƒxï¿½Nï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     float3 bright = dot(input.lightInTangentWorld,normalVec);
-    //ƒAƒ‹ƒxƒh
+    //ï¿½Aï¿½ï¿½ï¿½xï¿½h
 	float4 texColor = AlbedoTex.Sample(smp,input.uv);
-    //ƒƒ^ƒ‹Aƒ‰ƒt
+    //ï¿½ï¿½ï¿½^ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½t
     float4 mrColor = MetalnessRoughnessTex.Sample(smp,input.uv);
 
-    //ƒ[ƒ‹ƒh‹óŠÔ‚Ì–@ü
+    //ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½hï¿½ï¿½Ô‚Ì–@ï¿½ï¿½
     float3 normal = mul(worldMat,float4(input.normal,1.0f));
     float3 tangent = mul(worldMat,float4(input.tangent,1.0f));
     float3 binormal = cross(normal,tangent);
 
 
-    //ƒ^ƒ“ƒWƒFƒ“ƒg‹óŠÔ‚©‚çƒ[ƒJƒ‹‹óŠÔ‚Ì–@ü‚É’¼‚µ‚½
+    //ï¿½^ï¿½ï¿½ï¿½Wï¿½Fï¿½ï¿½ï¿½gï¿½ï¿½Ô‚ï¿½ï¿½çƒï¿½[ï¿½Jï¿½ï¿½ï¿½ï¿½Ô‚Ì–@ï¿½ï¿½ï¿½É’ï¿½ï¿½ï¿½ï¿½ï¿½
     float3 nWorld = CalucurateTangentToLocal(normalVec,normal,tangent,binormal);
     bright = dot(normalize(localLightDirB2),nWorld);
 
+    //ãƒ¡ã‚¿ãƒ«ãƒã‚¹ãƒ©ãƒ•ãƒã‚¹ã®ãƒ†ã‚¯ã‚¹ãƒãƒ£ãŒé€æ˜ãªã‚‰ä½¿ã‚ãªã„
+    if(IsEnableToUseMaterialTex(mrColor))
+    {
+        mrColor.xyz = float3(-1,-1,-1)
+    }
+
     GBufferOutput output;
     output.albedo = texColor;
-    output.normal = float4(nWorld,1.0f);
+    output.normal = float4(nWorld,normalColor.a);
     output.metalnessRoughness = float4(mrColor.xyz,raytracingId);
     output.world = float4(input.worldPos,1.0f);
     output.final = float4(texColor.xyz * bright,texColor.a);
 	return output;
 }
 
-//ƒ‚ƒfƒ‹AG-BufferŠi”[---------------------------------------
+//ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½AG-Bufferï¿½iï¿½[---------------------------------------
