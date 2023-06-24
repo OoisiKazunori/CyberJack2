@@ -1,6 +1,6 @@
 #include "VertexBufferMgr.h"
 
-RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(std::vector<VertexGenerateData> vertexData)
+RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerateData> &vertexData)
 {
 	vertexBufferArray.emplace_back();
 	std::vector<KazRenderHelper::IASetVertexBuffersData> setVertDataArray;

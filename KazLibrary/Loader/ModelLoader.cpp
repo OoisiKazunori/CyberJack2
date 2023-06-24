@@ -8,16 +8,6 @@ ModelLoader::ModelLoader()
 
 std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string arg_fileDir, std::string arg_fileName)
 {
-	//ƒtƒ@ƒCƒ‹“Ç‚İ‚İ
-	std::ifstream file;
-	file.open(arg_fileDir+ arg_fileName);
-	if (file.fail())
-	{
-		std::string errorName = arg_fileDir + arg_fileName + "‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½\n";
-		FailCheck(errorName);
-		static_assert(true);
-	}
-
 	std::vector<ModelMeshData> modelData;
 
 	modelData = glTFLoad.Load(arg_fileName, arg_fileDir);

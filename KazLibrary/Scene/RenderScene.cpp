@@ -18,6 +18,8 @@ RenderScene::RenderScene()
 	//G-Buffer生成
 	GBufferMgr::Instance();
 
+	//m_suzanneModel = ModelLoader::Instance()->Load("Resource/Test/glTF/Suzanne/", "Suzanne.gltf");
+
 	m_sponzaModel = ModelLoader::Instance()->Load("Resource/Test/glTF/Sponza/", "sponza.gltf");
 
 	//フォワードレンダリングで描画するモデル
@@ -50,7 +52,6 @@ RenderScene::RenderScene()
 	}
 
 	//{
-	//	//m_suzanneModel = ModelLoader::Instance()->Load("Resource/Test/glTF/Suzanne/", "Suzanne.gltf");
 
 	//	DrawFuncData::PipelineGenerateData lData;
 	//	lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
