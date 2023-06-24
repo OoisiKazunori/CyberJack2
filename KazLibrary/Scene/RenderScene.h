@@ -66,6 +66,8 @@ private:
 	PolygonIndexData m_pboxNormalData;
 
 	std::shared_ptr<ModelInfomation> m_model;
+	std::shared_ptr<ModelInfomation> m_reflectionModel;
+	std::shared_ptr<ModelInfomation> m_refractionModel;
 
 	DispatchComputeShader::DispatchData m_dispatchData;
 
@@ -82,6 +84,10 @@ private:
 	//std::unique_ptr<DrawFunc::KazRender>finalGBufferRender;
 
 	DrawFuncData::DrawCallData m_drawSponza;
+
+	DrawFuncData::DrawCallData m_reflectionSphere;
+	DrawFuncData::DrawCallData m_refractionSphere;
+	KazMath::Transform3D m_sphereTransform;
 
 	struct DrawGBufferData
 	{
