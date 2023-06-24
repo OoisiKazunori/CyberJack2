@@ -315,13 +315,13 @@ void RenderScene::Draw()
 	/*----- レイトレ描画開始 -----*/
 
 	//Tlasを構築 or 再構築する。
-	m_tlas.Build(m_blasVector);
+	//m_tlas.Build(m_blasVector);
 
 	//レイトレ用のデータを構築。
-	m_rayPipeline->BuildShaderTable(m_blasVector);
+	//m_rayPipeline->BuildShaderTable(m_blasVector);
 
 	//レイトレ実行。
-	m_rayPipeline->TraceRay(m_tlas);
+	//m_rayPipeline->TraceRay(m_tlas);
 
 
 	/*----- レイトレ描画終了 -----*/
