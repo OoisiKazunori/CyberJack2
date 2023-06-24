@@ -50,7 +50,7 @@ GBufferMgr::GBufferMgr()
 			m_finalGBuffer.bufferWrapper->GetBuffer().Get()
 		);
 
-		m_raytracingGBuffer = KazBufferHelper::SetUAVTexBuffer(winSize.x, winSize.y);
+		m_raytracingGBuffer = KazBufferHelper::SetUAVTexBuffer(winSize.x, winSize.y, DXGI_FORMAT_R8G8B8A8_UNORM);
 		m_raytracingGBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
 		DescriptorHeapMgr::Instance()->CreateBufferView(
 			m_raytracingGBuffer.bufferWrapper->GetViewHandle(),

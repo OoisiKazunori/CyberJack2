@@ -9,6 +9,7 @@
 #include "BlasVector.h"
 #include "Tlas.h"
 #include "HitGroupMgr.h"
+#include "DirectXCommon/DirectX12.h"
 
 namespace Raytracing {
 
@@ -65,6 +66,8 @@ namespace Raytracing {
 		UINT m_raygenRegion;
 		UINT m_missRegion;
 
+		static DirectX12* m_refDirectX12;
+
 
 	public:
 
@@ -114,6 +117,8 @@ namespace Raytracing {
 		Microsoft::WRL::ComPtr<ID3D12StateObject> GetStateObject() { return m_stateObject; }
 		D3D12_DISPATCH_RAYS_DESC GetDispatchRayDesc() { return m_dispatchRayDesc; }
 		std::shared_ptr<RayRootsignature> GetGlobalRootSig() { return m_globalRootSig; }
+
+		static void SetDirectX12(DirectX12* arg_refDirectX12) { m_refDirectX12 = arg_refDirectX12; }
 
 	private:
 

@@ -34,10 +34,14 @@ void mainRayGen()
     float4 materialInfo = materialMap[launchIndex];
     float4 worldColor = worldMap[launchIndex];
     float4 sceneColor = sceneMap[launchIndex];
+
+    //ペイロードの設定
+    Payload payloadData;
+    payloadData.m_color = float3(0, 0, 0);
     
     //レイのIDをみて、レイを打つかどうかを判断
-    //if (materialInfo.w != 0)
-    //{
+    if (materialInfo.w != 0)
+    {
 
     //レイの設定
     RayDesc rayDesc;
@@ -46,13 +50,9 @@ void mainRayGen()
     rayDesc.Direction = normalColor.xyz;
     rayDesc.TMin = 0;
     rayDesc.TMax = 300000;
-
-    //ペイロードの設定
-    Payload payloadData;
-    payloadData.m_color = float3(0, 0, 0);
     
     RAY_FLAG flag = RAY_FLAG_NONE;
-    //flag |= RAY_FLAG_CULL_BACK_FACING_TRIANGLES; //背面カリング
+    flag |= RAY_FLAG_CULL_BACK_FACING_TRIANGLES; //背面カリング
     
     //レイを発射
     TraceRay(
@@ -64,12 +64,13 @@ void mainRayGen()
     0, //miss index
     rayDesc,
     payloadData);
+        
+        
+    }
 
     //結果格納
-    finalColor[launchIndex.xy] = float4((payloadData.m_color), 1);
-        
-        
-    //}
+    finalColor[launchIndex.xy] = sceneColor;
+    finalColor[launchIndex.xy] += float4((payloadData.m_color), 1);
 
 }
 
@@ -78,7 +79,7 @@ void mainRayGen()
 void mainMS(inout Payload PayloadData)
 {
     
-    PayloadData.m_color = float3(1, 0, 0);
+    PayloadData.m_color = float3(0, 0, 0);
 
 }
 

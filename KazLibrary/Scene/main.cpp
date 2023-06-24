@@ -12,6 +12,7 @@
 #include"../Input/KeyBoradInputManager.h"
 #include"../Input/ControllerInputManager.h"
 #include"../KazLibrary/Buffer/UavViewHandleMgr.h"
+#include"Raytracing/RayPipeline.h"
 #include<time.h>
 
 
@@ -93,6 +94,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	srand(static_cast<UINT>(time(NULL)));
 	SceneManager sm;
+
+	Raytracing::RayPipeline::SetDirectX12(&directX);
 
 	//GPUで処理させたい物をCPUで参照させたい時、コンストラクタで処理させてInitで参照するようにする為のフラグ
 	bool lStop1FlameFlag = false;

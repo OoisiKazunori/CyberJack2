@@ -106,11 +106,11 @@ KazBufferHelper::BufferResourceData KazBufferHelper::SetRWStructuredBuffer(BUFFE
 	return data;
 }
 
-KazBufferHelper::BufferResourceData KazBufferHelper::SetUAVTexBuffer(int width, int height, const std::string &BUFFER_NAME)
+KazBufferHelper::BufferResourceData KazBufferHelper::SetUAVTexBuffer(int width, int height, DXGI_FORMAT format, const std::string &BUFFER_NAME)
 {
 	D3D12_RESOURCE_DESC desc =
 		CD3DX12_RESOURCE_DESC::Tex2D(
-			DXGI_FORMAT_R32G32B32A32_FLOAT,
+			format,
 			width,
 			(UINT)height,
 			(UINT16)1,

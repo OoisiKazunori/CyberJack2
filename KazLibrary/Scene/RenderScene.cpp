@@ -205,7 +205,7 @@ void RenderScene::Update()
 	CameraMgr::Instance()->Camera(m_camera.GetEyePos(), m_camera.GetTargetPos(), { 0.0f,1.0f,0.0f });
 
 
-	DrawFunc::DrawModelInRaytracing(m_drawSponza, m_transformArray[0], DrawFunc::REFRACTION);
+	DrawFunc::DrawModelInRaytracing(m_drawSponza, m_transformArray[0], DrawFunc::NONE);
 	DirectX::XMFLOAT3 dir = m_lightVec.ConvertXMFLOAT3();
 	m_drawSponza.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 
