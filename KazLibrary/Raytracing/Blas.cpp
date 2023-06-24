@@ -8,7 +8,7 @@
 #include "../Buffer/VertexBufferMgr.h"
 #include <memory>
 
-Raytracing::Blas::Blas(bool IsOpaque, RESOURCE_HANDLE arg_vertexDataHandle, int arg_meshNumber, RESOURCE_HANDLE arg_textureAddress)
+Raytracing::Blas::Blas(bool IsOpaque, RESOURCE_HANDLE arg_vertexDataHandle, int arg_meshNumber, RESOURCE_HANDLE arg_textureHandle)
 {
 
 	/*===== コンストラクタ =====*/
@@ -16,7 +16,7 @@ Raytracing::Blas::Blas(bool IsOpaque, RESOURCE_HANDLE arg_vertexDataHandle, int 
 	//Blasの構築に必要な形状データを取得。
 	m_vertexDataHandle = arg_vertexDataHandle;
 	m_meshNumber = arg_meshNumber;
-	m_textureAddress = arg_textureAddress;
+	m_textureHandle = arg_textureHandle;
 	D3D12_RAYTRACING_GEOMETRY_DESC geomDesc = GetGeometryDesc(IsOpaque);
 
 	//Blasを構築。
@@ -49,15 +49,12 @@ uint8_t* Raytracing::Blas::WriteShaderRecord(uint8_t* arg_dst, UINT arg_recordSi
 	//[0] : インデックスバッファ
 	//[1] : 頂点バッファ
 	//※ ローカルルートシグネチャの順序に合わせる必要がある。
-	//arg_dst += WriteGPUDescriptor(arg_dst, &DescriptorHeapMgr::Instance()->GetGpuDescriptorView(vertexData.indexBuffer[m_meshNumber]->bufferWrapper->GetViewHandle()));
-	//arg_dst += WriteGPUDescriptor(arg_dst, &DescriptorHeapMgr::Instance()->GetGpuDescriptorView(vertexData.vertBuffer[m_meshNumber]->bufferWrapper->GetViewHandle()));
 	const auto indexptr = vertexData.indexBuffer[m_meshNumber]->bufferWrapper->GetGpuAddress();
 	arg_dst += WriteGPUVirtualAddress(arg_dst, &indexptr);
 	const auto vertexptr = vertexData.vertBuffer[m_meshNumber]->bufferWrapper->GetGpuAddress();
 	arg_dst += WriteGPUVirtualAddress(arg_dst, &vertexptr);
 	//テクスチャを書き込む。
-	arg_dst += WriteGPUDescriptor(arg_dst, &DescriptorHeapMgr::Instance()->GetGpuDescriptorView(m_textureAddress));
-	//assert(0);	//テクスチャの処理を書け！
+	arg_dst += WriteGPUDescriptor(arg_dst, &DescriptorHeapMgr::Instance()->GetGpuDescriptorView(m_textureHandle));
 
 	arg_dst = entryBegin + arg_recordSize;
 	return arg_dst;

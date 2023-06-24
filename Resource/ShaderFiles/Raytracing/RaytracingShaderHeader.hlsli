@@ -15,7 +15,7 @@ struct Vertex
 //ペイロード
 struct Payload
 {
-    float3 color_; //色情報
+    float3 m_color; //色情報
 };
 
 struct MyAttribute
@@ -56,24 +56,4 @@ Vertex GetHitVertex(MyAttribute attrib, StructuredBuffer<Vertex> vertexBuffer, S
     }
 
     return v;
-}
-
-//指定の頂点の衝突したメッシュ上での重心座標を求める。
-float3 CalcVertexBarys(float3 HitVertex, float3 VertexA, float3 VertexB, float3 VertexC)
-{
-    
-    float3 e0 = VertexB - VertexA;
-    float3 e1 = VertexC - VertexA;
-    float3 e2 = HitVertex - VertexA;
-    float d00 = dot(e0, e0);
-    float d01 = dot(e0, e1);
-    float d11 = dot(e1, e1);
-    float d20 = dot(e2, e0);
-    float d21 = dot(e2, e1);
-    float denom = 1.0 / (d00 * d11 - d01 * d01);
-    float v = (d11 * d20 - d01 * d21) * denom;
-    float w = (d00 * d21 - d01 * d20) * denom;
-    float u = 1.0 - v - w;
-    return float3(u, v, w);
-    
 }

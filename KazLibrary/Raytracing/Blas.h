@@ -18,7 +18,7 @@ namespace Raytracing {
 		Microsoft::WRL::ComPtr<ID3D12Resource> m_scratchBuffer;		//Blasを形成する際に必要なバッファ
 		Microsoft::WRL::ComPtr<ID3D12Resource> m_updateBuffer;		//Blasのアップロード用バッファ
 
-		RESOURCE_HANDLE m_textureAddress;					//使用するテクスチャのアドレス
+		RESOURCE_HANDLE m_textureHandle;							//使用するテクスチャのアドレス
 		RESOURCE_HANDLE m_vertexDataHandle;							//頂点データを保存してあるデータのハンドル
 		int m_meshNumber;											//複数メッシュの描画をしている際に使用する。このBlasは頂点データのどのメッシュを参照するかの情報。
 
@@ -32,8 +32,8 @@ namespace Raytracing {
 		/// </summary>
 		/// <param name="arg_isOpaque"> 不透明フラグ t:不透明 f:半透明になる可能性がある </param>
 		/// <param name="arg_vertexDataHandle"> Blasを形成するモデルの形状を保存してあるデータのハンドル </param>
-		/// <param name="arg_textureAddress"> 使用するテクスチャのアドレス </param>
-		Blas(bool arg_isOpaque, RESOURCE_HANDLE arg_vertexDataHandle, int arg_meshNumber, RESOURCE_HANDLE arg_textureAddress);
+		/// <param name="arg_textureHandle"> 使用するテクスチャのアドレス </param>
+		Blas(bool arg_isOpaque, RESOURCE_HANDLE arg_vertexDataHandle, int arg_meshNumber, RESOURCE_HANDLE arg_textureHandle);
 
 		/// <summary>
 		/// Blasのバッファを返す。

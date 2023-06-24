@@ -36,40 +36,40 @@ void mainRayGen()
     float4 sceneColor = sceneMap[launchIndex];
     
     //レイのIDをみて、レイを打つかどうかを判断
-    if (materialInfo.w != 0)
-    {
+    //if (materialInfo.w != 0)
+    //{
 
-        //レイの設定
-        RayDesc rayDesc;
-        rayDesc.Origin = worldColor.xyz;
+    //レイの設定
+    RayDesc rayDesc;
+    rayDesc.Origin = worldColor.xyz + normalColor.xyz * 3.0f;
 
-        rayDesc.Direction = normalColor.xyz;
-        rayDesc.TMin = 0;
-        rayDesc.TMax = 300000;
+    rayDesc.Direction = normalColor.xyz;
+    rayDesc.TMin = 0;
+    rayDesc.TMax = 300000;
 
-        //ペイロードの設定
-        Payload payloadData;
-        payloadData.color_ = float3(0, 0, 0);
+    //ペイロードの設定
+    Payload payloadData;
+    payloadData.m_color = float3(0, 0, 0);
     
-        RAY_FLAG flag = RAY_FLAG_NONE;
-        flag |= RAY_FLAG_CULL_BACK_FACING_TRIANGLES; //背面カリング
+    RAY_FLAG flag = RAY_FLAG_NONE;
+    //flag |= RAY_FLAG_CULL_BACK_FACING_TRIANGLES; //背面カリング
     
-        //レイを発射
-        TraceRay(
-        gRtScene, //TLAS
-        flag, //衝突判定制御をするフラグ
-        0xFF, //衝突判定対象のマスク値
-        0, //ray index
-        1, //MultiplierForGeometryContrib
-        0, //miss index
-        rayDesc,
-        payloadData);
+    //レイを発射
+    TraceRay(
+    gRtScene, //TLAS
+    flag, //衝突判定制御をするフラグ
+    0xFF, //衝突判定対象のマスク値
+    0, //ray index
+    1, //MultiplierForGeometryContrib
+    0, //miss index
+    rayDesc,
+    payloadData);
 
-        //結果格納
-        finalColor[launchIndex.xy] = float4((payloadData.color_), 1);
+    //結果格納
+    finalColor[launchIndex.xy] = float4((payloadData.m_color), 1);
         
         
-    }
+    //}
 
 }
 
@@ -78,7 +78,7 @@ void mainRayGen()
 void mainMS(inout Payload PayloadData)
 {
     
-    PayloadData.color_ = float3(1, 0, 0);
+    PayloadData.m_color = float3(1, 0, 0);
 
 }
 
@@ -87,7 +87,7 @@ void mainMS(inout Payload PayloadData)
 void shadowMS(inout Payload payload)
 {
     
-    payload.color_ = float3(1, 0, 0);
+    payload.m_color = float3(0, 0, 0);
 
 }
 
@@ -104,8 +104,10 @@ void shadowMS(inout Payload payload)
     Vertex meshInfo[3];
     Vertex vtx = GetHitVertex(attrib, vertexBuffer, indexBuffer, meshInfo);
     
-    payload.color_ = float3(1,1,1);
-    payload.color_ = objectTexture.SampleLevel(smp, vtx.uv, 0).xyz;
+    float4 mainTexColor = objectTexture.SampleLevel(smp, vtx.uv, 0);
+    payload.m_color = mainTexColor.xyz;
+    
+    //payload.m_color = float3(0,0,1);
     
 }
 
@@ -132,6 +134,6 @@ void shadowMS(inout Payload payload)
     Vertex vtx = GetHitVertex(attrib, vertexBuffer, indexBuffer, meshInfo);
     
     
-    payload.color_ = float3(0, 0, 1);
+    payload.m_color = float3(0, 0, 1);
     
 }
