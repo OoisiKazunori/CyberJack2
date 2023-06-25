@@ -41,19 +41,57 @@ void mainRayGen()
 
     //ペイロードの設定
     Payload payloadData;
-    payloadData.m_color = float3(0, 0, 0);
+    payloadData.m_color = float3(0.0f, 0.0f, 0.0f);
+    payloadData.m_rayID = RAY_SHADOW;
+    
+    //影用のレイをうつ。
+    float bright = 1.0f;
+    if (0.1f < length(normalColor.xyz))
+    {
+        float3 lightDir = normalize(float3(0.4f, -1.0f, 0.3f));
+        
+        //レイの設定
+        RayDesc rayDesc;
+        rayDesc.Origin = worldColor.xyz + normalColor.xyz;
+
+        rayDesc.Direction = -lightDir;
+        rayDesc.TMin = 0.0f;
+        rayDesc.TMax = 300000.0f;
+    
+        RAY_FLAG flag = RAY_FLAG_NONE;
+    
+        //レイを発射
+        TraceRay(
+        gRtScene, //TLAS
+        flag, //衝突判定制御をするフラグ
+        0xFF, //衝突判定対象のマスク値
+        0, //ray index
+        1, //MultiplierForGeometryContrib
+        1, //miss index
+        rayDesc,
+        payloadData);
+        
+        bright = payloadData.m_color.x;
+        
+    }
+    
+    //アルベドにライトの色をかける。
+    albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);
     
     //レイのIDをみて、レイを打つかどうかを判断
-    if (materialInfo.w != 0)
+    if (materialInfo.w != 0 && 0.1f < length(normalColor.xyz))
     {
 
         //レイの設定
         RayDesc rayDesc;
         rayDesc.Origin = worldColor.xyz + normalColor.xyz * 3.0f;
 
-        rayDesc.Direction = reflect(normalize(rayDesc.Origin - cameraEyePos.m_eye), normalColor.xyz);
+        rayDesc.Direction = refract(normalize(rayDesc.Origin - cameraEyePos.m_eye), normalColor.xyz, 0.01f);
         rayDesc.TMin = 0.0f;
         rayDesc.TMax = 300000.0f;
+        
+        payloadData.m_color = float3(1, 1, 1);
+        payloadData.m_rayID = RAY_DEFAULT;
     
         RAY_FLAG flag = RAY_FLAG_NONE;
         flag |= RAY_FLAG_CULL_BACK_FACING_TRIANGLES; //背面カリング
@@ -71,7 +109,8 @@ void mainRayGen()
         
 
         //結果格納
-        finalColor[launchIndex.xy] = float4((payloadData.m_color), 1);
+        finalColor[launchIndex.xy] = float4(albedoColor.xyz, 1) * materialInfo.y;
+        finalColor[launchIndex.xy] += float4((payloadData.m_color), 1) * (1.0f - materialInfo.y);
         
     }
     else
@@ -95,7 +134,7 @@ void mainMS(inout Payload PayloadData)
 void shadowMS(inout Payload payload)
 {
     
-    payload.m_color = float3(0, 0, 0);
+    payload.m_color = float3(1, 1, 1);
 
 }
 
@@ -108,13 +147,23 @@ void shadowMS(inout Payload payload)
     attrib)
 {
     
+    if (payload.m_rayID == RAY_DEFAULT)
+    {
     
-    Vertex vtx = GetHitVertex(attrib, vertexBuffer, indexBuffer);
+        Vertex vtx = GetHitVertex(attrib, vertexBuffer, indexBuffer);
     
-    float4 mainTexColor = objectTexture.SampleLevel(smp, vtx.uv, 1);
-    payload.m_color = mainTexColor.xyz;
-    
-    //payload.m_color = float3(0,0,1);
+        float4 mainTexColor = objectTexture.SampleLevel(smp, vtx.uv, 1);
+        payload.m_color = mainTexColor.xyz;
+        
+        //payload.m_color = float3(0,0,1);
+           
+    }
+    else if (payload.m_rayID == RAY_SHADOW)
+    {
+        
+        payload.m_color.x = 0.0f;
+        
+    }
     
 }
 
