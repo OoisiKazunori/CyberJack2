@@ -30,7 +30,7 @@ inline float3 CalcBarycentrics(float2 Barys)
 }
 
 //当たった位置の情報を取得する関数
-Vertex GetHitVertex(MyAttribute attrib, StructuredBuffer<Vertex> vertexBuffer, StructuredBuffer<uint> indexBuffer, inout Vertex meshInfo[3])
+Vertex GetHitVertex(MyAttribute attrib, StructuredBuffer<Vertex> vertexBuffer, StructuredBuffer<uint> indexBuffer)
 {
     Vertex v = (Vertex) 0;
     float3 barycentrics = CalcBarycentrics(attrib.barys);
@@ -48,11 +48,6 @@ Vertex GetHitVertex(MyAttribute attrib, StructuredBuffer<Vertex> vertexBuffer, S
         v.pos += vertexBuffer[vtxIndex].pos * w;
         v.normal += vertexBuffer[vtxIndex].normal * w;
         v.uv += vertexBuffer[vtxIndex].uv * w;
-        
-        //メッシュの情報を保存。
-        meshInfo[index].pos = mul(float4(vertexBuffer[vtxIndex].pos, 1), ObjectToWorld4x3());
-        meshInfo[index].normal = normalize(mul(vertexBuffer[vtxIndex].normal, (float3x3) ObjectToWorld4x3()));
-        meshInfo[index].uv = vertexBuffer[vtxIndex].uv;
     }
 
     return v;

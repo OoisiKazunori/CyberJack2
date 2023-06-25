@@ -293,7 +293,9 @@ namespace Raytracing {
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(2, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::NORMAL));	//法線
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(3, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::R_M_S_ID));//マテリアル
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(4, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::WORLD));	//ワールド座標
-		//DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(5, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::FINAL));	//ライティング合成結果
+
+		//カメラ用定数バッファをセット。
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(5, GBufferMgr::Instance()->GetEyePosBuffer().bufferWrapper->GetGpuAddress());
 
 		//書き込み用UAV
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(6, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetViewHandle()));	//レイトレ出力用

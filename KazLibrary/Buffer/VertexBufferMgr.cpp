@@ -69,7 +69,7 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerate
 		view.Buffer.NumElements = static_cast<UINT>(meshData.arraySize);
 		view.Buffer.FirstElement = 0;
 		view.Buffer.StructureByteStride = meshData.structureSize;
-		DescriptorHeapMgr::Instance()->CreateAccelerationStructure(handle, view);
+		DescriptorHeapMgr::Instance()->CreateBufferView(handle, view, vertexBuffer->bufferWrapper->GetBuffer().Get());
 		drawDataArray[outputHandle].vertBuffer.back()->bufferWrapper->CreateViewHandle(handle);
 		++sDescHandle;
 
@@ -77,8 +77,8 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerate
 		handle = DescriptorHeapMgr::Instance()->GetSize(DESCRIPTORHEAP_MEMORY_IAPOLYGONE).startSize + sDescHandle;
 		view.Buffer.NumElements = static_cast<UINT>(meshData.indices.size());
 		view.Buffer.StructureByteStride = sizeof(UINT);
-		DescriptorHeapMgr::Instance()->CreateAccelerationStructure(handle, view);
-		drawDataArray[outputHandle].vertBuffer.back()->bufferWrapper->CreateViewHandle(handle);
+		DescriptorHeapMgr::Instance()->CreateBufferView(handle, view, indexBuffer->bufferWrapper->GetBuffer().Get());
+		drawDataArray[outputHandle].indexBuffer.back()->bufferWrapper->CreateViewHandle(handle);
 		++sDescHandle;
 	}
 	drawDataArray[outputHandle].index.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;

@@ -125,6 +125,17 @@ namespace Raytracing {
 		if (FAILED(hr)) {
 			Microsoft::WRL::ComPtr<IDxcBlobEncoding> errBlob;
 			dxcResult->GetErrorBuffer(&errBlob);
+
+			//GetBufferPointerとGetBufferSizeを使って内容にアクセス
+			const char* pData = static_cast<const char*>(errBlob->GetBufferPointer());
+			size_t size = errBlob->GetBufferSize();
+
+			//バッファを文字列として読む
+			std::string content(pData, pData + size);
+
+			//Visual Studioの出力ウィンドウに出力
+			OutputDebugStringA(content.c_str());
+
 			throw std::runtime_error("failed shader compile");
 		}
 
