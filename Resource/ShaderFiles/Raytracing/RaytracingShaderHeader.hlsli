@@ -12,10 +12,15 @@ struct Vertex
     float3 binormal;
 };
 
+//レイのID
+static const int RAY_DEFAULT = 0;
+static const int RAY_SHADOW = 1;
+
 //ペイロード
 struct Payload
 {
     float3 m_color; //色情報
+    uint m_rayID;   //レイのID
 };
 
 struct MyAttribute
