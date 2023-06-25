@@ -21,7 +21,7 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerate
 	{
 		m_polygonBufferArray[outputHandle].emplace_back(
 			PolygonGenerateData(meshData.verticesPos, meshData.structureSize, meshData.arraySize),
-			PolygonGenerateData((void*)meshData.indices.data(), sizeof(USHORT), meshData.indices.size())
+			PolygonGenerateData((void*)meshData.indices.data(), sizeof(UINT), meshData.indices.size())
 		);
 
 		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(m_polygonBufferArray[outputHandle].back().m_gpuBuffer.m_vertexBuffer);
@@ -29,7 +29,7 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerate
 
 		vertexBuffer->structureSize = meshData.structureSize;
 		vertexBuffer->elementNum = static_cast<UINT>(meshData.arraySize);
-		indexBuffer->structureSize = sizeof(USHORT);
+		indexBuffer->structureSize = sizeof(UINT);
 		indexBuffer->elementNum = static_cast<UINT>(meshData.indices.size());
 
 		//í∏ì_èÓïÒ
@@ -42,7 +42,7 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerate
 		indexBufferViewArray.emplace_back(
 			KazBufferHelper::SetIndexBufferView(
 				indexBuffer->bufferWrapper->GetGpuAddress(),
-				KazBufferHelper::GetBufferSize<BUFFER_SIZE>(meshData.indices.size(), sizeof(USHORT))
+				KazBufferHelper::GetBufferSize<BUFFER_SIZE>(meshData.indices.size(), sizeof(UINT))
 			)
 		);
 
@@ -76,7 +76,7 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerate
 
 		handle = DescriptorHeapMgr::Instance()->GetSize(DESCRIPTORHEAP_MEMORY_IAPOLYGONE).startSize + sDescHandle;
 		view.Buffer.NumElements = static_cast<UINT>(meshData.indices.size());
-		view.Buffer.StructureByteStride = sizeof(USHORT);
+		view.Buffer.StructureByteStride = sizeof(UINT);
 		DescriptorHeapMgr::Instance()->CreateBufferView(handle, view, indexBuffer->bufferWrapper->GetBuffer().Get());
 		drawDataArray[outputHandle].indexBuffer.back()->bufferWrapper->CreateViewHandle(handle);
 		++sDescHandle;
@@ -119,7 +119,7 @@ RESOURCE_HANDLE VertexBufferMgr::GeneratePlaneBuffer()
 	indexBufferViewArray.emplace_back(
 		KazBufferHelper::SetIndexBufferView(
 			indexBuffer->bufferWrapper->GetGpuAddress(),
-			KazBufferHelper::GetBufferSize<BUFFER_SIZE>(6, sizeof(USHORT))
+			KazBufferHelper::GetBufferSize<BUFFER_SIZE>(6, sizeof(UINT))
 		)
 	);
 

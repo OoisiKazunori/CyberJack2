@@ -38,7 +38,7 @@ class PolygonBuffer
 {
 public:
 	std::shared_ptr<KazBufferHelper::BufferData> GenerateVertexBuffer(void *verticesPos, int structureSize, size_t arraySize);
-	std::shared_ptr<KazBufferHelper::BufferData> GenerateIndexBuffer(std::vector<USHORT>indices);
+	std::shared_ptr<KazBufferHelper::BufferData> GenerateIndexBuffer(std::vector<UINT>indices);
 
 	PolygonIndexData GenerateBoxBuffer(float scale);
 	PolygonIndexData GenerateBoxNormalBuffer(float scale);
@@ -66,5 +66,5 @@ private:
 
 	std::vector<DirectX::XMFLOAT3>GetPlaneVertices(const KazMath::Vec2<float> &anchorPoint, const KazMath::Vec2<float> &scale, const KazMath::Vec2<int> &texSize);
 
-	std::vector<DirectX::XMFLOAT3> GetBoxNormal(std::vector<DirectX::XMFLOAT3>VERT,std::vector<USHORT>INDEX_LEN);
+	std::vector<DirectX::XMFLOAT3> GetBoxNormal(std::vector<DirectX::XMFLOAT3>VERT,std::vector<UINT>INDEX_LEN);
 };

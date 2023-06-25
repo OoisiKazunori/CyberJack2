@@ -178,7 +178,7 @@ D3D12_INDEX_BUFFER_VIEW KazBufferHelper::SetIndexBufferView(const D3D12_GPU_VIRT
 {
 	D3D12_INDEX_BUFFER_VIEW view;
 	view.BufferLocation = GPU_ADDRESS;
-	view.Format = DXGI_FORMAT_R16_UINT;
+	view.Format = DXGI_FORMAT_R32_UINT;
 	view.SizeInBytes = BUFFER_SIZE;
 	return view;
 }

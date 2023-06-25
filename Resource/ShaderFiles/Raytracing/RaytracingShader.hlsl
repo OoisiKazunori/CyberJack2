@@ -22,7 +22,6 @@ Texture2D<float4> albedoMap : register(t1);
 Texture2D<float4> normalMap : register(t2);
 Texture2D<float4> materialMap : register(t3);
 Texture2D<float4> worldMap : register(t4);
-//Texture2D<float4> sceneMap : register(t5);
 
 //出力先UAV
 RWTexture2D<float4> finalColor : register(u0);
