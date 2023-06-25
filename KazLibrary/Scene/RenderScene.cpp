@@ -2,7 +2,6 @@
 #include"../KazLibrary/Helper/ResourceFilePass.h"
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
 #include"../KazLibrary/Buffer/GBufferMgr.h"
-#include"../KazLibrary/Render/DrawFunc.h"
 
 RenderScene::RenderScene()
 {
@@ -11,7 +10,7 @@ RenderScene::RenderScene()
 	m_boxData = m_boxBuffer.GenerateBoxBuffer(1.0f);
 
 	Raytracing::HitGroupMgr::Instance()->Setting();
-	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS"}, {L"mainCHS", L"mainAnyHit"}});
+	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS"}, {L"mainCHS", L"mainAnyHit"} });
 	int payloadSize = sizeof(float) * 4;
 	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 5, 1, 1, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
@@ -32,33 +31,21 @@ RenderScene::RenderScene()
 	//m_testModelArray[6] = ModelLoader::Instance()->Load("Resource/Test/glTF/Lantern/", "Lantern.gltf");
 	//m_testModelArray[7] = ModelLoader::Instance()->Load("Resource/Test/glTF/SciFiHelmet/", "SciFiHelmet.gltf");
 
-	m_testModelTransformArray[0].scale = { 1500.0f,1500.0f,1500.0f };
-	m_testModelTransformArray[1].scale = { 1500.0f,1500.0f,1500.0f };
-	m_testModelTransformArray[2].scale = { 1500.0f,1500.0f,1500.0f };
-	m_testModelTransformArray[3].scale = { 1500.0f,500.0f,1500.0f };
-	m_testModelTransformArray[4].scale = { 100.0f,100.0f,100.0f };
-	m_testModelTransformArray[5].scale = { 1000.0f,1000.0f,1000.0f };
+	//m_testModelTransformArray[0].scale = { 1500.0f,1500.0f,1500.0f };
+	//m_testModelTransformArray[1].scale = { 1500.0f,1500.0f,1500.0f };
+	//m_testModelTransformArray[2].scale = { 1500.0f,1500.0f,1500.0f };
+	//m_testModelTransformArray[3].scale = { 1500.0f,500.0f,1500.0f };
+	//m_testModelTransformArray[4].scale = { 100.0f,100.0f,100.0f };
+	//m_testModelTransformArray[5].scale = { 1000.0f,1000.0f,1000.0f };
 
 	{
 		//スポンザ
 		m_drawSponza = DrawFuncData::SetDefferdRenderingModel(m_model);
 
-		//テストのモデル
-		for (int i = 0; i < m_testModelArray.size(); ++i)
-		{
-			m_testModelDrawCallArray[i] = DrawFuncData::SetDefferdRenderingModel(m_testModelArray[i]);
 
-			float index = static_cast<float>(i);
-			float half = static_cast<float>(m_testModelArray.size() / 2);
-			if (i < half)
-			{
-				m_testModelTransformArray[i].pos = { -150.0f,20.0f,-100.0f + index * 150.0f };
-			}
-			else
-			{
-				m_testModelTransformArray[i].pos = { 150.0f,20.0f,-100.0f + (index - half) * 150.0f };
-			}
-		}
+		std::array<float, 6>scaleArray({ 1500.0f, 1500.0f, 1500.0f, 500.0f, 50.0f,500.0f });
+		m_testModelFiledArray.emplace_back(TestModelField(m_testModelArray, scaleArray));
+		m_testModelFiledArray.emplace_back(TestModelField(m_testModelArray, scaleArray));
 
 
 		//球の描画
@@ -233,10 +220,13 @@ void RenderScene::Update()
 	DrawFunc::DrawModelInRaytracing(m_refractionSphere, m_sphereTransform, DrawFunc::REFRACTION);
 
 
-	for (int i = 0; i < m_testModelTransformArray.size(); ++i)
+	std::array<float, 6>xArray({ -500.0f , -400.0f, -100.0f, 100.0f, 300.0f,500.0f });
+	for (int i = 0; i < m_testModelFiledArray.size(); ++i)
 	{
-		DrawFunc::DrawModelInRaytracing(m_testModelDrawCallArray[i], m_testModelTransformArray[i], DrawFunc::NONE);
+		m_testModelFiledArray[i].SetPos(xArray, 300.0f, 50.0f + static_cast<float>(i) * 500.0f);
+		m_testModelFiledArray[i].Update(m_rasterizeRenderer);
 	}
+
 
 	{
 		KazMath::Transform2D transform({ 1280.0f,720.0f }, { 1280.0f,720.0f });
@@ -294,17 +284,7 @@ void RenderScene::Draw()
 
 	//m_rasterizeRenderer.ObjectRender(m_refractionSphere);
 	for (int index = 0; index < static_cast<int>(m_refractionSphere.m_raytracingData.m_blas.size()); ++index) {
-	//	m_blasVector.Add(m_refractionSphere.m_raytracingData.m_blas[index], m_transformArray[0].GetMat());
-	}
-
-	//テスト用のモデルの描画
-	for (int i = 0; i < m_testModelDrawCallArray.size(); ++i)
-	{
-		m_rasterizeRenderer.ObjectRender(m_testModelDrawCallArray[i]);
-		for (int mesh = 0; mesh < m_testModelDrawCallArray[i].m_raytracingData.m_blas.size(); ++mesh)
-		{
-			m_blasVector.Add(m_testModelDrawCallArray[i].m_raytracingData.m_blas[mesh], m_testModelTransformArray[i].GetMat());
-		}
+		//	m_blasVector.Add(m_refractionSphere.m_raytracingData.m_blas[index], m_transformArray[0].GetMat());
 	}
 
 

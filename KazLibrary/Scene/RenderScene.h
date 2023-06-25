@@ -16,6 +16,7 @@
 #include"Raytracing/Tlas.h"
 #include"Raytracing/HitGroupMgr.h"
 #include"Raytracing/RayPipeline.h"
+#include"../KazLibrary/Render/DrawFunc.h"
 
 class RenderScene :public SceneBase
 {
@@ -71,8 +72,51 @@ private:
 
 	//テスト用モデル
 	std::array<std::shared_ptr<ModelInfomation>, 6>m_testModelArray;
-	std::array<DrawFuncData::DrawCallData, 6>m_testModelDrawCallArray;
-	std::array<KazMath::Transform3D, 6>m_testModelTransformArray;
+
+	struct TestModelField
+	{
+		std::array<std::array<DrawFuncData::DrawCallData, 6>, 6>m_modelArray;	//モデル
+		std::array<std::array<KazMath::Transform3D, 6>, 6>m_transformArray;		//Transform
+
+		TestModelField(std::array<std::shared_ptr<ModelInfomation>, 6> arg_modelArray, std::array<float, 6>arg_float)
+		{
+			for (int y = 0; y < m_modelArray.size(); ++y)
+			{
+				for (int x = 0; x < m_modelArray[y].size(); ++x)
+				{
+					m_modelArray[y][x] = DrawFuncData::SetDefferdRenderingModel(arg_modelArray[y]);
+					m_transformArray[y][x].scale = { arg_float[y],arg_float[y],arg_float[y] };
+					m_transformArray[y][x].rotation.y = 90.0f;
+				}
+			}
+		};
+
+		void SetPos(std::array<float, 6>arg_baseX, float arg_interval, float arg_height)
+		{
+			for (int y = 0; y < m_modelArray.size(); ++y)
+			{
+				for (int x = 0; x < m_modelArray[y].size(); ++x)
+				{
+					float offset = static_cast<float>(x) * arg_interval;
+					m_transformArray[y][x].pos = { -500.0f + offset,arg_height,arg_baseX[y] };
+				}
+			}
+		};
+
+		void Update(DrawingByRasterize& arg_drawCall)
+		{
+			for (int y = 0; y < m_modelArray.size(); ++y)
+			{
+				for (int x = 0; x < m_modelArray[y].size(); ++x)
+				{
+					DrawFunc::DrawModelInRaytracing(m_modelArray[y][x], m_transformArray[y][x], DrawFunc::REFRACTION);
+					arg_drawCall.ObjectRender(m_modelArray[y][x]);
+				}
+			}
+		};
+	};
+
+	std::vector<TestModelField>m_testModelFiledArray;
 
 
 	DispatchComputeShader::DispatchData m_dispatchData;
