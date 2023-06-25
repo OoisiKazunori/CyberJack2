@@ -8,15 +8,6 @@ ModelLoader::ModelLoader()
 
 std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string arg_fileDir, std::string arg_fileName)
 {
-	//ファイル読み込み
-	std::ifstream file;
-	file.open(arg_fileDir+ arg_fileName);
-	if (file.fail())
-	{
-		std::string errorName = arg_fileDir + arg_fileName + "の読み込みに失敗しました\n";
-		FailCheck(errorName);
-		static_assert(true);
-	}
 
 	std::vector<ModelMeshData> modelData;
 
@@ -32,13 +23,14 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string arg_fileDir, std:
 
 
 	std::vector<VertexGenerateData> vertArray;
+	m_modelVertexDataArray.emplace_back();
 	int dex = 0;
 	for (const auto &meshData : modelData)
 	{
 		std::vector<VertexBufferData>vertexData = GetVertexDataArray(meshData.vertexData, meshData.vertexData.indexArray);
-		vertexDataArray.emplace_back(vertexData);
+		m_modelVertexDataArray.back().m_vertexDataArray.emplace_back(vertexData);
 		//頂点バッファ生成用の情報をスタックする。
-		VertexGenerateData vertData(vertexDataArray[dex].data(), sizeof(VertexBufferData), vertexData.size(), sizeof(vertexData[0]), meshData.vertexData.indexArray);
+		VertexGenerateData vertData(m_modelVertexDataArray.back().m_vertexDataArray[dex].data(), sizeof(VertexBufferData), vertexData.size(), sizeof(vertexData[0]), meshData.vertexData.indexArray);
 		vertArray.emplace_back(vertData);
 		++dex;
 	}
@@ -444,7 +436,6 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 		gltfNode.translation;
 	}
 
-	std::string errorFilePass("Resource/Test/MaterialError.png");
 	std::vector<MaterialData> modelMaterialDataArray;
 	//マテリアル情報の読み込み
 	for (const auto &material : doc.materials.Elements())
@@ -466,10 +457,12 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 			}
 			else
 			{
-				//テクスチャ読み込み
-				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(errorFilePass));
-				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+				modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA));
 			}
+		}
+		else
+		{
+			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA));
 		}
 
 		//法線マップの取得
@@ -488,10 +481,12 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 			//何もない場合は透明なテクスチャを送る
 			else
 			{
-				//テクスチャ読み込み
-				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(errorFilePass));
-				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+				modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA2));
 			}
+		}
+		else
+		{
+			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA2));
 		}
 
 		//メタルネスの取得
@@ -510,10 +505,12 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 			//何もない場合は透明なテクスチャを送る
 			else
 			{
-				//テクスチャ読み込み
-				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(errorFilePass));
-				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+				modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA3));
 			}
+		}
+		else
+		{
+			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA3));
 		}
 	}
 

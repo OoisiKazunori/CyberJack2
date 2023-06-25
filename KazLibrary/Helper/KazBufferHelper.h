@@ -63,6 +63,7 @@ namespace KazBufferHelper
 	{
 	public:
 		ID3D12ResourceWrapper();
+		~ID3D12ResourceWrapper();
 
 		/// <summary>
 		/// バッファ生成
@@ -173,8 +174,11 @@ namespace KazBufferHelper
 		}
 
 	private:
-		std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 1>buffer;
+		static const int BACK_BUFFER_NUM = 1;
+		std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, BACK_BUFFER_NUM>buffer;
+		std::array<void*, BACK_BUFFER_NUM>bufferMapPtr;
 		std::vector<RESOURCE_HANDLE> viewHandle;
+		bool isVRAMBufferFlag;
 		UINT GetIndex()const
 		{
 			return 0;

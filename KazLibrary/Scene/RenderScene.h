@@ -78,15 +78,15 @@ private:
 	//レイトレ用パイプライン
 	std::vector<Raytracing::RayPipelineShaderData> m_pipelineShaders;
 	std::unique_ptr<Raytracing::RayPipeline> m_rayPipeline;
-
+	bool m_raytracingFlag;
 
 	//std::unique_ptr<DrawFunc::KazRender>normalGBufferRender;
 	//std::unique_ptr<DrawFunc::KazRender>finalGBufferRender;
 
 	DrawFuncData::DrawCallData m_drawSponza;
 
-	//DrawFuncData::DrawCallData m_reflectionSphere;
-	//DrawFuncData::DrawCallData m_refractionSphere;
+	DrawFuncData::DrawCallData m_reflectionSphere;
+	DrawFuncData::DrawCallData m_refractionSphere;
 	KazMath::Transform3D m_sphereTransform;
 
 	struct DrawGBufferData

@@ -1,12 +1,18 @@
+bool IsEnableToUseMaterialTex(float4 texColor)
+{
+    return texColor.a <= 0.0f;
+};
+
+
 struct VSOutput
 {
-    float4 svpos : SV_POSITION; //�V�X�e���p���_���W
-    float2 uv : TEXCOORD; //uv�l
+    float4 svpos : SV_POSITION;
+    float2 uv : TEXCOORD;
 };
 
 cbuffer MatBuffer : register(b0)
 {
-    matrix Mat; //3D�ϊ��s��
+    matrix Mat;
 }
 
 cbuffer LightDir : register(b1)
@@ -38,15 +44,13 @@ float4 PSmain(VSOutput input) : SV_TARGET
     //法線マップを使わないならAlbedoを出力する
     if(IsEnableToUseMaterialTex(worldNormalVec))
     {
-        return outputColor;
+        return albedoColor;
     }
 
-    //���C�g�̃x�N�g���v�Z
     float3 lightV = LightWorldPos - worldPos.xyz;
     float d = length(lightV);
     lightV = normalize(lightV);
 
-    //���������W��
     float atten = 400.0f / (attenVec.x + attenVec.y * d + attenVec.z * d * d);
     float bright = dot(lightV,worldNormalVec.xyz);
         
@@ -56,7 +60,6 @@ float4 PSmain(VSOutput input) : SV_TARGET
     float3 light = (bright * atten + ambient) * lightColor;
     light = saturate(light);
 
-    //����
     float4 outputColor = albedoColor;
     finalTex[input.uv * uint2(1280,720)] = float4(outputColor.xyz * light,outputColor.a);
     return float4(outputColor.xyz * light,outputColor.a);
