@@ -49,12 +49,10 @@ uint8_t* Raytracing::Blas::WriteShaderRecord(uint8_t* arg_dst, UINT arg_recordSi
 	//[0] : インデックスバッファ
 	//[1] : 頂点バッファ
 	//※ ローカルルートシグネチャの順序に合わせる必要がある。
-	const auto indexptr = vertexData.indexBuffer[m_meshNumber]->bufferWrapper->GetGpuAddress();
-	arg_dst += WriteGPUVirtualAddress(arg_dst, &indexptr);
-	const auto vertexptr = vertexData.vertBuffer[m_meshNumber]->bufferWrapper->GetGpuAddress();
-	arg_dst += WriteGPUVirtualAddress(arg_dst, &vertexptr);
 	//テクスチャを書き込む。
 	arg_dst += WriteGPUDescriptor(arg_dst, &DescriptorHeapMgr::Instance()->GetGpuDescriptorView(m_textureHandle));
+	arg_dst += WriteGPUDescriptor(arg_dst, &DescriptorHeapMgr::Instance()->GetGpuDescriptorView(vertexData.indexBuffer[m_meshNumber]->bufferWrapper->GetViewHandle()));
+	arg_dst += WriteGPUDescriptor(arg_dst, &DescriptorHeapMgr::Instance()->GetGpuDescriptorView(vertexData.vertBuffer[m_meshNumber]->bufferWrapper->GetViewHandle()));
 
 	arg_dst = entryBegin + arg_recordSize;
 	return arg_dst;
@@ -83,12 +81,12 @@ D3D12_RAYTRACING_GEOMETRY_DESC Raytracing::Blas::GetGeometryDesc(bool arg_isOpaq
 	//形状データの細かい項目を設定。
 	auto& triangles = geometryDesc.Triangles;
 	triangles.VertexBuffer.StartAddress = vertexData.vertBuffer[m_meshNumber]->bufferWrapper->GetGpuAddress();
-	triangles.VertexBuffer.StrideInBytes = vertexData.vertBuffer[m_meshNumber]->structureSize;							//全体のサイズの可能性がある。バグったらここを確認。
+	triangles.VertexBuffer.StrideInBytes = vertexData.vertBuffer[m_meshNumber]->structureSize;
 	triangles.VertexCount = vertexData.vertBuffer[m_meshNumber]->elementNum;
 	triangles.IndexBuffer = vertexData.indexBuffer[m_meshNumber]->bufferWrapper->GetGpuAddress();
 	triangles.IndexCount = vertexData.indexBuffer[m_meshNumber]->elementNum;
 	triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
-	triangles.IndexFormat = DXGI_FORMAT_R16_UINT;
+	triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
 
 	return geometryDesc;
 
