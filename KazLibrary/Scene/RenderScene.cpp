@@ -227,7 +227,9 @@ void RenderScene::Update()
 
 	//レイトレデバッグ用のオブジェクトをセット
 	m_sphereTransform = m_transformArray[0];
-	m_sphereTransform.scale = { 100.0f,100.0f,100.0f };
+	float scale = 50.0f;
+	m_sphereTransform.pos.y = 50.0f;
+	m_sphereTransform.scale = { scale,scale,scale };
 	//DrawFunc::DrawModelInRaytracing(m_reflectionSphere, m_sphereTransform, DrawFunc::REFLECTION);
 	//m_reflectionSphere.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 	DrawFunc::DrawModelInRaytracing(m_refractionSphere, m_sphereTransform, DrawFunc::REFRACTION);
@@ -335,7 +337,7 @@ void RenderScene::Draw()
 	ImGui::DragFloat("AtemX", &m_atem.x);
 	ImGui::DragFloat("AtemY", &m_atem.y);
 	ImGui::DragFloat("AtemZ", &m_atem.z);
-	for (auto &obj : m_drawPlaneArray)
+	for (auto& obj : m_drawPlaneArray)
 	{
 		ImGui::Checkbox(obj.m_bufferName.c_str(), &obj.m_drawFlag);
 	}
