@@ -41,11 +41,12 @@ void mainRayGen()
 
     //ペイロードの設定
     Payload payloadData;
-    payloadData.m_color = float3(1.0f, 1.0f, 1.0f);
+    payloadData.m_color = float3(0.0f, 0.0f, 0.0f);
     payloadData.m_rayID = RAY_SHADOW;
     
     //影用のレイをうつ。
     float bright = 1.0f;
+    if (0.1f < length(normalColor.xyz))
     {
         float3 lightDir = normalize(float3(0.4f, -1.0f, 0.3f));
         
@@ -66,7 +67,7 @@ void mainRayGen()
         0xFF, //衝突判定対象のマスク値
         0, //ray index
         1, //MultiplierForGeometryContrib
-        0, //miss index
+        1, //miss index
         rayDesc,
         payloadData);
         
@@ -78,7 +79,7 @@ void mainRayGen()
     albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);
     
     //レイのIDをみて、レイを打つかどうかを判断
-    if (materialInfo.w != 0)
+    if (materialInfo.w != 0 && 0.1f < length(normalColor.xyz))
     {
 
         //レイの設定
@@ -124,7 +125,7 @@ void mainRayGen()
 void mainMS(inout Payload PayloadData)
 {
     
-    PayloadData.m_color = float3(1, 1, 1);
+    PayloadData.m_color = float3(0, 0, 0);
 
 }
 
