@@ -223,6 +223,10 @@ KazBufferHelper::ID3D12ResourceWrapper::ID3D12ResourceWrapper()
 
 KazBufferHelper::ID3D12ResourceWrapper::~ID3D12ResourceWrapper()
 {
+	if (isVRAMBufferFlag)
+	{
+		return;
+	}
 	for (int i = 0; i < buffer.size(); ++i)
 	{
 		buffer[i]->Unmap(0, nullptr);

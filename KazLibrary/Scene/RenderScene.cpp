@@ -18,7 +18,7 @@ RenderScene::RenderScene()
 	//G-Buffer生成
 	GBufferMgr::Instance();
 
-	m_model = ModelLoader::Instance()->Load("Resource/Test/glTF/", "sponza.gltf");
+	m_model = ModelLoader::Instance()->Load("Resource/Test/glTF/Sponza/", "sponza.gltf");
 	//m_reflectionModel = ModelLoader::Instance()->Load("Resource/Test/glTF/", "sponza.gltf");
 	m_refractionModel = ModelLoader::Instance()->Load("Resource/Test/", "refraction.gltf");
 
@@ -317,16 +317,17 @@ void RenderScene::Draw()
 
 	/*----- レイトレ描画開始 -----*/
 
-	//Tlasを構築 or 再構築する。
-	m_tlas.Build(m_blasVector);
-
-	//レイトレ用のデータを構築。
-	m_rayPipeline->BuildShaderTable(m_blasVector);
-
 	//レイトレ実行。
-	m_rayPipeline->TraceRay(m_tlas);
+	if (m_raytracingFlag)
+	{
+		//Tlasを構築 or 再構築する。
+		m_tlas.Build(m_blasVector);
 
+		//レイトレ用のデータを構築。
+		m_rayPipeline->BuildShaderTable(m_blasVector);
 
+		m_rayPipeline->TraceRay(m_tlas);
+	}
 	/*----- レイトレ描画終了 -----*/
 
 
@@ -342,6 +343,7 @@ void RenderScene::Draw()
 		ImGui::Checkbox(obj.m_bufferName.c_str(), &obj.m_drawFlag);
 	}
 	ImGui::Checkbox(m_drawFinalPlane.m_bufferName.c_str(), &m_drawFinalPlane.m_drawFlag);
+	ImGui::Checkbox("RayTracing", &m_raytracingFlag);
 	ImGui::End();
 }
 
