@@ -19,7 +19,7 @@ RenderScene::RenderScene()
 	GBufferMgr::Instance();
 
 	//m_model = ModelLoader::Instance()->Load("Resource/Test/glTF/", "sponza.gltf");
-	//m_reflectionModel = ModelLoader::Instance()->Load("Resource/Test/glTF/", "sponza.gltf");
+	m_reflectionModel = ModelLoader::Instance()->Load("Resource/Test/glTF/", "sponza.gltf");
 	m_refractionModel = ModelLoader::Instance()->Load("Resource/Test/", "refraction.gltf");
 
 	//フォワードレンダリングで描画するモデル

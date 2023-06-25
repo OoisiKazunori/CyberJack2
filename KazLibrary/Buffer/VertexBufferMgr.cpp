@@ -8,19 +8,27 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(std::vector<VertexGenerateData> 
 	std::vector<KazRenderHelper::DrawIndexedInstancedData>drawCommandDataArray;
 
 
-	RESOURCE_HANDLE outputHandle = handle.GetHandle();
+	RESOURCE_HANDLE outputHandle = m_handle.GetHandle();
 	bool pushBackFlag = false;
 	if (drawDataArray.size() <= outputHandle)
 	{
 		drawDataArray.emplace_back();
+		m_polygonBufferArray.emplace_back();
 		pushBackFlag = true;
 	}
 
-	for (const auto &meshData : vertexData)
+	for (const auto& meshData : vertexData)
 	{
 		vertexBufferArray.back().emplace_back(std::make_unique<PolygonBuffer>());
-		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(vertexBufferArray.back().back()->GenerateVertexBuffer(meshData.verticesPos, meshData.structureSize, meshData.arraySize));
-		std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(vertexBufferArray.back().back()->GenerateIndexBuffer(meshData.indices));
+
+
+		m_polygonBufferArray[outputHandle].emplace_back(
+			PolygonGenerateData(meshData.verticesPos, meshData.structureSize, meshData.arraySize),
+			PolygonGenerateData((void*)meshData.indices.data(), sizeof(USHORT), meshData.indices.size())
+		);
+
+		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(m_polygonBufferArray[outputHandle].back().m_gpuBuffer.m_vertexBuffer);
+		std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(m_polygonBufferArray[outputHandle].back().m_gpuBuffer.m_indexBuffer);
 
 		vertexBuffer->structureSize = meshData.structureSize;
 		vertexBuffer->elementNum = static_cast<UINT>(meshData.arraySize);
@@ -119,7 +127,7 @@ RESOURCE_HANDLE VertexBufferMgr::GeneratePlaneBuffer()
 	drawDataArray.back().index.indexBufferView = indexBufferViewArray;
 	drawDataArray.back().index.drawIndexInstancedData = drawCommandDataArray;
 
-	RESOURCE_HANDLE outputHandle = handle.GetHandle();
+	RESOURCE_HANDLE outputHandle = m_handle.GetHandle();
 	return outputHandle;
 }
 
