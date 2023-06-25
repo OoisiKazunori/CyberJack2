@@ -69,6 +69,12 @@ private:
 	std::shared_ptr<ModelInfomation> m_reflectionModel;
 	std::shared_ptr<ModelInfomation> m_refractionModel;
 
+	//テスト用モデル
+	std::array<std::shared_ptr<ModelInfomation>, 6>m_testModelArray;
+	std::array<DrawFuncData::DrawCallData, 6>m_testModelDrawCallArray;
+	std::array<KazMath::Transform3D, 6>m_testModelTransformArray;
+
+
 	DispatchComputeShader::DispatchData m_dispatchData;
 
 	//レイトレにモデルを組み込む用の配列クラス

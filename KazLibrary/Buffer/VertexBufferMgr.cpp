@@ -1,6 +1,7 @@
 #include "VertexBufferMgr.h"
+#include"DescriptorHeapMgr.h"
 
-RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerateData> &vertexData)
+RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerateData>& vertexData)
 {
 	std::vector<KazRenderHelper::IASetVertexBuffersData> setVertDataArray;
 	std::vector<D3D12_INDEX_BUFFER_VIEW> indexBufferViewArray;
@@ -57,6 +58,28 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerate
 
 		drawDataArray[outputHandle].vertBuffer.emplace_back(vertexBuffer);
 		drawDataArray[outputHandle].indexBuffer.emplace_back(indexBuffer);
+
+
+		RESOURCE_HANDLE handle = DescriptorHeapMgr::Instance()->GetSize(DESCRIPTORHEAP_MEMORY_IAPOLYGONE).startSize + sDescHandle;
+		D3D12_SHADER_RESOURCE_VIEW_DESC view;
+		view.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		view.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		view.Format = DXGI_FORMAT_UNKNOWN;
+		view.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		view.Buffer.NumElements = static_cast<UINT>(meshData.arraySize);
+		view.Buffer.FirstElement = 0;
+		view.Buffer.StructureByteStride = meshData.structureSize;
+		DescriptorHeapMgr::Instance()->CreateAccelerationStructure(handle, view);
+		drawDataArray[outputHandle].vertBuffer.back()->bufferWrapper->CreateViewHandle(handle);
+		++sDescHandle;
+
+
+		handle = DescriptorHeapMgr::Instance()->GetSize(DESCRIPTORHEAP_MEMORY_IAPOLYGONE).startSize + sDescHandle;
+		view.Buffer.NumElements = static_cast<UINT>(meshData.indices.size());
+		view.Buffer.StructureByteStride = sizeof(USHORT);
+		DescriptorHeapMgr::Instance()->CreateAccelerationStructure(handle, view);
+		drawDataArray[outputHandle].vertBuffer.back()->bufferWrapper->CreateViewHandle(handle);
+		++sDescHandle;
 	}
 	drawDataArray[outputHandle].index.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	drawDataArray[outputHandle].index.vertexBufferDrawData = setVertDataArray;
@@ -85,7 +108,7 @@ RESOURCE_HANDLE VertexBufferMgr::GeneratePlaneBuffer()
 	setVertDataArray.emplace_back();
 	setVertDataArray.back().numViews = 1;
 	setVertDataArray.back().slot = 0;
-	setVertDataArray.back().vertexBufferView = 
+	setVertDataArray.back().vertexBufferView =
 		KazBufferHelper::SetVertexBufferView(
 			vertexBuffer->bufferWrapper->GetGpuAddress(),
 			KazBufferHelper::GetBufferSize<BUFFER_SIZE>(4, sizeof(PolygonBuffer::VertUvData)),
@@ -124,11 +147,11 @@ RESOURCE_HANDLE VertexBufferMgr::GeneratePlaneBuffer()
 void VertexBufferMgr::ReleaseBuffer(RESOURCE_HANDLE HANDLE)
 {
 	drawDataArray[HANDLE].index.Finalize();
-	for (auto &vertBuffer : drawDataArray[HANDLE].vertBuffer)
+	for (auto& vertBuffer : drawDataArray[HANDLE].vertBuffer)
 	{
 		vertBuffer.reset();
 	}
-	for (auto &indexBuffer : drawDataArray[HANDLE].indexBuffer)
+	for (auto& indexBuffer : drawDataArray[HANDLE].indexBuffer)
 	{
 		indexBuffer.reset();
 	}

@@ -1,7 +1,6 @@
 #pragma once
 #include"../KazLibrary/Helper/ISinglton.h"
 #include"../KazLibrary/Helper/KazBufferHelper.h"
-#include"../KazLibrary/Helper/Compute.h"
 
 /// <summary>
 /// G-Buffer‚ÌŠÇ—ƒNƒ‰ƒX
@@ -16,7 +15,6 @@ public:
 		NORMAL,
 		R_M_S_ID,
 		WORLD,
-		FINAL,
 		MAX
 	};
 	GBufferMgr();

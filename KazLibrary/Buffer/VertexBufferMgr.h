@@ -76,4 +76,5 @@ private:
 	std::vector<PolygonMultiMeshedIndexData>drawDataArray;
 
 	std::vector<std::vector<IAPolygonBufferData>>m_polygonBufferArray;
+	int sDescHandle = 0;
 };
