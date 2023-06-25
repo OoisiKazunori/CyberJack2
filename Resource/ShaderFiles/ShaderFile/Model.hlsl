@@ -53,18 +53,11 @@ float4 PSPosNormalUvmain(PosUvNormalOutput input) : SV_TARGET
 }
 
 
-
-cbuffer LightBufferB2 : register(b2)
-{
-    float3 localLightDirB2;
-}
-
 struct PosUvNormalTangentBinormalOutput
 {
     float4 svpos : SV_POSITION;
     float3 normal : NORMAL;
     float2 uv : TEXCOORD;
-    float3 lightInTangentWorld : TANGENT;
     float3 worldPos : POSITION;
     float3 tangent : TANGENT2;
     float3 binormal : BINORMAL;
@@ -82,10 +75,6 @@ PosUvNormalTangentBinormalOutput VSDefferdMain(float4 pos : POSITION,float3 norm
     op.binormal = binormal;
     op.tangent = tangent;
 
-    float4 lightDir = float4(localLightDirB2.xyz,0.0f);
-    lightDir = normalize(lightDir);
-    op.lightInTangentWorld = mul(lightDir,InvTangentMatrix(tangent,binormal,normal));
-
     return op;
 }
 
@@ -95,7 +84,6 @@ struct GBufferOutput
     float4 normal : SV_TARGET1;
     float4 metalnessRoughness : SV_TARGET2;
     float4 world : SV_TARGET3;
-    float4 final : SV_TARGET4;
 };
 
 GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
@@ -105,25 +93,23 @@ GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
     float3 normalVec = 2 * normalColor - 1.0f;
     normalVec = normalize(normalVec);
 
-    float3 bright = dot(input.lightInTangentWorld,normalVec);
-	float4 texColor = AlbedoTex.Sample(smp,input.uv);
-    float4 mrColor = MetalnessRoughnessTex.Sample(smp,input.uv);
-
     float3 normal = mul(worldMat,float4(input.normal,1.0f));
     float3 tangent = mul(worldMat,float4(input.tangent,1.0f));
     float3 binormal = cross(normal,tangent);
 
-
     float3 nWorld = CalucurateTangentToLocal(normalVec,normal,tangent,binormal);
-    bright = dot(normalize(localLightDirB2),nWorld);
+
+    if(IsEnableToUseMaterialTex(normalColor))
+    {
+        nWorld = input.normal;
+    }
+
+	float4 texColor = AlbedoTex.Sample(smp,input.uv);
+    float4 mrColor = MetalnessRoughnessTex.Sample(smp,input.uv);
 
     if(IsEnableToUseMaterialTex(mrColor))
     {
         mrColor.xyz = float3(-1,-1,-1);
-    }
-    if(IsEnableToUseMaterialTex(normalColor))
-    {
-        nWorld = input.normal;
     }
 
     GBufferOutput output;
@@ -131,6 +117,5 @@ GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
     output.normal = float4(nWorld,1.0f);
     output.metalnessRoughness = float4(mrColor.xyz,raytracingId);
     output.world = float4(input.worldPos,1.0f);
-    output.final = float4(texColor.xyz * bright,texColor.a);
 	return output;
 }

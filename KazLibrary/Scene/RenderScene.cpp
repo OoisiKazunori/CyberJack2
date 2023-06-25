@@ -20,50 +20,49 @@ RenderScene::RenderScene()
 
 
 
-	//m_reflectionModel = ModelLoader::Instance()->Load("Resource/Test/glTF/Dragon/", "DragonAttenuation.gltf");
 	m_model = ModelLoader::Instance()->Load("Resource/Test/glTF/Sponza/", "sponza.gltf");
 	m_refractionModel = ModelLoader::Instance()->Load("Resource/Test/", "refraction.gltf");
 
-	//フォワードレンダリングで描画するモデル
-	{
-		DrawFuncData::PipelineGenerateData lData;
-		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+	m_testModelArray[0] = ModelLoader::Instance()->Load("Resource/Test/glTF/Avocado/", "Avocado.gltf");
+	m_testModelArray[1] = ModelLoader::Instance()->Load("Resource/Test/glTF/BoomBox/", "BoomBox.gltf");
+	m_testModelArray[2] = ModelLoader::Instance()->Load("Resource/Test/glTF/Corset/", "Corset.gltf");
+	m_testModelArray[3] = ModelLoader::Instance()->Load("Resource/Test/glTF/WaterBottle/", "WaterBottle.gltf");
+	m_testModelArray[4] = ModelLoader::Instance()->Load("Resource/Test/glTF/Suzanne/", "Suzanne.gltf");
+	m_testModelArray[5] = ModelLoader::Instance()->Load("Resource/Test/glTF/BarramundiFish/", "BarramundiFish.gltf");
+	//m_testModelArray[6] = ModelLoader::Instance()->Load("Resource/Test/glTF/Lantern/", "Lantern.gltf");
+	//m_testModelArray[7] = ModelLoader::Instance()->Load("Resource/Test/glTF/SciFiHelmet/", "SciFiHelmet.gltf");
 
-		//その他設定
-		lData.desc.NumRenderTargets = static_cast<UINT>(GBufferMgr::Instance()->GetRenderTargetFormat().size());
-		for (int i = 0; i < GBufferMgr::Instance()->GetRenderTargetFormat().size(); ++i)
+	m_testModelTransformArray[0].scale = { 1500.0f,1500.0f,1500.0f };
+	m_testModelTransformArray[1].scale = { 1500.0f,1500.0f,1500.0f };
+	m_testModelTransformArray[2].scale = { 1500.0f,1500.0f,1500.0f };
+	m_testModelTransformArray[3].scale = { 1500.0f,500.0f,1500.0f };
+	m_testModelTransformArray[4].scale = { 100.0f,100.0f,100.0f };
+	m_testModelTransformArray[5].scale = { 1000.0f,1000.0f,1000.0f };
+
+	{
+		//スポンザ
+		m_drawSponza = DrawFuncData::SetDefferdRenderingModel(m_model);
+
+		//テストのモデル
+		for (int i = 0; i < m_testModelArray.size(); ++i)
 		{
-			lData.desc.RTVFormats[i] = GBufferMgr::Instance()->GetRenderTargetFormat()[i];
+			m_testModelDrawCallArray[i] = DrawFuncData::SetDefferdRenderingModel(m_testModelArray[i]);
+
+			float index = static_cast<float>(i);
+			float half = static_cast<float>(m_testModelArray.size() / 2);
+			if (i < half)
+			{
+				m_testModelTransformArray[i].pos = { -150.0f,20.0f,-100.0f + index * 150.0f };
+			}
+			else
+			{
+				m_testModelTransformArray[i].pos = { 150.0f,20.0f,-100.0f + (index - half) * 150.0f };
+			}
 		}
 
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdMain", "vs_6_4", SHADER_TYPE_VERTEX);
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdMain", "ps_6_4", SHADER_TYPE_PIXEL);
 
-		//描画
-		m_drawSponza = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_model, lData);
-		//その他バッファ
-		m_drawSponza.extraBufferArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
-		m_drawSponza.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		m_drawSponza.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-		m_drawSponza.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT3);
-
-		m_drawSponza.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
-
-		//レイトレの準備
-		m_drawSponza.SetupRaytracing(true);
-
-		//描画
-		m_refractionSphere = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_refractionModel, lData);
-		//その他バッファ
-		m_refractionSphere.extraBufferArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
-		m_refractionSphere.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		m_refractionSphere.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-		m_refractionSphere.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT3);
-
-		m_refractionSphere.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
-
-		//レイトレの準備
-		m_refractionSphere.SetupRaytracing(true);
+		//球の描画
+		m_refractionSphere = DrawFuncData::SetDefferdRenderingModel(m_refractionModel);
 	}
 
 	{
@@ -223,9 +222,6 @@ void RenderScene::Update()
 
 
 	DrawFunc::DrawModelInRaytracing(m_drawSponza, m_transformArray[0], DrawFunc::NONE);
-	DrawFunc::DrawModelInRaytracing(m_drawSponza, m_transformArray[0], DrawFunc::NONE);
-	DirectX::XMFLOAT3 dir = m_lightVec.ConvertXMFLOAT3();
-	m_drawSponza.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 
 	//レイトレデバッグ用のオブジェクトをセット
 	m_sphereTransform = m_transformArray[0];
@@ -235,8 +231,12 @@ void RenderScene::Update()
 	//DrawFunc::DrawModelInRaytracing(m_reflectionSphere, m_sphereTransform, DrawFunc::REFLECTION);
 	//m_reflectionSphere.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 	DrawFunc::DrawModelInRaytracing(m_refractionSphere, m_sphereTransform, DrawFunc::REFRACTION);
-	m_refractionSphere.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 
+
+	for (int i = 0; i < m_testModelTransformArray.size(); ++i)
+	{
+		DrawFunc::DrawModelInRaytracing(m_testModelDrawCallArray[i], m_testModelTransformArray[i], DrawFunc::NONE);
+	}
 
 	{
 		KazMath::Transform2D transform({ 1280.0f,720.0f }, { 1280.0f,720.0f });
@@ -295,6 +295,12 @@ void RenderScene::Draw()
 	m_rasterizeRenderer.ObjectRender(m_refractionSphere);
 	for (int index = 0; index < static_cast<int>(m_refractionSphere.m_raytracingData.m_blas.size()); ++index) {
 		m_blasVector.Add(m_refractionSphere.m_raytracingData.m_blas[index], m_transformArray[0].GetMat());
+	}
+
+	//テスト用のモデルの描画
+	for (int i = 0; i < m_testModelDrawCallArray.size(); ++i)
+	{
+		m_rasterizeRenderer.ObjectRender(m_testModelDrawCallArray[i]);
 	}
 
 

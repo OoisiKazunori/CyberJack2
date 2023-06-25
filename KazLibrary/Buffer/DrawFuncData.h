@@ -5,6 +5,8 @@
 #include"../KazLibrary/Loader/ModelLoader.h"
 #include"../KazLibrary/Buffer/VertexBufferMgr.h"
 #include <source_location>
+#include"GBufferMgr.h"
+#include"../KazLibrary/Helper/ResourceFilePass.h"
 
 namespace Raytracing {
 	class Blas;
@@ -726,5 +728,32 @@ namespace DrawFuncData
 		//SetDrawPolygonData(VertexBufferMgr::Instance()->GetBuffer(handle).index, PIPELINE_DATA);
 		return lDrawCallData;
 	};
+
+
+	static DrawCallData SetDefferdRenderingModel(std::shared_ptr<ModelInfomation>arg_model)
+	{
+		DrawCallData drawCall;
+
+		DrawFuncData::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+
+		//ÇªÇÃëºê›íË
+		lData.desc.NumRenderTargets = static_cast<UINT>(GBufferMgr::Instance()->GetRenderTargetFormat().size());
+		for (int i = 0; i < GBufferMgr::Instance()->GetRenderTargetFormat().size(); ++i)
+		{
+			lData.desc.RTVFormats[i] = GBufferMgr::Instance()->GetRenderTargetFormat()[i];
+		}
+
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdMain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdMain", "ps_6_4", SHADER_TYPE_PIXEL);
+
+		drawCall = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*arg_model, lData);
+		drawCall.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+		drawCall.SetupRaytracing(true);
+
+		return drawCall;
+
+	};
+
 
 }
