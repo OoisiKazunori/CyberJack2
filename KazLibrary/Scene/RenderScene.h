@@ -84,7 +84,6 @@ private:
 	//std::unique_ptr<DrawFunc::KazRender>finalGBufferRender;
 
 	DrawFuncData::DrawCallData m_drawSponza;
-
 	DrawFuncData::DrawCallData m_reflectionSphere;
 	DrawFuncData::DrawCallData m_refractionSphere;
 	KazMath::Transform3D m_sphereTransform;

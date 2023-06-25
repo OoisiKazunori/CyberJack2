@@ -121,10 +121,14 @@ GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
     {
         mrColor.xyz = float3(-1,-1,-1);
     }
+    if(IsEnableToUseMaterialTex(normalColor))
+    {
+        nWorld = input.normal;
+    }
 
     GBufferOutput output;
     output.albedo = texColor;
-    output.normal = float4(nWorld,normalColor.a);
+    output.normal = float4(nWorld,1.0f);
     output.metalnessRoughness = float4(mrColor.xyz,raytracingId);
     output.world = float4(input.worldPos,1.0f);
     output.final = float4(texColor.xyz * bright,texColor.a);

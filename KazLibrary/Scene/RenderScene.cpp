@@ -18,8 +18,10 @@ RenderScene::RenderScene()
 	//G-Buffer生成
 	GBufferMgr::Instance();
 
+
+
+	//m_reflectionModel = ModelLoader::Instance()->Load("Resource/Test/glTF/Dragon/", "DragonAttenuation.gltf");
 	m_model = ModelLoader::Instance()->Load("Resource/Test/glTF/Sponza/", "sponza.gltf");
-	//m_reflectionModel = ModelLoader::Instance()->Load("Resource/Test/glTF/", "sponza.gltf");
 	m_refractionModel = ModelLoader::Instance()->Load("Resource/Test/", "refraction.gltf");
 
 	//フォワードレンダリングで描画するモデル
