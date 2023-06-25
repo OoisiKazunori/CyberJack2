@@ -109,7 +109,7 @@ GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
 
     if(IsEnableToUseMaterialTex(mrColor))
     {
-        mrColor.xyz = float3(-1,-1,-1);
+        mrColor.xyz = float3(0.0f,0.0f,0.0f);
     }
 
     GBufferOutput output;
