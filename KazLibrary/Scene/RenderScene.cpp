@@ -19,7 +19,7 @@ RenderScene::RenderScene()
 	GBufferMgr::Instance();
 
 	m_model = ModelLoader::Instance()->Load("Resource/Test/glTF/", "sponza.gltf");
-	m_reflectionModel = ModelLoader::Instance()->Load("Resource/Test/glTF/", "sponza.gltf");
+	//m_reflectionModel = ModelLoader::Instance()->Load("Resource/Test/glTF/", "sponza.gltf");
 	//m_refractionModel = ModelLoader::Instance()->Load("Resource/Test/", "refraction.gltf");
 
 	//フォワードレンダリングで描画するモデル
@@ -51,17 +51,17 @@ RenderScene::RenderScene()
 		m_drawSponza.SetupRaytracing(true);
 
 		//描画
-		m_reflectionSphere = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_reflectionModel, lData);
+		//m_reflectionSphere = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_reflectionModel, lData);
 		//その他バッファ
-		m_reflectionSphere.extraBufferArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
-		m_reflectionSphere.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		m_reflectionSphere.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-		m_reflectionSphere.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT3);
+		//m_reflectionSphere.extraBufferArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
+		//m_reflectionSphere.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		//m_reflectionSphere.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+		//m_reflectionSphere.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT3);
 
-		m_reflectionSphere.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+		//m_reflectionSphere.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
 
 		//レイトレの準備
-		m_reflectionSphere.SetupRaytracing(true);
+		//m_reflectionSphere.SetupRaytracing(true);
 
 		////描画
 		//m_refractionSphere = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_refractionModel, lData);
@@ -240,8 +240,8 @@ void RenderScene::Update()
 	//レイトレデバッグ用のオブジェクトをセット
 	m_sphereTransform = m_transformArray[0];
 	m_sphereTransform.scale /= 2.0f;
-	DrawFunc::DrawModelInRaytracing(m_reflectionSphere, m_sphereTransform, DrawFunc::REFLECTION);
-	m_reflectionSphere.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
+	//DrawFunc::DrawModelInRaytracing(m_reflectionSphere, m_sphereTransform, DrawFunc::REFLECTION);
+	//m_reflectionSphere.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 	//DrawFunc::DrawModelInRaytracing(m_refractionSphere, m_transformArray[0], DrawFunc::REFRACTION);
 	//m_refractionSphere.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 
@@ -295,10 +295,10 @@ void RenderScene::Draw()
 	}
 
 	//レイトレデバッグ用のオブジェクトを描画。後々関数にまとめます。
-	m_rasterizeRenderer.ObjectRender(m_reflectionSphere);
-	for (int index = 0; index < static_cast<int>(m_reflectionSphere.m_raytracingData.m_blas.size()); ++index) {
-		m_blasVector.Add(m_reflectionSphere.m_raytracingData.m_blas[index], m_sphereTransform.GetMat());
-	}
+	//m_rasterizeRenderer.ObjectRender(m_reflectionSphere);
+	//for (int index = 0; index < static_cast<int>(m_reflectionSphere.m_raytracingData.m_blas.size()); ++index) {
+	//	m_blasVector.Add(m_reflectionSphere.m_raytracingData.m_blas[index], m_sphereTransform.GetMat());
+	//}
 
 	//m_rasterizeRenderer.ObjectRender(m_refractionSphere);
 	//for (int index = 0; index < static_cast<int>(m_refractionSphere.m_raytracingData.m_blas.size()); ++index) {
