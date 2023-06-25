@@ -752,7 +752,6 @@ namespace DrawFuncData
 		drawCall.SetupRaytracing(true);
 
 		return drawCall;
-
 	};
 
 

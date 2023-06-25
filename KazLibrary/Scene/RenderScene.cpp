@@ -301,6 +301,10 @@ void RenderScene::Draw()
 	for (int i = 0; i < m_testModelDrawCallArray.size(); ++i)
 	{
 		m_rasterizeRenderer.ObjectRender(m_testModelDrawCallArray[i]);
+		for (int mesh = 0; mesh < m_testModelDrawCallArray[i].m_raytracingData.m_blas.size(); ++mesh)
+		{
+			m_blasVector.Add(m_testModelDrawCallArray[i].m_raytracingData.m_blas[mesh], m_testModelTransformArray[i].GetMat());
+		}
 	}
 
 
