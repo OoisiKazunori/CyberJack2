@@ -87,7 +87,7 @@ struct VertexData
 	std::vector<KazMath::Vec3<float>> normalArray;
 	std::vector<KazMath::Vec3<float>> tangentArray;
 	std::vector<KazMath::Vec3<float>> binormalArray;
-	std::vector<USHORT>indexArray;
+	std::vector<UINT>indexArray;
 };
 
 struct MaterialData
@@ -123,38 +123,6 @@ enum MaterialEnum
 	MATERIAL_TEXTURE_METALNESS_ROUGHNESS,
 	MATERIAL_TEXTURE_MAX,
 };
-
-
-
-/// <summary>
-/// OBJモデルの読み込み
-/// </summary>
-class OBJLoader
-{
-public:
-	ModelMeshData Load(std::ifstream& fileName, std::string fileDir);
-
-private:
-	std::vector<std::string> fileNameArray;
-
-	struct LocalMateriaData
-	{
-		std::string name;//マテリアル名
-		KazMath::Vec3<float> ambient;//アンビエント
-		KazMath::Vec3<float> diffuse;//ディフューズ
-		KazMath::Vec3<float> specular;//スペキュラー
-		float alpha;//α
-		std::string textureFilename;//テクスチャファイル名
-		KazBufferHelper::BufferData textureBuffer;
-
-		LocalMateriaData();
-
-		void Delete();
-	};
-
-	LocalMateriaData LoadMaterial(const std::string& FILE_NAME, std::string MTL_RESOURE);
-};
-
 
 struct ModelInfomation
 {
@@ -217,12 +185,10 @@ public:
 	ModelLoader();
 	std::shared_ptr<ModelInfomation> Load(std::string arg_fileDir, std::string arg_fileName);
 	std::vector<VertexBufferData>GetVertexDataArray(const VertexData& data);
-	std::vector<VertexBufferData>GetVertexDataArray(const VertexData& data, const std::vector<USHORT>& indexArray);
+	std::vector<VertexBufferData>GetVertexDataArray(const VertexData& data, const std::vector<UINT>& indexArray);
 
 
 private:
-
-	OBJLoader objLoad;
 	GLTFLoader glTFLoad;
 
 	std::vector<std::shared_ptr<ModelInfomation>> m_modelArray;

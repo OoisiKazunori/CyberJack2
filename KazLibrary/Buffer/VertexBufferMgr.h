@@ -50,9 +50,9 @@ struct VertexGenerateData
 	int structureSize;
 	size_t arraySize;
 	int oneArraySize;
-	std::vector<USHORT>indices;
+	std::vector<UINT>indices;
 
-	VertexGenerateData(void* VERT_PTR, int STRUCTURE_SIZE, size_t ARRAY_SIZE, int ONE_ARRAY_SIZE, std::vector<USHORT>INDICES) :
+	VertexGenerateData(void* VERT_PTR, int STRUCTURE_SIZE, size_t ARRAY_SIZE, int ONE_ARRAY_SIZE, std::vector<UINT>INDICES) :
 		verticesPos(VERT_PTR), structureSize(STRUCTURE_SIZE), arraySize(ARRAY_SIZE), oneArraySize(ONE_ARRAY_SIZE), indices(INDICES)
 	{};
 };

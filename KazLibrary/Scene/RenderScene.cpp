@@ -52,11 +52,11 @@ RenderScene::RenderScene()
 			float half = static_cast<float>(m_testModelArray.size() / 2);
 			if (i < half)
 			{
-				m_testModelTransformArray[i].pos = { -150.0f,20.0f,-100.0f + index * 150.0f };
+				m_testModelTransformArray[i].pos = { 0.0f,0.0f,0.0f + index };
 			}
 			else
 			{
-				m_testModelTransformArray[i].pos = { 150.0f,20.0f,-100.0f + (index - half) * 150.0f };
+				m_testModelTransformArray[i].pos = { 0.0f,0.0f,0.0f + (index - half)};
 			}
 		}
 
