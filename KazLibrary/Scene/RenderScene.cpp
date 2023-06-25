@@ -37,18 +37,18 @@ RenderScene::RenderScene()
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdMain", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdMain", "ps_6_4", SHADER_TYPE_PIXEL);
 
-		////描画
-		//m_drawSponza = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_model, lData);
-		////その他バッファ
-		//m_drawSponza.extraBufferArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
-		//m_drawSponza.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		//m_drawSponza.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-		//m_drawSponza.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT3);
+		//描画
+		m_drawSponza = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_model, lData);
+		//その他バッファ
+		m_drawSponza.extraBufferArray.emplace_back(KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))));
+		m_drawSponza.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		m_drawSponza.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+		m_drawSponza.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT3);
 
-		//m_drawSponza.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+		m_drawSponza.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
 
-		////レイトレの準備
-		//m_drawSponza.SetupRaytracing(true);
+		//レイトレの準備
+		m_drawSponza.SetupRaytracing(true);
 
 		//描画
 		m_refractionSphere = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*m_refractionModel, lData);
@@ -220,16 +220,17 @@ void RenderScene::Update()
 	CameraMgr::Instance()->Camera(m_camera.GetEyePos(), m_camera.GetTargetPos(), { 0.0f,1.0f,0.0f });
 
 
-	//DrawFunc::DrawModelInRaytracing(m_drawSponza, m_transformArray[0], DrawFunc::NONE);
+	DrawFunc::DrawModelInRaytracing(m_drawSponza, m_transformArray[0], DrawFunc::NONE);
+	DrawFunc::DrawModelInRaytracing(m_drawSponza, m_transformArray[0], DrawFunc::NONE);
 	DirectX::XMFLOAT3 dir = m_lightVec.ConvertXMFLOAT3();
-	//m_drawSponza.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
+	m_drawSponza.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 
 	//レイトレデバッグ用のオブジェクトをセット
 	m_sphereTransform = m_transformArray[0];
-	m_sphereTransform.scale /= 2.0f;
+	m_sphereTransform.scale = { 100.0f,100.0f,100.0f };
 	//DrawFunc::DrawModelInRaytracing(m_reflectionSphere, m_sphereTransform, DrawFunc::REFLECTION);
 	//m_reflectionSphere.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
-	DrawFunc::DrawModelInRaytracing(m_refractionSphere, m_transformArray[0], DrawFunc::REFRACTION);
+	DrawFunc::DrawModelInRaytracing(m_refractionSphere, m_sphereTransform, DrawFunc::REFRACTION);
 	m_refractionSphere.extraBufferArray[2].bufferWrapper->TransData(&dir, sizeof(DirectX::XMFLOAT3));
 
 
@@ -276,10 +277,10 @@ void RenderScene::Draw()
 {
 	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
 
-	//m_rasterizeRenderer.ObjectRender(m_drawSponza);
-	//for (int index = 0; index < static_cast<int>(m_drawSponza.m_raytracingData.m_blas.size()); ++index) {
-	//	m_blasVector.Add(m_drawSponza.m_raytracingData.m_blas[index], m_transformArray[0].GetMat());
-	//}
+	m_rasterizeRenderer.ObjectRender(m_drawSponza);
+	for (int index = 0; index < static_cast<int>(m_drawSponza.m_raytracingData.m_blas.size()); ++index) {
+		m_blasVector.Add(m_drawSponza.m_raytracingData.m_blas[index], m_transformArray[0].GetMat());
+	}
 
 	//レイトレデバッグ用のオブジェクトを描画。後々関数にまとめます。
 	/*m_rasterizeRenderer.ObjectRender(m_reflectionSphere);
@@ -315,13 +316,13 @@ void RenderScene::Draw()
 	/*----- レイトレ描画開始 -----*/
 
 	//Tlasを構築 or 再構築する。
-	//m_tlas.Build(m_blasVector);
+	m_tlas.Build(m_blasVector);
 
 	//レイトレ用のデータを構築。
-	//m_rayPipeline->BuildShaderTable(m_blasVector);
+	m_rayPipeline->BuildShaderTable(m_blasVector);
 
 	//レイトレ実行。
-	//m_rayPipeline->TraceRay(m_tlas);
+	m_rayPipeline->TraceRay(m_tlas);
 
 
 	/*----- レイトレ描画終了 -----*/
