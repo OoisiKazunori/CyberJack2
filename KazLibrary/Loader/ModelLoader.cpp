@@ -23,13 +23,14 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string arg_fileDir, std:
 
 
 	std::vector<VertexGenerateData> vertArray;
+	m_modelVertexDataArray.emplace_back();
 	int dex = 0;
 	for (const auto &meshData : modelData)
 	{
 		std::vector<VertexBufferData>vertexData = GetVertexDataArray(meshData.vertexData, meshData.vertexData.indexArray);
-		vertexDataArray.emplace_back(vertexData);
+		m_modelVertexDataArray.back().m_vertexDataArray.emplace_back(vertexData);
 		//頂点バッファ生成用の情報をスタックする。
-		VertexGenerateData vertData(vertexDataArray[dex].data(), sizeof(VertexBufferData), vertexData.size(), sizeof(vertexData[0]), meshData.vertexData.indexArray);
+		VertexGenerateData vertData(m_modelVertexDataArray.back().m_vertexDataArray[dex].data(), sizeof(VertexBufferData), vertexData.size(), sizeof(vertexData[0]), meshData.vertexData.indexArray);
 		vertArray.emplace_back(vertData);
 		++dex;
 	}

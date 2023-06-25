@@ -226,7 +226,12 @@ private:
 	GLTFLoader glTFLoad;
 
 	std::vector<std::shared_ptr<ModelInfomation>> m_modelArray;
-	std::vector<std::vector<VertexBufferData>>vertexDataArray;
+
+	struct MeshVertex
+	{
+		std::vector<std::vector<VertexBufferData>>m_vertexDataArray;
+	};
+	std::vector<MeshVertex>m_modelVertexDataArray;
 };
 
 class StreamReader : public Microsoft::glTF::IStreamReader
