@@ -9,8 +9,8 @@ std::shared_ptr<KazBufferHelper::BufferData> PolygonBuffer::GenerateVertexBuffer
 	//RAMのバッファに一度転送---------------------------------------
 
 	//VRAMのバッファにコピー---------------------------------------
-	vertBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData(lSize));
-	vertBuffer->bufferWrapper->CopyBuffer(cpuVertBuffer->bufferWrapper->GetBuffer(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+	//vertBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData(lSize));
+	//vertBuffer->bufferWrapper->CopyBuffer(cpuVertBuffer->bufferWrapper->GetBuffer(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
 	//VRAMのバッファにコピー---------------------------------------
 
 	return cpuVertBuffer;

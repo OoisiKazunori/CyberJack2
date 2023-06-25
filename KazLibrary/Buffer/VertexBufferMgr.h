@@ -64,7 +64,7 @@ struct VertexGenerateData
 class VertexBufferMgr :public ISingleton<VertexBufferMgr>
 {
 public:
-	RESOURCE_HANDLE GenerateBuffer(std::vector<VertexGenerateData> vertexData);
+	RESOURCE_HANDLE GenerateBuffer(const std::vector<VertexGenerateData>& vertexData);
 	RESOURCE_HANDLE GeneratePlaneBuffer();
 
 	void ReleaseBuffer(RESOURCE_HANDLE HANDLE);

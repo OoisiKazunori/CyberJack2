@@ -1,6 +1,6 @@
 #include "VertexBufferMgr.h"
 
-RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(std::vector<VertexGenerateData> vertexData)
+RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerateData> &vertexData)
 {
 	std::vector<KazRenderHelper::IASetVertexBuffersData> setVertDataArray;
 	std::vector<D3D12_INDEX_BUFFER_VIEW> indexBufferViewArray;
