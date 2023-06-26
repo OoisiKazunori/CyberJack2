@@ -1,6 +1,7 @@
 #pragma once
 #include"../KazLibrary/Helper/ISinglton.h"
 #include"../KazLibrary/Helper/KazBufferHelper.h"
+#include"../KazLibrary/Math/KazMath.h"
 
 /// <summary>
 /// G-Bufferの管理クラス
@@ -47,6 +48,24 @@ public:
 	{
 		return m_raytracingGBuffer;
 	};
+
+	//ライト用構造体
+	struct DirLight {
+		KazMath::Vec3<float> m_dir;
+		int m_isActive;
+	};
+	struct PointLight {
+		KazMath::Vec3<float> m_pos;
+		float m_power;		//ライトが影響を与える最大距離
+		KazMath::Vec3<float> m_pad;	//パラメーターが必要になったら適当に名前つけて変数を追加してください！
+		int m_isActive;
+	};
+	struct LightConstData {
+		DirLight m_dirLight;
+		PointLight m_pointLight;
+	}m_lightConstData;
+
+	KazBufferHelper::BufferData m_lightBuffer;
 
 private:
 	//G-Buffer用のレンダーターゲット

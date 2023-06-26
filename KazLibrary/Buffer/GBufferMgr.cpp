@@ -55,6 +55,9 @@ GBufferMgr::GBufferMgr()
 	}
 
 	m_cameraPosBuffer = KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3));
+	m_lightBuffer = KazBufferHelper::SetConstBufferData(sizeof(LightConstData));
+	m_lightConstData.m_dirLight.m_dir = KazMath::Vec3<float>(0.3f, -1.0f, 0.3f);
+	m_lightConstData.m_pointLight.m_power = 100.0f;
 }
 
 std::vector<RESOURCE_HANDLE> GBufferMgr::GetRenderTarget()

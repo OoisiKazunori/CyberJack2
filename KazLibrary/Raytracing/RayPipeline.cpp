@@ -296,9 +296,10 @@ namespace Raytracing {
 
 		//カメラ用定数バッファをセット。
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(5, GBufferMgr::Instance()->GetEyePosBuffer().bufferWrapper->GetGpuAddress());
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(6, GBufferMgr::Instance()->m_lightBuffer.bufferWrapper->GetGpuAddress());
 
 		//書き込み用UAV
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(6, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetViewHandle()));	//レイトレ出力用
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(7, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetViewHandle()));	//レイトレ出力用
 
 		//パイプラインを設定。
 		DirectX12CmdList::Instance()->cmdList->SetPipelineState1(m_stateObject.Get());
