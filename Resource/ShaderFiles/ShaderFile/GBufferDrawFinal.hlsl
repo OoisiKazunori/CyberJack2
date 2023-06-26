@@ -52,18 +52,32 @@ float4 PSmain(VSOutput input) : SV_TARGET
     for(int i = 0; i < lightArrayNum; ++i)
     {
         float3 lightV = LightBuffer[i] - worldPos.xyz;
-        float d = length(lightV);
+        float len = length(lightV);
         //距離が20以上なら計算しない。
-        if(100.0f <= d)
+        if(100.0f <= len)
         {
             continue;
         }
         float isBright = 1.0f - step(100.0f,length(lightV));
         lightOutput = float3(isBright,isBright,isBright);
+ 
+        lightV = normalize(lightV);
+        float3 attenVec = float3(0.001f,0.001f,0.001f);
+        float atten = saturate(1.0f / (attenVec.x + attenVec.y * len + attenVec.z * len * len));
+        float bright = dot(normalize(worldNormalVec.xyz),lightV);
+        float3 lightColor = float3(1.0f,1.0f,1.0f);
+
+        float ambient = 0.5f;
+        float3 light = (bright * atten + ambient) * lightColor;
+        lightOutput = saturate(light);
 
         break;
     }
     float4 outputColor = float4(albedoColor.xyz * lightOutput, 1.0f);
+    if(outputColor.x == 0.0f&& outputColor.y == 0.0f && outputColor.z == 0.0f)
+    {
+        outputColor = albedoColor;
+    }
     finalTex[input.uv * uint2(1280,720)] = outputColor;
     return outputColor;
 }
