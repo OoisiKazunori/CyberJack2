@@ -12,7 +12,7 @@ RenderScene::RenderScene()
 	Raytracing::HitGroupMgr::Instance()->Setting();
 	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS"}, {L"mainCHS", L"mainAnyHit"} });
 	int payloadSize = sizeof(float) * 4;
-	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 5, 1, 1, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
+	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 5, 2, 1, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
 	//G-Buffer生成
 	GBufferMgr::Instance();
@@ -387,6 +387,31 @@ void RenderScene::Draw()
 	ImGui::Checkbox("RayTracing", &m_raytracingFlag);
 	ImGui::Checkbox("DrawLightBox", &m_lightFlag);
 	ImGui::End();
+
+	//ディレクションライト
+	ImGui::Begin("DirLight");
+	ImGui::SliderFloat("VecX", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.x, -1.0f, 1.0f);
+	ImGui::SliderFloat("VecY", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.y, -1.0f, 1.0f);
+	ImGui::SliderFloat("VecZ", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.z, -1.0f, 1.0f);
+	//GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
+	bool isActive = GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive;
+	ImGui::Checkbox("ActiveFlag", &isActive);
+	GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive = isActive;
+	ImGui::End();
+
+	//ポイントライト
+	ImGui::Begin("PointLight");
+	ImGui::DragFloat("PosX", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.x, 0.5f);
+	ImGui::DragFloat("PosY", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.y, 0.5f);
+	ImGui::DragFloat("PosZ", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.z, 0.5f);
+	ImGui::DragFloat("Power", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_power, 0.5f, 1.0f);
+	isActive = GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive;
+	ImGui::Checkbox("ActiveFlag", &isActive);
+	GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive = isActive;
+	ImGui::End();
+
+	//データを転送。一旦ここで。
+	GBufferMgr::Instance()->m_lightBuffer.bufferWrapper->TransData(&GBufferMgr::Instance()->m_lightConstData, sizeof(GBufferMgr::LightConstData));
 }
 
 int RenderScene::SceneChange()

@@ -14,7 +14,8 @@ struct Vertex
 
 //レイのID
 static const int RAY_DEFAULT = 0;
-static const int RAY_SHADOW = 1;
+static const int RAY_DIR_SHADOW = 1;
+static const int RAY_POINT_SHADOW = 2;
 
 //ペイロード
 struct Payload
@@ -26,6 +27,25 @@ struct Payload
 struct MyAttribute
 {
     float2 barys;
+};
+
+//ライト関係のデータ
+struct DirLight
+{
+    float3 m_dir;
+    int m_isActive;
+};
+struct PointLight
+{
+    float3 m_pos;
+    float m_power;
+    int3 m_pad;
+    int m_isActive;
+};
+struct LightData
+{
+    DirLight m_dirLight;
+    PointLight m_pointLight;
 };
 
 //barysを計算
