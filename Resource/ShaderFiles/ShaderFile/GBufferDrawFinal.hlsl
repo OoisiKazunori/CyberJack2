@@ -21,6 +21,8 @@ cbuffer LightDir : register(b1)
     float3 attenVec;
 }
 
+RWStructuredBuffer<float3>LightBuffer:register(u1);
+
 VSOutput VSmain(float4 pos : POSITION, float2 uv : TEXCOORD)
 {
 	VSOutput op;
@@ -59,6 +61,8 @@ float4 PSmain(VSOutput input) : SV_TARGET
     float ambient = 0.5f;
     float3 light = (bright * atten + ambient) * lightColor;
     light = saturate(light);
+
+    float3 lightVec = LightBuffer[0];
 
     float4 outputColor = albedoColor;
     finalTex[input.uv * uint2(1280,720)] = float4(outputColor.xyz * light,outputColor.a);

@@ -31,13 +31,8 @@ RenderScene::RenderScene()
 	//m_testModelArray[6] = ModelLoader::Instance()->Load("Resource/Test/glTF/Lantern/", "Lantern.gltf");
 	//m_testModelArray[7] = ModelLoader::Instance()->Load("Resource/Test/glTF/SciFiHelmet/", "SciFiHelmet.gltf");
 
-	//m_testModelTransformArray[0].scale = { 1500.0f,1500.0f,1500.0f };
-	//m_testModelTransformArray[1].scale = { 1500.0f,1500.0f,1500.0f };
-	//m_testModelTransformArray[2].scale = { 1500.0f,1500.0f,1500.0f };
-	//m_testModelTransformArray[3].scale = { 1500.0f,500.0f,1500.0f };
-	//m_testModelTransformArray[4].scale = { 100.0f,100.0f,100.0f };
-	//m_testModelTransformArray[5].scale = { 1000.0f,1000.0f,1000.0f };
 
+	//モデル描画
 	{
 		//スポンザ
 		m_drawSponza = DrawFuncData::SetDefferdRenderingModel(m_model);
@@ -47,9 +42,28 @@ RenderScene::RenderScene()
 		m_testModelFiledArray.emplace_back(TestModelField(m_testModelArray, scaleArray));
 		m_testModelFiledArray.emplace_back(TestModelField(m_testModelArray, scaleArray));
 
-
 		//球の描画
 		m_refractionSphere = DrawFuncData::SetDefferdRenderingModel(m_refractionModel);
+	}
+
+	//ライトの情報
+	{
+		for (int y = 0; y < m_lightTransformArray.size(); ++y)
+		{
+			for (int x = 0; x < m_lightTransformArray[y].size(); ++x)
+			{
+				for (int z = 0; z < m_lightTransformArray[y][x].size(); ++z)
+				{
+					m_lightBoxDataArray[y][x][z] = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/Test/glTF/Box/", "BoxTextured.gltf"));
+					KazMath::Vec3<float> pos(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z));
+					float xInterval = 400.0f;
+					float zInterval = 300.0f;
+					float height = 150.0f;
+					m_lightTransformArray[y][x][z].pos = { -1200.0f + pos.x * xInterval,pos.y * height,-500.0f + pos.z * zInterval };
+					m_lightTransformArray[y][x][z].scale = { 10.0f,10.0f,10.0f };
+				}
+			}
+		}
 	}
 
 	{
@@ -84,6 +98,27 @@ RenderScene::RenderScene()
 		m_drawFinalPlane.m_plane.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back();
 		m_drawFinalPlane.m_bufferName = "Final";
+
+		lightUploadBuffer = KazBufferHelper::SetUploadBufferData(sizeof(DirectX::XMFLOAT3) * (LGHIT_ARRAY_X * LGHIT_ARRAY_Y * LGHIT_ARRAY_Z));
+
+		std::vector<DirectX::XMFLOAT3>posArray;
+		for (int y = 0; y < m_lightTransformArray.size(); ++y)
+		{
+			for (int x = 0; x < m_lightTransformArray[y].size(); ++x)
+			{
+				for (int z = 0; z < m_lightTransformArray[y][x].size(); ++z)
+				{
+					posArray.emplace_back(DirectX::XMFLOAT3{ m_lightTransformArray[y][x][z].pos.x, m_lightTransformArray[y][x][z].pos.y, m_lightTransformArray[y][x][z].pos.z });
+				}
+			}
+		}
+		lightUploadBuffer.bufferWrapper->TransData(posArray.data(), sizeof(DirectX::XMFLOAT3) * (LGHIT_ARRAY_X * LGHIT_ARRAY_Y * LGHIT_ARRAY_Z));
+
+		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back(KazBufferHelper::SetGPUBufferData(sizeof(DirectX::XMFLOAT3) * (LGHIT_ARRAY_X * LGHIT_ARRAY_Y * LGHIT_ARRAY_Z)));
+		m_drawFinalPlane.m_plane.extraBufferArray.back().bufferWrapper->CopyBuffer(lightUploadBuffer.bufferWrapper->GetBuffer(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+		m_drawFinalPlane.m_plane.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+		m_drawFinalPlane.m_plane.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+
 	}
 
 
@@ -287,6 +322,22 @@ void RenderScene::Draw()
 		//	m_blasVector.Add(m_refractionSphere.m_raytracingData.m_blas[index], m_transformArray[0].GetMat());
 	}
 
+	if (m_lightFlag)
+	{
+		//ライトの位置可視化用描画
+		for (int y = 0; y < m_lightTransformArray.size(); ++y)
+		{
+			for (int x = 0; x < m_lightTransformArray[y].size(); ++x)
+			{
+				for (int z = 0; z < m_lightTransformArray[y][x].size(); ++z)
+				{
+					DrawFunc::DrawModelInRaytracing(m_lightBoxDataArray[y][x][z], m_lightTransformArray[y][x][z], DrawFunc::NONE);
+					m_rasterizeRenderer.ObjectRender(m_lightBoxDataArray[y][x][z]);
+				}
+			}
+		}
+	}
+
 
 	for (int i = 0; i < m_drawPlaneArray.size(); ++i)
 	{
@@ -336,6 +387,7 @@ void RenderScene::Draw()
 	}
 	ImGui::Checkbox(m_drawFinalPlane.m_bufferName.c_str(), &m_drawFinalPlane.m_drawFlag);
 	ImGui::Checkbox("RayTracing", &m_raytracingFlag);
+	ImGui::Checkbox("DrawLightBox", &m_lightFlag);
 	ImGui::End();
 }
 

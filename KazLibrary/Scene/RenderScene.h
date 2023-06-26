@@ -115,9 +115,15 @@ private:
 			}
 		};
 	};
-
 	std::vector<TestModelField>m_testModelFiledArray;
 
+	bool m_lightFlag;
+	static const int LGHIT_ARRAY_X = 5;
+	static const int LGHIT_ARRAY_Y = 8;
+	static const int LGHIT_ARRAY_Z = 5;
+	std::array<std::array<std::array<DrawFuncData::DrawCallData, LGHIT_ARRAY_Z>, LGHIT_ARRAY_X>, LGHIT_ARRAY_Y> m_lightBoxDataArray;
+	std::array<std::array<std::array<KazMath::Transform3D, LGHIT_ARRAY_Z>, LGHIT_ARRAY_X>, LGHIT_ARRAY_Y> m_lightTransformArray;
+	KazBufferHelper::BufferData lightUploadBuffer;
 
 	DispatchComputeShader::DispatchData m_dispatchData;
 

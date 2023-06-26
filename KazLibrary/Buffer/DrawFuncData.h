@@ -754,5 +754,4 @@ namespace DrawFuncData
 		return drawCall;
 	};
 
-
 }

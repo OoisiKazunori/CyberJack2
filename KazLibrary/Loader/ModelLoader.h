@@ -198,6 +198,7 @@ private:
 		std::vector<std::vector<VertexBufferData>>m_vertexDataArray;
 	};
 	std::vector<MeshVertex>m_modelVertexDataArray;
+	std::vector<std::string> m_modelNameArray;
 };
 
 class StreamReader : public Microsoft::glTF::IStreamReader

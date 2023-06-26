@@ -66,6 +66,7 @@ class VertexBufferMgr :public ISingleton<VertexBufferMgr>
 public:
 	RESOURCE_HANDLE GenerateBuffer(const std::vector<VertexGenerateData>& vertexData);
 	RESOURCE_HANDLE GeneratePlaneBuffer();
+	RESOURCE_HANDLE GenerateBoxBuffer();
 
 	void ReleaseBuffer(RESOURCE_HANDLE HANDLE);
 	PolygonMultiMeshedIndexData GetBuffer(RESOURCE_HANDLE HANDLE);

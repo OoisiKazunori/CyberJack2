@@ -8,9 +8,17 @@ ModelLoader::ModelLoader()
 
 std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string arg_fileDir, std::string arg_fileName)
 {
+	//多重ロード防止
+	for (int i = 0; i < m_modelNameArray.size(); ++i)
+	{
+		if (m_modelNameArray[i] == arg_fileDir + arg_fileName)
+		{
+			return m_modelArray[i];
+		}
+	}
+
 
 	std::vector<ModelMeshData> modelData;
-
 	modelData = glTFLoad.Load(arg_fileName, arg_fileDir);
 
 	//生成されているか確認
@@ -20,6 +28,9 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string arg_fileDir, std:
 		assert(1);
 	}
 	SucceedCheck(arg_fileDir + arg_fileName + "の読み込みに成功しました\n");
+
+	//多重ロード防止用にモデルの名前登録
+	m_modelNameArray.emplace_back(arg_fileDir + arg_fileName);
 
 
 	std::vector<VertexGenerateData> vertArray;
