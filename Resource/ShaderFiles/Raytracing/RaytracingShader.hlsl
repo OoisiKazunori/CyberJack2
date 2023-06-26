@@ -103,6 +103,22 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
             1, //MissShaderのインデックス。RenderScene.cppでm_pipelineShadersにMissShaderを登録する際に2番目に影用のMissShaderを設定しているので、1にすると影用が呼ばれる。
             rayDesc,
             payloadData);
+            
+            //影が遮られていなかったら明るさを減衰させる。
+            if (0 < payloadData.m_color.x)
+            {
+                
+                //-------------------------------------------------------------------------------ここにジャックさんのライトの処理を書く。
+            
+                //ライト明るさの割合を求める。
+                float brightRate = saturate(distance / lightData.m_pointLight.m_power);
+        
+                //仮で明るさにイージングをかける。
+                payloadData.m_color.x = 1.0f - (brightRate * brightRate * brightRate);
+                
+            }
+            
+            
         
             //レイトレの結果の影情報を書き込む。
             arg_bright += payloadData.m_color.x;
@@ -192,6 +208,7 @@ void mainMS(inout Payload PayloadData)
 void shadowMS(inout Payload payload)
 {
     
+    //このシェーダーに到達していたら影用のレイがオブジェクトに当たっていないということなので、payload.m_color.x(影情報)に白を入れる。
     payload.m_color = float3(1, 1, 1);
 
 }
@@ -220,20 +237,14 @@ void shadowMS(inout Payload payload)
     else if (payload.m_rayID == RAY_DIR_SHADOW)
     {
         
+        //このシェーダーに到達していたら影用のレイがオブジェクトに当たったということなので、payload.m_color.x(影情報)に黒を入れる。
         payload.m_color.x = 0.0f;
         
     }
     else if (payload.m_rayID == RAY_POINT_SHADOW)
     {    
         
-        //ライトまでの距離(レイの長さ)
-        float lightDistance = RayTCurrent();
-        
-        //ライト明るさの割合を求める。
-        float brightRate = saturate(lightDistance / lightData.m_pointLight.m_power);
-        
-        //仮で明るさにイージングをかける。
-        payload.m_color.x = 1.0f - (brightRate * brightRate * brightRate);
+        //このシェーダーに到達していたら影用のレイがオブジェクトに当たったということなので、payload.m_color.x(影情報)に黒を入れる。
         payload.m_color.x = 0.0f;
         
     }
