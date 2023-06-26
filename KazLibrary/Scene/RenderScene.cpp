@@ -59,7 +59,7 @@ RenderScene::RenderScene()
 					float xInterval = 400.0f;
 					float zInterval = 300.0f;
 					float height = 150.0f;
-					m_lightTransformArray[y][x][z].pos = { -1200.0f + pos.x * xInterval,pos.y * height,-500.0f + pos.z * zInterval };
+					m_lightTransformArray[y][x][z].pos = { -800.0f + pos.x * xInterval,pos.y * height,-500.0f + pos.z * zInterval };
 					m_lightTransformArray[y][x][z].scale = { 10.0f,10.0f,10.0f };
 				}
 			}
@@ -257,7 +257,7 @@ void RenderScene::Update()
 	std::array<float, 6>xArray({ -500.0f , -400.0f, -100.0f, 100.0f, 300.0f,500.0f });
 	for (int i = 0; i < m_testModelFiledArray.size(); ++i)
 	{
-		m_testModelFiledArray[i].SetPos(xArray, 300.0f, 50.0f + static_cast<float>(i) * 500.0f);
+		m_testModelFiledArray[i].SetPos(xArray, 200.0f, 50.0f + static_cast<float>(i) * 500.0f);
 		m_testModelFiledArray[i].Update(m_rasterizeRenderer);
 	}
 
