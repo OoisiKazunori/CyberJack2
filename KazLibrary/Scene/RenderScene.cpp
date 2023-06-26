@@ -32,12 +32,12 @@ RenderScene::RenderScene()
 	//m_testModelArray[6] = ModelLoader::Instance()->Load("Resource/Test/glTF/Lantern/", "Lantern.gltf");
 	//m_testModelArray[7] = ModelLoader::Instance()->Load("Resource/Test/glTF/SciFiHelmet/", "SciFiHelmet.gltf");
 
-	//m_testModelTransformArray[0].scale = { 1500.0f,1500.0f,1500.0f };
-	//m_testModelTransformArray[1].scale = { 1500.0f,1500.0f,1500.0f };
-	//m_testModelTransformArray[2].scale = { 1500.0f,1500.0f,1500.0f };
-	//m_testModelTransformArray[3].scale = { 1500.0f,500.0f,1500.0f };
-	//m_testModelTransformArray[4].scale = { 100.0f,100.0f,100.0f };
-	//m_testModelTransformArray[5].scale = { 1000.0f,1000.0f,1000.0f };
+	m_testModelTransformArray[0].scale = { 1500.0f,1500.0f,1500.0f };
+	m_testModelTransformArray[1].scale = { 1500.0f,1500.0f,1500.0f };
+	m_testModelTransformArray[2].scale = { 1500.0f,1500.0f,1500.0f };
+	m_testModelTransformArray[3].scale = { 1500.0f,500.0f,1500.0f };
+	m_testModelTransformArray[4].scale = { 100.0f,100.0f,100.0f };
+	m_testModelTransformArray[5].scale = { 1000.0f,1000.0f,1000.0f };
 
 	{
 		//スポンザ
@@ -52,11 +52,11 @@ RenderScene::RenderScene()
 			float half = static_cast<float>(m_testModelArray.size() / 2);
 			if (i < half)
 			{
-				m_testModelTransformArray[i].pos = { 0.0f,0.0f,0.0f };
+				m_testModelTransformArray[i].pos = { -150.0f,20.0f,-100.0f + index * 150.0f };
 			}
 			else
 			{
-				m_testModelTransformArray[i].pos = { 0.0f,0.0f,0.0f };
+				m_testModelTransformArray[i].pos = { 150.0f,20.0f,-100.0f + (index - half) * 150.0f };
 			}
 		}
 
@@ -292,9 +292,9 @@ void RenderScene::Draw()
 		m_blasVector.Add(m_reflectionSphere.m_raytracingData.m_blas[index], m_sphereTransform.GetMat());
 	}*/
 
-	m_rasterizeRenderer.ObjectRender(m_refractionSphere);
+	//m_rasterizeRenderer.ObjectRender(m_refractionSphere);
 	for (int index = 0; index < static_cast<int>(m_refractionSphere.m_raytracingData.m_blas.size()); ++index) {
-		m_blasVector.Add(m_refractionSphere.m_raytracingData.m_blas[index], m_transformArray[0].GetMat());
+	//	m_blasVector.Add(m_refractionSphere.m_raytracingData.m_blas[index], m_transformArray[0].GetMat());
 	}
 
 	//テスト用のモデルの描画
