@@ -93,7 +93,7 @@ RenderScene::RenderScene()
 		m_drawFinalPlane.m_plane = DrawFuncData::SetTexPlaneData(lData);
 		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back();
 		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back();
-		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(LightData)));
+		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(int)));
 		m_drawFinalPlane.m_plane.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		m_drawFinalPlane.m_plane.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back();
@@ -118,7 +118,6 @@ RenderScene::RenderScene()
 		m_drawFinalPlane.m_plane.extraBufferArray.back().bufferWrapper->CopyBuffer(lightUploadBuffer.bufferWrapper->GetBuffer(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
 		m_drawFinalPlane.m_plane.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 		m_drawFinalPlane.m_plane.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-
 	}
 
 
@@ -284,10 +283,9 @@ void RenderScene::Update()
 		m_drawFinalPlane.m_plane.extraBufferArray[3] = RenderTargetStatus::Instance()->GetBuffer(GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::WORLD]);
 		m_drawFinalPlane.m_plane.extraBufferArray[3].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 
-		LightData data;
-		data.pos = m_lightVec.ConvertXMFLOAT3();
-		data.atem = m_atem.ConvertXMFLOAT3();
-		m_drawFinalPlane.m_plane.extraBufferArray[4].bufferWrapper->TransData(&data, sizeof(LightData));
+	
+		int num = LGHIT_ARRAY_X * LGHIT_ARRAY_Y * LGHIT_ARRAY_Z;
+		m_drawFinalPlane.m_plane.extraBufferArray[4].bufferWrapper->TransData(&num, sizeof(int));
 		//ÅI‡¬Œ‹‰Ê‚ðŠi”[‚·‚éB
 		m_drawFinalPlane.m_plane.extraBufferArray[5] = GBufferMgr::Instance()->GetFinalBuffer();
 		m_drawFinalPlane.m_plane.extraBufferArray[5].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;

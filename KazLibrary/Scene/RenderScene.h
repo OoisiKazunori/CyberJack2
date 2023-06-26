@@ -155,12 +155,5 @@ private:
 
 	KazMath::Vec3<float>m_lightVec;
 	KazMath::Vec3<float>m_atem;
-
-	struct LightData
-	{
-		DirectX::XMFLOAT3 pos;
-		float pad;
-		DirectX::XMFLOAT3 atem;
-	};
 };
 

@@ -17,8 +17,7 @@ cbuffer MatBuffer : register(b0)
 
 cbuffer LightDir : register(b1)
 {
-    float3 LightWorldPos;
-    float3 attenVec;
+    int lightArrayNum;
 }
 
 RWStructuredBuffer<float3>LightBuffer:register(u1);
@@ -48,23 +47,23 @@ float4 PSmain(VSOutput input) : SV_TARGET
     {
         return albedoColor;
     }
-
-    float3 lightV = LightWorldPos - worldPos.xyz;
-    float d = length(lightV);
-    lightV = normalize(lightV);
-
-    float atten = 400.0f / (attenVec.x + attenVec.y * d + attenVec.z * d * d);
-    float bright = dot(lightV,worldNormalVec.xyz);
-        
-    float3 lightColor = float3(1.0f,1.0f,1.0f);
     
-    float ambient = 0.5f;
-    float3 light = (bright * atten + ambient) * lightColor;
-    light = saturate(light);
+    float3 lightOutput = float3(0.5f,0.5f,0.5f);
+    for(int i = 0; i < lightArrayNum; ++i)
+    {
+        float3 lightV = LightBuffer[i] - worldPos.xyz;
+        float d = length(lightV);
+        //距離が20以上なら計算しない。
+        if(100.0f <= d)
+        {
+            continue;
+        }
+        float isBright = 1.0f - step(100.0f,length(lightV));
+        lightOutput = float3(isBright,isBright,isBright);
 
-    float3 lightVec = LightBuffer[0];
-
-    float4 outputColor = albedoColor;
-    finalTex[input.uv * uint2(1280,720)] = float4(outputColor.xyz * light,outputColor.a);
-    return float4(outputColor.xyz * light,outputColor.a);
+        break;
+    }
+    float4 outputColor = float4(albedoColor.xyz * lightOutput, 1.0f);
+    finalTex[input.uv * uint2(1280,720)] = outputColor;
+    return outputColor;
 }
