@@ -58,8 +58,6 @@ float4 PSmain(VSOutput input) : SV_TARGET
         {
             continue;
         }
-        float isBright = 1.0f - step(100.0f,length(lightV));
-        lightOutput = float3(isBright,isBright,isBright);
  
         lightV = normalize(lightV);
         float3 attenVec = float3(0.0f,0.0f,0.0f);
@@ -70,6 +68,7 @@ float4 PSmain(VSOutput input) : SV_TARGET
         float ambient = 0.5f;
         bright = clamp(bright,ambient,1.0f);
         float3 light = (bright * atten + ambient) * lightColor;
+    
         lightOutput = saturate(light);
 
         break;

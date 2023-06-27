@@ -5,6 +5,7 @@ cbuffer MatBuffer : register(b0)
     matrix worldMat;
     matrix viewMat;
     matrix projectionMat;
+    matrix rotaion;
 }
 
 cbuffer LightBufferB1 : register(b1)
@@ -93,8 +94,10 @@ GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
     float3 normalVec = 2 * normalColor - 1.0f;
     normalVec = normalize(normalVec);
 
-    float3 normal = mul(worldMat,float4(input.normal,1.0f));
-    float3 tangent = mul(worldMat,float4(input.tangent,1.0f));
+    float3 normal = mul(rotaion,float4(input.normal,1.0f));
+    normal = normalize(normal);
+    float3 tangent = mul(rotaion,float4(input.tangent,1.0f));
+    tangent = normalize(tangent);
     float3 binormal = cross(normal,tangent);
 
     float3 nWorld = CalucurateTangentToLocal(normalVec,normal,tangent,binormal);
@@ -108,7 +111,7 @@ GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
 
     if(IsEnableToUseMaterialTex(mrColor))
     {
-        mrColor.xyz = float3(0.0f,0.3f,0.0f);
+        mrColor.xyz = float3(0.0f,0.0f,0.0f);
     }
 
     GBufferOutput output;
