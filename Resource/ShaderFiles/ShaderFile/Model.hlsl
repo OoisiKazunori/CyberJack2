@@ -98,7 +98,6 @@ GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
     float3 binormal = cross(normal,tangent);
 
     float3 nWorld = CalucurateTangentToLocal(normalVec,normal,tangent,binormal);
-
     if(IsEnableToUseMaterialTex(normalColor))
     {
         nWorld = input.normal;

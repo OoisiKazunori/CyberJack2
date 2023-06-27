@@ -258,7 +258,6 @@ void RenderScene::Update()
 	for (int i = 0; i < m_testModelFiledArray.size(); ++i)
 	{
 		m_testModelFiledArray[i].SetPos(xArray, 200.0f, 50.0f + static_cast<float>(i) * 500.0f);
-		m_testModelFiledArray[i].Update(m_rasterizeRenderer);
 	}
 
 
@@ -318,6 +317,11 @@ void RenderScene::Draw()
 	//m_rasterizeRenderer.ObjectRender(m_refractionSphere);
 	for (int index = 0; index < static_cast<int>(m_refractionSphere.m_raytracingData.m_blas.size()); ++index) {
 		//	m_blasVector.Add(m_refractionSphere.m_raytracingData.m_blas[index], m_transformArray[0].GetMat());
+	}
+
+	for (int i = 0; i < m_testModelFiledArray.size(); ++i)
+	{
+		m_testModelFiledArray[i].Update(m_rasterizeRenderer, m_blasVector);
 	}
 
 	if (m_lightFlag)
