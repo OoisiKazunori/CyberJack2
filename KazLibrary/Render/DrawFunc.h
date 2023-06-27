@@ -30,6 +30,12 @@ namespace DrawFunc
 		transData.m_world = arg_transform.GetMat();
 		transData.m_projective = CameraMgr::Instance()->GetPerspectiveMatProjection();
 		transData.m_view = CameraMgr::Instance()->GetViewMatrix();
+
+		DirectX::XMVECTOR pos, scale, rotaQ;
+		DirectX::XMMatrixDecompose(&pos, &scale, &rotaQ, arg_transform.GetMat());
+		DirectX::XMMATRIX rotaMat = DirectX::XMMatrixRotationQuaternion(rotaQ);
+		transData.m_rotaion = rotaMat;
+
 		arg_callData.extraBufferArray[0].bufferWrapper->TransData(&transData, sizeof(CoordinateSpaceMatData));
 		//ID
 		UINT num = static_cast<UINT>(arg_type);

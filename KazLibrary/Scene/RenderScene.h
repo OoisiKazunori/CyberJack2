@@ -103,14 +103,19 @@ private:
 			}
 		};
 
-		void Update(DrawingByRasterize& arg_drawCall)
+		void Update(DrawingByRasterize& arg_drawCall, Raytracing::BlasVector& arg_blasVec)
 		{
 			for (int y = 0; y < m_modelArray.size(); ++y)
 			{
 				for (int x = 0; x < m_modelArray[y].size(); ++x)
 				{
-					DrawFunc::DrawModelInRaytracing(m_modelArray[y][x], m_transformArray[y][x], DrawFunc::REFRACTION);
+					DrawFunc::DrawModelInRaytracing(m_modelArray[y][x], m_transformArray[y][x], DrawFunc::NONE);
 					arg_drawCall.ObjectRender(m_modelArray[y][x]);
+
+					for (auto& blas : m_modelArray[y][x].m_raytracingData.m_blas)
+					{
+						arg_blasVec.Add(blas, m_transformArray[y][x].GetMat());
+					}
 				}
 			}
 		};

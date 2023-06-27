@@ -14,6 +14,7 @@ cbuffer MaterialID : register(b1)
 float3 CalucurateLocalToTangent(float3 localVector,float3 normal,float3 tangent,float3 binNoraml)
 {
     float3 tangentVector = float3(dot(tangent,localVector),dot(binNoraml,localVector),dot(normal,localVector));
+    tangentVector = normalize(tangentVector);
     return tangentVector;
 }
 
