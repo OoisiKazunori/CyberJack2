@@ -2,6 +2,10 @@
 //円周率
 static const float PI = 3.141592653589f;
 
+//ミスシェーダーのインデックス
+static const int MISS_DEFAULT = 0;
+static const int MISS_LIGHTING = 1;
+
 //頂点情報
 struct Vertex
 {
@@ -79,6 +83,29 @@ Vertex GetHitVertex(MyAttribute attrib, StructuredBuffer<Vertex> vertexBuffer, S
     return v;
 }
 
+//レイを撃つ処理
+void CastRay(inout Payload arg_payload, float3 arg_origin, float3 arg_dir, float arg_far, int arg_msIndex, RAY_FLAG arg_rayFlag, RaytracingAccelerationStructure arg_scene)
+{
+    //レイの設定
+    RayDesc rayDesc;
+    rayDesc.Origin = arg_origin; //レイの発射地点を設定。
+
+    rayDesc.Direction = arg_dir; //レイの射出方向を設定。
+    rayDesc.TMin = 1.0f; //レイの最小値
+    rayDesc.TMax = arg_far; //レイの最大値(カメラのFarみたいな感じ。)
+    
+    //レイを発射
+    TraceRay(
+        arg_scene, //TLAS
+        arg_rayFlag,
+        0xFF,
+        0, //固定でよし。
+        1, //固定でよし。
+        arg_msIndex, //MissShaderのインデックス。RenderScene.cppでm_pipelineShadersにMissShaderを登録している。
+        rayDesc,
+        arg_payload);
+}
+
 //レイトレ内で行うライティングパス
 void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_normalMap, LightData arg_lightData, RaytracingAccelerationStructure arg_scene)
 {
@@ -91,27 +118,8 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         Payload payloadData;
         payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。
         
-        //レイの設定
-        RayDesc rayDesc;
-        rayDesc.Origin = arg_worldPosMap.xyz; //レイの発射地点を設定。
-
-        rayDesc.Direction = -arg_lightData.m_dirLight.m_dir; //レイは光源に向かって飛ばす。
-        rayDesc.TMin = 1.0f; //レイの最小値
-        rayDesc.TMax = 300000.0f; //レイの最大値(カメラのFarみたいな感じ。)
-    
-        RAY_FLAG flag = RAY_FLAG_NONE; //レイのフラグ。背面カリングをしたり、AnyHitShaderを呼ばないようにする(軽量化)するときはここを設定する。
-        flag |= RAY_FLAG_SKIP_CLOSEST_HIT_SHADER;
-    
-        //レイを発射
-        TraceRay(
-        arg_scene, //TLAS
-        flag,
-        0xFF,
-        0, //固定でよし。
-        1, //固定でよし。
-        1, //MissShaderのインデックス。RenderScene.cppでm_pipelineShadersにMissShaderを登録する際に2番目に影用のMissShaderを設定しているので、1にすると影用が呼ばれる。
-        rayDesc,
-        payloadData);
+        //レイを撃つ
+        CastRay(payloadData, arg_worldPosMap.xyz, -arg_lightData.m_dirLight.m_dir, 30000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
         
         //レイトレの結果の影情報を書き込む。
         arg_bright += payloadData.m_color.x;
@@ -126,35 +134,17 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         Payload payloadData;
         payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。
         
-        //レイの設定
-        RayDesc rayDesc;
-        rayDesc.Origin = arg_worldPosMap.xyz; //レイの発射地点を設定。
-        
         //ポイントライトからのベクトルを求める。
-        float3 lightDir = normalize(arg_lightData.m_pointLight.m_pos - rayDesc.Origin);
-        float distance = length(arg_lightData.m_pointLight.m_pos - rayDesc.Origin);
+        float3 lightDir = normalize(arg_lightData.m_pointLight.m_pos - arg_worldPosMap.xyz);
+        float distance = length(arg_lightData.m_pointLight.m_pos - arg_worldPosMap.xyz);
         
         //距離がライトの最大影響範囲より大きかったらレイを飛ばさない。
         if (distance < arg_lightData.m_pointLight.m_power)
         {
-
-            rayDesc.Direction = lightDir; //レイは光源に向かって飛ばす。
-            rayDesc.TMin = 1.0f; //レイの最小値
-            rayDesc.TMax = distance; //レイの最大値(カメラのFarみたいな感じ。)
-    
-            RAY_FLAG flag = RAY_FLAG_NONE; //レイのフラグ。背面カリングをしたり、AnyHitShaderを呼ばないようにする(軽量化)するときはここを設定する。
-            flag |= RAY_FLAG_SKIP_CLOSEST_HIT_SHADER;
-    
-            //レイを発射
-            TraceRay(
-            arg_scene, //TLAS
-            flag,
-            0xFF,
-            0, //固定でよし。
-            1, //固定でよし。
-            1, //MissShaderのインデックス。RenderScene.cppでm_pipelineShadersにMissShaderを登録する際に2番目に影用のMissShaderを設定しているので、1にすると影用が呼ばれる。
-            rayDesc,
-            payloadData);
+            
+        
+            //レイを撃つ
+            CastRay(payloadData, arg_worldPosMap.xyz, lightDir, distance, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
             
             //影が遮られていなかったら明るさを減衰させる。
             if (0 < payloadData.m_color.x)
@@ -181,37 +171,56 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
 
 }
 
-void SecondaryPass(float4 arg_materialInfo, float4 arg_normalColor, float4 arg_albedoColor, RaytracingAccelerationStructure arg_scene, CameraEyePosConstData arg_cameraEyePos, inout float4 arg_finalColor)
+
+void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, CameraEyePosConstData arg_cameraEyePos, LightData arg_lightData, RaytracingAccelerationStructure arg_scene)
+{
+    
+    if (!arg_lightData.m_dirLight.m_isActive)
+        return;
+    
+    //カメラからサンプリング地点までをレイマーチングで動かす定数で割り、サンプリング回数を求める。
+    const int SAMPLING_COUNT = 16;
+    float3 samplingDir = normalize(arg_worldColor.xyz - arg_cameraEyePos.m_eye);
+    float samplingLength = length(arg_cameraEyePos.m_eye - arg_worldColor.xyz) / (float) SAMPLING_COUNT;
+    float raymarchingBright = 0.0f;
+    for (int counter = 0; counter < SAMPLING_COUNT; ++counter)
+    {
+                
+        //ペイロード(再帰的に処理をするレイトレの中で値の受け渡しに使用する構造体)を宣言。
+        Payload payloadData;
+        payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。何かに当たったときに呼ばれるClosestHitShaderが呼ばれたらそこは影なので0を書き込む。
+        
+        //レイを撃つ
+        CastRay(payloadData, arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter, -arg_lightData.m_dirLight.m_dir, 300000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+        
+        //結果を保存。
+        float progress = 1.0f / float(counter + 1);
+        raymarchingBright = lerp(raymarchingBright, payloadData.m_color.x, progress);
+        
+    }
+    const float3 FOGCOLOR_LIT = float3(1.0f, 1.0f, 1.0f);
+    const float3 FOGCOLOR_UNLIT = float3(0.0f, 0.0f, 0.0f);
+    
+    float3 fogColor = lerp(FOGCOLOR_UNLIT, FOGCOLOR_LIT, raymarchingBright);
+    const float FOG_DENSITY = 0.0001f;
+    float absorb = exp(-length(arg_cameraEyePos.m_eye - arg_worldColor.xyz) * FOG_DENSITY);
+    arg_albedoColor.xyz = lerp(fogColor, arg_albedoColor.xyz, absorb);
+    
+}
+
+void SecondaryPass(float4 arg_worldColor, float4 arg_materialInfo, float4 arg_normalColor, float4 arg_albedoColor, RaytracingAccelerationStructure arg_scene, CameraEyePosConstData arg_cameraEyePos, inout float4 arg_finalColor)
 {
         
     //レイのIDをみて、レイを打つかどうかを判断
     if (arg_materialInfo.w != 0 && 0.1f < length(arg_normalColor.xyz))
     {
-
-        //レイの設定
-        RayDesc rayDesc;
-        rayDesc.Origin = arg_normalColor.xyz + arg_normalColor.xyz * 3.0f;
-
-        rayDesc.Direction = refract(normalize(rayDesc.Origin - arg_cameraEyePos.m_eye), arg_normalColor.xyz, 0.01f);
-        rayDesc.TMin = 0.0f;
-        rayDesc.TMax = 300000.0f;
         
         Payload payloadData;
         payloadData.m_color = float3(1, 1, 1);
-    
-        RAY_FLAG flag = RAY_FLAG_NONE;
-        flag |= RAY_FLAG_CULL_BACK_FACING_TRIANGLES; //背面カリング
-    
-        //レイを発射
-        TraceRay(
-        arg_scene, //TLAS
-        flag, //衝突判定制御をするフラグ
-        0xFF, //衝突判定対象のマスク値
-        0, //ray index
-        1, //MultiplierForGeometryContrib
-        0, //miss index
-        rayDesc,
-        payloadData);
+        
+        //レイを撃つ
+        float rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
+        CastRay(payloadData, rayOrigin, refract(normalize(rayOrigin - arg_cameraEyePos.m_eye), arg_normalColor.xyz, 0.01f), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
         
 
         //結果格納

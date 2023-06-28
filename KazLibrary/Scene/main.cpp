@@ -34,8 +34,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		D3D12GetDebugInterface(IID_PPV_ARGS(&spDebugController0));
 		spDebugController0->QueryInterface(IID_PPV_ARGS(&spDebugController1));
-		spDebugController1->EnableDebugLayer();
-		spDebugController1->SetEnableGPUBasedValidation(true);
+		//spDebugController1->EnableDebugLayer();
+		//spDebugController1->SetEnableGPUBasedValidation(true);
 	}
 
 #endif
@@ -75,7 +75,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	filter.DenyList.pIDList = denyIds;
 	filter.DenyList.NumSeverities = _countof(severities);
 	filter.DenyList.pSeverityList = severities;
-	infoQueue->PushStorageFilter(&filter);
+	//infoQueue->PushStorageFilter(&filter);
 #endif 
 
 	MyImgui imgui;
