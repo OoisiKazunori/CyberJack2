@@ -175,9 +175,6 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
 void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, CameraEyePosConstData arg_cameraEyePos, LightData arg_lightData, RaytracingAccelerationStructure arg_scene)
 {
     
-    if (!arg_lightData.m_dirLight.m_isActive)
-        return;
-    
     //カメラからサンプリング地点までをレイマーチングで動かす定数で割り、サンプリング回数を求める。
     const int SAMPLING_COUNT = 16;
     float3 samplingDir = normalize(arg_worldColor.xyz - arg_cameraEyePos.m_eye);
@@ -190,12 +187,31 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, CameraEyePo
         Payload payloadData;
         payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。何かに当たったときに呼ばれるClosestHitShaderが呼ばれたらそこは影なので0を書き込む。
         
-        //レイを撃つ
-        CastRay(payloadData, arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter, -arg_lightData.m_dirLight.m_dir, 300000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+        //ディレクションライトの処理
+        if (arg_lightData.m_dirLight.m_isActive)
+        {
         
-        //結果を保存。
-        float progress = 1.0f / float(counter + 1);
-        raymarchingBright = lerp(raymarchingBright, payloadData.m_color.x, progress);
+            //レイを撃つ
+            CastRay(payloadData, arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter, -arg_lightData.m_dirLight.m_dir, 300000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+        
+            //結果を保存。
+            float progress = 1.0f / float(counter + 1);
+            raymarchingBright = lerp(raymarchingBright, payloadData.m_color.x, progress);
+            
+        }
+        //ポイントライトの処理
+        float pointLightDistance = length((arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter) - arg_worldColor.xyz);
+        if (arg_lightData.m_pointLight.m_isActive && pointLightDistance < arg_lightData.m_pointLight.m_power)
+        {
+        
+            //レイを撃つ
+            CastRay(payloadData, arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter, -arg_lightData.m_dirLight.m_dir, pointLightDistance, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+        
+            //結果を保存。
+            float progress = 1.0f / float(counter + 1);
+            raymarchingBright = lerp(raymarchingBright, payloadData.m_color.x, progress);
+            
+        }
         
     }
     const float3 FOGCOLOR_LIT = float3(1.0f, 1.0f, 1.0f);
