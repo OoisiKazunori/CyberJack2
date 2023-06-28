@@ -196,6 +196,7 @@
     <ClCompile Include="KazLibrary\Raytracing\RayShaderData.cpp" />
     <ClCompile Include="KazLibrary\Raytracing\RayShaderStorage.cpp" />
     <ClCompile Include="KazLibrary\Raytracing\Tlas.cpp" />
+    <ClCompile Include="KazLibrary\Render\CPUParticle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -411,6 +412,7 @@
     <ClInclude Include="KazLibrary\Raytracing\RayShaderData.h" />
     <ClInclude Include="KazLibrary\Raytracing\RayShaderStorage.h" />
     <ClInclude Include="KazLibrary\Raytracing\Tlas.h" />
+    <ClInclude Include="KazLibrary\Render\CPUParticle.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
