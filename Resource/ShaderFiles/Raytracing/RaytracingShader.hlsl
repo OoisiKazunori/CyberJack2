@@ -41,15 +41,18 @@ void mainRayGen()
     float bright = 0.0f;
     LightingPass(bright, worldColor, normalColor, lightData, gRtScene);
     
+    //アルベドにライトの色をかける。
+    albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);
+    
     
     //GodRayPass
     
     //カメラからサンプリング地点までをレイマーチングで動かす定数で割り、サンプリング回数を求める。
-    const float RAYMARCHING_LENGTH = 50.0f;
-    int samplingCount = length(worldColor.xyz - cameraEyePos.m_eye) / RAYMARCHING_LENGTH;
+    const int SAMPLING_COUNT = 16;
     float3 samplingDir = normalize(worldColor.xyz - cameraEyePos.m_eye);
+    float samplingLength = length(cameraEyePos.m_eye - worldColor.xyz) / (float) SAMPLING_COUNT;
     float raymarchingBright = 0.0f;
-    for (int counter = 0; counter < samplingCount; ++counter)
+    for (int counter = 0; counter < SAMPLING_COUNT; ++counter)
     {
                 
         //ペイロード(再帰的に処理をするレイトレの中で値の受け渡しに使用する構造体)を宣言。
@@ -58,7 +61,7 @@ void mainRayGen()
         
         //レイの設定
         RayDesc rayDesc;
-        rayDesc.Origin = cameraEyePos.m_eye + (samplingDir * RAYMARCHING_LENGTH) * counter; //レイの発射地点を設定。
+        rayDesc.Origin = cameraEyePos.m_eye + (samplingDir * samplingLength) * counter; //レイの発射地点を設定。
 
         rayDesc.Direction = -lightData.m_dirLight.m_dir; //レイは光源に向かって飛ばす。
         rayDesc.TMin = 1.0f; //レイの最小値
@@ -78,17 +81,18 @@ void mainRayGen()
         rayDesc,
         payloadData);
         
-        //レイトレの結果の影情報を書き込む。
-        if (payloadData.m_color.x == 1.0f)
-        {
-            raymarchingBright = 0.5f;
-        }
+        //結果を保存。
+        float progress = 1.0f / float(counter + 1);
+        raymarchingBright = lerp(raymarchingBright, payloadData.m_color.x, progress);
         
     }
-    bright += raymarchingBright;
+    const float3 FOGCOLOR_LIT = float3(1.0f, 1.0f, 1.0f);
+    const float3 FOGCOLOR_UNLIT = float3(0.0f, 0.0f, 0.0f);
     
-    //アルベドにライトの色をかける。
-    albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);
+    float3 fogColor = lerp(FOGCOLOR_UNLIT, FOGCOLOR_LIT, raymarchingBright);
+    const float FOG_DENSITY = 0.0001f;
+    float absorb = exp(-length(cameraEyePos.m_eye - worldColor.xyz) * FOG_DENSITY);
+    albedoColor.xyz = lerp(fogColor, albedoColor.xyz, absorb);
     
     //マテリアルのIDをもとに、反射屈折のレイを飛ばす。
     float4 final = float4(0, 0, 0, 0);
