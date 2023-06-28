@@ -86,8 +86,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	long lCppVersion = __cplusplus;
 	std::cout << "現在使用しているC++:" << lCppVersion << "\n";
 
-	PreCreateBaseRootSignature prepareR;
-	PreCreateBasePipeLine prepareP;
+	//PreCreateBaseRootSignature prepareR;
+	//PreCreateBasePipeLine prepareP;
 
 	KeyBoradInputManager::Instance()->CreateDevice(&winApi.hwnd, &winApi.window.hInstance);
 	UavViewHandleMgr::Instance()->Init();
