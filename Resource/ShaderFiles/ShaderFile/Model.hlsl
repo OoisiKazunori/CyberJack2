@@ -87,6 +87,11 @@ struct GBufferOutput
     float4 world : SV_TARGET3;
 };
 
+cbuffer ColorBuffer : register(b2)
+{
+    float4 color;
+}
+
 GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
 {
     float4 normalColor = NormalTex.Sample(smp,input.uv);
@@ -115,7 +120,7 @@ GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
     }
 
     GBufferOutput output;
-    output.albedo = texColor;
+    output.albedo = texColor * color;
     output.normal = float4(nWorld,1.0f);
     output.metalnessRoughness = float4(mrColor.xyz,raytracingId);
     output.world = float4(input.worldPos,1.0f);

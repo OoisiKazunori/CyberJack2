@@ -87,6 +87,9 @@ private:
 					m_modelArray[y][x] = DrawFuncData::SetDefferdRenderingModel(arg_modelArray[y]);
 					m_transformArray[y][x].scale = { arg_float[y],arg_float[y],arg_float[y] };
 					m_transformArray[y][x].rotation.y = 90.0f;
+
+					KazMath::Color color(255, 255, 255, static_cast<int>(200.0f * (float)(y * 6 + x) / 36.0f) + 55);
+					m_modelArray[y][x].extraBufferArray.back().bufferWrapper->TransData(&color.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
 				}
 			}
 		};
