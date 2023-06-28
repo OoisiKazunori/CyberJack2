@@ -41,11 +41,57 @@ void mainRayGen()
     float bright = 0.0f;
     LightingPass(bright, worldColor, normalColor, lightData, gRtScene);
     
+    
+    //GodRayPass
+    
+    //カメラからサンプリング地点までをレイマーチングで動かす定数で割り、サンプリング回数を求める。
+    const float RAYMARCHING_LENGTH = 50.0f;
+    int samplingCount = length(worldColor.xyz - cameraEyePos.m_eye) / RAYMARCHING_LENGTH;
+    float3 samplingDir = normalize(worldColor.xyz - cameraEyePos.m_eye);
+    float raymarchingBright = 0.0f;
+    for (int counter = 0; counter < samplingCount; ++counter)
+    {
+                
+        //ペイロード(再帰的に処理をするレイトレの中で値の受け渡しに使用する構造体)を宣言。
+        Payload payloadData;
+        payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。何かに当たったときに呼ばれるClosestHitShaderが呼ばれたらそこは影なので0を書き込む。
+        
+        //レイの設定
+        RayDesc rayDesc;
+        rayDesc.Origin = cameraEyePos.m_eye + (samplingDir * RAYMARCHING_LENGTH) * counter; //レイの発射地点を設定。
+
+        rayDesc.Direction = -lightData.m_dirLight.m_dir; //レイは光源に向かって飛ばす。
+        rayDesc.TMin = 1.0f; //レイの最小値
+        rayDesc.TMax = 300000.0f; //レイの最大値(カメラのFarみたいな感じ。)
+    
+        RAY_FLAG flag = RAY_FLAG_NONE; //レイのフラグ。背面カリングをしたり、AnyHitShaderを呼ばないようにする(軽量化)するときはここを設定する。
+        flag |= RAY_FLAG_SKIP_CLOSEST_HIT_SHADER;
+    
+        //レイを発射
+        TraceRay(
+        gRtScene, //TLAS
+        flag,
+        0xFF,
+        0, //固定でよし。
+        1, //固定でよし。
+        1, //MissShaderのインデックス。RenderScene.cppでm_pipelineShadersにMissShaderを登録する際に2番目に影用のMissShaderを設定しているので、1にすると影用が呼ばれる。
+        rayDesc,
+        payloadData);
+        
+        //レイトレの結果の影情報を書き込む。
+        if (payloadData.m_color.x == 1.0f)
+        {
+            raymarchingBright = 0.5f;
+        }
+        
+    }
+    bright += raymarchingBright;
+    
     //アルベドにライトの色をかける。
     albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);
     
     //マテリアルのIDをもとに、反射屈折のレイを飛ばす。
-    float4 final = float4(0,0,0,0);
+    float4 final = float4(0, 0, 0, 0);
     SecondaryPass(materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
     
     //合成の結果を入れる。
@@ -84,29 +130,10 @@ void shadowMS(inout Payload payload)
     //ここにレイが当たった地点の頂点データとかが入っている。
     Vertex vtx = GetHitVertex(attrib, vertexBuffer, indexBuffer);
     
-    if (payload.m_rayID == RAY_DEFAULT)
-    {
-    
-        //当たった位置のピクセルをサンプリングして、色をPayloadに入れる。
-        float4 mainTexColor = objectTexture.SampleLevel(smp, vtx.uv, 1);
-        payload.m_color = mainTexColor.xyz;
+    //当たった位置のピクセルをサンプリングして、色をPayloadに入れる。
+    float4 mainTexColor = objectTexture.SampleLevel(smp, vtx.uv, 1);
+    payload.m_color = mainTexColor.xyz;
            
-    }
-    else if (payload.m_rayID == RAY_DIR_SHADOW)
-    {
-        
-        //このシェーダーに到達していたら影用のレイがオブジェクトに当たったということなので、payload.m_color.x(影情報)に黒を入れる。
-        payload.m_color.x = 0.0f;
-        
-    }
-    else if (payload.m_rayID == RAY_POINT_SHADOW)
-    {    
-        
-        //このシェーダーに到達していたら影用のレイがオブジェクトに当たったということなので、payload.m_color.x(影情報)に黒を入れる。
-        payload.m_color.x = 0.0f;
-        
-    }
-    
 }
 
 //AnyHitShader

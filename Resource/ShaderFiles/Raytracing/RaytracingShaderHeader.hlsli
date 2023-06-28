@@ -12,11 +12,6 @@ struct Vertex
     float3 binormal;
 };
 
-//レイのID
-static const int RAY_DEFAULT = 0;
-static const int RAY_DIR_SHADOW = 1;
-static const int RAY_POINT_SHADOW = 2;
-
 //ペイロード
 struct Payload
 {
@@ -94,8 +89,7 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         
         //ペイロード(再帰的に処理をするレイトレの中で値の受け渡しに使用する構造体)を宣言。
         Payload payloadData;
-        payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。何かに当たったときに呼ばれるClosestHitShaderが呼ばれたらそこは影なので0を書き込む。
-        payloadData.m_rayID = RAY_DIR_SHADOW; //レイのIDを設定。ClosestHitShaderでレイのIDによって処理を分けるため。
+        payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。
         
         //レイの設定
         RayDesc rayDesc;
@@ -105,7 +99,8 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         rayDesc.TMin = 1.0f; //レイの最小値
         rayDesc.TMax = 300000.0f; //レイの最大値(カメラのFarみたいな感じ。)
     
-        RAY_FLAG flag = RAY_FLAG_NONE; //レイのフラグ。背面カリングをしたり、AnyHitShaderを呼ばないようにする(軽量化)するときはここを設定する。影用のレイなので背面カリングしちゃったら謎にライトが当たるので何も設定しない。
+        RAY_FLAG flag = RAY_FLAG_NONE; //レイのフラグ。背面カリングをしたり、AnyHitShaderを呼ばないようにする(軽量化)するときはここを設定する。
+        flag |= RAY_FLAG_SKIP_CLOSEST_HIT_SHADER;
     
         //レイを発射
         TraceRay(
@@ -129,8 +124,7 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         
         //ペイロード(再帰的に処理をするレイトレの中で値の受け渡しに使用する構造体)を宣言。
         Payload payloadData;
-        payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。何かに当たったときに呼ばれるClosestHitShaderが呼ばれたらそこは影なので0を書き込む。
-        payloadData.m_rayID = RAY_POINT_SHADOW; //レイのIDを設定。ClosestHitShaderでレイのIDによって処理を分けるため。
+        payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。
         
         //レイの設定
         RayDesc rayDesc;
@@ -148,7 +142,8 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
             rayDesc.TMin = 1.0f; //レイの最小値
             rayDesc.TMax = distance; //レイの最大値(カメラのFarみたいな感じ。)
     
-            RAY_FLAG flag = RAY_FLAG_NONE; //レイのフラグ。背面カリングをしたり、AnyHitShaderを呼ばないようにする(軽量化)するときはここを設定する。影用のレイなので背面カリングしちゃったら謎にライトが当たるので何も設定しない。
+            RAY_FLAG flag = RAY_FLAG_NONE; //レイのフラグ。背面カリングをしたり、AnyHitShaderを呼ばないようにする(軽量化)するときはここを設定する。
+            flag |= RAY_FLAG_SKIP_CLOSEST_HIT_SHADER;
     
             //レイを発射
             TraceRay(
@@ -203,7 +198,6 @@ void SecondaryPass(float4 arg_materialInfo, float4 arg_normalColor, float4 arg_a
         
         Payload payloadData;
         payloadData.m_color = float3(1, 1, 1);
-        payloadData.m_rayID = RAY_DEFAULT;
     
         RAY_FLAG flag = RAY_FLAG_NONE;
         flag |= RAY_FLAG_CULL_BACK_FACING_TRIANGLES; //背面カリング

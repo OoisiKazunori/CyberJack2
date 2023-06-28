@@ -208,7 +208,7 @@ RenderScene::RenderScene()
 		m_compute.Stack(computeData);
 	}
 
-
+	m_raytracingFlag = true;
 
 }
 
