@@ -77,7 +77,7 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         
         //レイの設定
         RayDesc rayDesc;
-        rayDesc.Origin = arg_worldPosMap.xyz + arg_normalMap.xyz; //レイの発射地点を設定。
+        rayDesc.Origin = arg_worldPosMap.xyz; //レイの発射地点を設定。
         
         //ポイントライトからのベクトルを求める。
         float3 lightDir = normalize(lightData.m_pointLight.m_pos - rayDesc.Origin);
