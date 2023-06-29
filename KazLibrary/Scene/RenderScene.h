@@ -88,7 +88,7 @@ private:
 					m_transformArray[y][x].scale = { arg_float[y],arg_float[y],arg_float[y] };
 					m_transformArray[y][x].rotation.y = 90.0f;
 
-					KazMath::Color color(255, 255, 255, static_cast<int>(200.0f * (float)(y * 6 + x) / 36.0f) + 55);
+					KazMath::Color color(255, 255, 255, 255);
 					m_modelArray[y][x].extraBufferArray.back().bufferWrapper->TransData(&color.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
 				}
 			}
@@ -134,6 +134,12 @@ private:
 	KazBufferHelper::BufferData lightUploadBuffer;
 
 	DispatchComputeShader::DispatchData m_dispatchData;
+
+
+	DrawFuncData::DrawCallData m_alphaModel;
+	KazMath::Transform3D m_alphaModelTransform;
+
+
 
 	//レイトレにモデルを組み込む用の配列クラス
 	Raytracing::BlasVector m_blasVector;

@@ -89,6 +89,7 @@ void DrawingByRasterize::Sort()
 		result.materialBuffer = callData.materialBuffer;
 		result.buffer = callData.extraBufferArray;
 		result.renderTargetHandle = callData.renderTargetHandle;
+		result.depthHandle = callData.depthHandle;
 
 		result.pipelineData = callData.pipelineData.desc;
 		for (UINT i = 0; i < result.pipelineData.NumRenderTargets; ++i)
@@ -185,14 +186,21 @@ void DrawingByRasterize::Render()
 
 
 	RESOURCE_HANDLE preRenderTargetHandle = -1;
+	RESOURCE_HANDLE preDepthHandle = -1;
 	for (auto &renderData : renderInfomationForDirectX12Array)
 	{
 		//前回と違うハンドルが出たらレンダーターゲットを切り替える
-		if (renderData.renderTargetHandle != preRenderTargetHandle)
+		if (renderData.renderTargetHandle != preRenderTargetHandle && renderData.depthHandle == -1)
 		{
 			RenderTargetStatus::Instance()->PrepareToChangeBarrier(renderData.renderTargetHandle, preRenderTargetHandle);
 			RenderTargetStatus::Instance()->ClearRenderTarget(renderData.renderTargetHandle);
 		}
+		//レンダーターゲット切り替えずにデプスに書き込む
+		if (renderData.depthHandle != preDepthHandle)
+		{
+			RenderTargetStatus::Instance()->SetDepth(renderData.renderTargetHandle);
+		}
+		preDepthHandle = renderData.depthHandle;
 		preRenderTargetHandle = renderData.renderTargetHandle;
 
 		//パイプラインとルートシグネチャの生成

@@ -441,6 +441,7 @@ namespace DrawFuncData
 		std::vector<ShaderOptionData> shaderDataArray;
 
 		RESOURCE_HANDLE renderTargetHandle;
+		RESOURCE_HANDLE depthHandle;
 		RESOURCE_HANDLE pipelineHandle;
 		std::vector<RESOURCE_HANDLE> shaderHandleArray;
 		RESOURCE_HANDLE rootsignatureHandle;
@@ -485,7 +486,7 @@ namespace DrawFuncData
 	struct DrawCallData
 	{
 		DrawCallData(std::source_location location = std::source_location::current()) :
-			callLocation(location), renderTargetHandle(-1)
+			callLocation(location), renderTargetHandle(-1),depthHandle(-1)
 		{
 		};
 		/// <summary>
@@ -507,6 +508,7 @@ namespace DrawFuncData
 		RESOURCE_HANDLE m_modelVertDataHandle;
 
 		RESOURCE_HANDLE renderTargetHandle;
+		RESOURCE_HANDLE depthHandle;
 		//パイプライン情報
 		PipelineGenerateData pipelineData;
 
@@ -626,13 +628,25 @@ namespace DrawFuncData
 		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 		lDrawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
 
+		//色乗算
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		lDrawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
+		KazMath::Color init(255, 255, 255, 255);
+		lDrawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+
+
+
 		lDrawCallData.pipelineData = PIPELINE_DATA;
 		lDrawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 
 		return lDrawCallData;
 	};
 
-	//モデルのポリゴン表示(インデックスあり、マテリアルあり)
+	//レイトレでのモデルのポリゴン表示(インデックスあり、マテリアルあり)
 	static DrawCallData SetDrawGLTFIndexMaterialInRayTracingData(const ModelInfomation &MODEL_DATA, const PipelineGenerateData &PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
@@ -729,18 +743,6 @@ namespace DrawFuncData
 
 		return lDrawCallData;
 	};
-
-
-	static DrawCallData SetLineData(const PipelineGenerateData &PIPELINE_DATA)
-	{
-		DrawCallData lDrawCallData;
-		//std::vector<VertexGenerateData>vertexMesh;
-		//vertexMesh.emplace_back();
-		//RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GenerateBuffer();
-		//SetDrawPolygonData(VertexBufferMgr::Instance()->GetBuffer(handle).index, PIPELINE_DATA);
-		return lDrawCallData;
-	};
-
 
 	static DrawCallData SetDefferdRenderingModel(std::shared_ptr<ModelInfomation>arg_model)
 	{

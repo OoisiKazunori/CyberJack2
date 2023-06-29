@@ -13,6 +13,11 @@ cbuffer LightBufferB1 : register(b1)
     float3 localLightDir;
 }
 
+cbuffer ColorBuffer : register(b1)
+{
+    float4 colorB1;
+}
+
 struct PosUvNormalOutput
 {
     float4 svpos : SV_POSITION; 
@@ -26,13 +31,13 @@ PosUvNormalOutput VSPosNormalUvmain(float4 pos : POSITION,float3 normal : NORMAL
 {
     PosUvNormalOutput op;
     op.svpos = mul(worldMat,pos);
-    op.worldPos = op.svpos;
+    op.worldPos = op.svpos.xyz;
     op.svpos = mul(viewMat,op.svpos);
     op.svpos = mul(projectionMat,op.svpos);
     op.uv = uv;
     op.normal = normal;
 
-    float4 lightDir = float4(localLightDir.xyz,0.0f);
+    float4 lightDir = float4(0.0f,-1.0f,0.0f,0.0f);
     lightDir = normalize(lightDir);
     op.lightInTangentWorld = mul(lightDir,InvTangentMatrix(tangent,binormal,normal));
 
@@ -41,16 +46,24 @@ PosUvNormalOutput VSPosNormalUvmain(float4 pos : POSITION,float3 normal : NORMAL
 
 float4 PSPosNormalUvmain(PosUvNormalOutput input) : SV_TARGET
 {
-    float3 normalColor = NormalTex.Sample(smp,input.uv);
-    //-1.0f ~ 1.0f
-    float3 normalVec = 2 * normalColor - 1.0f;
-    normalVec = normalize(normalVec);
+    float4 normalColor = NormalTex.Sample(smp,input.uv);
 
-    float3 bright = dot(input.lightInTangentWorld,normalVec);
-    //bright = max(0.0f,bright);
+    float3 bright = float3(0.0f,0.0f,0.0f);
+    if(IsEnableToUseMaterialTex(normalColor))
+    {
+        //-1.0f ~ 1.0f
+        float3 normalVec = 2 * normalColor.xyz - 1.0f;
+        normalVec = normalize(normalVec);
+        bright = dot(input.lightInTangentWorld,normalVec);
+    }
+    else
+    {
+        bright = dot(input.lightInTangentWorld,input.normal);
+    }
 
 	float4 texColor = AlbedoTex.Sample(smp,input.uv);
-	return float4(texColor.rgb * bright, 1.0f);
+    texColor *= colorB1;
+	return float4(texColor.rgb * bright, texColor.a);
 }
 
 
@@ -68,7 +81,7 @@ PosUvNormalTangentBinormalOutput VSDefferdMain(float4 pos : POSITION,float3 norm
 {
     PosUvNormalTangentBinormalOutput op;
     op.svpos = mul(worldMat,pos);
-    op.worldPos = op.svpos;
+    op.worldPos = op.svpos.xyz;
     op.svpos = mul(viewMat,op.svpos);
     op.svpos = mul(projectionMat,op.svpos);
     op.uv = uv;

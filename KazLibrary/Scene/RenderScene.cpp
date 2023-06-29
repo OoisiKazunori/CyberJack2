@@ -44,6 +44,21 @@ RenderScene::RenderScene()
 
 		//球の描画
 		m_refractionSphere = DrawFuncData::SetDefferdRenderingModel(m_refractionModel);
+
+
+
+		DrawFuncData::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSPosNormalUvmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvmain", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+
+		m_alphaModel = DrawFuncData::SetDrawGLTFIndexMaterialData(*m_refractionModel, lData);
+		KazMath::Color color(255, 255, 255, 255 / 2);
+		m_alphaModel.extraBufferArray[1].bufferWrapper->TransData(&color.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+		m_alphaModel.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+		m_alphaModel.depthHandle = 0;
+		m_alphaModelTransform.scale = { 100.0f,100.0f,100.0f };
 	}
 
 	//ライトの情報
@@ -282,7 +297,7 @@ void RenderScene::Update()
 		m_drawFinalPlane.m_plane.extraBufferArray[3] = RenderTargetStatus::Instance()->GetBuffer(GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::WORLD]);
 		m_drawFinalPlane.m_plane.extraBufferArray[3].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 
-	
+
 		int num = LGHIT_ARRAY_X * LGHIT_ARRAY_Y * LGHIT_ARRAY_Z;
 		m_drawFinalPlane.m_plane.extraBufferArray[4].bufferWrapper->TransData(&num, sizeof(int));
 		//最終合成結果を格納する。
@@ -355,6 +370,9 @@ void RenderScene::Draw()
 		m_rasterizeRenderer.ObjectRender(m_drawFinalPlane.m_plane);
 	}
 
+	DrawFunc::DrawModelInRaytracing(m_alphaModel, m_alphaModelTransform, DrawFunc::NONE);
+	m_rasterizeRenderer.ObjectRender(m_alphaModel);
+
 	m_rasterizeRenderer.Sort();
 	//compute.Compute();
 	m_rasterizeRenderer.Render();
@@ -390,6 +408,7 @@ void RenderScene::Draw()
 	ImGui::Checkbox(m_drawFinalPlane.m_bufferName.c_str(), &m_drawFinalPlane.m_drawFlag);
 	ImGui::Checkbox("RayTracing", &m_raytracingFlag);
 	ImGui::Checkbox("DrawLightBox", &m_lightFlag);
+	KazImGuiHelper::InputVec3("AlphaModel", &m_alphaModelTransform.pos);
 	ImGui::End();
 
 	//ディレクションライト
