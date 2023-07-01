@@ -51,6 +51,7 @@ struct LightData
 struct CameraEyePosConstData
 {
     float3 m_eye;
+    float m_timer;
 };
 
 //barysを計算
@@ -248,5 +249,111 @@ void SecondaryPass(float4 arg_worldColor, float4 arg_materialInfo, float4 arg_no
     {
         arg_finalColor = arg_albedoColor;
     }
+    
+}
+
+//乱数を取得。
+float Random2D(float2 arg_st)
+{
+    return frac(sin(dot(arg_st.xy, float2(12.9898f, 78.233f))) * 43758.5453123f);
+}
+float3 Random3D(float3 arg_st)
+{
+    float3 seed = float3(dot(arg_st, float3(127.1f, 311.7f, 523.3f)), dot(arg_st, float3(269.5f, 183.3f, 497.5f)), dot(arg_st, float3(419.2f, 371.9f, 251.6f)));
+    return -1.0f + 2.0f * frac(sin(seed) * 43758.5453123f);
+}
+
+//ノイズを計算。
+float Noise(float2 arg_st)
+{
+    //引数を整数値と小数値に分割。
+    float2 intValue = floor(arg_st);
+    float2 floatValue = frac(arg_st);
+
+    float a = Random3D(float3(intValue + float2(0.0f, 0.0f), 0.5f));
+    float b = Random3D(float3(intValue + float2(1.0f, 0.0f), 0.5f));
+    float c = Random3D(float3(intValue + float2(0.0f, 1.0f), 0.5f));
+    float d = Random3D(float3(intValue + float2(1.0f, 1.0f), 0.5f));
+
+    //-2.0f^3 + 3.0f^2
+    float2 u = floatValue * floatValue * (3.0f - 2.0f * floatValue);
+
+    return lerp(a, b, u.x) + (c - a) * u.y * (1.0f - u.x) + (d - b) * u.x * u.y;
+}
+
+//3Dグラディエントノイズ関数
+float GradientNoise(float3 arg_st)
+{
+    float3 i = floor(arg_st);
+    float3 f = frac(arg_st);
+
+    //八つの隣接点の座標を求める
+    float3 u = f * f * (3.0 - 2.0 * f);
+
+    float a = dot(Random3D(i), f - float3(0, 0, 0));
+    float b = dot(Random3D(i + float3(1, 0, 0)), f - float3(1, 0, 0));
+    float c = dot(Random3D(i + float3(0, 1, 0)), f - float3(0, 1, 0));
+    float d = dot(Random3D(i + float3(1, 1, 0)), f - float3(1, 1, 0));
+    float e = dot(Random3D(i + float3(0, 0, 1)), f - float3(0, 0, 1));
+    float f1 = dot(Random3D(i + float3(1, 0, 1)), f - float3(1, 0, 1));
+    float g = dot(Random3D(i + float3(0, 1, 1)), f - float3(0, 1, 1));
+    float h = dot(Random3D(i + float3(1, 1, 1)), f - float3(1, 1, 1));
+
+    //ノイズ値を補間する
+    float x1 = lerp(a, b, u.x);
+    float x2 = lerp(c, d, u.x);
+    float y1 = lerp(e, f1, u.x);
+    float y2 = lerp(g, h, u.x);
+
+    float xy1 = lerp(x1, x2, u.y);
+    float xy2 = lerp(y1, y2, u.y);
+
+    return lerp(xy1, xy2, u.z);
+}
+
+//フラクタルノイズ
+float FBM(float2 arg_st)
+{
+    float result = 0.0f;
+    float amplitude = 1.0f;  //振幅
+
+    for (int counter = 0; counter < 5; counter++)
+    {
+        result += amplitude * noise(float3(arg_st, 1.0f));
+        amplitude *= 0.5f;   //振幅を減らす。こうするとノイズが細かくなっていく。
+        arg_st *= 2.0f;      //周波数をあげていく。    
+    }
+
+    return result;
+}
+
+//ドメインワーピング
+float3 DomainWarping(float2 arg_st, float arg_time)
+{
+
+    float3 color = float3(1.0f, 1.0f, 1.0f);
+
+    //最初の引数
+    float2 q = float2(0.0f, 0.0f);
+    q.x = FBM(arg_st + float2(0.0f, 0.0f));
+    q.y = FBM(arg_st + float2(1.0f, 1.0f));
+
+    //最初の引数をさらに加工。
+    float2 r = float2(0.0f, 0.0f);
+    r.x = FBM(arg_st + (4.0f * q) + float2(1.7f, 9.2f) + (0.15f * arg_time));
+    r.y = FBM(arg_st + (4.0f * q) + float2(8.3f, 2.8f) + (0.12f * arg_time));
+    
+    //色を求める。
+    float3 mixColor1 = float3(0.8f, 0.35f, 0.12f);
+    float3 mixColor2 = float3(0.3f, 0.75f, 0.69f);
+    color = lerp(color, mixColor1, clamp(length(q), 0.0f, 1.0f));
+    color = lerp(color, mixColor2, clamp(length(r), 0.0f, 1.0f));
+
+    //三段階目のノイズを取得。
+    float f = FBM(arg_st + 4.0f * r);
+
+    //結果を組み合わせる。
+    float coef = (f * f * f + (0.6f * f * f) + (0.5f * f));
+    return color * coef * 0.9f;
     
 }

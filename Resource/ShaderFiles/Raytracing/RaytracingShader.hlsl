@@ -31,28 +31,35 @@ void mainRayGen()
     //現在のレイのインデックス。左上基準のスクリーン座標として使える。
     uint2 launchIndex = DispatchRaysIndex().xy;
     
-    //GBufferから値を抜き取る。
-    float4 albedoColor = albedoMap[launchIndex];
-    float4 normalColor = normalMap[launchIndex];
-    float4 materialInfo = materialMap[launchIndex];
-    float4 worldColor = worldMap[launchIndex];
+    ////GBufferから値を抜き取る。
+    //float4 albedoColor = albedoMap[launchIndex];
+    //float4 normalColor = normalMap[launchIndex];
+    //float4 materialInfo = materialMap[launchIndex];
+    //float4 worldColor = worldMap[launchIndex];
     
-    //ライティングパスを行う。
-    float bright = 0.0f;
-    LightingPass(bright, worldColor, normalColor, lightData, gRtScene);
+    ////ライティングパスを行う。
+    //float bright = 0.0f;
+    //LightingPass(bright, worldColor, normalColor, lightData, gRtScene);
     
-    //アルベドにライトの色をかける。
-    albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);
+    ////アルベドにライトの色をかける。
+    //albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);
     
-    //GodRayPass
-    GodRayPass(worldColor, albedoColor, cameraEyePos, lightData, gRtScene);
+    ////GodRayPass
+    //GodRayPass(worldColor, albedoColor, cameraEyePos, lightData, gRtScene);
     
-    //マテリアルのIDをもとに、反射屈折のレイを飛ばす。
-    float4 final = float4(0, 0, 0, 0);
-    SecondaryPass(worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
+    ////マテリアルのIDをもとに、反射屈折のレイを飛ばす。
+    //float4 final = float4(0, 0, 0, 0);
+    //SecondaryPass(worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
+    
+    ////合成の結果を入れる。
+    //finalColor[launchIndex.xy] = final;
+    
     
     //合成の結果を入れる。
-    finalColor[launchIndex.xy] = final;
+    float2 st = (float2) launchIndex;
+    st.x /= 1280.0f;
+    st.y /= 720.0f;
+    finalColor[launchIndex.xy] = float4(DomainWarping(st * 2.0f, cameraEyePos.m_timer), 1.0f);
 
 }
 
