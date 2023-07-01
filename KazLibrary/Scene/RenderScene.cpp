@@ -313,7 +313,7 @@ void RenderScene::Update()
 	m_blasVector.Update();
 
 	//ノイズ用のタイマーを加算。
-	GBufferMgr::Instance()->m_cameraEyePosData.m_noiseTimer += 0.1f;
+	GBufferMgr::Instance()->m_cameraEyePosData.m_noiseTimer += 0.02f;
 
 }
 

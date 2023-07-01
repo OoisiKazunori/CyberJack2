@@ -319,7 +319,7 @@ float FBM(float2 arg_st)
 
     for (int counter = 0; counter < 5; counter++)
     {
-        result += amplitude * noise(float3(arg_st, 1.0f));
+        result += amplitude * GradientNoise(float3(arg_st, 1.0f));
         amplitude *= 0.5f;   //振幅を減らす。こうするとノイズが細かくなっていく。
         arg_st *= 2.0f;      //周波数をあげていく。    
     }
@@ -354,6 +354,6 @@ float3 DomainWarping(float2 arg_st, float arg_time)
 
     //結果を組み合わせる。
     float coef = (f * f * f + (0.6f * f * f) + (0.5f * f));
-    return color * coef * 0.9f;
+    return color * coef;
     
 }
