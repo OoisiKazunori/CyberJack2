@@ -56,10 +56,13 @@ void mainRayGen()
     
     
     //合成の結果を入れる。
-    float2 st = (float2) launchIndex;
+    float3 st = float3(launchIndex, 0.5f);
     st.x /= 1280.0f;
     st.y /= 720.0f;
-    finalColor[launchIndex.xy] = float4(DomainWarping(st * 2.0f, cameraEyePos.m_timer), 1.0f);
+    float3 noiseColor = PerlinNoiseWithWind(st, 4, 0.5f, 2.0f, 0.1f, 7.0f, cameraEyePos.m_timer, cameraEyePos.m_eye, 0.0f);
+    float3 weights = float3(0.8f, 0.1f, 0.1f); // 各ノイズの重み
+    float fogDensity = dot(noiseColor, weights);
+    finalColor[launchIndex.xy] = float4(fogDensity, fogDensity, fogDensity, 1.0f);
 
 }
 

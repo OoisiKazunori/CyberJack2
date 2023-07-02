@@ -253,32 +253,10 @@ void SecondaryPass(float4 arg_worldColor, float4 arg_materialInfo, float4 arg_no
 }
 
 //乱数を取得。
-float Random2D(float2 arg_st)
-{
-    return frac(sin(dot(arg_st.xy, float2(12.9898f, 78.233f))) * 43758.5453123f);
-}
 float3 Random3D(float3 arg_st)
 {
     float3 seed = float3(dot(arg_st, float3(127.1f, 311.7f, 523.3f)), dot(arg_st, float3(269.5f, 183.3f, 497.5f)), dot(arg_st, float3(419.2f, 371.9f, 251.6f)));
     return -1.0f + 2.0f * frac(sin(seed) * 43758.5453123f);
-}
-
-//ノイズを計算。
-float Noise(float2 arg_st)
-{
-    //引数を整数値と小数値に分割。
-    float2 intValue = floor(arg_st);
-    float2 floatValue = frac(arg_st);
-
-    float a = Random3D(float3(intValue + float2(0.0f, 0.0f), 0.5f));
-    float b = Random3D(float3(intValue + float2(1.0f, 0.0f), 0.5f));
-    float c = Random3D(float3(intValue + float2(0.0f, 1.0f), 0.5f));
-    float d = Random3D(float3(intValue + float2(1.0f, 1.0f), 0.5f));
-
-    //-2.0f^3 + 3.0f^2
-    float2 u = floatValue * floatValue * (3.0f - 2.0f * floatValue);
-
-    return lerp(a, b, u.x) + (c - a) * u.y * (1.0f - u.x) + (d - b) * u.x * u.y;
 }
 
 //3Dグラディエントノイズ関数
@@ -310,6 +288,52 @@ float GradientNoise(float3 arg_st)
 
     return lerp(xy1, xy2, u.z);
 }
+
+//3Dパーリンノイズ関数（風の表現付き）
+float3 PerlinNoiseWithWind(float3 arg_st, int arg_octaves, float arg_persistence, float arg_lacunarity, float arg_windStrength, float arg_windSpeed, float arg_timer, float3 arg_worldPos, float arg_threshold)
+{
+    float amplitude = 1.0f;
+
+    //風の影響を計算
+    float3 windDirection = normalize(float3(1, 0, 0)); //風の方向を設定（この場合は (1, 0, 0) の方向）
+    float3 windEffect = windDirection * arg_windStrength * (arg_timer * arg_windSpeed);
+
+    //プレイヤーのワールド座標に基づくノイズ生成
+    //float3 worldSpaceCoords = arg_st + arg_worldPos / 100.0f;
+    float3 worldSpaceCoords = arg_st;
+
+    float3 noiseValue = float3(0, 0, 0);
+
+    for (int j = 0; j < 3; ++j)
+    {
+        float frequency = pow(2.0f, float(j));
+        float localAmplitude = amplitude;
+        float sum = 0.0f;
+        float maxValue = 0.0f;
+        
+        for (int i = 0; i < arg_octaves; ++i)
+        {
+            sum += localAmplitude * GradientNoise((worldSpaceCoords + windEffect) * frequency + (arg_timer + windEffect.x)); //スムーズな時間変数と風の影響をノイズ関数に適用
+            maxValue += localAmplitude;
+
+            localAmplitude *= arg_persistence;
+            frequency *= arg_lacunarity;
+        }
+
+        noiseValue[j] = (sum / maxValue + 1.0f) * 0.5f; //ノイズ値を0.0から1.0の範囲に再マッピング
+
+        if (noiseValue[j] <= arg_threshold)
+        {
+            noiseValue[j] = 0.0f;
+        }
+    }
+
+    return noiseValue;
+}
+
+
+
+
 
 //フラクタルノイズ
 float FBM(float2 arg_st)
@@ -353,7 +377,7 @@ float3 DomainWarping(float2 arg_st, float arg_time)
     float f = FBM(arg_st + 4.0f * r);
 
     //結果を組み合わせる。
-    float coef = (f * f * f + (0.6f * f * f) + (0.5f * f));
+    float coef = (f * f * f + (0.6f * f * f) + (0.5f * f)) * 10.0f;
     return color * coef;
     
 }
