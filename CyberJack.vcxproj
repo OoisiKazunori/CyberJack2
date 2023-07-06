@@ -526,6 +526,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Resource\ShaderFiles\Raytracing\RaytracingNoiseHeader.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="KazLib.rc" />
