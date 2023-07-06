@@ -5,84 +5,26 @@
 #include"../KazLibrary/Buffer/BufferDuplicateBlocking.h"
 #include <source_location>
 
-/// <summary>
-/// コンピュートシェーダーの実行
-/// </summary>
-class DispatchComputeShader
+struct DispatchData
+{
+	UINT x, y, z;
+};
+
+class ComputeShader
 {
 public:
-	struct DispatchData
-	{
-		UINT x, y, z;
-	};
+	//パイプライン、ルートシグネチャー生成
+	ComputeShader();
+	void Generate(const ShaderOptionData& arg_shader, std::vector<KazBufferHelper::BufferData> arg_extraBuffer);
+	void Compute(const DispatchData &arg_dispatch);
 
-	struct ComputeData
-	{
-		ComputeData(std::source_location location = std::source_location::current()) :drawCallData(location), isGenerateFlag(false)
-		{};
 
-		bool isGenerateFlag;
-		D3D12_COMPUTE_PIPELINE_STATE_DESC desc;
-		ShaderOptionData shaderData;
-		const DispatchData *dispatchData;
-		std::vector<KazBufferHelper::BufferData>bufferArray;
-
-		//デバック情報
-		std::source_location drawCallData;
-	};
-
-	void Stack(const ComputeData &STACK_DATA);
-
-	void Update();
-	void Compute();
-
+	std::vector<KazBufferHelper::BufferData>m_extraBufferArray;
 private:
-
-	struct ComputeBufferData
-	{
-		RESOURCE_HANDLE pipelineHandle, rootsignatureHandle, shaderHandle;
-		std::vector<KazBufferHelper::BufferData>bufferArray;
-		const DispatchData *dispatchData;
-
-		ComputeBufferData(const DispatchData *DISPATCH_DATA, std::vector<KazBufferHelper::BufferData>BUFFER_ARRAY,
-			RESOURCE_HANDLE PIPELINE_HANDLE, RESOURCE_HANDLE ROOTSIGNATURE_HANDLE, RESOURCE_HANDLE SHADER_HANDLE) :
-			pipelineHandle(PIPELINE_HANDLE), rootsignatureHandle(ROOTSIGNATURE_HANDLE), shaderHandle(SHADER_HANDLE),
-			bufferArray(BUFFER_ARRAY), dispatchData(DISPATCH_DATA)
-
-		{
-		};
-	};
-
-
-	PipelineDuplicateBlocking piplineBufferMgr;
-	ShaderDuplicateBlocking shaderBufferMgr;
-	RootSignatureDuplicateBlocking rootSignatureBufferMgr;
-
-
-	std::vector<ComputeData>computeArray;		//命令受け取り用
-	std::vector<ComputeBufferData>generateComputeArray;	//生成用
-
 	//描画に必要なバッファをコマンドリストに積む
-	void SetBufferOnCmdList(const  std::vector<KazBufferHelper::BufferData> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM);
-
-
-	//何処の描画関数から呼び出されたかエラー文を書く
-	void ErrorCheck(RESOURCE_HANDLE HANDLE, const std::source_location &DRAW_SOURCE_LOCATION)
-	{
-		if (HANDLE == -1)
-		{
-			FailCheck(ErrorMail(DRAW_SOURCE_LOCATION));
-			assert(0);
-		}
-	}
-
-	std::string ErrorMail(const std::source_location &DRAW_SOURCE_LOCATION)
-	{
-		std::string lFunctionString = DRAW_SOURCE_LOCATION.function_name();
-		std::string lFileNameString = DRAW_SOURCE_LOCATION.file_name();
-		std::string lColumn = std::to_string(DRAW_SOURCE_LOCATION.column());
-		std::string lLine = std::to_string(DRAW_SOURCE_LOCATION.line());
-
-		return lFileNameString + "ファイルの" + lFunctionString + "関数の" + lLine + "行目の" + lColumn + "文字目に書かれている描画クラスで生成された情報に問題があります";
-	}
+	void SetBufferOnCmdList(const  std::vector<KazBufferHelper::BufferData>& BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM);
+	PipelineDuplicateBlocking m_piplineBuffer;
+	ShaderDuplicateBlocking m_shaderBuffer;
+	RootSignatureDuplicateBlocking m_rootSignatureBuffer;
+	bool m_initFlag;
 };

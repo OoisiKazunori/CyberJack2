@@ -35,7 +35,6 @@ public:
 
 private:
 	DrawingByRasterize m_rasterizeRenderer;
-	DispatchComputeShader m_compute;
 
 	//std::array<std::unique_ptr<DrawFunc::KazRender>, 3> testRArray;
 	std::array<KazMath::Transform3D, 5> m_transformArray;
@@ -133,7 +132,7 @@ private:
 	std::array<std::array<std::array<KazMath::Transform3D, LGHIT_ARRAY_Z>, LGHIT_ARRAY_X>, LGHIT_ARRAY_Y> m_lightTransformArray;
 	KazBufferHelper::BufferData lightUploadBuffer;
 
-	DispatchComputeShader::DispatchData m_dispatchData;
+	ComputeShader m_dispatch;
 
 
 	DrawFuncData::DrawCallData m_alphaModel;
