@@ -189,7 +189,9 @@ RenderScene::RenderScene()
 			 m_volumeFogTextureBuffer,
 			 m_noiseParamData
 		};
+		extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 		extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
+		extraBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA;
 		m_volumeNoiseShader.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "Raytracing/" + "Write3DNoise.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
 	}
