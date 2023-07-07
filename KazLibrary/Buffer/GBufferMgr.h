@@ -68,9 +68,6 @@ public:
 
 	KazBufferHelper::BufferData m_lightBuffer;
 
-	//ボリュームフォグ用3Dテクスチャ
-	KazBufferHelper::BufferData m_volumeFogTextureBuffer;
-
 	struct CameraEyePosBufferData {
 		KazMath::Vec3<float> m_eyePos;
 		float m_noiseTimer;

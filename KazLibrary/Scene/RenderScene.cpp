@@ -172,6 +172,28 @@ RenderScene::RenderScene()
 
 	m_raytracingFlag = true;
 
+	//ボリュームテクスチャを生成。
+	m_volumeFogTextureBuffer = KazBufferHelper::SetUAV3DTexBuffer(256, 256, 256, DXGI_FORMAT_R8G8B8A8_UNORM);
+	m_volumeFogTextureBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
+	DescriptorHeapMgr::Instance()->CreateBufferView(
+		m_volumeFogTextureBuffer.bufferWrapper->GetViewHandle(),
+		KazBufferHelper::SetUnorderedAccess3DTextureView(sizeof(DirectX::XMFLOAT4), 256 * 256 * 256),
+		m_volumeFogTextureBuffer.bufferWrapper->GetBuffer().Get()
+	);
+	//ボリュームノイズパラメーター
+	m_noiseParamData = KazBufferHelper::SetConstBufferData(sizeof(NoiseParam));
+	//ボリュームノイズ書き込み
+	{
+		std::vector<KazBufferHelper::BufferData>extraBuffer =
+		{
+			 m_volumeFogTextureBuffer,
+			 m_noiseParamData
+		};
+		extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
+		extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		m_volumeNoiseShader.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "Raytracing/" + "Write3DNoise.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
+	}
+
 }
 
 RenderScene::~RenderScene()
@@ -261,6 +283,9 @@ void RenderScene::Update()
 
 	//ノイズ用のタイマーを加算。
 	GBufferMgr::Instance()->m_cameraEyePosData.m_noiseTimer += 0.02f;
+
+	//ボリュームノイズを書き込む。
+	m_volumeNoiseShader.Compute({ static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 4) });
 
 }
 

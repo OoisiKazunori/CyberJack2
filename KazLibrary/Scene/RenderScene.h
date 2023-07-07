@@ -134,6 +134,24 @@ private:
 
 	ComputeShader m_dispatch;
 
+	//ボリュームフォグ用3Dテクスチャ
+	KazBufferHelper::BufferData m_volumeFogTextureBuffer;
+	ComputeShader m_volumeNoiseShader;
+	struct NoiseParam
+	{
+		KazMath::Vec3<float> m_worldPos;
+		float m_timer;
+		float m_windSpeed;
+		float m_windStrength;
+		float m_threshold;
+		float m_scale;
+		int m_octaves;
+		float m_persistence;
+		float m_lacunarity;
+		float m_pad;
+	}m_noiseParam;
+	KazBufferHelper::BufferData m_noiseParamData;
+
 
 	DrawFuncData::DrawCallData m_alphaModel;
 	KazMath::Transform3D m_alphaModelTransform;
