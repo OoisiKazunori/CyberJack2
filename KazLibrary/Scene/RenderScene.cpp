@@ -159,68 +159,15 @@ RenderScene::RenderScene()
 	//clearGBuffer.SetBuffer(testRArray[0]->GetDrawData()->buffer[2], GRAPHICS_PRAMTYPE_DATA);
 
 
-	//ライティングパス
-	{
-		DispatchComputeShader::ComputeData computeData;
-		//設定
-		D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};
-		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-		desc.NodeMask = 0;
-		computeData.desc = desc;
-		//シェーダーのパス
-		computeData.shaderData = ShaderOptionData(KazFilePathName::ComputeShaderPath + "DefferdRenderLightingPass.hlsl", "CSLightingPass", "cs_6_4", SHADER_TYPE_COMPUTE);
-
-		//ディスパッチのアドレス
-		m_dispatchData.x = 1280;
-		m_dispatchData.y = 720;
-		m_dispatchData.z = 1;
-		computeData.dispatchData = &m_dispatchData;
-
-		m_gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		m_gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-		m_finalGBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-
-		//セットするバッファ
-		computeData.bufferArray =
-		{
-			m_finalGBuffer,
-			m_gBuffer[0],
-			m_gBuffer[1]
-		};
-
-		//積む
-		m_compute.Stack(computeData);
-	}
 
 	//クリア処理
 	{
-		DispatchComputeShader::ComputeData computeData;
-		//設定
-		D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};
-		desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-		desc.NodeMask = 0;
-		computeData.desc = desc;
-		//シェーダーのパス
-		computeData.shaderData = ShaderOptionData(KazFilePathName::ComputeShaderPath + "ClearGBuffer.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE);
-
-		//ディスパッチのアドレス
-		m_dispatchData.x = 1280;
-		m_dispatchData.y = 720;
-		m_dispatchData.z = 1;
-		computeData.dispatchData = &m_dispatchData;
-
-		m_gBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		m_gBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-
-		//セットするバッファ
-		computeData.bufferArray =
+		std::vector<KazBufferHelper::BufferData>extraBuffer =
 		{
-			m_gBuffer[0],
-			m_gBuffer[1]
+			 RenderTargetStatus::Instance()->GetBuffer(GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::ALBEDO])
 		};
-
-		//積む
-		m_compute.Stack(computeData);
+		extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		m_dispatch.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "TestCompute.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
 	}
 
 	m_raytracingFlag = true;
@@ -307,7 +254,7 @@ void RenderScene::Update()
 	}
 
 	//法線描画
-	//compute.Update();
+	m_dispatch.Compute({ 1,1,1 });
 
 	//Blasの配列をクリア
 	m_blasVector.Update();
@@ -377,7 +324,6 @@ void RenderScene::Draw()
 	m_rasterizeRenderer.ObjectRender(m_alphaModel);
 
 	m_rasterizeRenderer.Sort();
-	//compute.Compute();
 	m_rasterizeRenderer.Render();
 
 
