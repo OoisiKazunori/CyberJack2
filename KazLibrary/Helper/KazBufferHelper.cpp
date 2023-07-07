@@ -132,6 +132,32 @@ KazBufferHelper::BufferResourceData KazBufferHelper::SetUAVTexBuffer(int width, 
 	return data;
 }
 
+KazBufferHelper::BufferResourceData KazBufferHelper::SetUAVTexBuffer(int arg_width, int arg_height, int arg_depth, DXGI_FORMAT arg_format, const std::string& arg_bufferName)
+{
+	D3D12_RESOURCE_DESC desc =
+		CD3DX12_RESOURCE_DESC::Tex3D(
+			arg_format,
+			arg_width,
+			arg_height,
+			arg_depth,
+			(UINT16)1
+		);
+	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+	desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE3D;
+
+	KazBufferHelper::BufferResourceData data
+	(
+		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		desc,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		nullptr,
+		arg_bufferName
+	);
+
+	return data;
+}
+
 KazBufferHelper::BufferResourceData KazBufferHelper::SetOnlyReadStructuredBuffer(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME)
 {
 	D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer(BUFFER_SIZE, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);

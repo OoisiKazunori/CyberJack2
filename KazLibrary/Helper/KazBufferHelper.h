@@ -245,6 +245,7 @@ namespace KazBufferHelper
 	KazBufferHelper::BufferResourceData SetRWStructuredBuffer(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME = "RWStructureBuffer");
 
 	KazBufferHelper::BufferResourceData SetUAVTexBuffer(int width,int height, DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT, const std::string &BUFFER_NAME = "UAVTexture");
+	KazBufferHelper::BufferResourceData SetUAVTexBuffer(int arg_width, int arg_height, int arg_depth, DXGI_FORMAT arg_format = DXGI_FORMAT_R32G32B32A32_FLOAT, const std::string& arg_bufferName = "UAVVolumeTexture");
 
 	KazBufferHelper::BufferResourceData SetOnlyReadStructuredBuffer(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME = "OnlyReadStructureBuffer");
 
