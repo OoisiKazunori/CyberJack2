@@ -245,7 +245,7 @@ namespace KazBufferHelper
 	KazBufferHelper::BufferResourceData SetRWStructuredBuffer(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME = "RWStructureBuffer");
 
 	KazBufferHelper::BufferResourceData SetUAVTexBuffer(int width,int height, DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT, const std::string &BUFFER_NAME = "UAVTexture");
-	KazBufferHelper::BufferResourceData SetUAVTexBuffer(int arg_width, int arg_height, int arg_depth, DXGI_FORMAT arg_format = DXGI_FORMAT_R32G32B32A32_FLOAT, const std::string& arg_bufferName = "UAVVolumeTexture");
+	KazBufferHelper::BufferResourceData SetUAV3DTexBuffer(int arg_width, int arg_height, int arg_depth, DXGI_FORMAT arg_format = DXGI_FORMAT_R32G32B32A32_FLOAT, const std::string& arg_bufferName = "UAVVolumeTexture");
 
 	KazBufferHelper::BufferResourceData SetOnlyReadStructuredBuffer(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME = "OnlyReadStructureBuffer");
 
@@ -258,6 +258,7 @@ namespace KazBufferHelper
 
 	D3D12_UNORDERED_ACCESS_VIEW_DESC SetUnorderedAccessView(BUFFER_SIZE STRUCTURE_BYTE_SIZE, UINT NUM_ELEMENTS);
 	D3D12_UNORDERED_ACCESS_VIEW_DESC SetUnorderedAccessTextureView(BUFFER_SIZE STRUCTURE_BYTE_SIZE, UINT NUM_ELEMENTS);
+	D3D12_UNORDERED_ACCESS_VIEW_DESC SetUnorderedAccess3DTextureView(BUFFER_SIZE arg_structureByteSize, UINT arg_numElements);
 
 	KazBufferHelper::BufferResourceData SetGPUBufferData(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME = "GPUBuffer");
 	KazBufferHelper::BufferResourceData SetUploadBufferData(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME = "UploadBuffer");

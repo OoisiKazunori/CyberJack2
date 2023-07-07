@@ -60,11 +60,11 @@ GBufferMgr::GBufferMgr()
 	m_lightConstData.m_pointLight.m_power = 100.0f;
 
 	//ボリュームテクスチャを生成。
-	m_volumeFogTextureBuffer = KazBufferHelper::SetUAVTexBuffer(256, 256, 256, DXGI_FORMAT_R8G8B8A8_UNORM);
+	m_volumeFogTextureBuffer = KazBufferHelper::SetUAV3DTexBuffer(256, 256, 256, DXGI_FORMAT_R8G8B8A8_UNORM);
 	m_volumeFogTextureBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
 	DescriptorHeapMgr::Instance()->CreateBufferView(
 		m_volumeFogTextureBuffer.bufferWrapper->GetViewHandle(),
-		KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), winSize.x * winSize.y),
+		KazBufferHelper::SetUnorderedAccess3DTextureView(sizeof(DirectX::XMFLOAT4), 256 * 256 * 256),
 		m_volumeFogTextureBuffer.bufferWrapper->GetBuffer().Get()
 	);
 }

@@ -132,18 +132,19 @@ KazBufferHelper::BufferResourceData KazBufferHelper::SetUAVTexBuffer(int width, 
 	return data;
 }
 
-KazBufferHelper::BufferResourceData KazBufferHelper::SetUAVTexBuffer(int arg_width, int arg_height, int arg_depth, DXGI_FORMAT arg_format, const std::string& arg_bufferName)
+KazBufferHelper::BufferResourceData KazBufferHelper::SetUAV3DTexBuffer(int arg_width, int arg_height, int arg_depth, DXGI_FORMAT arg_format, const std::string& arg_bufferName)
 {
-	D3D12_RESOURCE_DESC desc =
-		CD3DX12_RESOURCE_DESC::Tex3D(
-			arg_format,
-			arg_width,
-			arg_height,
-			arg_depth,
-			(UINT16)1
-		);
-	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+	D3D12_RESOURCE_DESC desc{};
 	desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE3D;
+	desc.Alignment = 0;
+	desc.Width = arg_width;
+	desc.Height = arg_height;
+	desc.DepthOrArraySize = arg_depth;
+	desc.MipLevels = 1;
+	desc.Format = arg_format;
+	desc.SampleDesc = { 1, 0 };
+	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
 	KazBufferHelper::BufferResourceData data
 	(
@@ -232,6 +233,17 @@ D3D12_UNORDERED_ACCESS_VIEW_DESC KazBufferHelper::SetUnorderedAccessTextureView(
 	uavDesc.Buffer.StructureByteStride = STRUCTURE_BYTE_SIZE;
 	uavDesc.Buffer.CounterOffsetInBytes = 0;
 	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+	return uavDesc;
+}
+
+D3D12_UNORDERED_ACCESS_VIEW_DESC KazBufferHelper::SetUnorderedAccess3DTextureView(BUFFER_SIZE arg_structureByteSize, UINT arg_numElements)
+{
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+	uavDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE3D;
+	uavDesc.Texture3D.MipSlice = 0;
+	uavDesc.Texture3D.FirstWSlice = 0;
+	uavDesc.Texture3D.WSize = -1;
 	return uavDesc;
 }
 
