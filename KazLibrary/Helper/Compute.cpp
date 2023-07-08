@@ -3,7 +3,7 @@
 #include"../DirectXCommon/DirectX12CmdList.h"
 #include"../KazLibrary/Buffer/DescriptorHeapMgr.h"
 
-ComputeShader::ComputeShader():m_initFlag(false)
+ComputeShader::ComputeShader() :m_initFlag(false)
 {
 }
 
@@ -27,6 +27,9 @@ void ComputeShader::Generate(const ShaderOptionData& arg_shader, std::vector<Kaz
 		assert(0);
 	}
 	m_initFlag = true;
+
+
+	m_extraBufferArray = arg_extraBuffer;
 }
 
 void ComputeShader::Compute(const DispatchData& arg_dispatch)
