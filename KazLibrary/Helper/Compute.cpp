@@ -27,6 +27,9 @@ void ComputeShader::Generate(const ShaderOptionData& arg_shader, std::vector<Kaz
 		assert(0);
 	}
 	m_initFlag = true;
+
+
+	arg_extraBuffer = m_extraBufferArray;
 }
 
 void ComputeShader::Compute(const DispatchData& arg_dispatch)
