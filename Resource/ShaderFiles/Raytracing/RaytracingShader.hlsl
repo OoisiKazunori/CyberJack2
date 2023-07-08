@@ -56,12 +56,14 @@ void mainRayGen()
     //合成の結果を入れる。
     finalColor[launchIndex.xy] = final;
     
-    //float4 final;
-    //final.w = 1.0f;
+    final.w = 1.0f;
     
-    //final.xyz = volumeNoiseTexture[uint3(launchIndex, 0.0f)].xyz;
+    final.xyz = volumeNoiseTexture[uint3(launchIndex, 0.0f)].xyz;
     
-    //finalColor[launchIndex.xy] = final;
+    if (0 < length(final.xyz))
+    {
+        finalColor[launchIndex.xy] = final;
+    }
 
 }
 

@@ -203,7 +203,6 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
     float3 samplingDir = normalize(arg_worldColor.xyz - arg_cameraEyePos.m_eye);
     float samplingLength = length(arg_cameraEyePos.m_eye - arg_worldColor.xyz) / (float) SAMPLING_COUNT;
     float raymarchingBright = 0.0f;
-    float3 fogColor = float3(0.0f, 0.0f, 0.0f);
     bool isFinshVolumeFog = false;
     for (int counter = 0; counter < SAMPLING_COUNT; ++counter)
     {
@@ -239,18 +238,59 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
             
         }
         
-        //フォグを求める。
-        
-        //レイマーチングの座標をボクセル座標空間に直す。
-        float3 volumeTexPos = arg_raymarchingParam.m_pos;
-        volumeTexPos -= arg_raymarchingParam.m_gridSize * ((256.0f / 2.0f) * arg_raymarchingParam.m_wrapCount);
-        int3 boxPos = (arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter) - volumeTexPos; //マーチングのサンプリング地点をボリュームテクスチャの中心基準の座標にずらす。
-        boxPos /= arg_raymarchingParam.m_gridSize;
-        
-        //マーチング座標がボクセルの位置より離れていたらサンプリングしない。
-        if (!(!IsInRange(boxPos, 256.0f, arg_raymarchingParam.m_wrapCount)))
+    }
+    
+    //ボリュームフォグ
+    float3 fogColor = float3(0,0,0);
+    {
+        //レイマーチングの回数を計算。
+        float rayLength = length(arg_cameraEyePos.m_eye - arg_worldColor.xyz);
+        float marchingMovedLength = 0; //レイマーチングで動いた距離
+        float3 marchingPos = arg_cameraEyePos.m_eye;
+        float3 marchingDir = normalize(arg_worldColor.xyz - arg_cameraEyePos.m_eye);
+        for (int index = 0; index < 10000; ++index)
         {
         
+            //マーチングを進める量。
+            float marchingMoveLength = arg_raymarchingParam.m_sampleLength;
+        
+            //マーチングが上限より移動していたら。
+            bool isFinish = false;
+            if (rayLength < marchingMovedLength + marchingMoveLength)
+            {
+            
+                //残りの量を移動させる。
+                marchingMoveLength = rayLength - marchingMovedLength;
+                isFinish = true;
+
+            }
+            else
+            {
+            
+                //動いた量を保存。
+                marchingMovedLength += marchingMoveLength;
+            
+            }
+        
+            //マーチングを進める。
+            marchingPos += marchingDir * marchingMoveLength;
+        
+            //レイマーチングの座標をボクセル座標空間に直す。
+            float3 volumeTexPos = arg_raymarchingParam.m_pos;
+            volumeTexPos -= arg_raymarchingParam.m_gridSize * ((256.0f / 2.0f) * arg_raymarchingParam.m_wrapCount);
+            int3 boxPos = marchingPos - volumeTexPos; //マーチングのサンプリング地点をボリュームテクスチャの中心基準の座標にずらす。
+            boxPos /= arg_raymarchingParam.m_gridSize;
+        
+            //マーチング座標がボクセルの位置より離れていたらサンプリングしない。
+            if (!IsInRange(boxPos, 256.0f, arg_raymarchingParam.m_wrapCount))
+            {
+        
+                if (isFinish)
+                {
+                    break;
+                }
+                continue;
+            }
         
             boxPos.x = boxPos.x % 256;
             boxPos.y = boxPos.y % 256;
@@ -258,9 +298,9 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
             boxPos = clamp(boxPos, 0, 255);
         
             //ノイズを抜き取る。
-            float3 noise = arg_volumeTexture[boxPos].xyz / 10.0f;
+            float3 noise = arg_volumeTexture[boxPos].xyz / 100.0f;
         
-            float3 weights = float3(0.8f, 0.1f, 0.1f); //各ノイズの重み
+            float3 weights = float3(0.8f, 0.1f, 0.1f); // 各ノイズの重み
             float fogDensity = dot(noise, weights) * arg_raymarchingParam.m_density;
         
             //Y軸の高さで減衰させる。
@@ -268,13 +308,17 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
             //fogDensity *= 1.0f - saturate(marchingPos.y / maxY);
         
             //その部分の色を抜き取る。
-            //fogColor += float3(fogDensity, fogDensity, fogDensity) * arg_raymarchingParam.m_color;
+            //fogColor += float3(fogDensity, fogDensity, fogDensity) * gSceneParam.raymarchingData_.color_;
             fogColor = arg_raymarchingParam.m_color * fogDensity + fogColor * (1.0f - fogDensity);
-            
-        }
-
         
+            if (isFinish)
+            {
+                break;
+            }
+        
+        }
     }
+    
     const float3 FOGCOLOR_LIT = float3(1.0f, 1.0f, 1.0f);
     const float3 FOGCOLOR_UNLIT = float3(0.0f, 0.0f, 0.0f);
     

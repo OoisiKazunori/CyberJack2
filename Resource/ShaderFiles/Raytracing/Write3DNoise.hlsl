@@ -64,7 +64,8 @@ float3 PerlinNoiseWithWind(float3 arg_st, int arg_octaves, float arg_persistence
     float3 windEffect = windDirection * arg_windStrength * (arg_time * arg_windSpeed);
 
     //プレイヤーのワールド座標に基づくノイズ生成
-    float3 worldSpaceCoords = arg_st + arg_worldPos / 100.0f;
+    //float3 worldSpaceCoords = arg_st + arg_worldPos / 100.0f;
+    float3 worldSpaceCoords = arg_st;
 
     float3 noiseValue = float3(0, 0, 0);
 
