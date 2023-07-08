@@ -258,9 +258,9 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
             boxPos = clamp(boxPos, 0, 255);
         
             //ノイズを抜き取る。
-            float3 noise = arg_volumeTexture[boxPos].xyz / 100.0f;
+            float3 noise = arg_volumeTexture[boxPos].xyz / 10.0f;
         
-            float3 weights = float3(0.8f, 0.1f, 0.1f); // 各ノイズの重み
+            float3 weights = float3(0.8f, 0.1f, 0.1f); //各ノイズの重み
             float fogDensity = dot(noise, weights) * arg_raymarchingParam.m_density;
         
             //Y軸の高さで減衰させる。
@@ -268,7 +268,7 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
             //fogDensity *= 1.0f - saturate(marchingPos.y / maxY);
         
             //その部分の色を抜き取る。
-            //fogColor += float3(fogDensity, fogDensity, fogDensity) * arg_raymarchingParam.color_;
+            //fogColor += float3(fogDensity, fogDensity, fogDensity) * arg_raymarchingParam.m_color;
             fogColor = arg_raymarchingParam.m_color * fogDensity + fogColor * (1.0f - fogDensity);
             
         }

@@ -26,7 +26,7 @@ float3 Random3D(float3 arg_st)
 }
 
 //3Dグラディエントノイズ関数
-float noise(float3 arg_st)
+float Noise(float3 arg_st)
 {
     float3 i = floor(arg_st);
     float3 f = frac(arg_st);
@@ -77,7 +77,7 @@ float3 PerlinNoiseWithWind(float3 arg_st, int arg_octaves, float arg_persistence
         
         for (int i = 0; i < arg_octaves; ++i)
         {
-            sum += localAmplitude * noise((worldSpaceCoords + windEffect) * frequency + (arg_time + windEffect.x)); //スムーズな時間変数と風の影響をノイズ関数に適用
+            sum += localAmplitude * Noise((worldSpaceCoords + windEffect) * frequency + (arg_time + windEffect.x)); //スムーズな時間変数と風の影響をノイズ関数に適用
             maxValue += localAmplitude;
 
             localAmplitude *= arg_persistence;

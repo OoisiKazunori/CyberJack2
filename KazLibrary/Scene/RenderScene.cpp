@@ -183,6 +183,16 @@ RenderScene::RenderScene()
 	);
 	//ボリュームノイズパラメーター
 	m_noiseParamData = KazBufferHelper::SetConstBufferData(sizeof(NoiseParam));
+	//ボリュームノイズのパラメーターを設定
+	m_noiseParam.m_timer = 0.0f;
+	m_noiseParam.m_windSpeed = 7.00f;
+	m_noiseParam.m_windStrength = 0.1f;
+	m_noiseParam.m_threshold = 0.5f;
+	m_noiseParam.m_scale = 650.0f;
+	m_noiseParam.m_octaves = 4;
+	m_noiseParam.m_persistence = 0.5f;
+	m_noiseParam.m_lacunarity = 2.0f;
+	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
 	//ボリュームノイズ書き込み
 	{
 		std::vector<KazBufferHelper::BufferData>extraBuffer =
@@ -199,8 +209,19 @@ RenderScene::RenderScene()
 		m_rayPipeline->SetVolumeFogTexture(&m_volumeFogTextureBuffer);
 	}
 
-	//レイマーチングのパラメーター用定数バッファをセット。
+	//レイマーチングのパラメーターを設定。
+	m_raymarchingParam.m_pos = KazMath::Vec3<float>();
+	m_raymarchingParam.m_color = KazMath::Vec3<float>(1.0f, 1.0f, 1.0f);
+	m_raymarchingParam.m_wrapCount = 20.0f;
+	m_raymarchingParam.m_gridSize = 15.0f;
+	m_raymarchingParam.m_wrapCount = 30.0f;
+	//m_raymarchingParam.m_density = 0.65f;
+	m_raymarchingParam.m_density = 1.0f;
+	m_raymarchingParam.m_isSimpleFog = 0;
 	m_raymarchingParamData = KazBufferHelper::SetConstBufferData(sizeof(RaymarchingParam));
+	m_raymarchingParamData.bufferWrapper->TransData(&m_raymarchingParam, sizeof(RaymarchingParam));
+
+	//レイマーチングのパラメーター用定数バッファをセット。
 	m_rayPipeline->SetRaymarchingConstData(&m_raymarchingParamData);
 
 }
@@ -294,7 +315,10 @@ void RenderScene::Update()
 	GBufferMgr::Instance()->m_cameraEyePosData.m_noiseTimer += 0.02f;
 
 	//ボリュームノイズを書き込む。
+	m_noiseParam.m_timer += 0.001f;
+	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
 	m_volumeNoiseShader.Compute({ static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 4) });
+
 
 }
 
