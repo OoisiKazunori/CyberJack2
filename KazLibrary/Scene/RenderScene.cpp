@@ -12,7 +12,7 @@ RenderScene::RenderScene()
 	Raytracing::HitGroupMgr::Instance()->Setting();
 	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS"}, {L"mainCHS", L"mainAnyHit"} });
 	int payloadSize = sizeof(float) * 4;
-	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 5, 2, 1, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
+	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 5, 3, 2, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
 	//G-Buffer生成
 	GBufferMgr::Instance();
@@ -172,6 +172,7 @@ RenderScene::RenderScene()
 
 	m_raytracingFlag = true;
 
+
 	//ボリュームテクスチャを生成。
 	m_volumeFogTextureBuffer = KazBufferHelper::SetUAV3DTexBuffer(256, 256, 256, DXGI_FORMAT_R8G8B8A8_UNORM);
 	m_volumeFogTextureBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
@@ -194,7 +195,13 @@ RenderScene::RenderScene()
 		extraBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA;
 		m_volumeNoiseShader.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "Raytracing/" + "Write3DNoise.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
+
+		m_rayPipeline->SetVolumeFogTexture(&m_volumeFogTextureBuffer);
 	}
+
+	//レイマーチングのパラメーター用定数バッファをセット。
+	m_raymarchingParamData = KazBufferHelper::SetConstBufferData(sizeof(RaymarchingParam));
+	m_rayPipeline->SetRaymarchingConstData(&m_raymarchingParamData);
 
 }
 

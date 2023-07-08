@@ -134,6 +134,11 @@ private:
 
 	ComputeShader m_dispatch;
 
+
+	DrawFuncData::DrawCallData m_alphaModel;
+	KazMath::Transform3D m_alphaModelTransform;
+
+
 	//ボリュームフォグ用3Dテクスチャ
 	KazBufferHelper::BufferData m_volumeFogTextureBuffer;
 	ComputeShader m_volumeNoiseShader;
@@ -152,11 +157,19 @@ private:
 	}m_noiseParam;
 	KazBufferHelper::BufferData m_noiseParamData;
 
-
-	DrawFuncData::DrawCallData m_alphaModel;
-	KazMath::Transform3D m_alphaModelTransform;
-
-
+	//ボリュームフォグ用定数バッファ
+	struct RaymarchingParam
+	{
+		KazMath::Vec3<float> m_pos; //ボリュームテクスチャのサイズ
+		float m_gridSize; //サンプリングするグリッドのサイズ
+		KazMath::Vec3<float> m_color; //フォグの色
+		float m_wrapCount; //サンプリング座標がはみ出した際に何回までWrapするか
+		float m_sampleLength; //サンプリング距離
+		float m_density; //濃度係数
+		int m_isSimpleFog;
+		float m_pad;
+	}m_raymarchingParam;
+	KazBufferHelper::BufferData m_raymarchingParamData;
 
 	//レイトレにモデルを組み込む用の配列クラス
 	Raytracing::BlasVector m_blasVector;

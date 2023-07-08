@@ -10,6 +10,7 @@
 #include "Tlas.h"
 #include "HitGroupMgr.h"
 #include "DirectXCommon/DirectX12.h"
+#include "Helper/KazBufferHelper.h"
 
 namespace Raytracing {
 
@@ -68,6 +69,9 @@ namespace Raytracing {
 
 		static DirectX12* m_refDirectX12;
 
+		const KazBufferHelper::BufferData* m_refVolumeNoiseTexture;
+		const KazBufferHelper::BufferData* m_refRaymarchingConstData;
+
 
 	public:
 
@@ -119,6 +123,8 @@ namespace Raytracing {
 		std::shared_ptr<RayRootsignature> GetGlobalRootSig() { return m_globalRootSig; }
 
 		static void SetDirectX12(DirectX12* arg_refDirectX12) { m_refDirectX12 = arg_refDirectX12; }
+		void SetVolumeFogTexture(KazBufferHelper::BufferData* arg_volumeFogTexture) { m_refVolumeNoiseTexture = arg_volumeFogTexture; }
+		void SetRaymarchingConstData(KazBufferHelper::BufferData* arg_raymarchingParamConstData) { m_refRaymarchingConstData = arg_raymarchingParamConstData; }
 
 	private:
 

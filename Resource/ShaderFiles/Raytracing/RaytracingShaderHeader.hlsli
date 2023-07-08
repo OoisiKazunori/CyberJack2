@@ -21,7 +21,7 @@ struct Vertex
 struct Payload
 {
     float3 m_color; //色情報
-    uint m_rayID;   //レイのID
+    uint m_rayID; //レイのID
 };
 
 struct MyAttribute
@@ -53,6 +53,19 @@ struct CameraEyePosConstData
 {
     float3 m_eye;
     float m_timer;
+};
+
+//ボリュームフォグ用定数バッファ
+struct RaymarchingParam
+{
+    float3 m_pos; //ボリュームテクスチャのサイズ
+    float m_gridSize; //サンプリングするグリッドのサイズ
+    float3 m_color; //フォグの色
+    float m_wrapCount; //サンプリング座標がはみ出した際に何回までWrapするか
+    float m_sampleLength; //サンプリング距離
+    float m_density; //濃度係数
+    int m_isSimpleFog;
+    float m_pad;
 };
 
 //barysを計算
@@ -173,8 +186,16 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
 
 }
 
+//全部の要素が既定の値以内に収まっているか。
+bool IsInRange(float3 arg_value, float arg_range, float arg_wrapCount)
+{
+    
+    bool isInRange = arg_value.x / arg_range <= arg_wrapCount && arg_value.y / arg_range <= arg_wrapCount && arg_value.z / arg_range <= arg_wrapCount;
+    isInRange &= 0 < arg_value.x && 0 < arg_value.y && 0 < arg_value.z;
+    return isInRange;
+}
 
-void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_launchIndex, CameraEyePosConstData arg_cameraEyePos, LightData arg_lightData, RaytracingAccelerationStructure arg_scene)
+void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_launchIndex, CameraEyePosConstData arg_cameraEyePos, LightData arg_lightData, RaytracingAccelerationStructure arg_scene, RWTexture3D<float4> arg_volumeTexture, RaymarchingParam arg_raymarchingParam)
 {
     
     //カメラからサンプリング地点までをレイマーチングで動かす定数で割り、サンプリング回数を求める。
@@ -182,7 +203,8 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
     float3 samplingDir = normalize(arg_worldColor.xyz - arg_cameraEyePos.m_eye);
     float samplingLength = length(arg_cameraEyePos.m_eye - arg_worldColor.xyz) / (float) SAMPLING_COUNT;
     float raymarchingBright = 0.0f;
-    float fogValue = 0.0f;
+    float3 fogColor = float3(0.0f, 0.0f, 0.0f);
+    bool isFinshVolumeFog = false;
     for (int counter = 0; counter < SAMPLING_COUNT; ++counter)
     {
                 
@@ -218,23 +240,49 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
         }
         
         //フォグを求める。
-        float3 worldPos = arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter;
-        float3 st = float3(arg_launchIndex, (float)((int) worldPos.z % 256) / 256.0f);
-        st.x /= 1280.0f;
-        st.y /= 720.0f;
-        float3 noiseColor = PerlinNoiseWithWind(st * 10.0f, 7, 0.73f, 2.3f, 0.1f, 7.0f, arg_cameraEyePos.m_timer, arg_cameraEyePos.m_eye, 0.0f);
-        float3 weights = float3(0.8f, 0.1f, 0.1f); // 各ノイズの重み
-        fogValue = lerp(fogValue, dot(noiseColor, weights), progress);
+        
+        //レイマーチングの座標をボクセル座標空間に直す。
+        float3 volumeTexPos = arg_raymarchingParam.m_pos;
+        volumeTexPos -= arg_raymarchingParam.m_gridSize * ((256.0f / 2.0f) * arg_raymarchingParam.m_wrapCount);
+        int3 boxPos = (arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter) - volumeTexPos; //マーチングのサンプリング地点をボリュームテクスチャの中心基準の座標にずらす。
+        boxPos /= arg_raymarchingParam.m_gridSize;
+        
+        //マーチング座標がボクセルの位置より離れていたらサンプリングしない。
+        if (!(!IsInRange(boxPos, 256.0f, arg_raymarchingParam.m_wrapCount)))
+        {
+        
+        
+            boxPos.x = boxPos.x % 256;
+            boxPos.y = boxPos.y % 256;
+            boxPos.z = boxPos.z % 256;
+            boxPos = clamp(boxPos, 0, 255);
+        
+            //ノイズを抜き取る。
+            float3 noise = arg_volumeTexture[boxPos].xyz / 100.0f;
+        
+            float3 weights = float3(0.8f, 0.1f, 0.1f); // 各ノイズの重み
+            float fogDensity = dot(noise, weights) * arg_raymarchingParam.m_density;
+        
+            //Y軸の高さで減衰させる。
+            float maxY = 200.0f;
+            //fogDensity *= 1.0f - saturate(marchingPos.y / maxY);
+        
+            //その部分の色を抜き取る。
+            //fogColor += float3(fogDensity, fogDensity, fogDensity) * arg_raymarchingParam.color_;
+            fogColor = arg_raymarchingParam.m_color * fogDensity + fogColor * (1.0f - fogDensity);
+            
+        }
+
         
     }
     const float3 FOGCOLOR_LIT = float3(1.0f, 1.0f, 1.0f);
     const float3 FOGCOLOR_UNLIT = float3(0.0f, 0.0f, 0.0f);
     
-    float3 fogColor = lerp(FOGCOLOR_UNLIT, FOGCOLOR_LIT, raymarchingBright);
+    float3 godRayColor = lerp(FOGCOLOR_UNLIT, FOGCOLOR_LIT, raymarchingBright);
     const float FOG_DENSITY = 0.0001f;
     float absorb = exp(-length(arg_cameraEyePos.m_eye - arg_worldColor.xyz) * FOG_DENSITY);
-    arg_albedoColor.xyz = lerp(fogColor, arg_albedoColor.xyz, absorb);
-    arg_albedoColor.xyz += float3(fogValue, fogValue, fogValue);
+    arg_albedoColor.xyz = lerp(godRayColor, arg_albedoColor.xyz, absorb);
+    arg_albedoColor.xyz += fogColor;
     
 }
 

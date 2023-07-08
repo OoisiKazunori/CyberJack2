@@ -13,6 +13,7 @@ RaytracingAccelerationStructure gRtScene : register(t0);
 //カメラ座標用定数バッファ
 ConstantBuffer<CameraEyePosConstData> cameraEyePos : register(b0);
 ConstantBuffer<LightData> lightData : register(b1);
+ConstantBuffer<RaymarchingParam> volumeFogData : register(b2);
 
 //GBuffer
 Texture2D<float4> albedoMap : register(t1);
@@ -22,6 +23,7 @@ Texture2D<float4> worldMap : register(t4);
 
 //出力先UAV
 RWTexture2D<float4> finalColor : register(u0);
+RWTexture3D<float4> volumeNoiseTexture : register(u1);
 
 //RayGenerationシェーダー
 [shader("raygeneration")]
@@ -31,27 +33,34 @@ void mainRayGen()
     //現在のレイのインデックス。左上基準のスクリーン座標として使える。
     uint2 launchIndex = DispatchRaysIndex().xy;
     
-    //GBufferから値を抜き取る。
-    float4 albedoColor = albedoMap[launchIndex];
-    float4 normalColor = normalMap[launchIndex];
-    float4 materialInfo = materialMap[launchIndex];
-    float4 worldColor = worldMap[launchIndex];
+    ////GBufferから値を抜き取る。
+    //float4 albedoColor = albedoMap[launchIndex];
+    //float4 normalColor = normalMap[launchIndex];
+    //float4 materialInfo = materialMap[launchIndex];
+    //float4 worldColor = worldMap[launchIndex];
     
-    //ライティングパスを行う。
-    float bright = 0.0f;
-    LightingPass(bright, worldColor, normalColor, lightData, gRtScene);
+    ////ライティングパスを行う。
+    //float bright = 0.0f;
+    //LightingPass(bright, worldColor, normalColor, lightData, gRtScene);
     
-    //アルベドにライトの色をかける。
-    albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);
+    ////アルベドにライトの色をかける。
+    //albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);
     
-    //GodRayPass
-    GodRayPass(worldColor, albedoColor, launchIndex, cameraEyePos, lightData, gRtScene);
+    ////GodRayPass
+    //GodRayPass(worldColor, albedoColor, launchIndex, cameraEyePos, lightData, gRtScene, volumeNoiseTexture, volumeFogData);
     
-    //マテリアルのIDをもとに、反射屈折のレイを飛ばす。
-    float4 final = float4(0, 0, 0, 0);
-    SecondaryPass(worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
+    ////マテリアルのIDをもとに、反射屈折のレイを飛ばす。
+    //float4 final = float4(0, 0, 0, 0);
+    //SecondaryPass(worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
     
-    //合成の結果を入れる。
+    ////合成の結果を入れる。
+    //finalColor[launchIndex.xy] = final;
+    
+    float4 final;
+    final.w = 1.0f;
+    
+    final.xyz = volumeNoiseTexture[uint3(launchIndex, 0.0f)].xyz;
+    
     finalColor[launchIndex.xy] = final;
 
 }
