@@ -277,20 +277,20 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
         
             //レイマーチングの座標をボクセル座標空間に直す。
             float3 volumeTexPos = arg_raymarchingParam.m_pos;
-            volumeTexPos -= arg_raymarchingParam.m_gridSize * ((256.0f / 2.0f) * 1);
+            volumeTexPos -= arg_raymarchingParam.m_gridSize * ((256.0f / 2.0f) * arg_raymarchingParam.m_wrapCount);
             int3 boxPos = marchingPos - volumeTexPos; //マーチングのサンプリング地点をボリュームテクスチャの中心基準の座標にずらす。
             boxPos /= arg_raymarchingParam.m_gridSize;
         
             //マーチング座標がボクセルの位置より離れていたらサンプリングしない。
-            //if (!IsInRange(boxPos, 256.0f, arg_raymarchingParam.m_wrapCount))
-            //{
+            if (!IsInRange(boxPos, 256.0f, arg_raymarchingParam.m_wrapCount))
+            {
         
-            //    if (isFinish)
-            //    {
-            //        break;
-            //    }
-            //    continue;
-            //}
+                if (isFinish)
+                {
+                    break;
+                }
+                continue;
+            }
         
             boxPos.x = boxPos.x % 256;
             boxPos.y = boxPos.y % 256;
@@ -326,7 +326,7 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
     const float FOG_DENSITY = 0.0001f;
     float absorb = exp(-length(arg_cameraEyePos.m_eye - arg_worldColor.xyz) * FOG_DENSITY);
     arg_albedoColor.xyz = lerp(godRayColor, arg_albedoColor.xyz, absorb);
-    arg_albedoColor.xyz += fogColor;
+    arg_albedoColor.xyz += float3(clamp(fogColor.x, 0.0f, arg_raymarchingParam.m_color.x), clamp(fogColor.y, 0.0f, arg_raymarchingParam.m_color.y), clamp(fogColor.z, 0.0f, arg_raymarchingParam.m_color.z));
     
 }
 

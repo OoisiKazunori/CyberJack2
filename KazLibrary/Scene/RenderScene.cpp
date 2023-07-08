@@ -185,13 +185,13 @@ RenderScene::RenderScene()
 	m_noiseParamData = KazBufferHelper::SetConstBufferData(sizeof(NoiseParam));
 	//ボリュームノイズのパラメーターを設定
 	m_noiseParam.m_timer = 0.0f;
-	m_noiseParam.m_windSpeed = 7.00f;
-	m_noiseParam.m_windStrength = 0.1f;
-	m_noiseParam.m_threshold = 0.5f;
-	m_noiseParam.m_scale = 650.0f;
+	m_noiseParam.m_windSpeed = 10.00f;
+	m_noiseParam.m_windStrength = 1.0f;
+	m_noiseParam.m_threshold = 0.42f;
+	m_noiseParam.m_scale = 356.0f;
 	m_noiseParam.m_octaves = 4;
 	m_noiseParam.m_persistence = 0.5f;
-	m_noiseParam.m_lacunarity = 2.0f;
+	m_noiseParam.m_lacunarity = 2.5f;
 	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
 	//ボリュームノイズ書き込み
 	{
@@ -213,11 +213,11 @@ RenderScene::RenderScene()
 	m_raymarchingParam.m_pos = KazMath::Vec3<float>();
 	m_raymarchingParam.m_color = KazMath::Vec3<float>(1.0f, 1.0f, 1.0f);
 	m_raymarchingParam.m_wrapCount = 20.0f;
-	m_raymarchingParam.m_gridSize = 15.0f;
+	m_raymarchingParam.m_gridSize = 4.0f;
 	m_raymarchingParam.m_wrapCount = 30.0f;
 	m_raymarchingParam.m_density = 0.65f;
-	m_raymarchingParam.m_sampleLength = 30.0f;
 	//m_raymarchingParam.m_density = 1.0f;
+	m_raymarchingParam.m_sampleLength = 30.0f;
 	m_raymarchingParam.m_isSimpleFog = 0;
 	m_raymarchingParamData = KazBufferHelper::SetConstBufferData(sizeof(RaymarchingParam));
 	m_raymarchingParamData.bufferWrapper->TransData(&m_raymarchingParam, sizeof(RaymarchingParam));
@@ -473,6 +473,7 @@ void RenderScene::Draw()
 	ImGui::End();
 
 	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
+	m_raymarchingParamData.bufferWrapper->TransData(&m_raymarchingParam, sizeof(RaymarchingParam));
 
 	//データを転送。一旦ここで。
 	GBufferMgr::Instance()->m_lightBuffer.bufferWrapper->TransData(&GBufferMgr::Instance()->m_lightConstData, sizeof(GBufferMgr::LightConstData));

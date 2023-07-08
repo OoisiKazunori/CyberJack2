@@ -69,8 +69,8 @@ namespace Raytracing {
 
 		static DirectX12* m_refDirectX12;
 
-		const KazBufferHelper::BufferData* m_refVolumeNoiseTexture;
-		const KazBufferHelper::BufferData* m_refRaymarchingConstData;
+		KazBufferHelper::BufferData* m_refVolumeNoiseTexture;
+		KazBufferHelper::BufferData* m_refRaymarchingConstData;
 
 
 	public:
