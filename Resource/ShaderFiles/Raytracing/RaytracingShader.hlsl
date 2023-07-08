@@ -72,7 +72,7 @@ void mainRayGen()
 void mainMS(inout Payload PayloadData)
 {
     
-    PayloadData.m_color = float3(0, 0, 0);
+    PayloadData.m_color = float3(1, 1, 1);
 
 }
 

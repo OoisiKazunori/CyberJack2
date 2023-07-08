@@ -277,20 +277,20 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
         
             //レイマーチングの座標をボクセル座標空間に直す。
             float3 volumeTexPos = arg_raymarchingParam.m_pos;
-            volumeTexPos -= arg_raymarchingParam.m_gridSize * ((256.0f / 2.0f) * arg_raymarchingParam.m_wrapCount);
+            volumeTexPos -= arg_raymarchingParam.m_gridSize * ((256.0f / 2.0f) * 1);
             int3 boxPos = marchingPos - volumeTexPos; //マーチングのサンプリング地点をボリュームテクスチャの中心基準の座標にずらす。
             boxPos /= arg_raymarchingParam.m_gridSize;
         
             //マーチング座標がボクセルの位置より離れていたらサンプリングしない。
-            if (!IsInRange(boxPos, 256.0f, arg_raymarchingParam.m_wrapCount))
-            {
+            //if (!IsInRange(boxPos, 256.0f, arg_raymarchingParam.m_wrapCount))
+            //{
         
-                if (isFinish)
-                {
-                    break;
-                }
-                continue;
-            }
+            //    if (isFinish)
+            //    {
+            //        break;
+            //    }
+            //    continue;
+            //}
         
             boxPos.x = boxPos.x % 256;
             boxPos.y = boxPos.y % 256;
@@ -298,7 +298,7 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
             boxPos = clamp(boxPos, 0, 255);
         
             //ノイズを抜き取る。
-            float3 noise = arg_volumeTexture[boxPos].xyz / 100.0f;
+            float3 noise = arg_volumeTexture[boxPos].xyz / 50.0f;
         
             float3 weights = float3(0.8f, 0.1f, 0.1f); // 各ノイズの重み
             float fogDensity = dot(noise, weights) * arg_raymarchingParam.m_density;
@@ -308,8 +308,8 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
             //fogDensity *= 1.0f - saturate(marchingPos.y / maxY);
         
             //その部分の色を抜き取る。
-            //fogColor += float3(fogDensity, fogDensity, fogDensity) * gSceneParam.raymarchingData_.color_;
-            fogColor = arg_raymarchingParam.m_color * fogDensity + fogColor * (1.0f - fogDensity);
+            fogColor += float3(fogDensity, fogDensity, fogDensity) * arg_raymarchingParam.m_color;
+            //fogColor = arg_raymarchingParam.m_color * fogDensity + fogColor * saturate(1.0f - fogDensity);
         
             if (isFinish)
             {
