@@ -900,13 +900,13 @@ namespace KazMath
 	template<typename T>
 	float GetSinFloat(T VALUE)
 	{
-		return static_cast<float>(sin(static_cast<float>VALUE));
+		return static_cast<float>(sin(static_cast<float>(VALUE)));
 	};
 
 	template<typename T>
 	float GetCosFloat(T VALUE)
 	{
-		return static_cast<float>(cos(static_cast<float>VALUE));
+		return static_cast<float>(cos(static_cast<float>(VALUE)));
 	};
 
 	template<typename T>

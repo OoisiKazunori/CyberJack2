@@ -127,7 +127,7 @@ void RenderTargetStatus::PrepareToChangeBarrier(RESOURCE_HANDLE OPEN_RENDERTARGE
 	for (int i = 0; i < openRendertargetPass.size(); ++i)
 	{
 		D3D12_CPU_DESCRIPTOR_HANDLE rtvH = GetRTVHandle(openRendertargetPass[i]);
-		rtvHs.push_back(rtvH);
+		rtvHs.emplace_back(rtvH);
 	}
 
 	DirectX12CmdList::Instance()->cmdList->OMSetRenderTargets(static_cast<UINT>(openRendertargetPass.size()), rtvHs.data(), false, &gDepth.dsvH[handle]);
@@ -166,8 +166,19 @@ void RenderTargetStatus::ClearRenderTarget(RESOURCE_HANDLE RENDERTARGET_HANDLE)
 		CD3DX12_RECT rect(0, 0, graphSize.x, graphSize.y);
 		CD3DX12_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(graphSize.x), static_cast<float>(graphSize.y));
 		DirectX12CmdList::Instance()->cmdList->RSSetViewports(static_cast<UINT>(openHandle.size()), &viewport);
-		DirectX12CmdList::Instance()->cmdList->RSSetScissorRects(static_cast<UINT>(openHandle.size()), &rect);
+		DirectX12CmdList::Instance()->cmdList->RSSetScissorRects(1, &rect);
 	}
+}
+
+void RenderTargetStatus::SetDepth(RESOURCE_HANDLE RENDERTARGET_HANDLE)
+{
+	if (RENDERTARGET_HANDLE == -1)
+	{
+		return;
+	}
+	//レンダータゲットの設定
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvH = GetRTVHandle(RENDERTARGET_HANDLE);
+	DirectX12CmdList::Instance()->cmdList->OMSetRenderTargets(1, &rtvH, false, &gDepth.dsvH[handle]);
 }
 
 RESOURCE_HANDLE RenderTargetStatus::CreateRenderTarget(const KazMath::Vec2<UINT> &GRAPH_SIZE, const DirectX::XMFLOAT3 &CLEAR_COLOR, const DXGI_FORMAT &FORMAT)
@@ -348,6 +359,8 @@ RESOURCE_HANDLE RenderTargetStatus::GenerateRenderTargetBuffer(const MultiRender
 	);
 
 	buffers[handle].bufferWrapper->CreateViewHandle(descriptorHandle);
+
+	buffers[handle].rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
 
 	return descriptorHandle;
 }

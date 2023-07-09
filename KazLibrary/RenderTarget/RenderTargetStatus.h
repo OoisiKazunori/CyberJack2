@@ -65,6 +65,9 @@ public:
 	void ClearRenderTarget(RESOURCE_HANDLE RENDERTARGET_HANDLE);
 
 
+	void SetDepth(RESOURCE_HANDLE RENDERTARGET_HANDLE);
+
+
 	RESOURCE_HANDLE CreateRenderTarget(const KazMath::Vec2<UINT> &GRAPH_SIZE, const DirectX::XMFLOAT3 &CLEAR_COLOR, const DXGI_FORMAT &FORMAT);
 	std::vector<RESOURCE_HANDLE> CreateMultiRenderTarget(const std::vector<MultiRenderTargetData> &MULTIRENDER_TARGET_DATA, const DXGI_FORMAT &FORMAT);
 	std::vector<RESOURCE_HANDLE> CreateMultiRenderTarget(const std::vector<MultiRenderTargetData> &MULTIRENDER_TARGET_DATA);

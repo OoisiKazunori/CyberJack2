@@ -5,6 +5,7 @@ cbuffer MatBuffer : register(b0)
     matrix worldMat;
     matrix viewMat;
     matrix projectionMat;
+    matrix rotaion;
 }
 
 cbuffer LightBufferB1 : register(b1)
@@ -12,11 +13,15 @@ cbuffer LightBufferB1 : register(b1)
     float3 localLightDir;
 }
 
-//uv、法線対応---------------------------------------
+cbuffer ColorBuffer : register(b1)
+{
+    float4 colorB1;
+}
+
 struct PosUvNormalOutput
 {
-    float4 svpos : SV_POSITION; //システム用頂点座標
-    float3 normal : NORMAL; //法線ベクトル
+    float4 svpos : SV_POSITION; 
+    float3 normal : NORMAL; 
     float2 uv : TEXCOORD;
     float3 lightInTangentWorld : TANGENT;
     float3 worldPos : POSITION;
@@ -26,15 +31,14 @@ PosUvNormalOutput VSPosNormalUvmain(float4 pos : POSITION,float3 normal : NORMAL
 {
     PosUvNormalOutput op;
     op.svpos = mul(worldMat,pos);
-    op.worldPos = op.svpos;
+    op.worldPos = op.svpos.xyz;
     op.svpos = mul(viewMat,op.svpos);
     op.svpos = mul(projectionMat,op.svpos);
     op.uv = uv;
     op.normal = normal;
 
-    float4 lightDir = float4(localLightDir.xyz,0.0f);
+    float4 lightDir = float4(0.0f,-1.0f,0.0f,0.0f);
     lightDir = normalize(lightDir);
-    //ローカル空間にあるライトをタンジェント空間に移動させる
     op.lightInTangentWorld = mul(lightDir,InvTangentMatrix(tangent,binormal,normal));
 
     return op;
@@ -42,43 +46,48 @@ PosUvNormalOutput VSPosNormalUvmain(float4 pos : POSITION,float3 normal : NORMAL
 
 float4 PSPosNormalUvmain(PosUvNormalOutput input) : SV_TARGET
 {
-    float3 normalColor = NormalTex.Sample(smp,input.uv);
-    //-表現を入れる為に、0~255の半分を0.0f地点にするよう計算する。
-    //-1.0f ~ 1.0f
-    float3 normalVec = 2 * normalColor - 1.0f;
-    normalVec = normalize(normalVec);
+    float4 normalColor = NormalTex.Sample(smp,input.uv);
 
-    //タンジェント空間のベクトルを入れる
-    float3 bright = dot(input.lightInTangentWorld,normalVec);
-    //bright = max(0.0f,bright);
+    float3 bright = float3(0.0f,0.0f,0.0f);
+    if(IsEnableToUseMaterialTex(normalColor))
+    {
+        //-1.0f ~ 1.0f
+        float3 normalVec = 2 * normalColor.xyz - 1.0f;
+        normalVec = normalize(normalVec);
+        bright = dot(input.lightInTangentWorld,normalVec);
+    }
+    else
+    {
+        bright = dot(input.lightInTangentWorld,input.normal);
+    }
 
 	float4 texColor = AlbedoTex.Sample(smp,input.uv);
-	return float4(texColor.rgb * bright, 1.0f);
-}
-//uv、法線対応---------------------------------------
-
-
-//モデル、G-Buffer格納---------------------------------------
-
-cbuffer LightBufferB2 : register(b2)
-{
-    float3 localLightDirB2;
+    texColor *= colorB1;
+	return float4(texColor.rgb * bright, texColor.a);
 }
 
-PosUvNormalOutput VSDefferdMain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
+
+struct PosUvNormalTangentBinormalOutput
 {
-    PosUvNormalOutput op;
+    float4 svpos : SV_POSITION;
+    float3 normal : NORMAL;
+    float2 uv : TEXCOORD;
+    float3 worldPos : POSITION;
+    float3 tangent : TANGENT2;
+    float3 binormal : BINORMAL;
+};
+
+PosUvNormalTangentBinormalOutput VSDefferdMain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
+{
+    PosUvNormalTangentBinormalOutput op;
     op.svpos = mul(worldMat,pos);
-    op.worldPos = op.svpos;
+    op.worldPos = op.svpos.xyz;
     op.svpos = mul(viewMat,op.svpos);
     op.svpos = mul(projectionMat,op.svpos);
     op.uv = uv;
     op.normal = normal;
-
-    float4 lightDir = float4(localLightDirB2.xyz,0.0f);
-    lightDir = normalize(lightDir);
-    //ローカル空間にあるライトをタンジェント空間に移動させる
-    op.lightInTangentWorld = mul(lightDir,InvTangentMatrix(tangent,binormal,normal));
+    op.binormal = binormal;
+    op.tangent = tangent;
 
     return op;
 }
@@ -89,31 +98,44 @@ struct GBufferOutput
     float4 normal : SV_TARGET1;
     float4 metalnessRoughness : SV_TARGET2;
     float4 world : SV_TARGET3;
-    float4 final : SV_TARGET4;
 };
 
-GBufferOutput PSDefferdMain(PosUvNormalOutput input) : SV_TARGET
+cbuffer ColorBuffer : register(b2)
+{
+    float4 color;
+}
+
+GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
 {
     float4 normalColor = NormalTex.Sample(smp,input.uv);
-    //-表現を入れる為に、0~255の半分を0.0f地点にするよう計算する。
     //-1.0f ~ 1.0f
     float3 normalVec = 2 * normalColor - 1.0f;
     normalVec = normalize(normalVec);
 
-    //タンジェント空間のベクトルを入れる
-    float3 bright = dot(input.lightInTangentWorld,normalVec);
-    //アルベド
+    float3 normal = mul(rotaion,float4(input.normal,1.0f));
+    normal = normalize(normal);
+    float3 tangent = mul(rotaion,float4(input.tangent,1.0f));
+    tangent = normalize(tangent);
+    float3 binormal = cross(normal,tangent);
+
+    float3 nWorld = CalucurateTangentToLocal(normalVec,normal,tangent,binormal);
+    if(IsEnableToUseMaterialTex(normalColor))
+    {
+        nWorld = input.normal;
+    }
+
 	float4 texColor = AlbedoTex.Sample(smp,input.uv);
-    //メタル、ラフ
     float4 mrColor = MetalnessRoughnessTex.Sample(smp,input.uv);
 
+    if(IsEnableToUseMaterialTex(mrColor))
+    {
+        mrColor.xyz = float3(0.0f,0.0f,0.0f);
+    }
+
     GBufferOutput output;
-    output.albedo = texColor;
-    output.normal = normalColor;
+    output.albedo = texColor * color;
+    output.normal = float4(nWorld,1.0f);
     output.metalnessRoughness = float4(mrColor.xyz,raytracingId);
     output.world = float4(input.worldPos,1.0f);
-    output.final = float4(texColor.xyz * bright,texColor.a);
 	return output;
 }
-
-//モデル、G-Buffer格納---------------------------------------

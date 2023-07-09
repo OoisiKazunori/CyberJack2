@@ -12,6 +12,12 @@
 #include"../KazLibrary/Loader/ObjResourceMgr.h"
 #include"../KazLibrary/Loader/ModelLoader.h"
 
+#include"Raytracing/BlasVector.h"
+#include"Raytracing/Tlas.h"
+#include"Raytracing/HitGroupMgr.h"
+#include"Raytracing/RayPipeline.h"
+#include"../KazLibrary/Render/DrawFunc.h"
+
 class RenderScene :public SceneBase
 {
 public:
@@ -28,47 +34,159 @@ public:
 	int SceneChange();
 
 private:
-	DrawingByRasterize rasterizeRenderer;
-	DispatchComputeShader compute;
+	DrawingByRasterize m_rasterizeRenderer;
 
 	//std::array<std::unique_ptr<DrawFunc::KazRender>, 3> testRArray;
-	std::array<KazMath::Transform3D, 5> transformArray;
-	std::array<KazMath::Color, 3> colorArray;
-	DirectX::XMMATRIX motherMat;
+	std::array<KazMath::Transform3D, 5> m_transformArray;
+	std::array<KazMath::Color, 3> m_colorArray;
+	DirectX::XMMATRIX m_motherMat;
 
-	KazBufferHelper::BufferData textureBuffer;
+	KazBufferHelper::BufferData m_textureBuffer;
 
-	KazMath::Vec2<int>texSize;
+	KazMath::Vec2<int>m_texSize;
 
-	Sprite3DRender spriteR;
-	CameraWork camera;
+	Sprite3DRender m_spriteR;
+	CameraWork m_camera;
 
-	std::unique_ptr<GPUParticleRender> gpuParticleRender;
+	std::unique_ptr<GPUParticleRender> m_gpuParticleRender;
 
-	bool texFlag;
+	bool m_texFlag;
 
-	ResouceBufferHelper clearGBuffer;
+	ResouceBufferHelper m_clearGBuffer;
 
 
-	std::array<KazBufferHelper::BufferData, 2>gBuffer;
-	KazBufferHelper::BufferData finalGBuffer;
+	std::array<KazBufferHelper::BufferData, 2>m_gBuffer;
+	KazBufferHelper::BufferData m_finalGBuffer;
 
-	PolygonBuffer boxBuffer;
-	PolygonBuffer boxNormalBuffer;
-	PolygonBuffer texBuffer;
-	PolygonIndexData boxData;
-	PolygonIndexData planeData;
-	PolygonIndexData boxNormalData;
+	PolygonBuffer m_boxBuffer;
+	PolygonBuffer m_bboxNormalBuffer;
+	PolygonBuffer m_texBuffer;
+	PolygonIndexData m_boxData;
+	PolygonIndexData m_planeData;
+	PolygonIndexData m_pboxNormalData;
 
-	std::shared_ptr<ModelInfomation> model;
+	std::shared_ptr<ModelInfomation> m_model;
+	std::shared_ptr<ModelInfomation> m_reflectionModel;
+	std::shared_ptr<ModelInfomation> m_refractionModel;
 
-	DispatchComputeShader::DispatchData dispatchData;
+	//テスト用モデル
+	std::array<std::shared_ptr<ModelInfomation>, 6>m_testModelArray;
 
+	struct TestModelField
+	{
+		std::array<std::array<DrawFuncData::DrawCallData, 6>, 6>m_modelArray;	//モデル
+		std::array<std::array<KazMath::Transform3D, 6>, 6>m_transformArray;		//Transform
+
+		TestModelField(std::array<std::shared_ptr<ModelInfomation>, 6> arg_modelArray, std::array<float, 6>arg_float)
+		{
+			for (int y = 0; y < m_modelArray.size(); ++y)
+			{
+				for (int x = 0; x < m_modelArray[y].size(); ++x)
+				{
+					m_modelArray[y][x] = DrawFuncData::SetDefferdRenderingModel(arg_modelArray[y]);
+					m_transformArray[y][x].scale = { arg_float[y],arg_float[y],arg_float[y] };
+					m_transformArray[y][x].rotation.y = 90.0f;
+
+					KazMath::Color color(255, 255, 255, 255);
+					m_modelArray[y][x].extraBufferArray.back().bufferWrapper->TransData(&color.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+				}
+			}
+		};
+
+		void SetPos(std::array<float, 6>arg_baseX, float arg_interval, float arg_height)
+		{
+			for (int y = 0; y < m_modelArray.size(); ++y)
+			{
+				for (int x = 0; x < m_modelArray[y].size(); ++x)
+				{
+					float offset = static_cast<float>(x) * arg_interval;
+					m_transformArray[y][x].pos = { -500.0f + offset,arg_height,arg_baseX[y] };
+				}
+			}
+		};
+
+		void Update(DrawingByRasterize& arg_drawCall, Raytracing::BlasVector& arg_blasVec)
+		{
+			for (int y = 0; y < m_modelArray.size(); ++y)
+			{
+				for (int x = 0; x < m_modelArray[y].size(); ++x)
+				{
+					DrawFunc::DrawModelInRaytracing(m_modelArray[y][x], m_transformArray[y][x], DrawFunc::NONE);
+					arg_drawCall.ObjectRender(m_modelArray[y][x]);
+
+					for (auto& blas : m_modelArray[y][x].m_raytracingData.m_blas)
+					{
+						arg_blasVec.Add(blas, m_transformArray[y][x].GetMat());
+					}
+				}
+			}
+		};
+	};
+	std::vector<TestModelField>m_testModelFiledArray;
+
+	bool m_lightFlag;
+	static const int LGHIT_ARRAY_X = 5;
+	static const int LGHIT_ARRAY_Y = 8;
+	static const int LGHIT_ARRAY_Z = 5;
+	std::array<std::array<std::array<DrawFuncData::DrawCallData, LGHIT_ARRAY_Z>, LGHIT_ARRAY_X>, LGHIT_ARRAY_Y> m_lightBoxDataArray;
+	std::array<std::array<std::array<KazMath::Transform3D, LGHIT_ARRAY_Z>, LGHIT_ARRAY_X>, LGHIT_ARRAY_Y> m_lightTransformArray;
+	KazBufferHelper::BufferData lightUploadBuffer;
+
+	ComputeShader m_dispatch;
+
+
+	DrawFuncData::DrawCallData m_alphaModel;
+	KazMath::Transform3D m_alphaModelTransform;
+
+
+	//ボリュームフォグ用3Dテクスチャ
+	KazBufferHelper::BufferData m_volumeFogTextureBuffer;
+	ComputeShader m_volumeNoiseShader;
+	struct NoiseParam
+	{
+		KazMath::Vec3<float> m_worldPos;
+		float m_timer;
+		float m_windSpeed;
+		float m_windStrength;
+		float m_threshold;
+		float m_scale;
+		int m_octaves;
+		float m_persistence;
+		float m_lacunarity;
+		float m_pad;
+	}m_noiseParam;
+	KazBufferHelper::BufferData m_noiseParamData;
+
+	//ボリュームフォグ用定数バッファ
+	struct RaymarchingParam
+	{
+		KazMath::Vec3<float> m_pos; //ボリュームテクスチャのサイズ
+		float m_gridSize; //サンプリングするグリッドのサイズ
+		KazMath::Vec3<float> m_color; //フォグの色
+		float m_wrapCount; //サンプリング座標がはみ出した際に何回までWrapするか
+		float m_sampleLength; //サンプリング距離
+		float m_density; //濃度係数
+		int m_isSimpleFog;
+		float m_pad;
+	}m_raymarchingParam;
+	KazBufferHelper::BufferData m_raymarchingParamData;
+
+	//レイトレにモデルを組み込む用の配列クラス
+	Raytracing::BlasVector m_blasVector;
+	//レイトレで描画するための情報
+	Raytracing::Tlas m_tlas;
+	//レイトレ用パイプライン
+	std::vector<Raytracing::RayPipelineShaderData> m_pipelineShaders;
+	std::unique_ptr<Raytracing::RayPipeline> m_rayPipeline;
+	bool m_raytracingFlag;
 
 	//std::unique_ptr<DrawFunc::KazRender>normalGBufferRender;
 	//std::unique_ptr<DrawFunc::KazRender>finalGBufferRender;
 
-	DrawFuncData::DrawCallData drawSponza;
+	DrawFuncData::DrawCallData m_drawSponza;
+	DrawFuncData::DrawCallData m_reflectionSphere;
+	DrawFuncData::DrawCallData m_refractionSphere;
+	KazMath::Transform3D m_sphereTransform;
 
 	struct DrawGBufferData
 	{
@@ -79,6 +197,7 @@ private:
 	std::array<DrawGBufferData, 4>m_drawPlaneArray;
 	DrawGBufferData m_drawFinalPlane;
 
-	KazMath::Vec3<float>lightVec;
+	KazMath::Vec3<float>m_lightVec;
+	KazMath::Vec3<float>m_atem;
 };
 

@@ -9,8 +9,8 @@ using namespace ChangeScene;
 
 SceneChange::SceneChange()
 {
-	sceneTex.data.handleData = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::SceneChangePath + "SceneChange.png");
-	sceneTex.data.pipelineName = PIPELINE_NAME_SPRITE_Z_ALWAYS;
+	//sceneTex.data.handleData = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::SceneChangePath + "SceneChange.png");
+	//sceneTex.data.pipelineName = PIPELINE_NAME_SPRITE_Z_ALWAYS;
 	transform.pos.y = WIN_Y / 2.0f;
 }
 
@@ -62,12 +62,12 @@ void SceneChange::Update()
 		transform.pos.x = WIN_X + (WIN_X / 2);
 	}
 
-	sceneTex.data.transform = transform;
+	//sceneTex.data.transform = transform;
 }
 
 void SceneChange::Draw()
 {
-	sceneTex.Draw();
+	//sceneTex.Draw();
 }
 
 void SceneChange::Start()

@@ -19,7 +19,7 @@ enum BufferMemory
 	DESCRIPTORHEAP_MEMORY_TEXTURE_IMGUI,
 	DESCRIPTORHEAP_MEMORY_TEXTURE_SPRITE,
 	DESCRIPTORHEAP_MEMORY_TEXTURE_OBJ,
-	DESCRIPTORHEAP_MEMORY_TEXTURE_FBX,
+	DESCRIPTORHEAP_MEMORY_IAPOLYGONE,
 	DESCRIPTORHEAP_MEMORY_TEXTURE_RENDERTARGET,
 	DESCRIPTORHEAP_MEMORY_TEXTURE_COMPUTEBUFFER,
 	DESCRIPTORHEAP_MEMORY_CBV,
@@ -63,6 +63,7 @@ namespace KazBufferHelper
 	{
 	public:
 		ID3D12ResourceWrapper();
+		~ID3D12ResourceWrapper();
 
 		/// <summary>
 		/// バッファ生成
@@ -173,8 +174,11 @@ namespace KazBufferHelper
 		}
 
 	private:
-		std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, 1>buffer;
+		static const int BACK_BUFFER_NUM = 1;
+		std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, BACK_BUFFER_NUM>buffer;
+		std::array<void*, BACK_BUFFER_NUM>bufferMapPtr;
 		std::vector<RESOURCE_HANDLE> viewHandle;
+		bool isVRAMBufferFlag;
 		UINT GetIndex()const
 		{
 			return 0;
@@ -240,7 +244,8 @@ namespace KazBufferHelper
 
 	KazBufferHelper::BufferResourceData SetRWStructuredBuffer(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME = "RWStructureBuffer");
 
-	KazBufferHelper::BufferResourceData SetUAVTexBuffer(int width,int height, const std::string &BUFFER_NAME = "UAVTexture");
+	KazBufferHelper::BufferResourceData SetUAVTexBuffer(int width,int height, DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT, const std::string &BUFFER_NAME = "UAVTexture");
+	KazBufferHelper::BufferResourceData SetUAV3DTexBuffer(int arg_width, int arg_height, int arg_depth, DXGI_FORMAT arg_format = DXGI_FORMAT_R32G32B32A32_FLOAT, const std::string& arg_bufferName = "UAVVolumeTexture");
 
 	KazBufferHelper::BufferResourceData SetOnlyReadStructuredBuffer(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME = "OnlyReadStructureBuffer");
 
@@ -252,8 +257,11 @@ namespace KazBufferHelper
 	D3D12_INDEX_BUFFER_VIEW SetIndexBufferView(const D3D12_GPU_VIRTUAL_ADDRESS &GPU_ADDRESS, BUFFER_SIZE BUFFER_SIZE);
 
 	D3D12_UNORDERED_ACCESS_VIEW_DESC SetUnorderedAccessView(BUFFER_SIZE STRUCTURE_BYTE_SIZE, UINT NUM_ELEMENTS);
+	D3D12_UNORDERED_ACCESS_VIEW_DESC SetUnorderedAccessTextureView(BUFFER_SIZE STRUCTURE_BYTE_SIZE, UINT NUM_ELEMENTS);
+	D3D12_UNORDERED_ACCESS_VIEW_DESC SetUnorderedAccess3DTextureView(BUFFER_SIZE arg_structureByteSize, UINT arg_numElements);
 
-	KazBufferHelper::BufferResourceData SetGPUBufferData(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME = "IndexBuffer");
+	KazBufferHelper::BufferResourceData SetGPUBufferData(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME = "GPUBuffer");
+	KazBufferHelper::BufferResourceData SetUploadBufferData(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME = "UploadBuffer");
 
 
 	template<typename T>
