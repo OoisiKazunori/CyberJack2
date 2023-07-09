@@ -282,7 +282,7 @@ void RenderScene::Update()
 		m_drawFinalPlane.m_plane.extraBufferArray[3] = RenderTargetStatus::Instance()->GetBuffer(GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::WORLD]);
 		m_drawFinalPlane.m_plane.extraBufferArray[3].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 
-	
+
 		int num = LGHIT_ARRAY_X * LGHIT_ARRAY_Y * LGHIT_ARRAY_Z;
 		m_drawFinalPlane.m_plane.extraBufferArray[4].bufferWrapper->TransData(&num, sizeof(int));
 		//最終合成結果を格納する。
@@ -296,6 +296,17 @@ void RenderScene::Update()
 
 	//Blasの配列をクリア
 	m_blasVector.Update();
+
+	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_0))
+	{
+		m_particle.GenerateEffect(KazMath::Rand<int>(15, 5));
+	}
+	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_1))
+	{
+		m_particle.ReleaseEffect(1);
+	}
+
+	m_particle.UpdateEmitterAndParticleOnGPU();
 
 }
 

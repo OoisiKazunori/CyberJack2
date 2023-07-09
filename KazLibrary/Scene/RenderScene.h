@@ -18,6 +18,8 @@
 #include"Raytracing/RayPipeline.h"
 #include"../KazLibrary/Render/DrawFunc.h"
 
+#include"../Render/CPUParticle.h"
+
 class RenderScene :public SceneBase
 {
 public:
@@ -160,5 +162,7 @@ private:
 
 	KazMath::Vec3<float>m_lightVec;
 	KazMath::Vec3<float>m_atem;
+
+	CPUParticle m_particle;
 };
 
