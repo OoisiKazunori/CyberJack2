@@ -312,6 +312,17 @@ void RenderScene::Update()
 	//Blasの配列をクリア
 	m_blasVector.Update();
 
+	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_0))
+	{
+		m_particle.GenerateEffect(KazMath::Rand<int>(15, 5));
+	}
+	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_1))
+	{
+		m_particle.ReleaseEffect(1);
+	}
+
+	m_particle.UpdateEmitterAndParticleOnGPU();
+
 	//ノイズ用のタイマーを加算。
 	GBufferMgr::Instance()->m_cameraEyePosData.m_noiseTimer += 0.02f;
 
