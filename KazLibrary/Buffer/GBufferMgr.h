@@ -1,7 +1,7 @@
 #pragma once
 #include"../KazLibrary/Helper/ISinglton.h"
 #include"../KazLibrary/Helper/KazBufferHelper.h"
-#include"../KazLibrary/Helper/Compute.h"
+#include"../KazLibrary/Math/KazMath.h"
 
 /// <summary>
 /// G-Bufferの管理クラス
@@ -16,7 +16,6 @@ public:
 		NORMAL,
 		R_M_S_ID,
 		WORLD,
-		FINAL,
 		MAX
 	};
 	GBufferMgr();
@@ -25,7 +24,8 @@ public:
 	std::vector<DXGI_FORMAT> GetRenderTargetFormat();
 	void SetCameraPos(DirectX::XMFLOAT3 arg_pos)
 	{
-		m_cameraPosBuffer.bufferWrapper->TransData(&arg_pos,sizeof(DirectX::XMFLOAT3));
+		m_cameraEyePosData.m_eyePos = KazMath::Vec3<float>(arg_pos.x, arg_pos.y, arg_pos.z);
+		m_cameraPosBuffer.bufferWrapper->TransData(&m_cameraEyePosData,sizeof(CameraEyePosBufferData));
 	};
 	const KazBufferHelper::BufferData &GetEyePosBuffer()
 	{
@@ -38,6 +38,40 @@ public:
 	/// </summary>
 	void DebugDraw();
 
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle(BufferType arg_type);
+
+	const KazBufferHelper::BufferData &GetFinalBuffer()
+	{
+		return m_finalGBuffer;
+	};
+
+	const KazBufferHelper::BufferData &GetRayTracingBuffer()
+	{
+		return m_raytracingGBuffer;
+	};
+
+	//ライト用構造体
+	struct DirLight {
+		KazMath::Vec3<float> m_dir;
+		int m_isActive;
+	};
+	struct PointLight {
+		KazMath::Vec3<float> m_pos;
+		float m_power;		//ライトが影響を与える最大距離
+		KazMath::Vec3<float> m_pad;	//パラメーターが必要になったら適当に名前つけて変数を追加してください！
+		int m_isActive;
+	};
+	struct LightConstData {
+		DirLight m_dirLight;
+		PointLight m_pointLight;
+	}m_lightConstData;
+
+	KazBufferHelper::BufferData m_lightBuffer;
+
+	struct CameraEyePosBufferData {
+		KazMath::Vec3<float> m_eyePos;
+		float m_noiseTimer;
+	}m_cameraEyePosData;
 
 private:
 	//G-Buffer用のレンダーターゲット
@@ -45,5 +79,9 @@ private:
 	std::vector<DXGI_FORMAT>m_gBufferFormatArray;
 
 	KazBufferHelper::BufferData m_cameraPosBuffer;
+
+	//最終合成結果
+	KazBufferHelper::BufferData m_finalGBuffer;
+	KazBufferHelper::BufferData m_raytracingGBuffer;
 };
 

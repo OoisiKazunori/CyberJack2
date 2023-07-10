@@ -12,6 +12,7 @@
 #include"../Input/KeyBoradInputManager.h"
 #include"../Input/ControllerInputManager.h"
 #include"../KazLibrary/Buffer/UavViewHandleMgr.h"
+#include"Raytracing/RayPipeline.h"
 #include<time.h>
 
 
@@ -33,8 +34,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		D3D12GetDebugInterface(IID_PPV_ARGS(&spDebugController0));
 		spDebugController0->QueryInterface(IID_PPV_ARGS(&spDebugController1));
-		spDebugController1->EnableDebugLayer();
-		spDebugController1->SetEnableGPUBasedValidation(true);
+		//spDebugController1->EnableDebugLayer();
+		//spDebugController1->SetEnableGPUBasedValidation(true);
 	}
 
 #endif
@@ -74,7 +75,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	filter.DenyList.pIDList = denyIds;
 	filter.DenyList.NumSeverities = _countof(severities);
 	filter.DenyList.pSeverityList = severities;
-	infoQueue->PushStorageFilter(&filter);
+	//infoQueue->PushStorageFilter(&filter);
 #endif 
 
 	MyImgui imgui;
@@ -85,14 +86,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	long lCppVersion = __cplusplus;
 	std::cout << "現在使用しているC++:" << lCppVersion << "\n";
 
-	PreCreateBaseRootSignature prepareR;
-	PreCreateBasePipeLine prepareP;
+	//PreCreateBaseRootSignature prepareR;
+	//PreCreateBasePipeLine prepareP;
 
 	KeyBoradInputManager::Instance()->CreateDevice(&winApi.hwnd, &winApi.window.hInstance);
 	UavViewHandleMgr::Instance()->Init();
 
 	srand(static_cast<UINT>(time(NULL)));
 	SceneManager sm;
+
+	Raytracing::RayPipeline::SetDirectX12(&directX);
 
 	//GPUで処理させたい物をCPUで参照させたい時、コンストラクタで処理させてInitで参照するようにする為のフラグ
 	bool lStop1FlameFlag = false;

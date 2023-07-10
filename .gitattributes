@@ -3,3 +3,5 @@
 *.idb filter=lfs diff=lfs merge=lfs -text
 *.bin filter=lfs diff=lfs merge=lfs -text
 *5061699253647017043.png filter=lfs diff=lfs merge=lfs -text
+*Avocado_baseColor.png filter=lfs diff=lfs merge=lfs -text
+*Avocado_normal.png filter=lfs diff=lfs merge=lfs -text

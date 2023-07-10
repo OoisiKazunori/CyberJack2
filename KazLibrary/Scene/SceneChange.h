@@ -37,7 +37,7 @@ private:
 		float startOutInT[2];
 
 		KazMath::Transform2D transform;
-		Sprite2DRender sceneTex;
+		//Sprite2DRender sceneTex;
 		RESOURCE_HANDLE handle;
 	};
 }

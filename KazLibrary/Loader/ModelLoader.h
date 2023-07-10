@@ -52,8 +52,9 @@ struct CoordinateSpaceMatData
 	DirectX::XMMATRIX m_world;
 	DirectX::XMMATRIX m_view;
 	DirectX::XMMATRIX m_projective;
+	DirectX::XMMATRIX m_rotaion;
 
-	CoordinateSpaceMatData(DirectX::XMMATRIX arg_worldMat, DirectX::XMMATRIX arg_viewMat, DirectX::XMMATRIX arg_projectiveMat):
+	CoordinateSpaceMatData(DirectX::XMMATRIX arg_worldMat, DirectX::XMMATRIX arg_viewMat, DirectX::XMMATRIX arg_projectiveMat) :
 		m_world(arg_worldMat), m_view(arg_viewMat), m_projective(arg_projectiveMat)
 	{};
 };
@@ -87,7 +88,7 @@ struct VertexData
 	std::vector<KazMath::Vec3<float>> normalArray;
 	std::vector<KazMath::Vec3<float>> tangentArray;
 	std::vector<KazMath::Vec3<float>> binormalArray;
-	std::vector<USHORT>indexArray;
+	std::vector<UINT>indexArray;
 };
 
 struct MaterialData
@@ -124,67 +125,45 @@ enum MaterialEnum
 	MATERIAL_TEXTURE_MAX,
 };
 
-
-
-/// <summary>
-/// OBJモデルの読み込み
-/// </summary>
-class OBJLoader
-{
-public:
-	ModelMeshData Load(std::ifstream &fileName, std::string fileDir);
-
-private:
-	std::vector<std::string> fileNameArray;
-
-	struct LocalMateriaData
-	{
-		std::string name;//マテリアル名
-		KazMath::Vec3<float> ambient;//アンビエント
-		KazMath::Vec3<float> diffuse;//ディフューズ
-		KazMath::Vec3<float> specular;//スペキュラー
-		float alpha;//α
-		std::string textureFilename;//テクスチャファイル名
-		KazBufferHelper::BufferData textureBuffer;
-
-		LocalMateriaData();
-
-		void Delete();
-	};
-
-	LocalMateriaData LoadMaterial(const std::string &FILE_NAME, std::string MTL_RESOURE);
-};
-
-
 struct ModelInfomation
 {
 	std::vector<ModelMeshData> modelData;
 	RESOURCE_HANDLE modelVertDataHandle;
 
-	ModelInfomation(const std::vector<ModelMeshData> &model, RESOURCE_HANDLE vertHandle);
+	ModelInfomation(const std::vector<ModelMeshData>& model, RESOURCE_HANDLE vertHandle);
 };
 
 
 class GLTFLoader
 {
 public:
-	std::vector<ModelMeshData> Load(std::ifstream &fileName, std::string fileDir);
+	std::vector<ModelMeshData> Load(std::string fileName, std::string fileDir);
 
 
 private:
 	// Uses the Document class to print some basic information about various top-level glTF entities
-	void PrintDocumentInfo(const Microsoft::glTF::Document &document);
+	void PrintDocumentInfo(const Microsoft::glTF::Document& document);
 
 	// Uses the Document and GLTFResourceReader classes to print information about various glTF binary resources
-	void PrintResourceInfo(const Microsoft::glTF::Document &document, const Microsoft::glTF::GLTFResourceReader &resourceReader);
+	void PrintResourceInfo(const Microsoft::glTF::Document& document, const Microsoft::glTF::GLTFResourceReader& resourceReader);
 
-	void PrintInfo(const std::experimental::filesystem::path &path);
+	void PrintInfo(const std::experimental::filesystem::path& path);
 
 	KazMath::Vec3<int> GetVertIndex(int vertCount, int vecMaxNum)
 	{
 		//三角面になるようにインデックスを決める
 		return KazMath::Vec3<int>(vecMaxNum * vertCount, vecMaxNum * vertCount + 1, vecMaxNum * vertCount + 2);
 	}
+
+
+
+	KazBufferHelper::BufferData LoadErrorTex(GraphicsRootParamType arg_type)
+	{
+		std::string errorFilePass("Resource/Test/MaterialErrorTex.png");
+		KazBufferHelper::BufferData buffer(TextureResourceMgr::Instance()->LoadGraphBuffer(errorFilePass));
+		buffer.rootParamType = arg_type;
+		return buffer;
+	};
 };
 
 
@@ -205,18 +184,22 @@ public:
 	};
 
 	ModelLoader();
-	std::shared_ptr<ModelInfomation> Load(std::string fileName);
-	std::vector<VertexBufferData>GetVertexDataArray(const VertexData &data);
-	std::vector<VertexBufferData>GetVertexDataArray(const VertexData &data, const std::vector<USHORT> &indexArray);
+	std::shared_ptr<ModelInfomation> Load(std::string arg_fileDir, std::string arg_fileName);
+	std::vector<VertexBufferData>GetVertexDataArray(const VertexData& data);
+	std::vector<VertexBufferData>GetVertexDataArray(const VertexData& data, const std::vector<UINT>& indexArray);
 
 
 private:
-
-	OBJLoader objLoad;
 	GLTFLoader glTFLoad;
 
 	std::vector<std::shared_ptr<ModelInfomation>> m_modelArray;
-	std::vector<std::vector<VertexBufferData>>vertexDataArray;
+
+	struct MeshVertex
+	{
+		std::vector<std::vector<VertexBufferData>>m_vertexDataArray;
+	};
+	std::vector<MeshVertex>m_modelVertexDataArray;
+	std::vector<std::string> m_modelNameArray;
 };
 
 class StreamReader : public Microsoft::glTF::IStreamReader
@@ -224,7 +207,7 @@ class StreamReader : public Microsoft::glTF::IStreamReader
 public:
 	StreamReader(std::experimental::filesystem::path pathBase) : m_pathBase(std::move(pathBase)) { }
 
-	std::shared_ptr<std::istream> GetInputStream(const std::string &filename) const override
+	std::shared_ptr<std::istream> GetInputStream(const std::string& filename) const override
 	{
 		auto streamPath = m_pathBase / std::experimental::filesystem::u8path(filename);
 		auto stream = std::make_shared<std::ifstream>(streamPath, std::ios_base::binary);

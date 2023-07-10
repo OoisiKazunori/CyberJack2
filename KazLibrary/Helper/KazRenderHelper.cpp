@@ -1,7 +1,7 @@
 #include "KazRenderHelper.h"
 #include"../KazLibrary/Helper/KazHelper.h"
 
-KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData KazRenderHelper::SetMultiMeshedDrawIndexInstanceCommandData(const D3D_PRIMITIVE_TOPOLOGY &TOPOLOGY, std::vector<KazRenderHelper::IASetVertexBuffersData> VERTEX_BUFFER_DATA, std::vector<D3D12_INDEX_BUFFER_VIEW> INDEX_BUFFER_VIEW_ARRAY, std::vector<KazRenderHelper::DrawIndexedInstancedData> DRAW_INDEX_DATA)
+KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData KazRenderHelper::SetMultiMeshedDrawIndexInstanceCommandData(const D3D_PRIMITIVE_TOPOLOGY& TOPOLOGY, std::vector<KazRenderHelper::IASetVertexBuffersData> VERTEX_BUFFER_DATA, std::vector<D3D12_INDEX_BUFFER_VIEW> INDEX_BUFFER_VIEW_ARRAY, std::vector<KazRenderHelper::DrawIndexedInstancedData> DRAW_INDEX_DATA)
 {
 	MultipleMeshesDrawIndexInstanceCommandData result;
 	result.topology = TOPOLOGY;
@@ -11,7 +11,7 @@ KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData KazRenderHelper::Set
 	return result;
 }
 
-KazRenderHelper::DrawIndexInstanceCommandData KazRenderHelper::SetDrawIndexInstanceCommandData(const D3D_PRIMITIVE_TOPOLOGY &TOPOLOGY, const D3D12_VERTEX_BUFFER_VIEW &VERTEX_VIEW, const D3D12_INDEX_BUFFER_VIEW &INDEX_VIEW, UINT INDECIES_NUM, UINT INSTANCE_NUM)
+KazRenderHelper::DrawIndexInstanceCommandData KazRenderHelper::SetDrawIndexInstanceCommandData(const D3D_PRIMITIVE_TOPOLOGY& TOPOLOGY, const D3D12_VERTEX_BUFFER_VIEW& VERTEX_VIEW, const D3D12_INDEX_BUFFER_VIEW& INDEX_VIEW, UINT INDECIES_NUM, UINT INSTANCE_NUM)
 {
 	KazRenderHelper::DrawIndexInstanceCommandData result;
 	result.topology = TOPOLOGY;
@@ -27,7 +27,7 @@ KazRenderHelper::DrawIndexInstanceCommandData KazRenderHelper::SetDrawIndexInsta
 	return result;
 }
 
-KazRenderHelper::DrawInstanceCommandData KazRenderHelper::SetDrawInstanceCommandData(const D3D_PRIMITIVE_TOPOLOGY &TOPOLOGY, const D3D12_VERTEX_BUFFER_VIEW &VERTEX_VIEW, UINT VERTEX_NUM, UINT INSTANCE_NUM)
+KazRenderHelper::DrawInstanceCommandData KazRenderHelper::SetDrawInstanceCommandData(const D3D_PRIMITIVE_TOPOLOGY& TOPOLOGY, const D3D12_VERTEX_BUFFER_VIEW& VERTEX_VIEW, UINT VERTEX_NUM, UINT INSTANCE_NUM)
 {
 	KazRenderHelper::DrawInstanceCommandData result;
 	result.topology = TOPOLOGY;
@@ -41,7 +41,7 @@ KazRenderHelper::DrawInstanceCommandData KazRenderHelper::SetDrawInstanceCommand
 	return result;
 }
 
-std::array<KazMath::Vec2<float>, 4> KazRenderHelper::ChangePlaneScale(const KazMath::Vec2<float> &LEFTUP_POS, const KazMath::Vec2<float> &RIGHTDOWN_POS, const KazMath::Vec2<float> &SCALE, const KazMath::Vec2<float> &ANCHOR_POINT, const KazMath::Vec2<int> &TEX_SIZE)
+std::array<KazMath::Vec2<float>, 4> KazRenderHelper::ChangePlaneScale(const KazMath::Vec2<float>& LEFTUP_POS, const KazMath::Vec2<float>& RIGHTDOWN_POS, const KazMath::Vec2<float>& SCALE, const KazMath::Vec2<float>& ANCHOR_POINT, const KazMath::Vec2<int>& TEX_SIZE)
 {
 	//読み込み
 	float width = static_cast<float>(TEX_SIZE.x);
@@ -62,7 +62,7 @@ std::array<KazMath::Vec2<float>, 4> KazRenderHelper::ChangePlaneScale(const KazM
 	return pos;
 }
 
-std::array<KazMath::Vec2<float>, 4> KazRenderHelper::ChangeModiPlaneScale(const KazMath::Vec2<float> &LEFTUP_POS, const KazMath::Vec2<float> &RIGHTDOWN_POS, const DirectX::XMFLOAT4 &SCALE, const DirectX::XMFLOAT2 &ANCHOR_POINT, const DirectX::XMFLOAT2 &TEX_SIZE)
+std::array<KazMath::Vec2<float>, 4> KazRenderHelper::ChangeModiPlaneScale(const KazMath::Vec2<float>& LEFTUP_POS, const KazMath::Vec2<float>& RIGHTDOWN_POS, const DirectX::XMFLOAT4& SCALE, const DirectX::XMFLOAT2& ANCHOR_POINT, const DirectX::XMFLOAT2& TEX_SIZE)
 {
 	//読み込み
 	float width = TEX_SIZE.x;
@@ -83,7 +83,7 @@ std::array<KazMath::Vec2<float>, 4> KazRenderHelper::ChangeModiPlaneScale(const 
 	return pos;
 }
 
-void KazRenderHelper::FlipXUv(DirectX::XMFLOAT2 *UV_LEFTUP_POS, DirectX::XMFLOAT2 *UV_LEFTDOWN_POS, DirectX::XMFLOAT2 *UV_RIGHTUP_POS, DirectX::XMFLOAT2 *UV_RIGHTDOWN_POS)
+void KazRenderHelper::FlipXUv(DirectX::XMFLOAT2* UV_LEFTUP_POS, DirectX::XMFLOAT2* UV_LEFTDOWN_POS, DirectX::XMFLOAT2* UV_RIGHTUP_POS, DirectX::XMFLOAT2* UV_RIGHTDOWN_POS)
 {
 	DirectX::XMFLOAT2 leftUp = *UV_LEFTUP_POS;
 	DirectX::XMFLOAT2 rightUp = *UV_RIGHTUP_POS;
@@ -97,7 +97,7 @@ void KazRenderHelper::FlipXUv(DirectX::XMFLOAT2 *UV_LEFTUP_POS, DirectX::XMFLOAT
 
 }
 
-void KazRenderHelper::FlipYUv(DirectX::XMFLOAT2 *UV_LEFTUP_POS, DirectX::XMFLOAT2 *UV_LEFTDOWN_POS, DirectX::XMFLOAT2 *UV_RIGHTUP_POS, DirectX::XMFLOAT2 *UV_RIGHTDOWN_POS)
+void KazRenderHelper::FlipYUv(DirectX::XMFLOAT2* UV_LEFTUP_POS, DirectX::XMFLOAT2* UV_LEFTDOWN_POS, DirectX::XMFLOAT2* UV_RIGHTUP_POS, DirectX::XMFLOAT2* UV_RIGHTDOWN_POS)
 {
 	DirectX::XMFLOAT2 leftUp = *UV_LEFTUP_POS;
 	DirectX::XMFLOAT2 rightUp = *UV_RIGHTUP_POS;
@@ -110,7 +110,7 @@ void KazRenderHelper::FlipYUv(DirectX::XMFLOAT2 *UV_LEFTUP_POS, DirectX::XMFLOAT
 	UV_RIGHTDOWN_POS->y = rightUp.y;
 }
 
-void KazRenderHelper::VerticesCut(const KazMath::Vec2<int> &DIV_SIZE, const KazMath::Vec2<int> &DIV_LEFTUP_POS, DirectX::XMFLOAT3 *LEFTUP_POS, DirectX::XMFLOAT3 *LEFTDOWN_POS, DirectX::XMFLOAT3 *RIGHTUP_POS, DirectX::XMFLOAT3 *RIGHTDOWN_POS, const KazMath::Vec2<float> &SCALE, const KazMath::Vec2<float> &ANCHOR_POINT)
+void KazRenderHelper::VerticesCut(const KazMath::Vec2<int>& DIV_SIZE, const KazMath::Vec2<int>& DIV_LEFTUP_POS, DirectX::XMFLOAT3* LEFTUP_POS, DirectX::XMFLOAT3* LEFTDOWN_POS, DirectX::XMFLOAT3* RIGHTUP_POS, DirectX::XMFLOAT3* RIGHTDOWN_POS, const KazMath::Vec2<float>& SCALE, const KazMath::Vec2<float>& ANCHOR_POINT)
 {
 	KazMath::Vec2<int> texSize = DIV_SIZE;
 	KazMath::Vec2<int> divGraphPos = DIV_LEFTUP_POS;
@@ -132,7 +132,7 @@ void KazRenderHelper::VerticesCut(const KazMath::Vec2<int> &DIV_SIZE, const KazM
 	*RIGHTDOWN_POS = { tmp[1].x,tmp[1].y,0.0f };
 }
 
-void KazRenderHelper::UVCut(const KazMath::Vec2<int> &UV_DIV_LEFTUP_POS, const KazMath::Vec2<int> &DIV_SIZE, const KazMath::Vec2<int> &TEX_SIZE, DirectX::XMFLOAT2 *LEFTUP_POS, DirectX::XMFLOAT2 *LEFTDOWN_POS, DirectX::XMFLOAT2 *RIGHTUP_POS, DirectX::XMFLOAT2 *RIGHTDOWN_POS)
+void KazRenderHelper::UVCut(const KazMath::Vec2<int>& UV_DIV_LEFTUP_POS, const KazMath::Vec2<int>& DIV_SIZE, const KazMath::Vec2<int>& TEX_SIZE, DirectX::XMFLOAT2* LEFTUP_POS, DirectX::XMFLOAT2* LEFTDOWN_POS, DirectX::XMFLOAT2* RIGHTUP_POS, DirectX::XMFLOAT2* RIGHTDOWN_POS)
 {
 	int texX = UV_DIV_LEFTUP_POS.x;
 	int texY = UV_DIV_LEFTUP_POS.y;
@@ -140,8 +140,8 @@ void KazRenderHelper::UVCut(const KazMath::Vec2<int> &UV_DIV_LEFTUP_POS, const K
 	int texWidth = DIV_SIZE.x;
 
 	float tex_left = static_cast<float>(texX) / static_cast<float>(TEX_SIZE.x);
-	float tex_right =		static_cast<float>(texX + texWidth) / static_cast<float>(TEX_SIZE.x);
-	float tex_top =		static_cast<float>(texY) / static_cast<float>(TEX_SIZE.y);
+	float tex_right = static_cast<float>(texX + texWidth) / static_cast<float>(TEX_SIZE.x);
+	float tex_top = static_cast<float>(texY) / static_cast<float>(TEX_SIZE.y);
 	float tex_bottom = static_cast<float>(texY + texHeight) / static_cast<float>(TEX_SIZE.y);
 
 	*LEFTUP_POS = { tex_right,tex_top };
@@ -150,7 +150,7 @@ void KazRenderHelper::UVCut(const KazMath::Vec2<int> &UV_DIV_LEFTUP_POS, const K
 	*RIGHTDOWN_POS = { tex_left,tex_bottom };
 }
 
-void KazRenderHelper::InitUvPos(DirectX::XMFLOAT2 *UV_LEFTUP_POS, DirectX::XMFLOAT2 *UV_LEFTDOWN_POS, DirectX::XMFLOAT2 *UV_RIGHTUP_POS, DirectX::XMFLOAT2 *UV_RIGHTDOWN_POS)
+void KazRenderHelper::InitUvPos(DirectX::XMFLOAT2* UV_LEFTUP_POS, DirectX::XMFLOAT2* UV_LEFTDOWN_POS, DirectX::XMFLOAT2* UV_RIGHTUP_POS, DirectX::XMFLOAT2* UV_RIGHTDOWN_POS)
 {
 	*UV_LEFTUP_POS = { 0.0f,1.0f };
 	*UV_LEFTDOWN_POS = { 0.0f,0.0f };
@@ -158,7 +158,7 @@ void KazRenderHelper::InitUvPos(DirectX::XMFLOAT2 *UV_LEFTUP_POS, DirectX::XMFLO
 	*UV_RIGHTDOWN_POS = { 1.0f,0.0f };
 }
 
-void KazRenderHelper::InitVerticesPos(DirectX::XMFLOAT3 *LEFTUP_POS, DirectX::XMFLOAT3 *LEFTDOWN_POS, DirectX::XMFLOAT3 *RIGHTUP_POS, DirectX::XMFLOAT3 *RIGHTDOWN_POS, const DirectX::XMFLOAT2 &ANCHOR_POINT)
+void KazRenderHelper::InitVerticesPos(DirectX::XMFLOAT3* LEFTUP_POS, DirectX::XMFLOAT3* LEFTDOWN_POS, DirectX::XMFLOAT3* RIGHTUP_POS, DirectX::XMFLOAT3* RIGHTDOWN_POS, const DirectX::XMFLOAT2& ANCHOR_POINT)
 {
 	*LEFTUP_POS = { (0.0f - ANCHOR_POINT.x), (0.0f - ANCHOR_POINT.y),0.0f };
 	*LEFTDOWN_POS = { (0.0f - ANCHOR_POINT.x), (1.0f - ANCHOR_POINT.y),0.0f };
@@ -178,7 +178,7 @@ std::array<unsigned short, 6> KazRenderHelper::InitIndciesForPlanePolygon()
 	return result;
 }
 
-int KazRenderHelper::SetBufferOnCmdList(const GraphicsRootSignatureParameter &PARAM, const GraphicsRangeType &RANGE, const GraphicsRootParamType &TYPE)
+int KazRenderHelper::SetBufferOnCmdList(const GraphicsRootSignatureParameter& PARAM, const GraphicsRangeType& RANGE, const GraphicsRootParamType& TYPE)
 {
 	int type = -1;
 	int keepParam = -1;
@@ -195,7 +195,7 @@ int KazRenderHelper::SetBufferOnCmdList(const GraphicsRootSignatureParameter &PA
 	return keepParam;
 }
 
-int KazRenderHelper::SetBufferOnCmdList(const std::vector<RootSignatureParameter> &PARAM, const GraphicsRangeType &RANGE, const GraphicsRootParamType &TYPE)
+int KazRenderHelper::SetBufferOnCmdList(const std::vector<RootSignatureParameter>& PARAM, const GraphicsRangeType& RANGE, const GraphicsRootParamType& TYPE)
 {
 	int type = -1;
 	int keepParam = -1;
@@ -221,7 +221,19 @@ KazBufferHelper::ID3D12ResourceWrapper::ID3D12ResourceWrapper()
 {
 }
 
-void KazBufferHelper::ID3D12ResourceWrapper::CreateBuffer(const BufferResourceData &BUFFER_OPTION)
+KazBufferHelper::ID3D12ResourceWrapper::~ID3D12ResourceWrapper()
+{
+	if (isVRAMBufferFlag)
+	{
+		return;
+	}
+	for (int i = 0; i < buffer.size(); ++i)
+	{
+		buffer[i]->Unmap(0, nullptr);
+	}
+}
+
+void KazBufferHelper::ID3D12ResourceWrapper::CreateBuffer(const BufferResourceData& BUFFER_OPTION)
 {
 	for (int i = 0; i < buffer.size(); ++i)
 	{
@@ -242,32 +254,50 @@ void KazBufferHelper::ID3D12ResourceWrapper::CreateBuffer(const BufferResourceDa
 		std::array<wchar_t, BUFFER_SIZE> string;
 		KazHelper::ConvertStringToWchar_t(BUFFER_OPTION.BufferName, string.data(), BUFFER_SIZE);
 		buffer[i]->SetName(string.data());
-	}
-}
 
-void KazBufferHelper::ID3D12ResourceWrapper::TransData(void *DATA, const unsigned int &DATA_SIZE)
-{
-	void *dataMap = nullptr;
-
-	for (int i = 0; i < buffer.size(); ++i)
-	{
-		auto result = buffer[i]->Map(0, nullptr, (void **)&dataMap);
-		if (SUCCEEDED(result))
+		if (BUFFER_OPTION.heapProperties.Type != D3D12_HEAP_TYPE_DEFAULT && 
+			BUFFER_OPTION.heapProperties.Type != D3D12_HEAP_TYPE_CUSTOM)
 		{
-			memcpy(dataMap, DATA, DATA_SIZE);
-			buffer[i]->Unmap(0, nullptr);
+			auto result = buffer[i]->Map(0, nullptr, (void**)&bufferMapPtr[i]);
+			if (FAILED(result))
+			{
+				assert(0);
+			}
+			isVRAMBufferFlag = false;
+		}
+		else
+		{
+			isVRAMBufferFlag = true;
+			bufferMapPtr[i] = nullptr;
 		}
 	}
+
 }
 
-void KazBufferHelper::ID3D12ResourceWrapper::TransData(void *DATA, unsigned int START_DATA_SIZE, unsigned int DATA_SIZE)
+void KazBufferHelper::ID3D12ResourceWrapper::TransData(void* DATA, const unsigned int& DATA_SIZE)
 {
-	void *dataMap = nullptr;
+	if (!isVRAMBufferFlag)
+	{
+		for (int i = 0; i < buffer.size(); ++i)
+		{
+			memcpy(bufferMapPtr[i], DATA, DATA_SIZE);
+		}
+	}
+	else
+	{
+		//VRAMのバッファはCPUから転送できません
+		assert(0);
+	}
+}
+
+void KazBufferHelper::ID3D12ResourceWrapper::TransData(void* DATA, unsigned int START_DATA_SIZE, unsigned int DATA_SIZE)
+{
+	void* dataMap = nullptr;
 	for (int i = 0; i < buffer.size(); ++i)
 	{
-		auto result = buffer[i]->Map(0, nullptr, (void **)&dataMap);
+		auto result = buffer[i]->Map(0, nullptr, (void**)&dataMap);
 
-		void *data = &dataMap + START_DATA_SIZE;
+		void* data = &dataMap + START_DATA_SIZE;
 		if (SUCCEEDED(result))
 		{
 			memcpy(data, DATA, DATA_SIZE);
@@ -289,16 +319,16 @@ D3D12_GPU_VIRTUAL_ADDRESS KazBufferHelper::ID3D12ResourceWrapper::GetGpuAddress(
 	return buffer[GetIndex()]->GetGPUVirtualAddress();
 }
 
-void *KazBufferHelper::ID3D12ResourceWrapper::GetMapAddres(int BB_INDEX)const
+void* KazBufferHelper::ID3D12ResourceWrapper::GetMapAddres(int BB_INDEX)const
 {
-	void *dataMap = nullptr;
+	void* dataMap = nullptr;
 	if (BB_INDEX == -1)
 	{
-		buffer[GetIndex()]->Map(0, nullptr, (void **)&dataMap);
+		buffer[GetIndex()]->Map(0, nullptr, (void**)&dataMap);
 	}
 	else
 	{
-		buffer[BB_INDEX]->Map(0, nullptr, (void **)&dataMap);
+		buffer[BB_INDEX]->Map(0, nullptr, (void**)&dataMap);
 	}
 	return dataMap;
 }

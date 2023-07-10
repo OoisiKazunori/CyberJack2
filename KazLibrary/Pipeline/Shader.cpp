@@ -233,7 +233,16 @@ IDxcBlob *Shader::CompileShader(const ShaderOptionData &DATA)
 
 		wprintf(L"Compilation failed with errors:\n%hs\n",
 			static_cast<const char *>(errBlob->GetBufferPointer()));
-		// ... errBlob の内容をエラーメッセージとして表示 (省略)
+
+		//GetBufferPointerとGetBufferSizeを使って内容にアクセス
+		const char* pData = static_cast<const char*>(errBlob->GetBufferPointer());
+		size_t size = errBlob->GetBufferSize();
+
+		//バッファを文字列として読む
+		std::string content(pData, pData + size);
+		//Visual Studioの出力ウィンドウに出力
+		OutputDebugStringA(content.c_str());
+
 		throw std::runtime_error("failed shader compile");
 	}
 	Microsoft::WRL::ComPtr<IDxcBlob> blob;

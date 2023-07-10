@@ -14,10 +14,9 @@ GBufferMgr::GBufferMgr()
 		std::vector<MultiRenderTargetData> multiRenderTargetArray(MAX);
 		m_gBufferFormatArray.resize(MAX);
 		m_gBufferFormatArray[ALBEDO] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		m_gBufferFormatArray[NORMAL] = DXGI_FORMAT_R11G11B10_FLOAT;
+		m_gBufferFormatArray[NORMAL] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		m_gBufferFormatArray[R_M_S_ID] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		m_gBufferFormatArray[WORLD] = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		m_gBufferFormatArray[FINAL] = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 		//アルベド
 		multiRenderTargetArray[ALBEDO].backGroundColor = { 0.0f,0.0f,0.0f };
@@ -35,14 +34,30 @@ GBufferMgr::GBufferMgr()
 		multiRenderTargetArray[WORLD].backGroundColor = { 0.0f,0.0f,0.0f };
 		multiRenderTargetArray[WORLD].graphSize = winSize;
 		multiRenderTargetArray[WORLD].format = m_gBufferFormatArray[WORLD];
-		//最終合成
-		multiRenderTargetArray[FINAL].backGroundColor = { 0.0f,0.0f,0.0f };
-		multiRenderTargetArray[FINAL].graphSize = winSize;
-		multiRenderTargetArray[FINAL].format = m_gBufferFormatArray[FINAL];
+
 		m_gBufferRenderTargetHandleArray = RenderTargetStatus::Instance()->CreateMultiRenderTarget(multiRenderTargetArray);
+
+		m_finalGBuffer = KazBufferHelper::SetUAVTexBuffer(winSize.x, winSize.y);
+		m_finalGBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
+		DescriptorHeapMgr::Instance()->CreateBufferView(
+			m_finalGBuffer.bufferWrapper->GetViewHandle(),
+			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), winSize.x * winSize.y),
+			m_finalGBuffer.bufferWrapper->GetBuffer().Get()
+		);
+
+		m_raytracingGBuffer = KazBufferHelper::SetUAVTexBuffer(winSize.x, winSize.y, DXGI_FORMAT_R8G8B8A8_UNORM);
+		m_raytracingGBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
+		DescriptorHeapMgr::Instance()->CreateBufferView(
+			m_raytracingGBuffer.bufferWrapper->GetViewHandle(),
+			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), winSize.x * winSize.y),
+			m_raytracingGBuffer.bufferWrapper->GetBuffer().Get()
+		);
 	}
 
-	m_cameraPosBuffer = KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3));
+	m_cameraPosBuffer = KazBufferHelper::SetConstBufferData(sizeof(CameraEyePosBufferData));
+	m_lightBuffer = KazBufferHelper::SetConstBufferData(sizeof(LightConstData));
+	m_lightConstData.m_dirLight.m_dir = KazMath::Vec3<float>(0.0f, -1.0f, 0.0f);
+	m_lightConstData.m_pointLight.m_power = 100.0f;
 }
 
 std::vector<RESOURCE_HANDLE> GBufferMgr::GetRenderTarget()
@@ -53,4 +68,10 @@ std::vector<RESOURCE_HANDLE> GBufferMgr::GetRenderTarget()
 std::vector<DXGI_FORMAT> GBufferMgr::GetRenderTargetFormat()
 {
 	return m_gBufferFormatArray;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE GBufferMgr::GetGPUHandle(BufferType arg_type)
+{
+	RESOURCE_HANDLE handle = RenderTargetStatus::Instance()->GetBuffer(m_gBufferRenderTargetHandleArray[arg_type]).bufferWrapper->GetViewHandle();
+	return DescriptorHeapMgr::Instance()->GetGpuDescriptorView(handle);
 }

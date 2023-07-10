@@ -3,64 +3,53 @@
 #include"../DirectXCommon/DirectX12CmdList.h"
 #include"../KazLibrary/Buffer/DescriptorHeapMgr.h"
 
-void DispatchComputeShader::Stack(const ComputeData &STACK_DATA)
+ComputeShader::ComputeShader() :m_initFlag(false)
 {
-	computeArray.emplace_back(STACK_DATA);
 }
 
-void DispatchComputeShader::Update()
+void ComputeShader::Generate(const ShaderOptionData& arg_shader, std::vector<KazBufferHelper::BufferData> arg_extraBuffer)
 {
-	for (auto &obj : computeArray)
+	//シェーダーの生成
+	RESOURCE_HANDLE shaderHandle = m_shaderBuffer.GenerateShader(arg_shader);
+	//ルートシグネチャーの生成
+	RootSignatureDataTest data = m_rootSignatureBuffer.GetGenerateData(arg_extraBuffer);
+	RESOURCE_HANDLE rootsignatureHandle = m_rootSignatureBuffer.GenerateRootSignature(data);
+
+	D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};
+	//パイプラインの生成
+	desc.CS = CD3DX12_SHADER_BYTECODE(m_shaderBuffer.GetBuffer(shaderHandle)->GetBufferPointer(), m_shaderBuffer.GetBuffer(shaderHandle)->GetBufferSize());
+	desc.pRootSignature = m_rootSignatureBuffer.GetBuffer(rootsignatureHandle).Get();
+	desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+	desc.NodeMask = 0;
+	RESOURCE_HANDLE pipelineHandle = m_piplineBuffer.GeneratePipeline(desc);
+	if (pipelineHandle == -1)
 	{
-		if (!obj.isGenerateFlag)
-		{
-			//シェーダーの生成
-			RESOURCE_HANDLE shaderHandle = shaderBufferMgr.GenerateShader(obj.shaderData);
-			ErrorCheck(shaderHandle, obj.drawCallData);
-			//ルートシグネチャーの生成
-			RootSignatureDataTest data = rootSignatureBufferMgr.GetGenerateData(obj.bufferArray);
-			RESOURCE_HANDLE rootsignatureHandle = rootSignatureBufferMgr.GenerateRootSignature(data);
-			ErrorCheck(rootsignatureHandle, obj.drawCallData);
-
-			//パイプラインの生成
-			obj.desc.CS = CD3DX12_SHADER_BYTECODE(shaderBufferMgr.GetBuffer(shaderHandle)->GetBufferPointer(), shaderBufferMgr.GetBuffer(shaderHandle)->GetBufferSize());
-			obj.desc.pRootSignature = rootSignatureBufferMgr.GetBuffer(rootsignatureHandle).Get();
-			RESOURCE_HANDLE pipelineHandle = piplineBufferMgr.GeneratePipeline(obj.desc);
-			ErrorCheck(pipelineHandle, obj.drawCallData);
-
-			generateComputeArray.emplace_back(obj.dispatchData, obj.bufferArray, pipelineHandle, rootsignatureHandle, shaderHandle);
-			obj.isGenerateFlag = true;
-		}
+		assert(0);
 	}
+	m_initFlag = true;
+
+
+	m_extraBufferArray = arg_extraBuffer;
 }
 
-void DispatchComputeShader::Compute()
+void ComputeShader::Compute(const DispatchData& arg_dispatch)
 {
-	//コンピュートシェーダーの実行
-	for (auto &obj : generateComputeArray)
+	if (!m_initFlag)
 	{
-		RESOURCE_HANDLE lPipelineHandle = obj.pipelineHandle;
-		DirectX12CmdList::Instance()->cmdList->SetPipelineState(
-			piplineBufferMgr.GetBuffer(lPipelineHandle).Get()
-		);
-
-		RESOURCE_HANDLE lRootSignatureHandle = obj.rootsignatureHandle;
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootSignature(
-			rootSignatureBufferMgr.GetBuffer(lRootSignatureHandle).Get()
-		);
-
-
-		SetBufferOnCmdList(obj.bufferArray, rootSignatureBufferMgr.GetRootParam(lRootSignatureHandle));
-		DirectX12CmdList::Instance()->cmdList->Dispatch(obj.dispatchData->x, obj.dispatchData->y, obj.dispatchData->z);
+		assert(0);
 	}
 
-	piplineBufferMgr.Update();
-	rootSignatureBufferMgr.Update();
-
+	DirectX12CmdList::Instance()->cmdList->SetPipelineState(
+		m_piplineBuffer.GetBuffer(0).Get()
+	);
+	DirectX12CmdList::Instance()->cmdList->SetComputeRootSignature(
+		m_rootSignatureBuffer.GetBuffer(0).Get()
+	);
+	SetBufferOnCmdList(m_extraBufferArray, m_rootSignatureBuffer.GetRootParam(0));
+	DirectX12CmdList::Instance()->cmdList->Dispatch(arg_dispatch.x, arg_dispatch.y, arg_dispatch.z);
 }
 
-void DispatchComputeShader::SetBufferOnCmdList(const std::vector<KazBufferHelper::BufferData> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM)
-
+void ComputeShader::SetBufferOnCmdList(const std::vector<KazBufferHelper::BufferData>& BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM)
 {
 	for (int i = 0; i < BUFFER_ARRAY.size(); ++i)
 	{

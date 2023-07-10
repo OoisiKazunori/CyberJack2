@@ -31,6 +31,8 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> cmdQueue;
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapchain;
 
+	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>>& GetBackBuffer() { return backBuffers; }
+
 private:
 
 	int winX, winY;

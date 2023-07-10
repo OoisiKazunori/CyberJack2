@@ -9,16 +9,16 @@ std::shared_ptr<KazBufferHelper::BufferData> PolygonBuffer::GenerateVertexBuffer
 	//RAMのバッファに一度転送---------------------------------------
 
 	//VRAMのバッファにコピー---------------------------------------
-	vertBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData(lSize));
-	vertBuffer->bufferWrapper->CopyBuffer(cpuVertBuffer->bufferWrapper->GetBuffer(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST);
+	//vertBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData(lSize));
+	//vertBuffer->bufferWrapper->CopyBuffer(cpuVertBuffer->bufferWrapper->GetBuffer(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
 	//VRAMのバッファにコピー---------------------------------------
 
 	return cpuVertBuffer;
 }
 
-std::shared_ptr<KazBufferHelper::BufferData> PolygonBuffer::GenerateIndexBuffer(std::vector<USHORT> indices)
+std::shared_ptr<KazBufferHelper::BufferData> PolygonBuffer::GenerateIndexBuffer(std::vector<UINT> indices)
 {
-	BUFFER_SIZE lSize = static_cast<BUFFER_SIZE>(indices.size() * sizeof(USHORT));
+	BUFFER_SIZE lSize = static_cast<BUFFER_SIZE>(indices.size() * sizeof(UINT));
 	//RAMのバッファに一度転送---------------------------------------
 	cpuIndexBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetIndexBufferData(lSize));
 	cpuIndexBuffer->bufferWrapper->TransData(indices.data(), lSize);
@@ -75,7 +75,7 @@ PolygonIndexData PolygonBuffer::GenerateBoxBuffer(float scale)
 		{-lSize, lSize,-lSize}	//右上
 	};
 
-	std::vector<USHORT> lIndices =
+	std::vector<UINT> lIndices =
 	{
 		//前
 		0,1,2,		//三角形1つ目
@@ -104,7 +104,7 @@ PolygonIndexData PolygonBuffer::GenerateBoxBuffer(float scale)
 	result.index = KazRenderHelper::SetDrawIndexInstanceCommandData(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
 		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVertices.size(), sizeof(DirectX::XMFLOAT3)), sizeof(lVertices[0])),
-		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
+		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(UINT))),
 		static_cast<UINT>(lIndices.size()),
 		1
 	);
@@ -154,7 +154,7 @@ PolygonIndexData PolygonBuffer::GenerateBoxNormalBuffer(float scale)
 		{-lSize, lSize,-lSize}	//右上
 	};
 
-	std::vector<USHORT> lIndices =
+	std::vector<UINT> lIndices =
 	{
 		//前
 		0,1,2,		//三角形1つ目
@@ -201,7 +201,7 @@ PolygonIndexData PolygonBuffer::GenerateBoxNormalBuffer(float scale)
 	result.index = KazRenderHelper::SetDrawIndexInstanceCommandData(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
 		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(vertNormalArray.size(), sizeof(VertNormal)), sizeof(vertNormalArray[0])),
-		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
+		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(UINT))),
 		static_cast<UINT>(lIndices.size()),
 		1
 	);
@@ -211,7 +211,7 @@ PolygonIndexData PolygonBuffer::GenerateBoxNormalBuffer(float scale)
 PolygonIndexData PolygonBuffer::GeneratePlaneBuffer(float scale)
 {
 	std::vector<DirectX::XMFLOAT3> lVertices = GetPlaneVertices({ 0.5f,0.5f }, { scale ,scale }, { 1,1 });
-	std::vector<USHORT> lIndices;
+	std::vector<UINT> lIndices;
 	for (int i = 0; i < 6; ++i)
 	{
 		lIndices.emplace_back(KazRenderHelper::InitIndciesForPlanePolygon()[i]);
@@ -223,7 +223,7 @@ PolygonIndexData PolygonBuffer::GeneratePlaneBuffer(float scale)
 	result.index = KazRenderHelper::SetDrawIndexInstanceCommandData(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
 		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVertices.size(), sizeof(DirectX::XMFLOAT3)), sizeof(lVertices[0])),
-		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
+		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(UINT))),
 		static_cast<UINT>(lIndices.size()),
 		1
 	);
@@ -243,7 +243,7 @@ PolygonIndexData PolygonBuffer::GeneratePlaneTexBuffer(const KazMath::Vec2<float
 		lVertUv[i].uv = lUv[i];
 	}
 
-	std::vector<USHORT> lIndices;
+	std::vector<UINT> lIndices;
 	for (int i = 0; i < 6; ++i)
 	{
 		lIndices.emplace_back(KazRenderHelper::InitIndciesForPlanePolygon()[i]);
@@ -255,7 +255,7 @@ PolygonIndexData PolygonBuffer::GeneratePlaneTexBuffer(const KazMath::Vec2<float
 	result.index = KazRenderHelper::SetDrawIndexInstanceCommandData(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
 		KazBufferHelper::SetVertexBufferView(result.vertBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVertUv.size(), sizeof(VertUvData)), sizeof(lVertUv[0])),
-		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(USHORT))),
+		KazBufferHelper::SetIndexBufferView(result.indexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndices.size(), sizeof(UINT))),
 		static_cast<UINT>(lIndices.size()),
 		1
 	);
@@ -280,14 +280,14 @@ std::vector<DirectX::XMFLOAT3> PolygonBuffer::GetPlaneVertices(const KazMath::Ve
 	return vertices;
 }
 
-std::vector<DirectX::XMFLOAT3> PolygonBuffer::GetBoxNormal(std::vector<DirectX::XMFLOAT3>VERT, std::vector<USHORT>INDEX)
+std::vector<DirectX::XMFLOAT3> PolygonBuffer::GetBoxNormal(std::vector<DirectX::XMFLOAT3>VERT, std::vector<UINT>INDEX)
 {
 	std::vector<DirectX::XMFLOAT3>normalArray;
 
 	//法線ベクトル
 	for (unsigned int i = 0; i < INDEX.size() / 3; i++)
 	{
-		USHORT index[3];
+		UINT index[3];
 
 		//三角形のインデックスを取り出して、一時的な変数に入れる
 		index[0] = INDEX[i * 3 + 0];
