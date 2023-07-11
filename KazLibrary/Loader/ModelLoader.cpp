@@ -158,8 +158,8 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 		throw std::runtime_error(ss.str());
 	}
 
-	PrintDocumentInfo(doc);
-	PrintResourceInfo(doc, *resourceReader);
+	//PrintDocumentInfo(doc);
+	//PrintResourceInfo(doc, *resourceReader);
 
 	//https://github.com/microsoft/glTF-SDK/blob/master/GLTFSDK.Samples/Deserialize/Source/main.cpp
 	//GLTFSDK‚©‚çˆø—p---------------------------------------

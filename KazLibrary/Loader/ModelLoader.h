@@ -159,7 +159,7 @@ private:
 
 	KazBufferHelper::BufferData LoadErrorTex(GraphicsRootParamType arg_type)
 	{
-		std::string errorFilePass("Resource/Test/MaterialErrorTex.png");
+		std::string errorFilePass("Resource/Error/MaterialErrorTex.png");
 		KazBufferHelper::BufferData buffer(TextureResourceMgr::Instance()->LoadGraphBuffer(errorFilePass));
 		buffer.rootParamType = arg_type;
 		return buffer;
