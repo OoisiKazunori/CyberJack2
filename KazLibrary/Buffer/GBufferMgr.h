@@ -22,9 +22,11 @@ public:
 
 	std::vector<RESOURCE_HANDLE> GetRenderTarget();
 	std::vector<DXGI_FORMAT> GetRenderTargetFormat();
-	void SetCameraPos(DirectX::XMFLOAT3 arg_pos)
+	void SetCameraPos(DirectX::XMFLOAT3 arg_pos, DirectX::XMMATRIX arg_viewMat, DirectX::XMMATRIX arg_projMat)
 	{
 		m_cameraEyePosData.m_eyePos = KazMath::Vec3<float>(arg_pos.x, arg_pos.y, arg_pos.z);
+		m_cameraEyePosData.m_viewMat = arg_viewMat;
+		m_cameraEyePosData.m_projMat = arg_projMat;
 		m_cameraPosBuffer.bufferWrapper->TransData(&m_cameraEyePosData,sizeof(CameraEyePosBufferData));
 	};
 	const KazBufferHelper::BufferData &GetEyePosBuffer()
@@ -69,6 +71,8 @@ public:
 	KazBufferHelper::BufferData m_lightBuffer;
 
 	struct CameraEyePosBufferData {
+		DirectX::XMMATRIX m_viewMat;
+		DirectX::XMMATRIX m_projMat;
 		KazMath::Vec3<float> m_eyePos;
 		float m_noiseTimer;
 	}m_cameraEyePosData;

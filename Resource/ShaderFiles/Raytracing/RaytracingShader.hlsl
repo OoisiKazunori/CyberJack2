@@ -25,6 +25,16 @@ Texture2D<float4> worldMap : register(t4);
 RWTexture2D<float4> finalColor : register(u0);
 RWTexture3D<float4> volumeNoiseTexture : register(u1);
 
+//空の色を取得。
+float3 GetSkyColor(float3 arg_eyeVec)
+{
+    arg_eyeVec.y = max(arg_eyeVec.y, 0.0);
+    float r = pow(1.0 - arg_eyeVec.y, 2.0);
+    float g = 1.0 - arg_eyeVec.y;
+    float b = 0.6 + (1.0 - arg_eyeVec.y) * 0.4;
+    return float3(r, g, b);
+}
+
 //RayGenerationシェーダー
 [shader("raygeneration")]
 void mainRayGen()
@@ -50,8 +60,24 @@ void mainRayGen()
     GodRayPass(worldColor, albedoColor, launchIndex, cameraEyePos, lightData, gRtScene, volumeNoiseTexture, volumeFogData);
     
     //マテリアルのIDをもとに、反射屈折のレイを飛ばす。
-    float4 final = float4(0, 0, 0, 0);
+    float4 final = float4(0, 0, 0, 1);
     SecondaryPass(worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
+    
+    //なにも描画されていないところでは空の色を取得。
+    if (length(albedoColor.xyz) < 0.1f && length(worldColor.xyz) < 0.1f && length(normalColor.xyz) < 0.1f)
+    {
+       
+        float2 dims = float2(DispatchRaysDimensions().xy);
+
+        float2 d = (launchIndex.xy + 0.5) / dims.xy * 2.0 - 1.0;
+        float aspect = dims.x / dims.y;
+
+        float4 target = mul(cameraEyePos.m_projMat, float4(d.x, -d.y, 1, 1));
+        float3 dir = mul(cameraEyePos.m_viewMat, float4(target.xyz, 0)).xyz;
+        
+        final.xyz = GetSkyColor(dir);
+        
+    }
     
     //合成の結果を入れる。
     finalColor[launchIndex.xy] = final;
@@ -63,7 +89,7 @@ void mainRayGen()
 void mainMS(inout Payload PayloadData)
 {
     
-    PayloadData.m_color = float3(1, 1, 1);
+    PayloadData.m_color = GetSkyColor(WorldRayDirection());
 
 }
 

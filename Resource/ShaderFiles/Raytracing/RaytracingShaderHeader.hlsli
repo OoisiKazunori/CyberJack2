@@ -51,6 +51,8 @@ struct LightData
 //カメラ用定数バッファ
 struct CameraEyePosConstData
 {
+    matrix m_viewMat;
+    matrix m_projMat;
     float3 m_eye;
     float m_timer;
 };
