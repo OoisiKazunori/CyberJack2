@@ -10,6 +10,10 @@ struct IAPolygonData
 	IAPolygonData(const KazBufferHelper::BufferData& arg_vertexBufferGennerateData, const KazBufferHelper::BufferData& arg_indexBufferGennerateData) :
 		m_vertexBuffer(std::make_shared<KazBufferHelper::BufferData>(arg_vertexBufferGennerateData)), m_indexBuffer(std::make_shared<KazBufferHelper::BufferData>(arg_indexBufferGennerateData))
 	{}
+
+	IAPolygonData(const KazBufferHelper::BufferData& arg_vertexBufferGennerateData) :
+		m_vertexBuffer(std::make_shared<KazBufferHelper::BufferData>(arg_vertexBufferGennerateData))
+	{}
 };
 
 struct PolygonGenerateData
@@ -39,6 +43,18 @@ struct IAPolygonBufferData
 		m_gpuBuffer.m_vertexBuffer->bufferWrapper->CopyBuffer(m_cpuBuffer.m_vertexBuffer->bufferWrapper->GetBuffer(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
 		m_gpuBuffer.m_indexBuffer->bufferWrapper->CopyBuffer(m_cpuBuffer.m_indexBuffer->bufferWrapper->GetBuffer(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
 	};
+
+	IAPolygonBufferData(const PolygonGenerateData& arg_vertex) :
+		m_cpuBuffer(
+			KazBufferHelper::SetVertexBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(arg_vertex.m_arraySize, arg_vertex.m_structureSize))
+		),
+		m_gpuBuffer(
+			KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(arg_vertex.m_arraySize, arg_vertex.m_structureSize))
+		)
+	{
+		m_cpuBuffer.m_vertexBuffer->bufferWrapper->TransData(arg_vertex.m_ptr, KazBufferHelper::GetBufferSize<BUFFER_SIZE>(arg_vertex.m_arraySize, arg_vertex.m_structureSize));
+		m_gpuBuffer.m_vertexBuffer->bufferWrapper->CopyBuffer(m_cpuBuffer.m_vertexBuffer->bufferWrapper->GetBuffer(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+	};
 };
 
 /// <summary>
@@ -65,6 +81,7 @@ class VertexBufferMgr :public ISingleton<VertexBufferMgr>
 {
 public:
 	RESOURCE_HANDLE GenerateBuffer(const std::vector<VertexGenerateData>& vertexData);
+	RESOURCE_HANDLE GenerateBufferWithoutIndex(const std::vector<VertexGenerateData>& vertexData);
 	RESOURCE_HANDLE GeneratePlaneBuffer();
 	RESOURCE_HANDLE GenerateBoxBuffer();
 

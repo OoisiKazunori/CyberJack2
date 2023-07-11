@@ -145,7 +145,7 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 		}
 #pragma endregion
 		//デバック用
-		eyePos = KazMath::CaluEyePosForDebug(eyePos, debugCameraMove, angle, 25.0f);
+		eyePos = KazMath::CaluEyePosForDebug(eyePos, debugCameraMove, angle, 0.1f);
 		targetPos = KazMath::CaluTargetPosForDebug(eyePos, angle.x);
 	}
 

@@ -197,6 +197,98 @@ namespace DrawFuncPipelineData
 	}
 
 
+	static D3D12_GRAPHICS_PIPELINE_STATE_DESC SetPosLineTopology()
+	{
+		//パイプラインの設定
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC gPipeline{};
+
+		static D3D12_INPUT_ELEMENT_DESC input3DLayOut;
+		input3DLayOut =
+		{
+			"POSITION",
+			0,
+			DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		};
+
+		gPipeline.InputLayout.pInputElementDescs = &input3DLayOut;
+		gPipeline.InputLayout.NumElements = 1;
+
+		//サンプルマスク
+		gPipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+		//ラスタライザ
+		//背面カリング、塗りつぶし、深度クリッピング有効
+		CD3DX12_RASTERIZER_DESC rasterrize(D3D12_DEFAULT);
+		gPipeline.RasterizerState = rasterrize;
+		//ブレンドモード
+		gPipeline.BlendState.RenderTarget[0] = SetAlphaBlend();
+
+		//図形の形状
+		gPipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+
+		//その他設定
+		gPipeline.NumRenderTargets = 1;
+		gPipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		gPipeline.SampleDesc.Count = 1;
+
+		//デプスステンシルステートの設定
+		gPipeline.DepthStencilState.DepthEnable = true;							//深度テストを行う
+		gPipeline.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;//書き込み許可
+		gPipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;		//小さければOK
+		gPipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;							//深度値フォーマット
+
+		return gPipeline;
+	}
+
+
+	static D3D12_GRAPHICS_PIPELINE_STATE_DESC SetPos()
+	{
+		//パイプラインの設定
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC gPipeline{};
+
+		static D3D12_INPUT_ELEMENT_DESC input3DLayOut;
+		input3DLayOut =
+		{
+			"POSITION",
+			0,
+			DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		};
+
+		gPipeline.InputLayout.pInputElementDescs = &input3DLayOut;
+		gPipeline.InputLayout.NumElements = 1;
+
+		//サンプルマスク
+		gPipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+		//ラスタライザ
+		//背面カリング、塗りつぶし、深度クリッピング有効
+		CD3DX12_RASTERIZER_DESC rasterrize(D3D12_DEFAULT);
+		gPipeline.RasterizerState = rasterrize;
+		//ブレンドモード
+		gPipeline.BlendState.RenderTarget[0] = SetAlphaBlend();
+
+		//図形の形状
+		gPipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+		//その他設定
+		gPipeline.NumRenderTargets = 1;
+		gPipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		gPipeline.SampleDesc.Count = 1;
+
+		//デプスステンシルステートの設定
+		gPipeline.DepthStencilState.DepthEnable = true;							//深度テストを行う
+		gPipeline.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;//書き込み許可
+		gPipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;		//小さければOK
+		gPipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;							//深度値フォーマット
+
+		return gPipeline;
+	}
 
 	static D3D12_GRAPHICS_PIPELINE_STATE_DESC SetPosNormal()
 	{
@@ -486,7 +578,7 @@ namespace DrawFuncData
 	struct DrawCallData
 	{
 		DrawCallData(std::source_location location = std::source_location::current()) :
-			callLocation(location), renderTargetHandle(-1),depthHandle(-1)
+			callLocation(location), renderTargetHandle(-1), depthHandle(-1)
 		{
 		};
 		/// <summary>
@@ -519,7 +611,7 @@ namespace DrawFuncData
 	};
 
 	//単色のポリゴン表示(インデックスなし)
-	static DrawCallData SetDrawPolygonData(const KazRenderHelper::DrawInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	static DrawCallData SetDrawPolygonData(const KazRenderHelper::DrawInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
 		//頂点情報
@@ -646,8 +738,9 @@ namespace DrawFuncData
 		return lDrawCallData;
 	};
 
-	//レイトレでのモデルのポリゴン表示(インデックスあり、マテリアルあり)
-	static DrawCallData SetDrawGLTFIndexMaterialInRayTracingData(const ModelInfomation &MODEL_DATA, const PipelineGenerateData &PIPELINE_DATA)
+
+	//モデルのポリゴン表示(インデックスあり、マテリアルあり)
+	static DrawCallData SetDrawGLTFIndexMaterialLightData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
 
@@ -657,7 +750,57 @@ namespace DrawFuncData
 		lDrawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
 		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetBuffer(MODEL_DATA.modelVertDataHandle).index;
 		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
-		for (auto &obj : MODEL_DATA.modelData)
+		for (auto& obj : MODEL_DATA.modelData)
+		{
+			lDrawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
+		}
+
+		//行列情報
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(CoordinateSpaceMatData))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		lDrawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
+
+		//ライト情報
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		lDrawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT3);
+
+		//色乗算
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+		lDrawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
+		KazMath::Color init(255, 255, 255, 255);
+		lDrawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+
+
+
+		lDrawCallData.pipelineData = PIPELINE_DATA;
+		lDrawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+
+		return lDrawCallData;
+	};
+
+	//レイトレでのモデルのポリゴン表示(インデックスあり、マテリアルあり)
+	static DrawCallData SetDrawGLTFIndexMaterialInRayTracingData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA)
+	{
+		DrawCallData lDrawCallData;
+
+		lDrawCallData.pipelineData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+
+		//頂点情報
+		lDrawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
+		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetBuffer(MODEL_DATA.modelVertDataHandle).index;
+		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
+		for (auto& obj : MODEL_DATA.modelData)
 		{
 			lDrawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
 		}
@@ -686,7 +829,7 @@ namespace DrawFuncData
 		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 		lDrawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
 		KazMath::Color init(255, 255, 255, 255);
-		lDrawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(),sizeof(DirectX::XMFLOAT4));
+		lDrawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
 
 
 
@@ -698,7 +841,7 @@ namespace DrawFuncData
 
 
 	//行列情報のみ
-	static DrawCallData SetTransformData(const KazRenderHelper::DrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	static DrawCallData SetTransformData(const KazRenderHelper::DrawIndexInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
 		//頂点情報
@@ -718,7 +861,7 @@ namespace DrawFuncData
 	};
 
 	//行列情報とテクスチャ
-	static DrawCallData SetTexPlaneData(const PipelineGenerateData &PIPELINE_DATA)
+	static DrawCallData SetTexPlaneData(const PipelineGenerateData& PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
 
@@ -767,5 +910,50 @@ namespace DrawFuncData
 
 		return drawCall;
 	};
+
+	static DrawCallData SetLine()
+	{
+		DrawCallData lDrawCallData;
+
+		//頂点情報
+		std::array<DirectX::XMFLOAT3, 2>vertArray;
+		vertArray[0] = { 0.0f,0.0f,0.0f };
+		vertArray[1] = { 0.0f,0.0f,0.0f };
+
+		std::vector<VertexGenerateData> vertexArray;
+		vertexArray.emplace_back((void*)vertArray.data(), static_cast<int>(sizeof(DirectX::XMFLOAT3)), vertArray.size(), static_cast<int>(sizeof(DirectX::XMFLOAT3)), std::vector<UINT>());
+		lDrawCallData.m_modelVertDataHandle = VertexBufferMgr::Instance()->GenerateBufferWithoutIndex(vertexArray);
+		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetBuffer(lDrawCallData.m_modelVertDataHandle).index;
+		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
+
+		DrawFuncData::PipelineGenerateData pipelineData;
+		pipelineData.desc = DrawFuncPipelineData::SetPosLineTopology();
+		pipelineData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Line.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		pipelineData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Line.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
+		lDrawCallData.pipelineData = pipelineData;
+		lDrawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+
+
+		//行列情報
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		lDrawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMMATRIX);
+
+		//色
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		lDrawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
+		KazMath::Color init(255, 255, 255, 255);
+		lDrawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+
+
+		return lDrawCallData;
+	}
 
 }

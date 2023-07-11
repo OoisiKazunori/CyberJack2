@@ -89,6 +89,72 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerate
 	return outputHandle;
 }
 
+RESOURCE_HANDLE VertexBufferMgr::GenerateBufferWithoutIndex(const std::vector<VertexGenerateData>& vertexData)
+{
+	std::vector<KazRenderHelper::IASetVertexBuffersData> setVertDataArray;
+	std::vector<KazRenderHelper::DrawIndexedInstancedData> drawCommandDataArray;
+
+
+	RESOURCE_HANDLE outputHandle = m_handle.GetHandle();
+	bool pushBackFlag = false;
+	if (drawDataArray.size() <= outputHandle)
+	{
+		drawDataArray.emplace_back();
+		m_polygonBufferArray.emplace_back();
+		pushBackFlag = true;
+	}
+
+	for (const auto& meshData : vertexData)
+	{
+		m_polygonBufferArray[outputHandle].emplace_back(
+			PolygonGenerateData(meshData.verticesPos, meshData.structureSize, meshData.arraySize)
+		);
+
+		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(m_polygonBufferArray[outputHandle].back().m_cpuBuffer.m_vertexBuffer);
+
+		vertexBuffer->structureSize = meshData.structureSize;
+		vertexBuffer->elementNum = static_cast<UINT>(meshData.arraySize);
+
+		//頂点情報
+		setVertDataArray.emplace_back();
+		setVertDataArray.back().numViews = 1;
+		setVertDataArray.back().slot = 0;
+		setVertDataArray.back().vertexBufferView = KazBufferHelper::SetVertexBufferView(vertexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(meshData.arraySize, meshData.structureSize), meshData.oneArraySize);
+
+
+		//描画コマンド情報
+		KazRenderHelper::DrawIndexedInstancedData result;
+		result.indexCountPerInstance = static_cast<UINT>(meshData.indices.size());
+		result.instanceCount = 1;
+		result.startIndexLocation = 0;
+		result.baseVertexLocation = 0;
+		result.startInstanceLocation = 0;
+		drawCommandDataArray.emplace_back(result);
+
+
+		drawDataArray[outputHandle].vertBuffer.emplace_back(vertexBuffer);
+
+
+		RESOURCE_HANDLE handle = DescriptorHeapMgr::Instance()->GetSize(DESCRIPTORHEAP_MEMORY_IAPOLYGONE).startSize + sDescHandle;
+		D3D12_SHADER_RESOURCE_VIEW_DESC view;
+		view.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		view.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		view.Format = DXGI_FORMAT_UNKNOWN;
+		view.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		view.Buffer.NumElements = static_cast<UINT>(meshData.arraySize);
+		view.Buffer.FirstElement = 0;
+		view.Buffer.StructureByteStride = meshData.structureSize;
+		DescriptorHeapMgr::Instance()->CreateBufferView(handle, view, vertexBuffer->bufferWrapper->GetBuffer().Get());
+		drawDataArray[outputHandle].vertBuffer.back()->bufferWrapper->CreateViewHandle(handle);
+		++sDescHandle;
+	}
+	drawDataArray[outputHandle].index.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	drawDataArray[outputHandle].index.vertexBufferDrawData = setVertDataArray;
+	drawDataArray[outputHandle].index.drawIndexInstancedData = drawCommandDataArray;
+
+	return outputHandle;
+}
+
 RESOURCE_HANDLE VertexBufferMgr::GeneratePlaneBuffer()
 {
 	vertexBufferArray.emplace_back();

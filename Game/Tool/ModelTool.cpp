@@ -6,7 +6,16 @@
 
 ModelTool::ModelTool(std::string arg_fileDir) :m_fileDir(arg_fileDir)
 {
-	//Load();
+	Load();
+
+	for (int z = 0; z < m_gridCallDataX.size(); ++z)
+	{
+		m_gridCallDataX[z] = DrawFuncData::SetLine();
+	}
+	for (int y = 0; y < m_gridCallDataZ.size(); ++y)
+	{
+		m_gridCallDataZ[y] = DrawFuncData::SetLine();
+	}
 }
 
 void ModelTool::Load()
@@ -84,6 +93,10 @@ void ModelTool::Update()
 void ModelTool::Draw(DrawingByRasterize& render)
 {
 	ImGui::Begin("ModelTool");
+	if (ImGui::Button("Load Model"))
+	{
+		Load();
+	}
 	ImGui::BeginChild(ImGui::GetID((void*)0), ImVec2(250, 100), ImGuiWindowFlags_NoTitleBar);
 	//ƒ‚ƒfƒ‹–¼•\¦
 	for (int i = 0; i < m_modelInfomationArray.size(); ++i)
@@ -93,26 +106,56 @@ void ModelTool::Draw(DrawingByRasterize& render)
 	ImGui::EndChild();
 	if (m_modelInfomationArray.size() != 0)
 	{
-		if(ImGui::TreeNode("Transform"))
+		if (ImGui::TreeNode("Transform"))
 		{
 			//Transform‰Šú‰»
 			if (ImGui::Button("InitTransform"))
 			{
 				m_modelInfomationArray[m_selectNum].m_transform.pos = {};
-				m_modelInfomationArray[m_selectNum].m_transform.scale = {};
+				m_modelInfomationArray[m_selectNum].m_transform.scale = { 1.0f,1.0f,1.0f };
 				m_modelInfomationArray[m_selectNum].m_transform.rotation = {};
 			}
 			//‰ñ“]ˆ—
-			KazImGuiHelper::InputTransform3D("Transform", &m_modelInfomationArray[m_selectNum].m_transform);
+			ImGui::DragFloat("Scale", &m_modelInfomationArray[m_selectNum].m_transform.scale.x);
+			KazImGuiHelper::InputVec3("Rotation", &m_modelInfomationArray[m_selectNum].m_transform.rotation);
+			m_modelInfomationArray[m_selectNum].m_transform.scale.y = m_modelInfomationArray[m_selectNum].m_transform.scale.x;
+			m_modelInfomationArray[m_selectNum].m_transform.scale.z = m_modelInfomationArray[m_selectNum].m_transform.scale.x;
 			ImGui::TreePop();
 		}
 	}
 	else
 	{
-		ImGui::Text("You didn't Load Anything. Please Press L or check inside a file");
+		ImGui::Text("You didn't Load Anything. Please press Load Model button or check inside a file");
 	}
+	KazImGuiHelper::InputVec3("DirectionalLight", &m_directionalLight);
 	ImGui::End();
 
+	//ƒ‚ƒfƒ‹•`‰æ
+	DrawFunc::DrawModelLight(m_modelInfomationArray[m_selectNum].m_drawCall, m_modelInfomationArray[m_selectNum].m_transform, m_directionalLight, KazMath::Color(255, 255, 255, 255));
+	DrawGrid(render);
+	render.ObjectRender(m_modelInfomationArray[m_selectNum].m_drawCall);
+}
 
-	//render.ObjectRender();
+void ModelTool::DrawGrid(DrawingByRasterize& render)
+{
+	const float height = -5.0f;
+	const float range = 50.0f;
+	const KazMath::Color lineColor(49, 187, 134, 255);
+
+	//‰¡‚Ìü‚ğ•À‚×‚é
+	for (int z = 0; z < m_gridCallDataX.size(); ++z)
+	{
+		float zLine = static_cast<float>(z) * 10.0f - (range);
+		KazMath::Vec3<float>startPos(-range + 20.0f, height, zLine), endPos(range + 20.0f, height, zLine);
+		DrawFunc::DrawLine(m_gridCallDataX[z], startPos, endPos, lineColor);
+		render.ObjectRender(m_gridCallDataX[z]);
+	}
+	//c‚Ìü‚ğ•À‚×‚é
+	for (int x = 0; x < m_gridCallDataZ.size(); ++x)
+	{
+		float xLine = static_cast<float>(x) * 10.0f - (range);
+		KazMath::Vec3<float>startPos(xLine, height, -range), endPos(xLine, height, range + 20.0f);
+		DrawFunc::DrawLine(m_gridCallDataZ[x], startPos, endPos, lineColor);
+		render.ObjectRender(m_gridCallDataZ[x]);
+	}
 }

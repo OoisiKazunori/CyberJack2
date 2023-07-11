@@ -36,7 +36,7 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string arg_fileDir, std:
 	std::vector<VertexGenerateData> vertArray;
 	m_modelVertexDataArray.emplace_back();
 	int dex = 0;
-	for (const auto &meshData : modelData)
+	for (const auto& meshData : modelData)
 	{
 		std::vector<VertexBufferData>vertexData = GetVertexDataArray(meshData.vertexData, meshData.vertexData.indexArray);
 		m_modelVertexDataArray.back().m_vertexDataArray.emplace_back(vertexData);
@@ -52,7 +52,7 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string arg_fileDir, std:
 	return m_modelArray.back();
 }
 
-std::vector<VertexBufferData> ModelLoader::GetVertexDataArray(const VertexData &data)
+std::vector<VertexBufferData> ModelLoader::GetVertexDataArray(const VertexData& data)
 {
 	std::vector<VertexBufferData>result(data.indexArray.size());
 
@@ -67,7 +67,7 @@ std::vector<VertexBufferData> ModelLoader::GetVertexDataArray(const VertexData &
 	return result;
 }
 
-std::vector<VertexBufferData> ModelLoader::GetVertexDataArray(const VertexData &data, const std::vector<UINT> &indexArray)
+std::vector<VertexBufferData> ModelLoader::GetVertexDataArray(const VertexData& data, const std::vector<UINT>& indexArray)
 {
 	std::vector<VertexBufferData>result(data.verticesArray.size());
 
@@ -115,7 +115,7 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 
 	std::string manifest;
 
-	auto MakePathExt = [](const std::string &ext)
+	auto MakePathExt = [](const std::string& ext)
 	{
 		return "." + ext;
 	};
@@ -150,7 +150,7 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 	{
 		doc = Microsoft::glTF::Deserialize(manifest);
 	}
-	catch (const Microsoft::glTF::GLTFException &ex)
+	catch (const Microsoft::glTF::GLTFException& ex)
 	{
 		std::stringstream ss;
 		ss << "Microsoft::glTF::Deserialize failed: ";
@@ -166,17 +166,15 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 
 
 	std::vector<Microsoft::glTF::Node>node;
+	std::vector<DirectX::XMMATRIX> worldMat;
 	//ノードの読み込み
-	for (const auto &gltfNode : doc.nodes.Elements())
+	for (const auto& gltfNode : doc.nodes.Elements())
 	{
-		gltfNode.rotation;
-		gltfNode.scale;
-		gltfNode.translation;
 	}
 
 	std::vector<MaterialData> modelMaterialDataArray;
 	//マテリアル情報の読み込み
-	for (const auto &material : doc.materials.Elements())
+	for (const auto& material : doc.materials.Elements())
 	{
 		modelMaterialDataArray.emplace_back();
 
@@ -184,8 +182,8 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 		//テクスチャの取得
 		if (!texID.empty())
 		{
-			auto &texture = doc.textures.Get(texID);
-			auto &image = doc.images.Get(texture.imageId);
+			auto& texture = doc.textures.Get(texID);
+			auto& image = doc.images.Get(texture.imageId);
 			if (!image.uri.empty())
 			{
 				std::string textureFilePass(FileDir + image.uri);
@@ -207,8 +205,8 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 		texID = material.normalTexture.textureId;
 		if (!texID.empty())
 		{
-			auto &texture = doc.textures.Get(texID);
-			auto &image = doc.images.Get(texture.imageId);
+			auto& texture = doc.textures.Get(texID);
+			auto& image = doc.images.Get(texture.imageId);
 			if (!image.uri.empty())
 			{
 				std::string textureFilePass(FileDir + image.uri);
@@ -231,8 +229,8 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 		texID = material.metallicRoughness.metallicRoughnessTexture.textureId;
 		if (!texID.empty())
 		{
-			auto &texture = doc.textures.Get(texID);
-			auto &image = doc.images.Get(texture.imageId);
+			auto& texture = doc.textures.Get(texID);
+			auto& image = doc.images.Get(texture.imageId);
 			if (!image.uri.empty())
 			{
 				std::string textureFilePass(FileDir + image.uri);
@@ -255,7 +253,7 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 	//モデル一つ分のメッシュの塊
 	std::vector<ModelMeshData> meshData;
 	//メッシュの読み込み
-	for (const auto &meshes : doc.meshes.Elements())
+	for (const auto& meshes : doc.meshes.Elements())
 	{
 		//メッシュの名前を保存
 		const auto meshName = meshes.name;
@@ -264,7 +262,7 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 		Microsoft::glTF::IndexedContainer<const Microsoft::glTF::Accessor> accsessor(doc.accessors);
 
 		//プリミティブにはmeshのレンダリングに必要なジオメトリ情報を持つ
-		for (const auto &primitive : meshes.primitives)
+		for (const auto& primitive : meshes.primitives)
 		{
 			//メッシュ一個分の情報
 			VertexData vertexInfo;
@@ -276,21 +274,21 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 			アクセサーでbufferviewとその奥の階層にあるbufferの振る舞いを見る事が出来るので、バイナリー内の指定の情報を探索する事が出来る。
 			*/
 			//頂点情報の入手---------------------------------------
-			auto &idPos = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_POSITION);
-			auto &accPos = accsessor.Get(idPos);
-			auto &vertPos = resourceReader->ReadBinaryData<float>(doc, accPos);
+			auto& idPos = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_POSITION);
+			auto& accPos = accsessor.Get(idPos);
+			auto& vertPos = resourceReader->ReadBinaryData<float>(doc, accPos);
 			//頂点情報の入手---------------------------------------
 
 			//法線情報の入手---------------------------------------
-			auto &idNormal = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_NORMAL);
-			auto &accNormal = accsessor.Get(idNormal);
-			auto &normal = resourceReader->ReadBinaryData<float>(doc, accNormal);
+			auto& idNormal = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_NORMAL);
+			auto& accNormal = accsessor.Get(idNormal);
+			auto& normal = resourceReader->ReadBinaryData<float>(doc, accNormal);
 			//法線情報の入手---------------------------------------
 
 			//UV座標情報の入手---------------------------------------
-			auto &idUV = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_TEXCOORD_0);
-			auto &accUV = accsessor.Get(idUV);
-			auto &uv = resourceReader->ReadBinaryData<float>(doc, accUV);
+			auto& idUV = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_TEXCOORD_0);
+			auto& accUV = accsessor.Get(idUV);
+			auto& uv = resourceReader->ReadBinaryData<float>(doc, accUV);
 			//UV座標情報の入手---------------------------------------
 
 
@@ -316,9 +314,9 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 			//(参考サイト)https://coposuke.hateblo.jp/entry/2020/12/21/144327)
 			if (primitive.HasAttribute(Microsoft::glTF::ACCESSOR_TANGENT))
 			{
-				auto &tangentID = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_TANGENT);
-				auto &accTangent = accsessor.Get(tangentID);
-				auto &vertTangent = resourceReader->ReadBinaryData<float>(doc, accTangent);
+				auto& tangentID = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_TANGENT);
+				auto& accTangent = accsessor.Get(tangentID);
+				auto& vertTangent = resourceReader->ReadBinaryData<float>(doc, accTangent);
 
 				for (int i = 0; i < vertexInfo.verticesArray.size(); ++i)
 				{
@@ -370,7 +368,7 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 	return meshData;
 }
 
-void GLTFLoader::PrintDocumentInfo(const Microsoft::glTF::Document &document)
+void GLTFLoader::PrintDocumentInfo(const Microsoft::glTF::Document& document)
 {
 	// Asset Info
 	std::cout << "Asset Version:    " << document.asset.version << "\n";
@@ -412,7 +410,7 @@ void GLTFLoader::PrintDocumentInfo(const Microsoft::glTF::Document &document)
 	// Animation Info
 	std::cout << "Animation Count: " << document.animations.Size() << "\n\n";
 
-	for (const auto &extension : document.extensionsUsed)
+	for (const auto& extension : document.extensionsUsed)
 	{
 		std::cout << "Extension Used: " << extension << "\n";
 	}
@@ -422,7 +420,7 @@ void GLTFLoader::PrintDocumentInfo(const Microsoft::glTF::Document &document)
 		std::cout << "\n";
 	}
 
-	for (const auto &extension : document.extensionsRequired)
+	for (const auto& extension : document.extensionsRequired)
 	{
 		std::cout << "Extension Required: " << extension << "\n";
 	}
@@ -433,20 +431,20 @@ void GLTFLoader::PrintDocumentInfo(const Microsoft::glTF::Document &document)
 	}
 }
 
-void GLTFLoader::PrintResourceInfo(const Microsoft::glTF::Document &document, const Microsoft::glTF::GLTFResourceReader &resourceReader)
+void GLTFLoader::PrintResourceInfo(const Microsoft::glTF::Document& document, const Microsoft::glTF::GLTFResourceReader& resourceReader)
 {
 	// Use the resource reader to get each mesh primitive's position data
-	for (const auto &mesh : document.meshes.Elements())
+	for (const auto& mesh : document.meshes.Elements())
 	{
 		std::cout << "Mesh: " << mesh.id << "\n";
 
-		for (const auto &meshPrimitive : mesh.primitives)
+		for (const auto& meshPrimitive : mesh.primitives)
 		{
 			std::string accessorId;
 
 			if (meshPrimitive.TryGetAttributeAccessorId(Microsoft::glTF::ACCESSOR_POSITION, accessorId))
 			{
-				const Microsoft::glTF::Accessor &accessor = document.accessors.Get(accessorId);
+				const Microsoft::glTF::Accessor& accessor = document.accessors.Get(accessorId);
 
 				const auto data = resourceReader.ReadBinaryData<float>(document, accessor);
 				const auto dataByteLength = data.size() * sizeof(float);
@@ -459,7 +457,7 @@ void GLTFLoader::PrintResourceInfo(const Microsoft::glTF::Document &document, co
 	}
 
 	// Use the resource reader to get each image's data
-	for (const auto &image : document.images.Elements())
+	for (const auto& image : document.images.Elements())
 	{
 		std::string filename;
 
@@ -467,8 +465,8 @@ void GLTFLoader::PrintResourceInfo(const Microsoft::glTF::Document &document, co
 		{
 			assert(!image.bufferViewId.empty());
 
-			auto &bufferView = document.bufferViews.Get(image.bufferViewId);
-			auto &buffer = document.buffers.Get(bufferView.bufferId);
+			auto& bufferView = document.bufferViews.Get(image.bufferViewId);
+			auto& buffer = document.buffers.Get(bufferView.bufferId);
 
 			filename += buffer.uri; //NOTE: buffer uri is empty if image is stored in GLB binary chunk
 		}
@@ -493,7 +491,7 @@ void GLTFLoader::PrintResourceInfo(const Microsoft::glTF::Document &document, co
 	}
 }
 
-void GLTFLoader::PrintInfo(const std::experimental::filesystem::path &path)
+void GLTFLoader::PrintInfo(const std::experimental::filesystem::path& path)
 {
 	// Pass the absolute path, without the filename, to the stream reader
 	auto streamReader = std::make_unique<StreamReader>(path.parent_path());
@@ -503,7 +501,7 @@ void GLTFLoader::PrintInfo(const std::experimental::filesystem::path &path)
 
 	std::string manifest;
 
-	auto MakePathExt = [](const std::string &ext)
+	auto MakePathExt = [](const std::string& ext)
 	{
 		return "." + ext;
 	};
@@ -549,7 +547,7 @@ void GLTFLoader::PrintInfo(const std::experimental::filesystem::path &path)
 	{
 		document = Microsoft::glTF::Deserialize(manifest);
 	}
-	catch (const Microsoft::glTF::GLTFException &ex)
+	catch (const Microsoft::glTF::GLTFException& ex)
 	{
 		std::stringstream ss;
 
@@ -565,7 +563,7 @@ void GLTFLoader::PrintInfo(const std::experimental::filesystem::path &path)
 	PrintResourceInfo(document, *resourceReader);
 }
 
-ModelInfomation::ModelInfomation(const std::vector<ModelMeshData> &model,RESOURCE_HANDLE vertHandle) :modelData(model), modelVertDataHandle(vertHandle)
+ModelInfomation::ModelInfomation(const std::vector<ModelMeshData>& model, RESOURCE_HANDLE vertHandle) :modelData(model), modelVertDataHandle(vertHandle)
 {
 }
 
