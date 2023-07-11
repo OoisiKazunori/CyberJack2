@@ -242,82 +242,82 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
     
     //ボリュームフォグ
     float3 fogColor = float3(0,0,0);
-    {
-        //レイマーチングの回数を計算。
-        float rayLength = length(arg_cameraEyePos.m_eye - arg_worldColor.xyz);
-        float marchingMovedLength = 0; //レイマーチングで動いた距離
-        float3 marchingPos = arg_cameraEyePos.m_eye;
-        float3 marchingDir = normalize(arg_worldColor.xyz - arg_cameraEyePos.m_eye);
-        for (int index = 0; index < 10000; ++index)
-        {
+    //{
+    //    //レイマーチングの回数を計算。
+    //    float rayLength = length(arg_cameraEyePos.m_eye - arg_worldColor.xyz);
+    //    float marchingMovedLength = 0; //レイマーチングで動いた距離
+    //    float3 marchingPos = arg_cameraEyePos.m_eye;
+    //    float3 marchingDir = normalize(arg_worldColor.xyz - arg_cameraEyePos.m_eye);
+    //    for (int index = 0; index < 10000; ++index)
+    //    {
         
-            //マーチングを進める量。
-            float marchingMoveLength = arg_raymarchingParam.m_sampleLength;
+    //        //マーチングを進める量。
+    //        float marchingMoveLength = arg_raymarchingParam.m_sampleLength;
         
-            //マーチングが上限より移動していたら。
-            bool isFinish = false;
-            if (rayLength < marchingMovedLength + marchingMoveLength)
-            {
+    //        //マーチングが上限より移動していたら。
+    //        bool isFinish = false;
+    //        if (rayLength < marchingMovedLength + marchingMoveLength)
+    //        {
             
-                //残りの量を移動させる。
-                marchingMoveLength = rayLength - marchingMovedLength;
-                isFinish = true;
+    //            //残りの量を移動させる。
+    //            marchingMoveLength = rayLength - marchingMovedLength;
+    //            isFinish = true;
 
-            }
-            else
-            {
+    //        }
+    //        else
+    //        {
             
-                //動いた量を保存。
-                marchingMovedLength += marchingMoveLength;
+    //            //動いた量を保存。
+    //            marchingMovedLength += marchingMoveLength;
             
-            }
+    //        }
         
-            //マーチングを進める。
-            marchingPos += marchingDir * marchingMoveLength;
+    //        //マーチングを進める。
+    //        marchingPos += marchingDir * marchingMoveLength;
         
-            //レイマーチングの座標をボクセル座標空間に直す。
-            float3 volumeTexPos = arg_raymarchingParam.m_pos;
-            volumeTexPos -= arg_raymarchingParam.m_gridSize * ((256.0f / 2.0f) * arg_raymarchingParam.m_wrapCount);
-            int3 boxPos = marchingPos - volumeTexPos; //マーチングのサンプリング地点をボリュームテクスチャの中心基準の座標にずらす。
-            boxPos /= arg_raymarchingParam.m_gridSize;
+    //        //レイマーチングの座標をボクセル座標空間に直す。
+    //        float3 volumeTexPos = arg_raymarchingParam.m_pos;
+    //        volumeTexPos -= arg_raymarchingParam.m_gridSize * ((256.0f / 2.0f) * arg_raymarchingParam.m_wrapCount);
+    //        int3 boxPos = marchingPos - volumeTexPos; //マーチングのサンプリング地点をボリュームテクスチャの中心基準の座標にずらす。
+    //        boxPos /= arg_raymarchingParam.m_gridSize;
         
-            //マーチング座標がボクセルの位置より離れていたらサンプリングしない。
-            if (!IsInRange(boxPos, 256.0f, arg_raymarchingParam.m_wrapCount))
-            {
+    //        //マーチング座標がボクセルの位置より離れていたらサンプリングしない。
+    //        if (!IsInRange(boxPos, 256.0f, arg_raymarchingParam.m_wrapCount))
+    //        {
         
-                if (isFinish)
-                {
-                    break;
-                }
-                continue;
-            }
+    //            if (isFinish)
+    //            {
+    //                break;
+    //            }
+    //            continue;
+    //        }
         
-            boxPos.x = boxPos.x % 256;
-            boxPos.y = boxPos.y % 256;
-            boxPos.z = boxPos.z % 256;
-            boxPos = clamp(boxPos, 0, 255);
+    //        boxPos.x = boxPos.x % 256;
+    //        boxPos.y = boxPos.y % 256;
+    //        boxPos.z = boxPos.z % 256;
+    //        boxPos = clamp(boxPos, 0, 255);
         
-            //ノイズを抜き取る。
-            float3 noise = arg_volumeTexture[boxPos].xyz / 50.0f;
+    //        //ノイズを抜き取る。
+    //        float3 noise = arg_volumeTexture[boxPos].xyz / 50.0f;
         
-            float3 weights = float3(0.8f, 0.1f, 0.1f); // 各ノイズの重み
-            float fogDensity = dot(noise, weights) * arg_raymarchingParam.m_density;
+    //        float3 weights = float3(0.8f, 0.1f, 0.1f); // 各ノイズの重み
+    //        float fogDensity = dot(noise, weights) * arg_raymarchingParam.m_density;
         
-            //Y軸の高さで減衰させる。
-            float maxY = 200.0f;
-            //fogDensity *= 1.0f - saturate(marchingPos.y / maxY);
+    //        //Y軸の高さで減衰させる。
+    //        float maxY = 200.0f;
+    //        //fogDensity *= 1.0f - saturate(marchingPos.y / maxY);
         
-            //その部分の色を抜き取る。
-            fogColor += float3(fogDensity, fogDensity, fogDensity) * arg_raymarchingParam.m_color;
-            //fogColor = arg_raymarchingParam.m_color * fogDensity + fogColor * saturate(1.0f - fogDensity);
+    //        //その部分の色を抜き取る。
+    //        fogColor += float3(fogDensity, fogDensity, fogDensity) * arg_raymarchingParam.m_color;
+    //        //fogColor = arg_raymarchingParam.m_color * fogDensity + fogColor * saturate(1.0f - fogDensity);
         
-            if (isFinish)
-            {
-                break;
-            }
+    //        if (isFinish)
+    //        {
+    //            break;
+    //        }
         
-        }
-    }
+    //    }
+    //}
     
     const float3 FOGCOLOR_LIT = float3(1.0f, 1.0f, 1.0f);
     const float3 FOGCOLOR_UNLIT = float3(0.0f, 0.0f, 0.0f);
