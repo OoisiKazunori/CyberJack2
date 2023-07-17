@@ -25,8 +25,8 @@ public:
 	void SetCameraPos(DirectX::XMFLOAT3 arg_pos, DirectX::XMMATRIX arg_viewMat, DirectX::XMMATRIX arg_projMat)
 	{
 		m_cameraEyePosData.m_eyePos = KazMath::Vec3<float>(arg_pos.x, arg_pos.y, arg_pos.z);
-		m_cameraEyePosData.m_viewMat = arg_viewMat;
-		m_cameraEyePosData.m_projMat = arg_projMat;
+		m_cameraEyePosData.m_viewMat = DirectX::XMMatrixInverse(nullptr, arg_viewMat);
+		m_cameraEyePosData.m_projMat = DirectX::XMMatrixInverse(nullptr, arg_projMat);;
 		m_cameraPosBuffer.bufferWrapper->TransData(&m_cameraEyePosData,sizeof(CameraEyePosBufferData));
 	};
 	const KazBufferHelper::BufferData &GetEyePosBuffer()

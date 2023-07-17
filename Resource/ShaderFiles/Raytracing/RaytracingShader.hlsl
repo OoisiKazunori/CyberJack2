@@ -119,12 +119,12 @@ float MappingHeightNoise(float3 arg_position)
         uv *= octave_m;
 
         //fbm関数として、振幅を0.2倍、周波数を2.0倍して次の計算を行う
-        freq *= 2.0;
-        amp *= 0.2;
+        freq *= 2.0f;
+        amp *= 0.2f;
 
         //choppyを翻訳すると「波瀾」という意味
         //これを小さくすると海が「おとなしく」なる
-        choppy = lerp(choppy, 1.0, 0.2);
+        choppy = lerp(choppy, 1.0f, 0.4f);
     }
 
     //最後に、求まった高さ`h`を、現在のレイの高さから引いたものを「波の高さ」としている
@@ -148,7 +148,7 @@ float HeightMapRayMarching(float3 arg_origin, float3 arg_direction, out float3 a
 
     //ここからが本格的なレイマーチング。
     float hm = MappingHeightNoise(arg_origin + arg_direction * tm); //開始地点でのハイトマップの値。
-    float tmid = 0.0;
+    float tmid = 0.0f;
     for (int i = 0; i < 8; ++i)
     {
         //現在の位置でのハイトマップの値をレイマーチングの到達点の値で正規化する。
@@ -161,7 +161,7 @@ float HeightMapRayMarching(float3 arg_origin, float3 arg_direction, out float3 a
         float hmid = MappingHeightNoise(arg_position);
 
         //サンプリング位置の高さがマイナス距離の場合は`hx`, `tx`を更新する
-        if (hmid < 0.0)
+        if (hmid < 0.0f)
         {
             tx = tmid;
             hx = hmid;
