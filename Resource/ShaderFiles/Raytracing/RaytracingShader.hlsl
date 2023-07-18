@@ -124,7 +124,7 @@ float MappingHeightNoise(float3 arg_position)
 
         //choppyを翻訳すると「波瀾」という意味
         //これを小さくすると海が「おとなしく」なる
-        choppy = lerp(choppy, 1.0f, 0.4f);
+        choppy = lerp(choppy, 1.0f, 0.2f);
     }
 
     //最後に、求まった高さ`h`を、現在のレイの高さから引いたものを「波の高さ」としている
@@ -136,7 +136,7 @@ float HeightMapRayMarching(float3 arg_origin, float3 arg_direction, out float3 a
 {
     float tm = 0.0f;
 
-    float tx = 1000.0f;
+    float tx = 100.0f;
 
     //一旦遠くの位置のサンプリングを行い、結果の高さが0以上だったらレイが海に当たらないということなのでReturnする。
     float hx = MappingHeightNoise(arg_origin + arg_direction * tx);
