@@ -216,44 +216,44 @@ void mainRayGen()
     SecondaryPass(worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
     
     
-    //カメラから見たレイの方向を計算。
-    float2 dims = float2(DispatchRaysDimensions().xy);
-    float2 d = (launchIndex.xy + 0.5f) / dims.xy * 2.0f - 1.0f;
-    float aspect = dims.x / dims.y;
-    float4 target = mul(cameraEyePos.m_projMat, float4(d.x, -d.y, 1, 1));
-    float3 dir = mul(cameraEyePos.m_viewMat, float4(target.xyz, 0)).xyz;
+    ////カメラから見たレイの方向を計算。
+    //float2 dims = float2(DispatchRaysDimensions().xy);
+    //float2 d = (launchIndex.xy + 0.5f) / dims.xy * 2.0f - 1.0f;
+    //float aspect = dims.x / dims.y;
+    //float4 target = mul(cameraEyePos.m_projMat, float4(d.x, -d.y, 1, 1));
+    //float3 dir = mul(cameraEyePos.m_viewMat, float4(target.xyz, 0)).xyz;
     
-    //海を描画
-    if (worldColor.y < 0.0f || length(normalColor.xyz) < 0.1f)
-    {
-        float2 uv = launchIndex.xy / dims.xy;
-        uv = uv * 2.0f - 1.0f;
+    ////海を描画
+    //if (worldColor.y < 0.0f || length(normalColor.xyz) < 0.1f)
+    //{
+    //    float2 uv = launchIndex.xy / dims.xy;
+    //    uv = uv * 2.0f - 1.0f;
         
-        float3 origin = cameraEyePos.m_eye;
+    //    float3 origin = cameraEyePos.m_eye;
         
-        float3 position;
-        HeightMapRayMarching(origin, dir, position);
+    //    float3 position;
+    //    HeightMapRayMarching(origin, dir, position);
 
-        float3 dist = position - origin;
-        float3 n = GetNormal(position, dot(dist, dist) * (0.1f / dims.x));
+    //    float3 dist = position - origin;
+    //    float3 n = GetNormal(position, dot(dist, dist) * (0.1f / dims.x));
         
-        float3 sky = GetSkyColor(dir);
-        float3 sea = GetSeaColor(position, n, lightData.m_dirLight.m_dir, dir, dist);
+    //    float3 sky = GetSkyColor(dir);
+    //    float3 sea = GetSeaColor(position, n, lightData.m_dirLight.m_dir, dir, dist);
         
-        float t = pow(smoothstep(0.0f, -0.05f, dir.y), 0.3f);
-        float3 color = lerp(sky, sea, t);
+    //    float t = pow(smoothstep(0.0f, -0.05f, dir.y), 0.3f);
+    //    float3 color = lerp(sky, sea, t);
         
-        albedoColor.xyz += color;
-        final.xyz += color;
-    }
+    //    albedoColor.xyz += color;
+    //    final.xyz += color;
+    //}
     
-    //なにも描画されていないところでは空の色を取得。
-    if (length(albedoColor.xyz) < 0.1f && length(worldColor.xyz) < 0.1f && length(normalColor.xyz) < 0.1f)
-    {
+    ////なにも描画されていないところでは空の色を取得。
+    //if (length(albedoColor.xyz) < 0.1f && length(worldColor.xyz) < 0.1f && length(normalColor.xyz) < 0.1f)
+    //{
         
-        final.xyz = GetSkyColor(dir);
+    //    final.xyz = GetSkyColor(dir);
         
-    }
+    //}
     
     //合成の結果を入れる。
     finalColor[launchIndex.xy] = final;
