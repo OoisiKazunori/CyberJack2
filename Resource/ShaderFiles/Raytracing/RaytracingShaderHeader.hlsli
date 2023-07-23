@@ -346,7 +346,6 @@ void SecondaryPass(float4 arg_worldColor, float4 arg_materialInfo, float4 arg_no
         float rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
         CastRay(payloadData, rayOrigin, refract(normalize(rayOrigin - arg_cameraEyePos.m_eye), arg_normalColor.xyz, 0.01f), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
         
-
         //Œ‹‰ÊŠi”[
         arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
         arg_finalColor += float4((payloadData.m_color), 1) * (1.0f - arg_materialInfo.y);

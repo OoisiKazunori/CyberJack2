@@ -52,6 +52,14 @@ GBufferMgr::GBufferMgr()
 			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), winSize.x * winSize.y),
 			m_raytracingGBuffer.bufferWrapper->GetBuffer().Get()
 		);
+
+		m_lensflareLuminanceGBuffer = KazBufferHelper::SetUAVTexBuffer(winSize.x, winSize.y, DXGI_FORMAT_R8G8B8A8_UNORM);
+		m_lensflareLuminanceGBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
+		DescriptorHeapMgr::Instance()->CreateBufferView(
+			m_lensflareLuminanceGBuffer.bufferWrapper->GetViewHandle(),
+			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), winSize.x * winSize.y),
+			m_lensflareLuminanceGBuffer.bufferWrapper->GetBuffer().Get()
+		);
 	}
 
 	m_cameraPosBuffer = KazBufferHelper::SetConstBufferData(sizeof(CameraEyePosBufferData));

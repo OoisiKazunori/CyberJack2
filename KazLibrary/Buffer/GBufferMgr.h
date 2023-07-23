@@ -52,6 +52,11 @@ public:
 		return m_raytracingGBuffer;
 	};
 
+	const KazBufferHelper::BufferData& GetLensFlareBuffer()
+	{
+		return m_lensflareLuminanceGBuffer;
+	};
+
 	//ライト用構造体
 	struct DirLight {
 		KazMath::Vec3<float> m_dir;
@@ -86,6 +91,7 @@ private:
 
 	//最終合成結果
 	KazBufferHelper::BufferData m_finalGBuffer;
-	KazBufferHelper::BufferData m_raytracingGBuffer;
+	KazBufferHelper::BufferData m_raytracingGBuffer;			//レイトレの出力結果
+	KazBufferHelper::BufferData m_lensflareLuminanceGBuffer;	//レンズフレアに使用するGBuffer レイトレを実行すると書き込まれる。
 };
 

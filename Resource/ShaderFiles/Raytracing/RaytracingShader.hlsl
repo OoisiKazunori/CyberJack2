@@ -24,6 +24,7 @@ Texture2D<float4> worldMap : register(t4);
 //出力先UAV
 RWTexture2D<float4> finalColor : register(u0);
 RWTexture3D<float4> volumeNoiseTexture : register(u1);
+RWTexture2D<float4> lensFlareTexture : register(u2);
 
 //空の色を取得。
 float3 GetSkyColor(float3 arg_eyeVec)
@@ -204,6 +205,10 @@ void mainRayGen()
     //ライティングパスを行う。
     float bright = 0.0f;
     LightingPass(bright, worldColor, normalColor, lightData, gRtScene);
+    
+    //輝度が一定以上だったらレンズフレア用のテクスチャに書きこむ。
+    const float LENSFLARE_DEADLINE = 0.999f;
+    lensFlareTexture[launchIndex.xy] = float4(albedoColor.xyz * step(LENSFLARE_DEADLINE, bright), 1.0f);
     
     //アルベドにライトの色をかける。
     albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);

@@ -302,6 +302,7 @@ namespace Raytracing {
 		//書き込み用UAV
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(8, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetViewHandle()));	//レイトレ出力用
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(9, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(m_refVolumeNoiseTexture->bufferWrapper->GetViewHandle()));	//ボリュームフォグ用テクスチャ
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(10, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetViewHandle()));	//レンズフレア用テクスチャ
 
 		//パイプラインを設定。
 		DirectX12CmdList::Instance()->cmdList->SetPipelineState1(m_stateObject.Get());
@@ -312,7 +313,7 @@ namespace Raytracing {
 		/*===== コピーコマンドを積む =====*/
 
 		D3D12_RESOURCE_BARRIER barrierToCopyDest[] = { CD3DX12_RESOURCE_BARRIER::UAV(
-		GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetBuffer().Get())
+		GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get())
 		};
 
 		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(1, barrierToCopyDest);
@@ -328,17 +329,17 @@ namespace Raytracing {
 
 		//レイトレ出力用のテクスチャのステータスを書き込み用のUAVからコピー用に変更。
 		D3D12_RESOURCE_BARRIER barrierToUAV[] = { CD3DX12_RESOURCE_BARRIER::Transition(
-		GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetBuffer().Get(),
+		GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get(),
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		D3D12_RESOURCE_STATE_COPY_SOURCE)
 		};
 
 		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(1, barrierToUAV);
 
-		DirectX12CmdList::Instance()->cmdList->CopyResource(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetBuffer().Get());
+		DirectX12CmdList::Instance()->cmdList->CopyResource(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get());
 
 		D3D12_RESOURCE_BARRIER barrierToCopy[] = { CD3DX12_RESOURCE_BARRIER::Transition(
-		GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetBuffer().Get(),
+		GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get(),
 		D3D12_RESOURCE_STATE_COPY_SOURCE,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS)
 		};
