@@ -2,6 +2,11 @@
 #include"../KazLibrary/Helper/ISinglton.h"
 #include"../KazLibrary/Helper/KazBufferHelper.h"
 #include"../KazLibrary/Math/KazMath.h"
+#include<memory>
+
+namespace PostEffect {
+	class GaussianBlur;
+}
 
 /// <summary>
 /// G-Bufferの管理クラス
@@ -57,6 +62,9 @@ public:
 		return m_lensflareLuminanceGBuffer;
 	};
 
+	//レンズフレア用のGBufferにブラーをかける。
+	void ApplyLensFlareBlur();
+
 	//ライト用構造体
 	struct DirLight {
 		KazMath::Vec3<float> m_dir;
@@ -81,6 +89,9 @@ public:
 		KazMath::Vec3<float> m_eyePos;
 		float m_noiseTimer;
 	}m_cameraEyePosData;
+
+	//レンズフレア用ブラー
+	std::shared_ptr<PostEffect::GaussianBlur> m_lensFlareBlur;
 
 private:
 	//G-Buffer用のレンダーターゲット

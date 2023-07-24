@@ -1,17 +1,21 @@
 #include "LensFlare.h"
 #include "Buffer/GBufferMgr.h"
 
-PostEffect::LensFlare::LensFlare()
-{
+namespace PostEffect {
 
-	/*===== コンストラクタ =====*/
+	LensFlare::LensFlare()
+	{
 
-}
+		/*===== コンストラクタ =====*/
 
-void PostEffect::LensFlare::Setting()
-{
+	}
 
-	/*===== 準備処理 =====*/
+	void LensFlare::Setting()
+	{
 
+		/*===== 準備処理 =====*/
+
+
+	}
 
 }

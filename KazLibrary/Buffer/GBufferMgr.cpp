@@ -3,6 +3,7 @@
 #include"../KazLibrary/Buffer/DescriptorHeapMgr.h"
 #include"../KazLibrary/Helper/ResourceFilePass.h"
 #include"RenderTarget/RenderTargetStatus.h"
+#include"../KazLibrary/PostEffect/GaussianBlur.h"
 
 //ワールド座標、ラフネス、メタルネス、スぺキュラ、オブジェクトが反射するか屈折するか(インデックス)、Albedo、法線、カメラ座標(定数バッファでも可能)
 GBufferMgr::GBufferMgr()
@@ -62,6 +63,9 @@ GBufferMgr::GBufferMgr()
 		);
 	}
 
+	//レンズフレア用のブラー
+	m_lensFlareBlur = std::make_shared<PostEffect::GaussianBlur>(m_lensflareLuminanceGBuffer);
+
 	m_cameraPosBuffer = KazBufferHelper::SetConstBufferData(sizeof(CameraEyePosBufferData));
 	m_lightBuffer = KazBufferHelper::SetConstBufferData(sizeof(LightConstData));
 	m_lightConstData.m_dirLight.m_dir = KazMath::Vec3<float>(0.0f, -1.0f, 0.0f);
@@ -82,4 +86,9 @@ D3D12_GPU_DESCRIPTOR_HANDLE GBufferMgr::GetGPUHandle(BufferType arg_type)
 {
 	RESOURCE_HANDLE handle = RenderTargetStatus::Instance()->GetBuffer(m_gBufferRenderTargetHandleArray[arg_type]).bufferWrapper->GetViewHandle();
 	return DescriptorHeapMgr::Instance()->GetGpuDescriptorView(handle);
+}
+
+void GBufferMgr::ApplyLensFlareBlur()
+{
+	m_lensFlareBlur->ApplyBlur();
 }

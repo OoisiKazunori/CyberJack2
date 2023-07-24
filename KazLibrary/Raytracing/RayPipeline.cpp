@@ -313,9 +313,17 @@ namespace Raytracing {
 		/*===== コピーコマンドを積む =====*/
 
 		D3D12_RESOURCE_BARRIER barrierToCopyDest[] = { CD3DX12_RESOURCE_BARRIER::UAV(
-		GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get())
+		GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get()),CD3DX12_RESOURCE_BARRIER::UAV(
+		GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetBuffer().Get())
 		};
+		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(2, barrierToCopyDest);
+		
 
+		//レンズフレア用のテクスチャにガウシアンブラーをかけてフレアを表現する。
+		GBufferMgr::Instance()->ApplyLensFlareBlur();
+
+
+		//レイトレーシング出力結果用のバッファにバリアをかける。
 		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(1, barrierToCopyDest);
 
 		auto backBufferIndex = m_refDirectX12->swapchain->GetCurrentBackBufferIndex();
