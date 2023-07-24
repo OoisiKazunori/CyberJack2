@@ -285,31 +285,8 @@ namespace Raytracing {
 
 		/*===== レイトレーシングを実行 =====*/
 
-		//グローバルルートシグネチャで使うと宣言しているリソースらをセット。
-		DescriptorHeapMgr::Instance()->SetDescriptorHeap();
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootSignature(GetGlobalRootSig()->GetRootSig().Get());
-
-		//TLASを設定。
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(0, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(arg_tlas.GetDescHeapHandle()));
-
-		//GBufferを構築。
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(1, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::ALBEDO));	//アルベド
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(2, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::NORMAL));	//法線
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(3, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::R_M_S_ID));//マテリアル
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(4, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::WORLD));	//ワールド座標
-
-		//カメラ用定数バッファをセット。
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(5, GBufferMgr::Instance()->GetEyePosBuffer().bufferWrapper->GetGpuAddress());
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(6, GBufferMgr::Instance()->m_lightBuffer.bufferWrapper->GetGpuAddress());
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(7, m_refRaymarchingConstData->bufferWrapper->GetGpuAddress());
-
-		//書き込み用UAV
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(8, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetViewHandle()));	//レイトレ出力用
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(9, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(m_refVolumeNoiseTexture->bufferWrapper->GetViewHandle()));	//ボリュームフォグ用テクスチャ
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(10, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetViewHandle()));	//レンズフレア用テクスチャ
-
-		//パイプラインを設定。
-		DirectX12CmdList::Instance()->cmdList->SetPipelineState1(m_stateObject.Get());
+		//レイトレで使用するリソース類をセット。
+		SetRaytracingResource(arg_tlas);
 
 		//レイトレーシングを実行。
 		DirectX12CmdList::Instance()->cmdList->DispatchRays(&m_dispatchRayDesc);
@@ -325,21 +302,24 @@ namespace Raytracing {
 		//レンズフレアをかける。
 		m_lensFlare->Apply();
 
+		//シーン情報にレンズフレアを合成する。
+		GBufferMgr::Instance()->ComposeLensFlareAndScene();
+
 		//UAVのバリアを貼る。
-		UAVBarrier({ m_lensFlare->m_lensFlareTargetCopyTexture , GBufferMgr::Instance()->GetRayTracingBuffer() });
+		UAVBarrier({ GBufferMgr::Instance()->GetLensFlareBuffer() , GBufferMgr::Instance()->GetRayTracingBuffer() });
 
 		//バックバッファの状態を遷移。
 		auto backBufferIndex = m_refDirectX12->swapchain->GetCurrentBackBufferIndex();
 		BufferStatesTransition(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_DEST);
 
 		//レイトレ出力用のテクスチャのステータスを書き込み用のUAVからコピー用に変更。
-		BufferStatesTransition(GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+		BufferStatesTransition(GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
 		//コピーを実行。
-		DirectX12CmdList::Instance()->cmdList->CopyResource(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get());
+		DirectX12CmdList::Instance()->cmdList->CopyResource(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetBuffer().Get());
 
 		//レイトレ出力用のテクスチャのステータスを元に戻す。
-		BufferStatesTransition(GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		BufferStatesTransition(GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		//バックバッファの状態を元に戻す。
 		BufferStatesTransition(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -564,6 +544,37 @@ namespace Raytracing {
 			arg_after),
 		};
 		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(_countof(barriers), barriers);
+	}
+
+	void RayPipeline::SetRaytracingResource(Tlas arg_tlas)
+	{
+
+		//グローバルルートシグネチャで使うと宣言しているリソースらをセット。
+		DescriptorHeapMgr::Instance()->SetDescriptorHeap();
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootSignature(GetGlobalRootSig()->GetRootSig().Get());
+
+		//TLASを設定。
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(0, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(arg_tlas.GetDescHeapHandle()));
+
+		//GBufferを構築。
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(1, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::ALBEDO));	//アルベド
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(2, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::NORMAL));	//法線
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(3, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::R_M_S_ID));//マテリアル
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(4, GBufferMgr::Instance()->GetGPUHandle(GBufferMgr::WORLD));	//ワールド座標
+
+		//カメラ用定数バッファをセット。
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(5, GBufferMgr::Instance()->GetEyePosBuffer().bufferWrapper->GetGpuAddress());
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(6, GBufferMgr::Instance()->m_lightBuffer.bufferWrapper->GetGpuAddress());
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(7, m_refRaymarchingConstData->bufferWrapper->GetGpuAddress());
+
+		//書き込み用UAV
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(8, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetViewHandle()));	//レイトレ出力用
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(9, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(m_refVolumeNoiseTexture->bufferWrapper->GetViewHandle()));	//ボリュームフォグ用テクスチャ
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(10, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetViewHandle()));	//レンズフレア用テクスチャ
+
+		//パイプラインを設定。
+		DirectX12CmdList::Instance()->cmdList->SetPipelineState1(m_stateObject.Get());
+
 	}
 
 }

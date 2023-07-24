@@ -7,6 +7,7 @@
 namespace PostEffect {
 	class GaussianBlur;
 }
+class ComputeShader;
 
 /// <summary>
 /// G-Bufferの管理クラス
@@ -59,11 +60,17 @@ public:
 
 	const KazBufferHelper::BufferData& GetLensFlareBuffer()
 	{
-		return m_lensflareLuminanceGBuffer;
+		return m_lensFlareLuminanceGBuffer;
 	};
 
 	//レンズフレア用のGBufferにブラーをかける。
 	void ApplyLensFlareBlur();
+
+	//レンズフレアとシーン画像を合成する。
+	void ComposeLensFlareAndScene();
+
+	//バッファのステータスを遷移。
+	void BufferStatesTransition(ID3D12Resource* arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after);
 
 	//ライト用構造体
 	struct DirLight {
@@ -103,6 +110,10 @@ private:
 	//最終合成結果
 	KazBufferHelper::BufferData m_finalGBuffer;
 	KazBufferHelper::BufferData m_raytracingGBuffer;			//レイトレの出力結果
-	KazBufferHelper::BufferData m_lensflareLuminanceGBuffer;	//レンズフレアに使用するGBuffer レイトレを実行すると書き込まれる。
+
+	//レンズフレア関連
+	KazBufferHelper::BufferData m_lensFlareLuminanceGBuffer;	//レンズフレアに使用するGBuffer レイトレを実行すると書き込まれる。
+	KazBufferHelper::BufferData m_lensFlareConposeBuffTexture;	//レンズフレアを合成するときに一旦保存するテクスチャ。
+	std::shared_ptr<ComputeShader> m_lensFlareComposeShader;
 };
 

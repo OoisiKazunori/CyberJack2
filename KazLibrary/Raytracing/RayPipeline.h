@@ -195,6 +195,9 @@ namespace Raytracing {
 		//バッファの状態を遷移させる。
 		void BufferStatesTransition(ID3D12Resource* arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after);
 
+		//レイトレで使用するリソース類をセット。
+		void SetRaytracingResource(Tlas arg_tlas);
+
 	};
 
 }
