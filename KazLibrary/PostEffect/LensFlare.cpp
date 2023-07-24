@@ -29,17 +29,22 @@ namespace PostEffect {
 			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), LENSFLARE_TEXSIZE.x * LENSFLARE_TEXSIZE.y),
 			m_lensFlareTexture.bufferWrapper->GetBuffer().Get()
 		);
+		//レンズの色テクスチャをロード
+		m_lensColorTexture = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::LensFlarePath + "lensColor.png");
 		{
 			//レンズフレア用のシェーダーを用意。
 			std::vector<KazBufferHelper::BufferData>extraBuffer =
 			{
+				 m_lensColorTexture,
 				 m_lensFlareTargetCopyTexture,
 				 m_lensFlareTexture,
 			};
-			extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+			extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
 			extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
 			extraBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 			extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_TEX2;
+			extraBuffer[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+			extraBuffer[2].rootParamType = GRAPHICS_PRAMTYPE_TEX3;
 			m_lensFlareShader.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "PostEffect/LensFlare/" + "LensFlareShader.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
 		}
 		{

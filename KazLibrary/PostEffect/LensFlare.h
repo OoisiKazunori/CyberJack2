@@ -14,6 +14,7 @@ namespace PostEffect {
 		//レンズフレアパス関連
 		ComputeShader m_lensFlareShader;					//レンズフレアをかけるシェーダー
 		KazBufferHelper::BufferData m_lensFlareTexture;		//レンズフレアをかけたテクスチャ
+		KazBufferHelper::BufferData m_lensColorTexture;		//レンズの色テクスチャ
 		KazMath::Vec2<UINT> LENSFLARE_TEXSIZE = KazMath::Vec2<UINT>(1280, 720);
 
 		//最終加工パス関連
