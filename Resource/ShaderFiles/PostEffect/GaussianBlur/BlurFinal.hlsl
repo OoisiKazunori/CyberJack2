@@ -25,7 +25,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
     color += GetPixelColor(basepos.x, basepos.y, texSize);
     color += GetPixelColor(basepos.x, basepos.y, texSize);
 
-    // ‰Ád•½‹Ï‚ğæ‚é
+    //‰Ád•½‹Ï‚ğæ‚é
     color /= 4.0f;
     OutputImg[DTid.xy] = color;
     

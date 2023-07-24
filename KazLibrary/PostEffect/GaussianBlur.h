@@ -1,6 +1,7 @@
 #pragma once
 #include <Helper/Compute.h>
 #include "Helper/KazBufferHelper.h"
+#include "Math/KazMath.h"
 #include <array>
 
 //ガウシアンブラーをかけるクラス
@@ -27,6 +28,10 @@ namespace PostEffect {
 
 		//ガウシアンブラーの強さ
 		const float BLUR_POWER = 1000.0f;
+
+		//ブラーの出力先テクスチャのサイズ
+		const KazMath::Vec2<UINT> BLURX_TEXSIZE = KazMath::Vec2<UINT>(1280 / 2, 720);
+		const KazMath::Vec2<UINT> BLURY_TEXSIZE = KazMath::Vec2<UINT>(1280 / 2, 720 / 2);
 
 	public:
 

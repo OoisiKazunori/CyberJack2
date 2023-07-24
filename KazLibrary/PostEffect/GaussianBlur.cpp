@@ -13,18 +13,18 @@ namespace PostEffect {
 		m_blurTargetTexture = arg_blurTargetTexture;
 
 		//各ブラーの出力結果用のテクスチャを生成。
-		m_blurXResultTexture = KazBufferHelper::SetUAVTexBuffer(1280, 720, DXGI_FORMAT_R8G8B8A8_UNORM);
+		m_blurXResultTexture = KazBufferHelper::SetUAVTexBuffer(BLURX_TEXSIZE.x, BLURX_TEXSIZE.y, DXGI_FORMAT_R8G8B8A8_UNORM);
 		m_blurXResultTexture.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
 		DescriptorHeapMgr::Instance()->CreateBufferView(
 			m_blurXResultTexture.bufferWrapper->GetViewHandle(),
-			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), 1280 * 720),
+			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), BLURX_TEXSIZE.x * BLURX_TEXSIZE.y),
 			m_blurXResultTexture.bufferWrapper->GetBuffer().Get()
 		);
-		m_blurYResultTexture = KazBufferHelper::SetUAVTexBuffer(1280, 720, DXGI_FORMAT_R8G8B8A8_UNORM);
+		m_blurYResultTexture = KazBufferHelper::SetUAVTexBuffer(BLURY_TEXSIZE.x, BLURY_TEXSIZE.y, DXGI_FORMAT_R8G8B8A8_UNORM);
 		m_blurYResultTexture.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
 		DescriptorHeapMgr::Instance()->CreateBufferView(
 			m_blurYResultTexture.bufferWrapper->GetViewHandle(),
-			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), 1280 * 720),
+			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), BLURY_TEXSIZE.x * BLURY_TEXSIZE.y),
 			m_blurYResultTexture.bufferWrapper->GetBuffer().Get()
 		);
 
@@ -89,21 +89,48 @@ namespace PostEffect {
 		CalcBloomWeightsTableFromGaussian();
 		m_blurPowerConstBuffer.bufferWrapper->TransData(m_blurWeight.data(), sizeof(float) * BLOOM_GAUSSIAN_WEIGHTS_COUNT);
 
+		//バリアを貼る。
+		{
+			D3D12_RESOURCE_BARRIER barrier[] = { CD3DX12_RESOURCE_BARRIER::UAV(
+			m_blurTargetTexture.bufferWrapper->GetBuffer().Get()),CD3DX12_RESOURCE_BARRIER::UAV(
+			m_blurXResultTexture.bufferWrapper->GetBuffer().Get())
+			};
+			DirectX12CmdList::Instance()->cmdList->ResourceBarrier(2, barrier);
+		}
+
 		//Xブラー
 		DispatchData dispatchData;
-		dispatchData.x = static_cast<UINT>((1280.0f / 2.0f) / 16) + 1;
-		dispatchData.y = static_cast<UINT>(740.0f / 16) + 1;
+		dispatchData.x = static_cast<UINT>(BLURX_TEXSIZE.x / 16) + 1;
+		dispatchData.y = static_cast<UINT>(BLURX_TEXSIZE.y / 16) + 1;
 		dispatchData.z = static_cast<UINT>(1);
 		m_blurXShader.Compute(dispatchData);
 
+		//バリアを貼る。
+		{
+			D3D12_RESOURCE_BARRIER barrier[] = { CD3DX12_RESOURCE_BARRIER::UAV(
+			m_blurXResultTexture.bufferWrapper->GetBuffer().Get()),CD3DX12_RESOURCE_BARRIER::UAV(
+			m_blurYResultTexture.bufferWrapper->GetBuffer().Get())
+			};
+			DirectX12CmdList::Instance()->cmdList->ResourceBarrier(2, barrier);
+		}
+
 		//Yブラー
-		dispatchData.x = static_cast<UINT>((1280.0f / 2.0f) / 16) + 1;
-		dispatchData.y = static_cast<UINT>((740.0f / 2.0f) / 16) + 1;
+		dispatchData.x = static_cast<UINT>(BLURY_TEXSIZE.x / 16) + 1;
+		dispatchData.y = static_cast<UINT>(BLURY_TEXSIZE.y / 16) + 1;
 		dispatchData.z = static_cast<UINT>(1);
 		m_blurYShader.Compute(dispatchData);
 
+		//バリアを貼る。
+		{
+			D3D12_RESOURCE_BARRIER barrier[] = { CD3DX12_RESOURCE_BARRIER::UAV(
+			m_blurYResultTexture.bufferWrapper->GetBuffer().Get()),CD3DX12_RESOURCE_BARRIER::UAV(
+			m_blurTargetTexture.bufferWrapper->GetBuffer().Get())
+			};
+			DirectX12CmdList::Instance()->cmdList->ResourceBarrier(2, barrier);
+		}
+
 		//合成用
-		dispatchData.x = static_cast<UINT>(280.0f / 16) + 1;
+		dispatchData.x = static_cast<UINT>(1280.0f / 16) + 1;
 		dispatchData.y = static_cast<UINT>(740.0f / 16) + 1;
 		dispatchData.z = static_cast<UINT>(1);
 		m_composeShader.Compute(dispatchData);
