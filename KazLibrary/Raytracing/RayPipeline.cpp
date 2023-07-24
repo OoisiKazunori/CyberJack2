@@ -10,6 +10,7 @@
 #include "../Raytracing/Tlas.h"
 #include "../Buffer/GBufferMgr.h"
 #include "../DirectXCommon/DirectX12.h"
+#include "../PostEffect/LensFlare.h"
 #include <DirectXMath.h>
 
 DirectX12* Raytracing::RayPipeline::m_refDirectX12 = nullptr;
@@ -169,6 +170,9 @@ namespace Raytracing {
 		//Blasの保持数
 		m_numBlas = 0;
 
+		//レンズフレア
+		m_lensFlare = std::make_shared<PostEffect::LensFlare>(GBufferMgr::Instance()->GetLensFlareBuffer(), m_refDirectX12);
+
 	}
 
 	void RayPipeline::BuildShaderTable(BlasVector arg_blacVector, int arg_dispatchX, int arg_dispatchY)
@@ -312,59 +316,33 @@ namespace Raytracing {
 
 		/*===== コピーコマンドを積む =====*/
 
-		D3D12_RESOURCE_BARRIER barrierToCopyDest[] = { CD3DX12_RESOURCE_BARRIER::UAV(
-		GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get()),CD3DX12_RESOURCE_BARRIER::UAV(
-		GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetBuffer().Get())
-		};
-		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(2, barrierToCopyDest);
-		
+		//UAVのバリアを貼る。
+		UAVBarrier({ GBufferMgr::Instance()->GetLensFlareBuffer() , GBufferMgr::Instance()->GetRayTracingBuffer() });
 
 		//レンズフレア用のテクスチャにガウシアンブラーをかけてフレアを表現する。
 		GBufferMgr::Instance()->ApplyLensFlareBlur();
 
+		//レンズフレアをかける。
+		m_lensFlare->Apply();
 
-		//レイトレーシング出力結果用のバッファにバリアをかける。
-		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(1, barrierToCopyDest);
+		//UAVのバリアを貼る。
+		UAVBarrier({ m_lensFlare->m_lensFlareTargetCopyTexture , GBufferMgr::Instance()->GetRayTracingBuffer() });
 
+		//バックバッファの状態を遷移。
 		auto backBufferIndex = m_refDirectX12->swapchain->GetCurrentBackBufferIndex();
-		D3D12_RESOURCE_BARRIER barriers[] = {
-			CD3DX12_RESOURCE_BARRIER::Transition(
-			m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(),
-			D3D12_RESOURCE_STATE_RENDER_TARGET,
-			D3D12_RESOURCE_STATE_COPY_DEST),
-		};
-		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(_countof(barriers), barriers);
+		BufferStatesTransition(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_DEST);
 
 		//レイトレ出力用のテクスチャのステータスを書き込み用のUAVからコピー用に変更。
-		D3D12_RESOURCE_BARRIER barrierToUAV[] = { CD3DX12_RESOURCE_BARRIER::Transition(
-		GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get(),
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		D3D12_RESOURCE_STATE_COPY_SOURCE)
-		};
+		BufferStatesTransition(GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
-		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(1, barrierToUAV);
-
+		//コピーを実行。
 		DirectX12CmdList::Instance()->cmdList->CopyResource(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get());
 
-		D3D12_RESOURCE_BARRIER barrierToCopy[] = { CD3DX12_RESOURCE_BARRIER::Transition(
-		GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get(),
-		D3D12_RESOURCE_STATE_COPY_SOURCE,
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS)
-		};
+		//レイトレ出力用のテクスチャのステータスを元に戻す。
+		BufferStatesTransition(GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(1, barrierToCopy);
-
-		//レンダーターゲットのリソースバリアをもとに戻す。
-		D3D12_RESOURCE_BARRIER barrierToRenderTarget[] = {
-
-		CD3DX12_RESOURCE_BARRIER::Transition(
-		m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		D3D12_RESOURCE_STATE_RENDER_TARGET)
-
-		};
-
-		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(_countof(barrierToRenderTarget), barrierToRenderTarget);
+		//バックバッファの状態を元に戻す。
+		BufferStatesTransition(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	}
 
@@ -564,6 +542,28 @@ namespace Raytracing {
 		}
 		return resource;
 
+	}
+
+	void RayPipeline::UAVBarrier(std::vector<KazBufferHelper::BufferData> arg_bufferArray)
+	{
+		std::vector<D3D12_RESOURCE_BARRIER> barrier;
+
+		for (const auto& index : arg_bufferArray) {
+			barrier.emplace_back(CD3DX12_RESOURCE_BARRIER::UAV(index.bufferWrapper->GetBuffer().Get()));
+		}
+
+		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(static_cast<UINT>(barrier.size()), barrier.data());
+	}
+
+	void RayPipeline::BufferStatesTransition(ID3D12Resource* arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after)
+	{
+		D3D12_RESOURCE_BARRIER barriers[] = {
+			CD3DX12_RESOURCE_BARRIER::Transition(
+			arg_resource,
+			arg_before,
+			arg_after),
+		};
+		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(_countof(barriers), barriers);
 	}
 
 }

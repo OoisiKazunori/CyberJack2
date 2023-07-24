@@ -198,6 +198,7 @@
     <ClCompile Include="KazLibrary\Raytracing\Tlas.cpp" />
     <ClCompile Include="KazLibrary\Render\CPUParticle.cpp" />
     <ClCompile Include="KazLibrary\PostEffect\GaussianBlur.cpp" />
+    <ClCompile Include="KazLibrary\PostEffect\LensFlare.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -415,6 +416,7 @@
     <ClInclude Include="KazLibrary\Raytracing\Tlas.h" />
     <ClInclude Include="KazLibrary\Render\CPUParticle.h" />
     <ClInclude Include="KazLibrary\PostEffect\GaussianBlur.h" />
+    <ClInclude Include="KazLibrary\PostEffect\LensFlare.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
