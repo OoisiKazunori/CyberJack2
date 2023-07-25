@@ -207,9 +207,10 @@ void mainRayGen()
     LightingPass(bright, worldColor, normalColor, lightData, gRtScene);
     
     //輝度が一定以上だったらレンズフレア用のテクスチャに書きこむ。
-    const float LENSFLARE_DEADLINE = 0.999f;
-    float brightColor = step(LENSFLARE_DEADLINE, bright);
-    lensFlareTexture[launchIndex.xy] = float4(brightColor, brightColor, brightColor, 1.0f);
+    const float LENSFLARE_DEADLINE = 0.7f;
+    float deadline = step(LENSFLARE_DEADLINE, bright);
+    float lensflareBright = deadline * bright;
+    lensFlareTexture[launchIndex.xy] = float4(albedoColor.xyz * lensflareBright, 1.0f);
     
     //アルベドにライトの色をかける。
     albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);

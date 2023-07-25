@@ -24,6 +24,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 
     //テクスチャのサイズ
     const float2 TEXSIZE = float2(1280.0f, 720.0f);
+    const float2 LENSCOLOR_TEXSIZE = float2(256.0f, 1.0f);
     const float2 WINDOW_CENTER = float2(0.5f, 0.5f);
     
     //サンプリングするテクスチャの上下左右を反転させる。
@@ -54,7 +55,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
     }
     
     //レンズの色を適用。
-    uint2 lensColorUV = (length(WINDOW_CENTER - texpos) / length(WINDOW_CENTER)) * TEXSIZE;
+    uint2 lensColorUV = (length(WINDOW_CENTER - texpos) / length(WINDOW_CENTER)) * LENSCOLOR_TEXSIZE;
     sampleResult *= LensColor[lensColorUV];
     
     //ハローをサンプリング

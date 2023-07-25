@@ -2,6 +2,7 @@
 #include "Buffer/GBufferMgr.h"
 #include "Buffer/DescriptorHeapMgr.h"
 #include "Buffer/UavViewHandleMgr.h"
+#include "../PostEffect/GaussianBlur.h"
 
 namespace PostEffect {
 
@@ -31,6 +32,8 @@ namespace PostEffect {
 		);
 		//レンズの色テクスチャをロード
 		m_lensColorTexture = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::LensFlarePath + "lensColor.png");
+		m_lendDirtTexture = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::LensFlarePath + "lensDirt.png");
+		m_lensStarTexture = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::LensFlarePath + "lensStar.png");
 		{
 			//レンズフレア用のシェーダーを用意。
 			std::vector<KazBufferHelper::BufferData>extraBuffer =
@@ -51,15 +54,21 @@ namespace PostEffect {
 			//最終加工 and 合成パスを用意。
 			std::vector<KazBufferHelper::BufferData>extraBuffer =
 			{
+				 m_lendDirtTexture,
 				 m_lensFlareTexture,
 				 m_lensFlareTargetTexture,
 			};
-			extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+			extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
 			extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
 			extraBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 			extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_TEX2;
+			extraBuffer[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+			extraBuffer[2].rootParamType = GRAPHICS_PRAMTYPE_TEX3;
 			m_finalProcessingShader.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "PostEffect/LensFlare/" + "FinalProcessingShader.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
 		}
+
+		//ブラーパス
+		m_blurPath = std::make_shared<GaussianBlur>(m_lensFlareTexture);
 
 	}
 
@@ -84,6 +93,12 @@ namespace PostEffect {
 
 		/*- ③ブラーパス -*/
 
+		//レンズフレアにブラーをかける。
+		m_blurPath->ApplyBlur();
+		m_blurPath->ApplyBlur();
+		m_blurPath->ApplyBlur();
+		m_blurPath->ApplyBlur();
+		m_blurPath->ApplyBlur();
 
 		/*- ④最終加工パス -*/
 

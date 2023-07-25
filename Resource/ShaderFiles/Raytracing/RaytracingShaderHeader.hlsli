@@ -138,8 +138,11 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         //レイを撃つ
         CastRay(payloadData, arg_worldPosMap.xyz, -arg_lightData.m_dirLight.m_dir, 30000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
         
+        //ライトのベクトルと法線から明るさを計算する。
+        float bright = saturate(dot(arg_normalMap.xyz, -arg_lightData.m_dirLight.m_dir));
+        
         //レイトレの結果の影情報を書き込む。
-        arg_bright += payloadData.m_color.x;
+        arg_bright += payloadData.m_color.x * bright;
         
     }
     

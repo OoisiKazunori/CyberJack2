@@ -4,6 +4,8 @@
 
 namespace PostEffect {
 
+	class GaussianBlur;
+
 	//実行することでGBufferからシーン情報と明るさ情報を持ってきてレンズフレアをかけてくれるクラス。
 	class LensFlare {
 
@@ -15,11 +17,16 @@ namespace PostEffect {
 		ComputeShader m_lensFlareShader;					//レンズフレアをかけるシェーダー
 		KazBufferHelper::BufferData m_lensFlareTexture;		//レンズフレアをかけたテクスチャ
 		KazBufferHelper::BufferData m_lensColorTexture;		//レンズの色テクスチャ
+		KazBufferHelper::BufferData m_lendDirtTexture;		//レンズの汚れテクスチャ
+		KazBufferHelper::BufferData m_lensStarTexture;		//レンズのスターバーストテクスチャ
 		KazMath::Vec2<UINT> LENSFLARE_TEXSIZE = KazMath::Vec2<UINT>(1280, 720);
 
 		//最終加工パス関連
 		ComputeShader m_finalProcessingShader;				//最終加工 and 合成用シェーダー
 		KazMath::Vec2<UINT> BACKBUFFER_SIZE = KazMath::Vec2<UINT>(1280, 720);
+
+		//ブラーパス関連
+		std::shared_ptr<GaussianBlur> m_blurPath;
 
 		//その他
 		KazBufferHelper::BufferData m_lensFlareTargetTexture;	//コンストラクタで設定される、レンズフレアをかける対象。
