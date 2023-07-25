@@ -207,7 +207,7 @@ void mainRayGen()
     LightingPass(bright, worldColor, normalColor, lightData, gRtScene);
     
     //輝度が一定以上だったらレンズフレア用のテクスチャに書きこむ。
-    const float LENSFLARE_DEADLINE = 0.7f;
+    const float LENSFLARE_DEADLINE = 0.3f;
     float deadline = step(LENSFLARE_DEADLINE, bright);
     float lensflareBright = deadline * bright;
     lensFlareTexture[launchIndex.xy] = float4(albedoColor.xyz * lensflareBright, 1.0f);

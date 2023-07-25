@@ -105,15 +105,13 @@ namespace PostEffect {
 		//レンズフレアにブラーをかける。
 		m_blurPath->ApplyBlur();
 		m_blurPath->ApplyBlur();
-		m_blurPath->ApplyBlur();
-		m_blurPath->ApplyBlur();
-		m_blurPath->ApplyBlur();
 
 		/*- ④最終加工パス -*/
 
 		//カメラの情報を保存して転送。
 		m_cameraVec.m_cameraZVec = CameraMgr::Instance()->GetCameraAxis().z;
 		m_cameraVec.m_cameraXVec = CameraMgr::Instance()->GetCameraAxis().x;
+		KazMath::Vec3<float> yVec = m_cameraVec.m_cameraZVec.Cross(m_cameraVec.m_cameraXVec);
 		m_cametaVecConstBuffer.bufferWrapper->TransData(&m_cameraVec, sizeof(CameraVec));
 
 		//最終加工 and 合成を行う。

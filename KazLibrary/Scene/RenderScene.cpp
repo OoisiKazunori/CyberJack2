@@ -329,7 +329,7 @@ void RenderScene::Update()
 	//ボリュームノイズを書き込む。
 	m_noiseParam.m_timer += 0.001f;
 	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
-	m_volumeNoiseShader.Compute({ static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 4) });
+	//m_volumeNoiseShader.Compute({ static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 4) });
 
 
 }

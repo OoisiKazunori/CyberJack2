@@ -29,22 +29,23 @@ void main(uint3 DTid : SV_DispatchThreadID)
     //スターバーストをサンプリング
     float camrot = dot(m_cameraX, float3(0, 0, 1)) + dot(m_cameraZ, float3(0, 1, 0));
     float3x3 scaleBias1 = (
-      2.0f, 0.0f, -1.0f,
-      0.0f, 2.0f, -1.0f,
-      0.0f, 0.0f, 1.0f
+      2.0f, 0.0f, 0.0f,
+      0.0f, 2.0f, 0.0f,
+      -1.0f, -1.0f, 1.0f
     );
     float3x3 rotation = (
-      cos(camrot), -sin(camrot), 0.0f,
-      sin(camrot), cos(camrot), 0.0f,
+      cos(camrot), sin(camrot), 0.0f,
+      -sin(camrot), cos(camrot), 0.0f,
       0.0f, 0.0f, 1.0f
    );
     float3x3 scaleBias2 = (
-      0.5f, 0.0f, 0.5f,
-      0.0f, 0.5f, 0.5f,
-      0.0f, 0.0f, 1.0f
+      0.5f, 0.0f, 0.0f,
+      0.0f, 0.5f, 0.0f,
+      0.5f, 0.5f, 1.0f
     );
-    float3x3 uLensStarMatrix = scaleBias2 * rotation * scaleBias1;
+    float3x3 uLensStarMatrix = mul(mul(scaleBias2, rotation), scaleBias1);
     float2 lensStarTexcoord = (mul(float3(float2(DTid.xy / TEXSIZE), 1.0f), uLensStarMatrix)).xy;
+    //lensMod += saturate(LensStar[lensStarTexcoord * LENSSTAR_TEXSIZE] / 0.5f);
     lensMod += saturate(LensStar[float2(DTid.xy / TEXSIZE) * LENSSTAR_TEXSIZE] / 0.5f);
     
     OutputImg[DTid.xy] = InputImg[DTid.xy] * lensMod;
