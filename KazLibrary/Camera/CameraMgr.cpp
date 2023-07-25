@@ -60,6 +60,13 @@ void CameraMgr::Camera(const KazMath::Vec3<float> &EYE_POS, const KazMath::Vec3<
 		return;
 	}
 
+
+
+	//カメラのベクトルを保存。
+	m_cameraAxis[CAMERA_INDEX].z = KazMath::Vec3<float>(TARGET_POS - EYE_POS).GetNormal();
+	m_cameraAxis[CAMERA_INDEX].y = KazMath::Vec3<float>(up.x, up.y, up.z);
+	m_cameraAxis[CAMERA_INDEX].x = m_cameraAxis[CAMERA_INDEX].y.Cross(m_cameraAxis[CAMERA_INDEX].z);
+
 #pragma region ビュー行列
 	DirectX::XMMATRIX matView;
 	// 視点座標

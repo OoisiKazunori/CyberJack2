@@ -3,6 +3,7 @@
 #include "Buffer/DescriptorHeapMgr.h"
 #include "Buffer/UavViewHandleMgr.h"
 #include "../PostEffect/GaussianBlur.h"
+#include "../../Game/Helper/CameraWork.h"
 
 namespace PostEffect {
 
@@ -34,6 +35,8 @@ namespace PostEffect {
 		m_lensColorTexture = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::LensFlarePath + "lensColor.png");
 		m_lendDirtTexture = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::LensFlarePath + "lensDirt.png");
 		m_lensStarTexture = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::LensFlarePath + "lensStar.png");
+		//スターバースト回転用のバッファを用意。
+		m_cametaVecConstBuffer = KazBufferHelper::SetConstBufferData(sizeof(CameraVec));
 		{
 			//レンズフレア用のシェーダーを用意。
 			std::vector<KazBufferHelper::BufferData>extraBuffer =
@@ -55,15 +58,21 @@ namespace PostEffect {
 			std::vector<KazBufferHelper::BufferData>extraBuffer =
 			{
 				 m_lendDirtTexture,
+				 m_lensStarTexture,
 				 m_lensFlareTexture,
 				 m_lensFlareTargetTexture,
+				 m_cametaVecConstBuffer,
 			};
 			extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
 			extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
-			extraBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+			extraBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
 			extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_TEX2;
 			extraBuffer[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 			extraBuffer[2].rootParamType = GRAPHICS_PRAMTYPE_TEX3;
+			extraBuffer[3].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+			extraBuffer[3].rootParamType = GRAPHICS_PRAMTYPE_TEX4;
+			extraBuffer[4].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+			extraBuffer[4].rootParamType = GRAPHICS_PRAMTYPE_DATA;
 			m_finalProcessingShader.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "PostEffect/LensFlare/" + "FinalProcessingShader.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
 		}
 
@@ -101,6 +110,11 @@ namespace PostEffect {
 		m_blurPath->ApplyBlur();
 
 		/*- ④最終加工パス -*/
+
+		//カメラの情報を保存して転送。
+		m_cameraVec.m_cameraZVec = CameraMgr::Instance()->GetCameraAxis().z;
+		m_cameraVec.m_cameraXVec = CameraMgr::Instance()->GetCameraAxis().x;
+		m_cametaVecConstBuffer.bufferWrapper->TransData(&m_cameraVec, sizeof(CameraVec));
 
 		//最終加工 and 合成を行う。
 		DispatchData finalPath;

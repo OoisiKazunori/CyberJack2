@@ -17,12 +17,18 @@ namespace PostEffect {
 		ComputeShader m_lensFlareShader;					//レンズフレアをかけるシェーダー
 		KazBufferHelper::BufferData m_lensFlareTexture;		//レンズフレアをかけたテクスチャ
 		KazBufferHelper::BufferData m_lensColorTexture;		//レンズの色テクスチャ
-		KazBufferHelper::BufferData m_lendDirtTexture;		//レンズの汚れテクスチャ
-		KazBufferHelper::BufferData m_lensStarTexture;		//レンズのスターバーストテクスチャ
 		KazMath::Vec2<UINT> LENSFLARE_TEXSIZE = KazMath::Vec2<UINT>(1280, 720);
 
 		//最終加工パス関連
 		ComputeShader m_finalProcessingShader;				//最終加工 and 合成用シェーダー
+		KazBufferHelper::BufferData m_lendDirtTexture;		//レンズの汚れテクスチャ
+		KazBufferHelper::BufferData m_lensStarTexture;		//レンズのスターバーストテクスチャ
+		KazBufferHelper::BufferData m_cametaVecConstBuffer;	//レンズのスターバーストを回転させる定数バッファ
+		struct CameraVec {
+			KazMath::Vec3<float> m_cameraXVec;
+			KazMath::Vec3<float> m_cameraZVec;
+			KazMath::Vec2<float> m_pad;
+		}m_cameraVec;
 		KazMath::Vec2<UINT> BACKBUFFER_SIZE = KazMath::Vec2<UINT>(1280, 720);
 
 		//ブラーパス関連
