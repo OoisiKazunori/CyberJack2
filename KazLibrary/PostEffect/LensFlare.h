@@ -26,8 +26,9 @@ namespace PostEffect {
 		KazBufferHelper::BufferData m_cametaVecConstBuffer;	//レンズのスターバーストを回転させる定数バッファ
 		struct CameraVec {
 			KazMath::Vec3<float> m_cameraXVec;
+			float m_pad;
 			KazMath::Vec3<float> m_cameraZVec;
-			KazMath::Vec2<float> m_pad;
+			float m_pad2;
 		}m_cameraVec;
 		KazMath::Vec2<UINT> BACKBUFFER_SIZE = KazMath::Vec2<UINT>(1280, 720);
 

@@ -64,8 +64,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
     float2 haloVec = normalize(ghostVec) * haloWidth;
     float weight = length(WINDOW_CENTER - frac(texpos + haloVec)) / length(WINDOW_CENTER);
     weight = pow(1.0f - weight, 5.0f);
-   //sampleResult.xyz += InputImg[(texpos + haloVec) * TEXSIZE] * weight;
-    //sampleResult.xyz += TextureDistorted(texpos + haloVec, direction, TEXSIZE, distortion) * weight;
+    //sampleResult.xyz += InputImg[(texpos + haloVec) * TEXSIZE] * weight;
+    sampleResult.xyz += TextureDistorted(texpos + haloVec, direction, TEXSIZE, distortion) * weight;
     
     OutputImg[DTid.xy] = sampleResult;
     

@@ -105,6 +105,9 @@ namespace PostEffect {
 		//レンズフレアにブラーをかける。
 		m_blurPath->ApplyBlur();
 		m_blurPath->ApplyBlur();
+		m_blurPath->ApplyBlur();
+		m_blurPath->ApplyBlur();
+		m_blurPath->ApplyBlur();
 
 		/*- ④最終加工パス -*/
 
