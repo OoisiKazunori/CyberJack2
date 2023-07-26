@@ -36,7 +36,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
     float2 ghostVec = (WINDOW_CENTER - texpos) * ghostDispersal;
     
     //色収差用パラメーターを計算。
-    float distortionValue = 6.5f;
+    float distortionValue = 15.0f;
     float2 texelSize = 1.0f / TEXSIZE;
     float3 distortion = float3(-texelSize.x * distortionValue, 0.0f, texelSize.x * distortionValue);
     float2 direction = normalize(ghostVec);
@@ -51,7 +51,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
         float weight = length(WINDOW_CENTER - offset) / length(WINDOW_CENTER);
         weight = pow(1.0f - weight, 10.0f);
   
-        sampleResult.xyz += InputImg[(offset) * TEXSIZE] * weight;
+        //sampleResult.xyz += InputImg[(offset) * TEXSIZE] * weight;
+        sampleResult.xyz += TextureDistorted((offset), direction, TEXSIZE, distortion) * weight;
 
     }
     
