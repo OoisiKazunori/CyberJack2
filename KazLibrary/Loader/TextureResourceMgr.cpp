@@ -158,13 +158,15 @@ KazBufferHelper::BufferData TextureResourceMgr::LoadGraphBuffer(std::string RESO
 	KazHelper::ConvertStringToWchar_t(RESOURCE, wfilepat2, 128);
 
 	//âÊëúÉçÅ[Éh
-	HRESULT re;
-	re = LoadFromWICFile(
-		wfilepat,
-		DirectX::WIC_FLAGS_NONE,
-		&metadata,
-		scratchImg
-	);
+	HRESULT re = LoadFromDDSFile(wfilepat, DirectX::DDS_FLAGS::DDS_FLAGS_NONE, &metadata, scratchImg);
+	if (FAILED(re)) {
+		re = LoadFromWICFile(
+			wfilepat,
+			DirectX::WIC_FLAGS_NONE,
+			&metadata,
+			scratchImg
+		);
+	}
 
 	img = scratchImg.GetImage(0, 0, 0);
 

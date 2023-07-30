@@ -22,6 +22,14 @@ RenderScene::RenderScene()
 	m_model = ModelLoader::Instance()->Load("Resource/Test/glTF/Sponza/", "sponza.gltf");
 	m_refractionModel = ModelLoader::Instance()->Load("Resource/Test/", "refraction.gltf");
 
+	//mipmap確認用のテクスチャをロード
+	m_mipmapTexture = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/Debug/mipmapDemo.png");
+
+	for (auto& model : m_model->modelData) {
+		model.materialData.textureBuffer.front() = m_mipmapTexture;
+		model.materialData.textureBuffer.front().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+	}
+
 	m_testModelArray[0] = ModelLoader::Instance()->Load("Resource/Test/glTF/Avocado/", "Avocado.gltf");
 	m_testModelArray[1] = ModelLoader::Instance()->Load("Resource/Test/glTF/BoomBox/", "BoomBox.gltf");
 	m_testModelArray[2] = ModelLoader::Instance()->Load("Resource/Test/glTF/Corset/", "Corset.gltf");

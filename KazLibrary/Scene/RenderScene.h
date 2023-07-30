@@ -71,6 +71,8 @@ private:
 	std::shared_ptr<ModelInfomation> m_reflectionModel;
 	std::shared_ptr<ModelInfomation> m_refractionModel;
 
+	KazBufferHelper::BufferData m_mipmapTexture;
+
 	//テスト用モデル
 	std::array<std::shared_ptr<ModelInfomation>, 6>m_testModelArray;
 
