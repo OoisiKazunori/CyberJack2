@@ -22,11 +22,11 @@
 #ifdef _GAMING_XBOX_SCARLETT
 #include <d3d12_xs.h>
 #elif defined(_GAMING_XBOX)
-#include <d3d12_x.h>
+#include <d3d12_x.h>  // DirectX 12のヘッダーファイルに変更
 #elif defined(_XBOX_ONE) && defined(_TITLE)
 #include <d3d11_x.h>
 #else
-#include <d3d11_1.h>
+#include <d3d12.h>  // DirectX 12のヘッダーファイルに変更
 #endif
 #endif
 #else // !WIN32

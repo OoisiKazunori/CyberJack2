@@ -4,6 +4,7 @@
 #include"../Helper/KazHelper.h"
 #include"../Buffer/DescriptorHeapMgr.h"
 #include"../Helper/KazRenderHelper.h"
+#include<DirectXTex.h>
 
 const int texWidth = 256;
 const int texDataCount = texWidth * texWidth;
@@ -181,6 +182,10 @@ KazBufferHelper::BufferData TextureResourceMgr::LoadGraphBuffer(std::string RESO
 	//テクスチャの名前登録
 	handleName.push_back(RESOURCE);
 
+	////MipMapを取得。
+	//std::vector<D3D12_SUBRESOURCE_DATA> subresources;
+	//re = DirectX::PrepareUpload(
+	//	Engine::Ins()->device_.dev_.Get(), img, scratchImg.GetImageCount(), metadata, subresources);
 
 	CD3DX12_RESOURCE_DESC textureDesc = CD3DX12_RESOURCE_DESC::Tex2D(
 		metadata.format,
