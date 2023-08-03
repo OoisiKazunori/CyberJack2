@@ -23,7 +23,7 @@ RenderScene::RenderScene()
 	m_refractionModel = ModelLoader::Instance()->Load("Resource/Test/", "refraction.gltf");
 
 	//mipmap確認用のテクスチャをロード
-	m_mipmapTexture = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/Debug/mipmapDemo.png");
+	m_mipmapTexture = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/Debug/mipmapDemo.dds");
 
 	for (auto& model : m_model->modelData) {
 		model.materialData.textureBuffer.front() = m_mipmapTexture;

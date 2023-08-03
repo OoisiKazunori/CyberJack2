@@ -5,6 +5,7 @@
 #include"../Buffer/DescriptorHeapMgr.h"
 #include"../Helper/KazRenderHelper.h"
 #include<DirectXTex.h>
+#include <cassert>
 
 const int texWidth = 256;
 const int texDataCount = texWidth * texWidth;
@@ -159,6 +160,7 @@ KazBufferHelper::BufferData TextureResourceMgr::LoadGraphBuffer(std::string RESO
 	KazHelper::ConvertStringToWchar_t(RESOURCE, wfilepat2, 128);
 
 	//画像ロード
+	bool isDDSFile = true;
 	HRESULT re = LoadFromDDSFile(wfilepat, DirectX::DDS_FLAGS::DDS_FLAGS_NONE, &metadata, scratchImg);
 	if (FAILED(re)) {
 		re = LoadFromWICFile(
@@ -167,6 +169,7 @@ KazBufferHelper::BufferData TextureResourceMgr::LoadGraphBuffer(std::string RESO
 			&metadata,
 			scratchImg
 		);
+		isDDSFile = false;
 	}
 
 	img = scratchImg.GetImage(0, 0, 0);
@@ -182,10 +185,10 @@ KazBufferHelper::BufferData TextureResourceMgr::LoadGraphBuffer(std::string RESO
 	//テクスチャの名前登録
 	handleName.push_back(RESOURCE);
 
-	////MipMapを取得。
-	//std::vector<D3D12_SUBRESOURCE_DATA> subresources;
-	//re = DirectX::PrepareUpload(
-	//	Engine::Ins()->device_.dev_.Get(), img, scratchImg.GetImageCount(), metadata, subresources);
+	//MipMapを取得。
+	std::vector<D3D12_SUBRESOURCE_DATA> subresources;
+	re = DirectX::PrepareUpload(
+		DirectX12Device::Instance()->dev.Get(), img, scratchImg.GetImageCount(), metadata, subresources);
 
 	CD3DX12_RESOURCE_DESC textureDesc = CD3DX12_RESOURCE_DESC::Tex2D(
 		metadata.format,
@@ -226,14 +229,99 @@ KazBufferHelper::BufferData TextureResourceMgr::LoadGraphBuffer(std::string RESO
 
 	DescriptorHeapMgr::Instance()->CreateBufferView(num, srvDesc, bufferArray[elementNum].bufferWrapper->GetBuffer().Get());
 
-	cpuBufferArray[elementNum].bufferWrapper->GetBuffer()->WriteToSubresource
-	(
-		0,
-		nullptr,
-		img->pixels,
-		(UINT)img->rowPitch,
-		(UINT)img->slicePitch
-	);
+	//新しい処理
+	if (isDDSFile) {
+		//Footprint(コピー可能なリソースのレイアウト)を取得。
+		std::array<D3D12_PLACED_SUBRESOURCE_FOOTPRINT, 16> footprint;
+		UINT64 totalBytes = 0;
+		std::array<UINT64, 16> rowSizeInBytes = { 0 };
+		std::array<UINT, 16> numRow = { 0 };
+		DirectX12Device::Instance()->dev->GetCopyableFootprints(&textureDesc, 0, static_cast<UINT>(metadata.mipLevels), 0, footprint.data(), numRow.data(), rowSizeInBytes.data(), &totalBytes);
+
+		//Upload用のバッファを作成する。
+		D3D12_RESOURCE_DESC desc;
+		memset(&desc, 0, sizeof(desc));
+		desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		desc.Width = totalBytes;
+		desc.Height = 1;
+		desc.DepthOrArraySize = 1;
+		desc.MipLevels = 1;
+		desc.SampleDesc.Count = 1;
+		desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		desc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+
+		D3D12_HEAP_PROPERTIES heap = D3D12_HEAP_PROPERTIES();
+		heap.Type = D3D12_HEAP_TYPE_UPLOAD;
+
+		Microsoft::WRL::ComPtr<ID3D12Resource> iUploadBuffer = nullptr;
+		DirectX12Device::Instance()->dev->CreateCommittedResource(&heap, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&iUploadBuffer));
+
+		//UploadBufferへの書き込み。
+		void* ptr = nullptr;
+		iUploadBuffer->Map(0, nullptr, &ptr);
+
+		//1ピクセルのサイズ
+		//UINT pixelSize = rowSizeInBytes / MetaData.width;
+
+		for (uint32_t mip = 0; mip < metadata.mipLevels; ++mip) {
+
+			assert(subresources[mip].RowPitch == static_cast<LONG_PTR>(rowSizeInBytes[mip]));
+			assert(subresources[mip].RowPitch <= footprint[mip].Footprint.RowPitch);
+
+			uint8_t* uploadStart = reinterpret_cast<uint8_t*>(ptr) + footprint[mip].Offset;
+
+			for (uint32_t height = 0; height < numRow[mip]; ++height) {
+
+				memcpy(uploadStart + height * footprint[mip].Footprint.RowPitch, reinterpret_cast<const void*>(reinterpret_cast<uintptr_t>(subresources[mip].pData) + height * subresources[mip].RowPitch), subresources[mip].RowPitch);
+
+			}
+
+		}
+
+		//コピーする。
+		for (uint32_t mip = 0; mip < metadata.mipLevels; ++mip) {
+
+			D3D12_TEXTURE_COPY_LOCATION copyDestLocation;
+			copyDestLocation.pResource = cpuBufferArray[elementNum].bufferWrapper->GetBuffer().Get();
+			copyDestLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+			copyDestLocation.SubresourceIndex = mip;
+
+			D3D12_TEXTURE_COPY_LOCATION copySrcLocation;
+			copySrcLocation.pResource = iUploadBuffer.Get();
+			copySrcLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+			copySrcLocation.PlacedFootprint = footprint[mip];
+
+			DirectX12CmdList::Instance()->cmdList->CopyTextureRegion(
+				&copyDestLocation,
+				0, 0, 0,
+				&copySrcLocation,
+				nullptr
+			);
+
+		}
+
+
+		//リソースバリアをセット。
+		D3D12_RESOURCE_BARRIER resourceBarrier = D3D12_RESOURCE_BARRIER();
+		resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		resourceBarrier.Transition.pResource = cpuBufferArray[elementNum].bufferWrapper->GetBuffer().Get();
+		resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+		resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
+		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(1, &resourceBarrier);
+	}
+	//前の処理
+	else {
+		cpuBufferArray[elementNum].bufferWrapper->GetBuffer()->WriteToSubresource
+		(
+			0,
+			nullptr,
+			img->pixels,
+			(UINT)img->rowPitch,
+			(UINT)img->slicePitch
+		);
+	}
+
 
 	bufferArray[elementNum].bufferWrapper->CopyBuffer(
 		cpuBufferArray[elementNum].bufferWrapper->GetBuffer(),
