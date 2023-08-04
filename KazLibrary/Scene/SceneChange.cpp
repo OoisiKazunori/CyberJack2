@@ -7,7 +7,7 @@
 
 using namespace ChangeScene;
 
-SceneChange::SceneChange()
+SceneChange::SceneChange():allHidenFlag(false)
 {
 	//sceneTex.data.handleData = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::SceneChangePath + "SceneChange.png");
 	//sceneTex.data.pipelineName = PIPELINE_NAME_SPRITE_Z_ALWAYS;

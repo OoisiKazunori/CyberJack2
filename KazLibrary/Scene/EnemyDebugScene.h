@@ -28,7 +28,7 @@ private:
 	KazMath::Vec2<float> angle;
 
 	//“G----------------------------------------------------------------
-	std::array<std::unique_ptr<IEnemy>, 10>enemies;
+	std::array<std::unique_ptr<IEnemy>, 10>m_enemies;
 	std::array<std::array<std::unique_ptr<IEnemy>, 20>, 10>misiles;
 	std::array<int, 10>kidEnemyHandles;
 	//“G----------------------------------------------------------------

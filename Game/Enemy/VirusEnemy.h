@@ -3,21 +3,16 @@
 #include"../Game/Interface/IEnemy.h"
 #include"../Game/Effect/RocketEffect.h"
 
-/// <summary>
-/// ƒTƒ“ƒvƒ‹—p‚Ì“G
-/// </summary>
-class NormalEnemy:public IEnemy
+class VirusEnemy:public IEnemy
 {
 public:
-	NormalEnemy();
+	VirusEnemy();
 
-	void Init(const EnemyGenerateData &GENERATE_DATA, bool DEMO_FLAG);
+	void Init(const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG);
 	void Finalize();
 	void Update();
 	void Draw();
 
 private:
-	float speed;
-	float alpha;
 };
 

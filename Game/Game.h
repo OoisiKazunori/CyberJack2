@@ -51,7 +51,7 @@ public:
 	//定数--------------------------
 
 
-	Game(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::LAYER_LEVEL_MAX> &RESPONE_DATA,
+	Game(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> &RESPONE_DATA,
 		const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX> &STAGE_ARRAY,
 		const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX> &BACKGROUND_COLOR,
 		const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX> &CAMERA_ARRAY);
@@ -103,17 +103,17 @@ private:
 
 	//敵----------------------------------------------------------------
 	std::array<unique_ptr<IEnemy>, 2>enemy;					//敵(サンプル)
-	std::array<std::array<unique_ptr<IEnemy>, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::LAYER_LEVEL_MAX> enemies;	//1ステージに生成する敵の総数
+	std::array<std::array<unique_ptr<IEnemy>, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> m_enemies;	//1ステージに生成する敵の総数
 	std::array<int, 10> enemiesHandle;						//0から順番に初期化する際に必要
 	std::array<int, 10> addEnemiesHandle;					//0から順番に追加で初期化する際に必要
-	std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::LAYER_LEVEL_MAX> responeData;		//敵を生成する際に必要な設定
-	std::array<ResponeData, 50>addResponeData;				//敵を追加で生成する際に必要な設定をスタックしたもの
-	bool isEnemyNotMoveFlag;
-	int notMoveTimer;
+	std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> m_responeData;		//敵を生成する際に必要な設定
+	std::array<ResponeData, 50>m_addResponeData;				//敵を追加で生成する際に必要な設定をスタックしたもの
+	bool m_isEnemyNotMoveFlag;
+	int m_notMoveTimer;
 	const int CHANGE_GMAE_FLAME_SPEED_MAX_TIME = 2;	//敵が居なくなってからゲーム内時間の進むスピードが速まるまでの間隔
 
 #ifdef _DEBUG
-	std::array<std::array<BoxPolygonRender, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::LAYER_LEVEL_MAX> enemyHitBox;
+	std::array<std::array<BoxPolygonRender, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> m_enemyHitBox;
 #endif
 	//敵----------------------------------------------------------------
 
@@ -125,7 +125,7 @@ private:
 	//線演出----------------------------------------------------------------
 
 	//攻撃演出-------------------------
-	std::array<HitEnemyEffect, 30> hitEffect;
+	//std::array<HitEnemyEffect, 30> hitEffect;
 	//攻撃演出-------------------------
 
 	ObjModelRenderPtr model;

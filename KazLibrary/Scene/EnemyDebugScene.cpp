@@ -58,7 +58,7 @@ void EnemyDebugScene::Init()
 	angle = { 205.0f,165.0f };
 
 	int lIndex = 0;
-	enemies[lIndex] = std::make_unique<BattleshipEnemy>();
+	m_enemies[lIndex] = std::make_unique<BattleshipEnemy>();
 	misiles[lIndex][0] = std::make_unique<SplineMisileForBattleShip>();
 	misiles[lIndex][1] = std::make_unique<SplineMisileForBattleShip>();
 	misiles[lIndex][2] = std::make_unique<SplineMisileForBattleShip>();
@@ -68,18 +68,18 @@ void EnemyDebugScene::Init()
 	misiles[lIndex][6] = std::make_unique<SplineMisileForBattleShip>();
 	misiles[lIndex][7] = std::make_unique<SplineMisileForBattleShip>();
 	++lIndex;
-	enemies[lIndex] = std::make_unique<NormalEnemy>();
+	m_enemies[lIndex] = std::make_unique<NormalEnemy>();
 	++lIndex;
-	enemies[lIndex] = std::make_unique<NormalMisileEnemy>();
+	m_enemies[lIndex] = std::make_unique<NormalMisileEnemy>();
 	misiles[lIndex][0] = std::make_unique<SplineMisile>();
 	++lIndex;
-	enemies[lIndex] = std::make_unique<PopEnemy>();
+	m_enemies[lIndex] = std::make_unique<PopEnemy>();
 	++lIndex;
-	enemies[lIndex] = std::make_unique<BikeEnemy>();
+	m_enemies[lIndex] = std::make_unique<BikeEnemy>();
 	misiles[lIndex][0] = std::make_unique<SplineMisileForBikeEnemy>();
 	misiles[lIndex][1] = std::make_unique<SplineMisileForBikeEnemy>();
 	++lIndex;
-	enemies[lIndex] = std::make_unique<SummonEnemy>();
+	m_enemies[lIndex] = std::make_unique<SummonEnemy>();
 	for (int i = 0; i < 20; ++i)
 	{
 		misiles[lIndex][i] = std::make_unique<PopEnemy>();
@@ -173,9 +173,9 @@ void EnemyDebugScene::Update()
 	{
 		specifiedEnemyType = 0;
 	}
-	else if (enemies.size() <= specifiedEnemyType)
+	else if (m_enemies.size() <= specifiedEnemyType)
 	{
-		specifiedEnemyType = static_cast<int>(enemies.size() - 1);
+		specifiedEnemyType = static_cast<int>(m_enemies.size() - 1);
 	}
 	//ƒTƒCƒYãŒÀ--------------------------------------
 
@@ -191,7 +191,7 @@ void EnemyDebugScene::Update()
 		//“G‚ÆŽq“G‚ÌŽ€–S--------------------------------------
 		if (oldEnemyType != -1)
 		{
-			enemies[oldEnemyType]->Dead();
+			m_enemies[oldEnemyType]->Dead();
 
 			for (int i = 0; i < misiles[oldEnemyType].size(); ++i)
 			{
@@ -209,7 +209,7 @@ void EnemyDebugScene::Update()
 		lData.initPos = responePos;
 		lData.battleShipData.isShotFlag = true;
 		lData.misileEnemy.isShotFlag = true;
-		enemies[specifiedEnemyType]->Init(lData, true);
+		m_enemies[specifiedEnemyType]->Init(lData, true);
 		//‰Šú‰»--------------------------------------
 
 		//ŠÈˆÕƒc[ƒ‹‚Ì‰Šú‰»--------------------------------------
@@ -223,7 +223,7 @@ void EnemyDebugScene::Update()
 	//Ž€–S--------------------------------------
 	if (deadFlag)
 	{
-		enemies[specifiedEnemyType]->Dead();
+		m_enemies[specifiedEnemyType]->Dead();
 		deadFlag = false;
 	}
 	//Ž€–S--------------------------------------
@@ -232,14 +232,14 @@ void EnemyDebugScene::Update()
 	//UŒ‚--------------------------------------
 	if (attackFlag)
 	{
-		enemies[specifiedEnemyType]->DebugShot();
+		m_enemies[specifiedEnemyType]->DebugShot();
 		kidEnemyHandles[specifiedEnemyType] = 0;
 		attackFlag = false;
 	}
 	//UŒ‚--------------------------------------
 
-	EnemyData *lEnemyData = enemies[specifiedEnemyType]->GetData().get();
-	if (enemies[specifiedEnemyType]->GetData()->genarateData.enemyType != -1)
+	EnemyData *lEnemyData = m_enemies[specifiedEnemyType]->GetData().get();
+	if (m_enemies[specifiedEnemyType]->GetData()->genarateData.enemyType != -1)
 	{
 		//¶¬‚·‚é“G‚ÌŽí—Þ
 		misiles[specifiedEnemyType][kidEnemyHandles[specifiedEnemyType]]->Init(lEnemyData->genarateData.enemyGenerateData);
@@ -258,10 +258,10 @@ void EnemyDebugScene::Update()
 	}
 
 
-	enemies[specifiedEnemyType]->Update();
+	m_enemies[specifiedEnemyType]->Update();
 
-	hitBox.data.transform.pos = *enemies[specifiedEnemyType]->GetData()->hitBox.center;
-	float lScale = enemies[specifiedEnemyType]->GetData()->hitBox.radius;
+	hitBox.data.transform.pos = *m_enemies[specifiedEnemyType]->GetData()->hitBox.center;
+	float lScale = m_enemies[specifiedEnemyType]->GetData()->hitBox.radius;
 	hitBox.data.transform.scale = { lScale ,lScale,lScale };
 	hitBox.data.pipelineName = PIPELINE_NAME_COLOR_WIREFLAME;
 
@@ -293,7 +293,7 @@ void EnemyDebugScene::Draw()
 			misiles[specifiedEnemyType][i]->Draw();
 		}
 	}
-	enemies[specifiedEnemyType]->Draw();
+	m_enemies[specifiedEnemyType]->Draw();
 	//hitBox.Draw();
 	//kidFbxModel.Draw();
 

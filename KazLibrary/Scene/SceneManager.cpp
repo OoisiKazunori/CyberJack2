@@ -11,13 +11,15 @@
 #include"../Scene/DebugMeshParticle.h"
 #include"../Scene/RayTracingScene.h"
 #include"../Scene/RenderScene.h"
+#include"../Scene/GameScene.h"
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
 	//scene.emplace_back(std::make_unique<DebugMeshParticleScene>());
 	//scene.emplace_back(std::make_unique<DebugStageScene>());
 	//scene.emplace_back(std::make_unique<TitleScene>());
-	scene.emplace_back(std::make_unique<RenderScene>());
+	//scene.emplace_back(std::make_unique<RenderScene>());
+	scene.emplace_back(std::make_unique<GameScene>());
 	
 	nowScene = 0;
 	nextScene = 0;

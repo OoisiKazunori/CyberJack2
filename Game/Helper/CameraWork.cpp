@@ -84,8 +84,8 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 
 			//ポータル演出開始したらプレイヤーの動きを固定する
 			DirectX::XMFLOAT3 rate = { CURSOR_VALUE.x ,CURSOR_VALUE.y,0.0f };
-			honraiPlayerCameraPos.x = 0.0f + (2.0f * -rate.x);
-			honraiPlayerCameraPos.z = 0.0f + (limitValue * rate.y) * mul;
+			honraiPlayerCameraPos.x = PLAYER_POS->x + (2.0f * -rate.x);
+			honraiPlayerCameraPos.z = PLAYER_POS->z + (limitValue * rate.y) * mul;
 
 			if (0.0f <= honraiPlayerCameraPos.z)
 			{

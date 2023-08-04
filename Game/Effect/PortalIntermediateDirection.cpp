@@ -377,7 +377,7 @@ void PortalIntermediateDirection::Draw(Cursor *CURSOR)
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 	);
 
-	player.Draw();
+	//player.Draw();
 
 	if (disappearFlag || nextPortalFlag)
 	{

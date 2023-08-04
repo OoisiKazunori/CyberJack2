@@ -457,7 +457,7 @@ void TitleScene::Draw()
 
 	if (KazMath::ConvertSecondToFlame(2) <= appearTimer)
 	{
-		player.Draw();
+		//player.Draw();
 	}
 
 	pc.Draw();

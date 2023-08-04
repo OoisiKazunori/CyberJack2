@@ -64,15 +64,15 @@ void Tutorial::Init(bool SKIP_FLAG)
 	}
 
 	//チュートリアル数、そこで生成される敵の数
-	for (int tutorialNum = 0; tutorialNum < enemies.size(); ++tutorialNum)
+	for (int tutorialNum = 0; tutorialNum < m_enemies.size(); ++tutorialNum)
 	{
 		for (int enemyIndex = 0; enemyIndex < tutorialPosArray[tutorialNum].size(); ++enemyIndex)
 		{
-			enemies[tutorialNum][enemyIndex] = std::make_unique<TutorialBlock>();
+			m_enemies[tutorialNum][enemyIndex] = std::make_unique<TutorialBlock>();
 		}
 	}
 
-	for (int tutorialNum = 0; tutorialNum < enemies.size(); ++tutorialNum)
+	for (int tutorialNum = 0; tutorialNum < m_enemies.size(); ++tutorialNum)
 	{
 		initEnemyFlagArray[tutorialNum] = false;
 	}
@@ -165,13 +165,13 @@ void Tutorial::Input()
 
 	if (inputController->InputTrigger(XINPUT_GAMEPAD_B))
 	{
-		for (int enemyIndex = 0; enemyIndex < enemies[tutorialArrayIndex].size(); ++enemyIndex)
+		for (int enemyIndex = 0; enemyIndex < m_enemies[tutorialArrayIndex].size(); ++enemyIndex)
 		{
-			bool enableToUseDataFlag = enemies[tutorialArrayIndex][enemyIndex] == nullptr ||
-				!enemies[tutorialArrayIndex][enemyIndex]->GetData()->oprationObjData->initFlag;
+			bool enableToUseDataFlag = m_enemies[tutorialArrayIndex][enemyIndex] == nullptr ||
+				!m_enemies[tutorialArrayIndex][enemyIndex]->GetData()->oprationObjData->initFlag;
 			if (!enableToUseDataFlag)
 			{
-				enemies[tutorialArrayIndex][enemyIndex]->Dead();
+				m_enemies[tutorialArrayIndex][enemyIndex]->Dead();
 			}
 		}
 	}
@@ -214,7 +214,7 @@ void Tutorial::Update()
 
 		EnemyGenerateData lData;
 		lData.initPos = tutorialPosArray[tutorialArrayIndex][enemyIndex];
-		enemies[tutorialArrayIndex][enemyIndex]->Init(lData);
+		m_enemies[tutorialArrayIndex][enemyIndex]->Init(lData);
 
 		if (tutorialPosArray[tutorialArrayIndex].size() - 1 <= enemyIndex)
 		{
@@ -224,16 +224,16 @@ void Tutorial::Update()
 
 
 #pragma region ブロックのロックオン処理
-	for (int tutorialNum = 0; tutorialNum < enemies.size(); ++tutorialNum)
+	for (int tutorialNum = 0; tutorialNum < m_enemies.size(); ++tutorialNum)
 	{
-		for (int enemyIndex = 0; enemyIndex < enemies[tutorialNum].size(); ++enemyIndex)
+		for (int enemyIndex = 0; enemyIndex < m_enemies[tutorialNum].size(); ++enemyIndex)
 		{
-			if (enemies[tutorialNum][enemyIndex] == nullptr)
+			if (m_enemies[tutorialNum][enemyIndex] == nullptr)
 			{
 				continue;
 			}
 
-			if (!KazEnemyHelper::LockOn(&cursor, enemies[tutorialNum][enemyIndex], &stringLog, LOG_FONT_SIZE, lockSoundHandle))
+			if (!KazEnemyHelper::LockOn(&cursor, m_enemies[tutorialNum][enemyIndex], &stringLog, LOG_FONT_SIZE, lockSoundHandle))
 			{
 				continue;
 			}
@@ -242,7 +242,7 @@ void Tutorial::Update()
 			{
 				if (!lineEffectArrayData[lineIndex].usedFlag)
 				{
-					lineLevel[lineIndex].Attack(lineEffectArrayData[lineIndex].startPos, *enemies[tutorialNum][enemyIndex]->GetData()->hitBox.center);
+					lineLevel[lineIndex].Attack(lineEffectArrayData[lineIndex].startPos, *m_enemies[tutorialNum][enemyIndex]->GetData()->hitBox.center);
 					lineEffectArrayData[lineIndex].usedFlag = true;
 					lineEffectArrayData[lineIndex].lineIndex = lineIndex;
 					lineEffectArrayData[lineIndex].enemyTypeIndex = tutorialNum;
@@ -255,16 +255,16 @@ void Tutorial::Update()
 
 
 
-	for (int tutorialIndex = 0; tutorialIndex < enemies.size(); ++tutorialIndex)
+	for (int tutorialIndex = 0; tutorialIndex < m_enemies.size(); ++tutorialIndex)
 	{
-		for (int enemyIndex = 0; enemyIndex < enemies[tutorialIndex].size(); ++enemyIndex)
+		for (int enemyIndex = 0; enemyIndex < m_enemies[tutorialIndex].size(); ++enemyIndex)
 		{
 			//生成されている、初期化している敵のみ更新処理を通す
-			bool enableToUseDataFlag = enemies[tutorialIndex][enemyIndex] != nullptr && enemies[tutorialIndex][enemyIndex]->GetData()->oprationObjData->initFlag;
+			bool enableToUseDataFlag = m_enemies[tutorialIndex][enemyIndex] != nullptr && m_enemies[tutorialIndex][enemyIndex]->GetData()->oprationObjData->initFlag;
 			if (enableToUseDataFlag)
 			{
 				//敵のデータのポインタを代入
-				EnemyData *enemyData = enemies[tutorialIndex][enemyIndex]->GetData().get();
+				EnemyData *enemyData = m_enemies[tutorialIndex][enemyIndex]->GetData().get();
 
 				for (int i = 0; i < lineEffectArrayData.size(); ++i)
 				{
@@ -291,7 +291,7 @@ void Tutorial::Update()
 			int lineIndex = lineEffectArrayData[i].lineIndex;
 			int enemyTypeIndex = lineEffectArrayData[i].enemyTypeIndex;
 			int enemyIndex = lineEffectArrayData[i].enemyIndex;
-			KazMath::Vec3<float> pos = *enemies[enemyTypeIndex][enemyIndex]->GetData()->hitBox.center;
+			KazMath::Vec3<float> pos = *m_enemies[enemyTypeIndex][enemyIndex]->GetData()->hitBox.center;
 			lineLevel[lineIndex].CalucurateDistance(player.pos, pos);
 		}
 	}
@@ -321,14 +321,14 @@ void Tutorial::Update()
 			int enemyIndex = lineEffectArrayData[i].enemyIndex;
 
 			//演出を合わせてダメージと死亡をやる
-			if (lineLevel[lineIndex].lineReachObjFlag && !lineLevel[lineIndex].alreadyReachedFlag && enemies[enemyTypeIndex][enemyIndex]->IsAlive())
+			if (lineLevel[lineIndex].lineReachObjFlag && !lineLevel[lineIndex].alreadyReachedFlag && m_enemies[enemyTypeIndex][enemyIndex]->IsAlive())
 			{
 				SoundManager::Instance()->PlaySoundMem(damageSoundHandle, 1);
 				lineLevel[lineIndex].alreadyReachedFlag = true;
 			}
-			else if (lineLevel[lineIndex].lineReachObjFlag && !enemies[enemyTypeIndex][enemyIndex]->IsAlive() && !lineEffectArrayData[i].hitFlag)
+			else if (lineLevel[lineIndex].lineReachObjFlag && !m_enemies[enemyTypeIndex][enemyIndex]->IsAlive() && !lineEffectArrayData[i].hitFlag)
 			{
-				enemies[enemyTypeIndex][enemyIndex]->Dead();
+				m_enemies[enemyTypeIndex][enemyIndex]->Dead();
 				tutorialMovieArray[enemyTypeIndex]->Achieved();
 				lineEffectArrayData[i].hitFlag = true;
 			}
@@ -340,9 +340,9 @@ void Tutorial::Update()
 	if (tutorialArrayIndex == 2)
 	{
 		bool lEnemyDeadFlag = false;
-		for (int enemyIndex = 0; enemyIndex < enemies[2].size(); ++enemyIndex)
+		for (int enemyIndex = 0; enemyIndex < m_enemies[2].size(); ++enemyIndex)
 		{
-			if (enemies[2][enemyIndex] != nullptr && !enemies[2][enemyIndex]->GetData()->oprationObjData->enableToHitFlag)
+			if (m_enemies[2][enemyIndex] != nullptr && !m_enemies[2][enemyIndex]->GetData()->oprationObjData->enableToHitFlag)
 			{
 				lEnemyDeadFlag = true;
 			}
@@ -407,23 +407,23 @@ void Tutorial::Update()
 	}
 
 
-	for (int tutorialNum = 0; tutorialNum < enemies.size(); ++tutorialNum)
+	for (int tutorialNum = 0; tutorialNum < m_enemies.size(); ++tutorialNum)
 	{
 		bool lIsNotAllKillFlag = startFlag;
-		for (int enemyIndex = 0; enemyIndex < enemies[tutorialNum].size(); ++enemyIndex)
+		for (int enemyIndex = 0; enemyIndex < m_enemies[tutorialNum].size(); ++enemyIndex)
 		{
-			bool enableToUseDataFlag = enemies[tutorialNum][enemyIndex] == nullptr ||
-				!enemies[tutorialNum][enemyIndex]->GetData()->oprationObjData->initFlag;
+			bool enableToUseDataFlag = m_enemies[tutorialNum][enemyIndex] == nullptr ||
+				!m_enemies[tutorialNum][enemyIndex]->GetData()->oprationObjData->initFlag;
 			if (enableToUseDataFlag)
 			{
 				continue;
 			}
-			if (enemies[tutorialNum][enemyIndex]->GetData()->oprationObjData->enableToHitFlag ||
-				enemies[tutorialNum][enemyIndex]->GetData()->oprationObjData->initFlag)
+			if (m_enemies[tutorialNum][enemyIndex]->GetData()->oprationObjData->enableToHitFlag ||
+				m_enemies[tutorialNum][enemyIndex]->GetData()->oprationObjData->initFlag)
 			{
 				lIsNotAllKillFlag = false;
 			}
-			enemies[tutorialNum][enemyIndex]->Update();
+			m_enemies[tutorialNum][enemyIndex]->Update();
 		}
 
 		//そのステージの敵が全て死んでいたらチュートリアルが完了したことを知らせる
@@ -453,17 +453,17 @@ void Tutorial::Update()
 
 		if (!deadAllEnemyFlag)
 		{
-			for (int tutorialNum = 0; tutorialNum < enemies.size(); ++tutorialNum)
+			for (int tutorialNum = 0; tutorialNum < m_enemies.size(); ++tutorialNum)
 			{
-				for (int enemyIndex = 0; enemyIndex < enemies[tutorialNum].size(); ++enemyIndex)
+				for (int enemyIndex = 0; enemyIndex < m_enemies[tutorialNum].size(); ++enemyIndex)
 				{
-					bool enableToUseDataFlag = enemies[tutorialNum][enemyIndex] == nullptr ||
-						!enemies[tutorialNum][enemyIndex]->GetData()->oprationObjData->initFlag;
+					bool enableToUseDataFlag = m_enemies[tutorialNum][enemyIndex] == nullptr ||
+						!m_enemies[tutorialNum][enemyIndex]->GetData()->oprationObjData->initFlag;
 					if (enableToUseDataFlag)
 					{
 						continue;
 					}
-					enemies[tutorialNum][enemyIndex]->Finalize();
+					m_enemies[tutorialNum][enemyIndex]->Finalize();
 				}
 			}
 			deadAllEnemyFlag = true;
@@ -511,22 +511,22 @@ void Tutorial::Draw()
 		gridR[i]->Draw();
 	}
 
-	player.Draw();
+	//player.Draw();
 
 
 
-	for (int tutorialNum = 0; tutorialNum < enemies.size(); ++tutorialNum)
+	for (int tutorialNum = 0; tutorialNum < m_enemies.size(); ++tutorialNum)
 	{
-		for (int enemyIndex = 0; enemyIndex < enemies[tutorialNum].size(); ++enemyIndex)
+		for (int enemyIndex = 0; enemyIndex < m_enemies[tutorialNum].size(); ++enemyIndex)
 		{
 			//生成されている敵のみ描画処理を通す
-			bool enableToUseDataFlag = enemies[tutorialNum][enemyIndex] == nullptr ||
-				!enemies[tutorialNum][enemyIndex]->GetData()->oprationObjData->initFlag;
+			bool enableToUseDataFlag = m_enemies[tutorialNum][enemyIndex] == nullptr ||
+				!m_enemies[tutorialNum][enemyIndex]->GetData()->oprationObjData->initFlag;
 			if (enableToUseDataFlag)
 			{
 				continue;
 			}
-			enemies[tutorialNum][enemyIndex]->Draw();
+			//m_enemies[tutorialNum][enemyIndex]->Draw();
 		}
 	}
 

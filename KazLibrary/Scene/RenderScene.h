@@ -151,7 +151,7 @@ private:
 		float m_windSpeed;
 		float m_windStrength;
 		float m_threshold;
-		float m_scale;
+		float m_skydormScale;
 		int m_octaves;
 		float m_persistence;
 		float m_lacunarity;

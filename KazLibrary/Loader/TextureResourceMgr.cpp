@@ -1,4 +1,4 @@
-#include"../Loader/TextureResourceMgr.h"
+ #include"../Loader/TextureResourceMgr.h"
 #include"../DirectXCommon/DirectX12Device.h"
 #include"../DirectXCommon/DirectX12CmdList.h"
 #include"../Helper/KazHelper.h"

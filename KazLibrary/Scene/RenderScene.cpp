@@ -49,8 +49,8 @@ RenderScene::RenderScene()
 
 		DrawFuncData::PipelineGenerateData lData;
 		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSPosNormalUvmain", "vs_6_4", SHADER_TYPE_VERTEX);
-		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvmain", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSPosNormalUvLightMain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvLightMain", "ps_6_4", SHADER_TYPE_PIXEL);
 		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 
 		m_alphaModel = DrawFuncData::SetDrawGLTFIndexMaterialData(*m_refractionModel, lData);
@@ -188,7 +188,7 @@ RenderScene::RenderScene()
 	m_noiseParam.m_windSpeed = 10.00f;
 	m_noiseParam.m_windStrength = 1.0f;
 	m_noiseParam.m_threshold = 0.42f;
-	m_noiseParam.m_scale = 356.0f;
+	m_noiseParam.m_skydormScale = 356.0f;
 	m_noiseParam.m_octaves = 4;
 	m_noiseParam.m_persistence = 0.5f;
 	m_noiseParam.m_lacunarity = 2.5f;
@@ -461,7 +461,7 @@ void RenderScene::Draw()
 	//風のしきい値 ノイズを風として判断するためのもの
 	ImGui::DragFloat("WindThreshold", &m_noiseParam.m_threshold, 0.01f, 0.01f, 1.0f);
 	//ノイズのスケール
-	ImGui::DragFloat("NoiseScale", &m_noiseParam.m_scale, 1.0f, 1.0f, 2000.0f);
+	ImGui::DragFloat("NoiseScale", &m_noiseParam.m_skydormScale, 1.0f, 1.0f, 2000.0f);
 	//ノイズのオクターブ数
 	ImGui::DragInt("NoiseOctaves", &m_noiseParam.m_octaves, 1, 1, 10);
 	//ノイズの持続度 違う周波数のノイズを計算する際にどのくらいノイズを持続させるか。 粒度になる。

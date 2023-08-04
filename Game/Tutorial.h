@@ -65,7 +65,7 @@ private:
 
 	static const int TUTORIAL_MAX_NUM = 1;
 
-	std::array<std::array<std::unique_ptr<IEnemy>, 10>, TUTORIAL_MAX_NUM> enemies;
+	std::array<std::array<std::unique_ptr<IEnemy>, 10>, TUTORIAL_MAX_NUM> m_enemies;
 	RESOURCE_HANDLE damageSoundHandle, lockSoundHandle;
 
 	//チュートリアル用----------------------------------------------------------------

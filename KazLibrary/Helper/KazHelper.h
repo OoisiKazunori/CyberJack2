@@ -65,9 +65,6 @@ namespace KazHelper
 
 
 	std::vector<char>CovertStringToChar(std::string STRING);
-
-
-
 }
 
 

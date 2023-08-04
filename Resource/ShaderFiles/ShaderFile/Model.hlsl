@@ -23,13 +23,44 @@ struct PosUvNormalOutput
     float4 svpos : SV_POSITION; 
     float3 normal : NORMAL; 
     float2 uv : TEXCOORD;
+    float3 worldPos : POSITION;
+};
+
+//ライトなし頂点変換
+PosUvNormalOutput VSPosNormalUvmain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
+{
+    PosUvNormalOutput op;
+    op.svpos = mul(worldMat,pos);
+    op.worldPos = op.svpos.xyz;
+    op.svpos = mul(viewMat,op.svpos);
+    op.svpos = mul(projectionMat,op.svpos);
+    op.uv = uv;
+    op.normal = normal;
+    return op;
+}
+
+//乗算ありPS
+float4 PSPosNormalUvmain(PosUvNormalOutput input) : SV_TARGET
+{
+	float4 texColor = AlbedoTex.Sample(smp,input.uv);
+    texColor *= colorB1;
+	return float4(texColor.rgb, texColor.a);
+}
+
+
+struct ModelWithLightOutputData
+{
+    float4 svpos : SV_POSITION; 
+    float3 normal : NORMAL; 
+    float2 uv : TEXCOORD;
     float3 lightInTangentWorld : TANGENT;
     float3 worldPos : POSITION;
 };
 
-PosUvNormalOutput VSPosNormalUvmain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
+//ライトあり頂点返還
+ModelWithLightOutputData VSPosNormalUvLightMain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
 {
-    PosUvNormalOutput op;
+    ModelWithLightOutputData op;
     op.svpos = mul(worldMat,pos);
     op.worldPos = op.svpos.xyz;
     op.svpos = mul(viewMat,op.svpos);
@@ -44,7 +75,8 @@ PosUvNormalOutput VSPosNormalUvmain(float4 pos : POSITION,float3 normal : NORMAL
     return op;
 }
 
-float4 PSPosNormalUvmain(PosUvNormalOutput input) : SV_TARGET
+//乗算ありPS
+float4 PSPosNormalUvLightMain(ModelWithLightOutputData input) : SV_TARGET
 {
     float4 normalColor = NormalTex.Sample(smp,input.uv);
 
@@ -77,6 +109,7 @@ struct PosUvNormalTangentBinormalOutput
     float3 binormal : BINORMAL;
 };
 
+//ディファードレンダリング対応
 PosUvNormalTangentBinormalOutput VSDefferdMain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
 {
     PosUvNormalTangentBinormalOutput op;
@@ -105,6 +138,7 @@ cbuffer ColorBuffer : register(b2)
     float4 color;
 }
 
+//ディファードレンダリング対応
 GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
 {
     float4 normalColor = NormalTex.Sample(smp,input.uv);

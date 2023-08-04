@@ -158,3 +158,12 @@ DirectX::XMFLOAT2 KeyBoradInputManager::GetMousePoint()
 	mousePos.y = static_cast<float>(WinAPIMousePos.y);
 	return mousePos;
 }
+
+KazMath::Vec3<float> KeyBoradInputManager::GetMouseVel()
+{
+	KazMath::Vec3<float>vel;
+	vel.x = static_cast<float>(mouseState.lX);
+	vel.y = static_cast<float>(mouseState.lY);
+	vel.z = static_cast<float>(mouseState.lZ);
+	return vel;
+}
