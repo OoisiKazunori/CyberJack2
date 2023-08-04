@@ -108,6 +108,11 @@ private:
 	HandleMaker handle;
 	std::vector<KazBufferHelper::BufferData>bufferArray;
 	std::vector<KazBufferHelper::BufferData>cpuBufferArray;
+	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>>mipmapUploadBufferArray;
 
 	friend ISingleton<TextureResourceMgr>;
+
+	//バッファのステータスを変更
+	void BufferStatesTransition(ID3D12Resource* arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after);
+
 };
