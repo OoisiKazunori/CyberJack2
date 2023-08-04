@@ -275,12 +275,9 @@ KazBufferHelper::BufferData TextureResourceMgr::LoadGraphBuffer(std::string RESO
 
 			for (uint32_t height = 0; height < numRow[mip]; ++height) {
 
-				//memcpy(uploadStart + height * footprint[mip].Footprint.RowPitch, reinterpret_cast<const void*>(reinterpret_cast<uintptr_t>(subresources[mip].pData) + height * subresources[mip].RowPitch), subresources[mip].RowPitch / 2);
+				memcpy(uploadStart + height * footprint[mip].Footprint.RowPitch, reinterpret_cast<const void*>(reinterpret_cast<uintptr_t>(subresources[mip].pData) + height * subresources[mip].RowPitch), subresources[mip].RowPitch);
 
-				break;
 			}
-
-			break;
 
 		}
 
@@ -307,8 +304,6 @@ KazBufferHelper::BufferData TextureResourceMgr::LoadGraphBuffer(std::string RESO
 				nullptr
 			);
 
-			break;
-
 		}
 
 		//バッファの状態を遷移
@@ -318,7 +313,7 @@ KazBufferHelper::BufferData TextureResourceMgr::LoadGraphBuffer(std::string RESO
 		//コピー
 		DirectX12CmdList::Instance()->cmdList->CopyResource(bufferArray[elementNum].bufferWrapper->GetBuffer().Get(), cpuBufferArray[elementNum].bufferWrapper->GetBuffer().Get());
 
-		//BufferStatesTransition(cpuBufferArray[elementNum].bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_GENERIC_READ);
+		BufferStatesTransition(cpuBufferArray[elementNum].bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_GENERIC_READ);
 		BufferStatesTransition(bufferArray[elementNum].bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COMMON);
 
 	}
