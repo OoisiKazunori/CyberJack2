@@ -112,6 +112,9 @@ private:
 
 	friend ISingleton<TextureResourceMgr>;
 
+	//DDS用読み込み処理
+	void LoadDDSFile(CD3DX12_RESOURCE_DESC arg_textureDesc, int arg_elementNum);
+
 	//バッファのステータスを変更
 	void BufferStatesTransition(ID3D12Resource* arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after);
 
