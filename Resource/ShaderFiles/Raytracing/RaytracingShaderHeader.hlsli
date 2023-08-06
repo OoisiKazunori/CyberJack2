@@ -6,6 +6,7 @@ static const float PI = 3.141592653589f;
 //ミスシェーダーのインデックス
 static const int MISS_DEFAULT = 0;
 static const int MISS_LIGHTING = 1;
+static const int MISS_CHECKHIT = 2;
 
 //マテリアルの種類
 static const int MATERIAL_NONE = 0;
@@ -197,6 +198,58 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
 
 }
 
+
+
+//空の色を取得。
+float3 GetSkyColor(float3 arg_eyeVec)
+{
+    arg_eyeVec.y = max(arg_eyeVec.y, 0.0f);
+    float r = pow(1.0f - arg_eyeVec.y, 2.0f);
+    float g = 1.0f - arg_eyeVec.y;
+    float b = 0.6f + (1.0f - arg_eyeVec.y) * 0.4f;
+    return float3(r, g, b);
+}
+
+//ライティングに関する関数
+float Diffuse(float3 arg_normal, float3 arg_light, float arg_position)
+{
+    return pow(dot(arg_normal, arg_light) * 0.4f + 0.6f, arg_position);
+}
+float Specular(float3 arg_normal, float3 arg_light, float3 arg_eye, float arg_specular)
+{
+    float nrm = (arg_specular + 8.0f) / (PI * 8.0f);
+    return pow(max(dot(reflect(arg_eye, arg_normal), arg_light), 0.0f), arg_specular) * nrm;
+}
+
+//海の色を取得
+float3 GetSeaColor(float3 arg_position, float3 arg_normal, float3 arg_light, float3 arg_rayDir, float3 arg_dist /*arg_position - レイの原点*/)
+{
+    //海に関する定数 実装出来たらこれらを定数バッファに入れて変えられるようにする。
+    const float3 SEA_BASE = float3(0.1f, 0.19f, 0.22f); //謎。 海が完成したら動かしてみて何かを判断する。
+    const float3 SEA_WATER_COLOR = float3(0.8f, 0.9f, 0.6f); //名前的に水の色
+    const float SEA_HEIGHT = 0.6f; //海の限界の高さ？
+    
+    //フレネルの計算で反射率を求める。 http://marupeke296.com/DXPS_PS_No7_FresnelReflection.html
+    float fresnel = clamp(1.0f - dot(arg_normal, -arg_rayDir), 0.0f, 1.0f);
+    fresnel = pow(fresnel, 3.0f) * 0.65f;
+
+    //反射、屈折した場合の色を求める。
+    float3 reflected = GetSkyColor(reflect(arg_rayDir, arg_normal));
+    float3 refracted = SEA_BASE + Diffuse(arg_normal, arg_light, 80.0f) * SEA_WATER_COLOR * 0.12f; //海の色 この先にオブジェクトがある場合、その距離に応じてその色を補間する。
+
+    //フレネルの計算で得られた反射率から色を補間する。
+    float3 color = lerp(refracted, reflected, fresnel);
+
+    //減衰率を求める。
+    float atten = max(1.0f - dot(arg_dist, arg_dist) * 0.001f, 0.0f);
+    color += SEA_WATER_COLOR * (arg_position.y - SEA_HEIGHT) * 0.18f * atten; //波の高さによって色を変えてる？ここを調整すれば白くできるかも？
+
+    //スペキュラを求めて光沢を出す！
+    color += float3(float3(1.0f, 1.0f, 1.0f) * Specular(arg_normal, arg_light, arg_rayDir, 60.0f));
+
+    return color;
+}
+
 //全部の要素が既定の値以内に収まっているか。
 bool IsInRange(float3 arg_value, float arg_range, float arg_wrapCount)
 {
@@ -385,8 +438,18 @@ void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materia
         
         //レイを撃つ
         float3 rayOrigin = arg_worldColor.xyz;
-        CastRay(refractionColor, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
-        CastRay(reflectionColor, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(refractionColor, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 300000.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(reflectionColor, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 300000.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        
+        //レイが当たったか当たっていないかで色を変える。
+        if (refractionColor.m_color.x < 0)
+        {
+            refractionColor.m_color = arg_albedoColor.xyz;
+        }
+        if (reflectionColor.m_color.x < 0)
+        {
+            reflectionColor.m_color = float3(0,0,0);
+        }
         
         //海の色の割合
         float perOfSeaColor = (1.0f - arg_materialInfo.y);

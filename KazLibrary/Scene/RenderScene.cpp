@@ -10,7 +10,7 @@ RenderScene::RenderScene()
 	m_boxData = m_boxBuffer.GenerateBoxBuffer(1.0f);
 
 	Raytracing::HitGroupMgr::Instance()->Setting();
-	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS"}, {L"mainCHS", L"mainAnyHit"} });
+	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS", L"checkHitRayMS"}, {L"mainCHS", L"mainAnyHit"}});
 	int payloadSize = sizeof(float) * 4;
 	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 5, 3, 3, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
