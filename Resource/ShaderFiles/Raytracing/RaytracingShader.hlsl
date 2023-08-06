@@ -232,8 +232,8 @@ void mainRayGen()
         
         albedoColor.xyz = color;
         worldColor.xyz = position;
-        normalColor.xyz = float3(0, 1, 0);
-        materialInfo.y = 1.0f;
+        normalColor.xyz = n;
+        materialInfo.y = 0.8f;
         materialInfo.w = 2;
 
     }
@@ -256,7 +256,7 @@ void mainRayGen()
     
     //マテリアルのIDをもとに、反射屈折のレイを飛ばす。
     float4 final = float4(0, 0, 0, 1);
-    SecondaryPass(worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
+    SecondaryPass(dir, worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
     
     //なにも描画されていないところでは空の色を取得。
     if (length(worldColor.xyz) < 0.1f && length(normalColor.xyz) < 0.1f && !isSea)

@@ -335,7 +335,7 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
     
 }
 
-void SecondaryPass(float4 arg_worldColor, float4 arg_materialInfo, float4 arg_normalColor, float4 arg_albedoColor, RaytracingAccelerationStructure arg_scene, CameraEyePosConstData arg_cameraEyePos, inout float4 arg_finalColor)
+void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materialInfo, float4 arg_normalColor, float4 arg_albedoColor, RaytracingAccelerationStructure arg_scene, CameraEyePosConstData arg_cameraEyePos, inout float4 arg_finalColor)
 {
         
     //ÉåÉCÇÃIDÇÇ›ÇƒÅAÉåÉCÇë≈Ç¬Ç©Ç«Ç§Ç©Çîªíf
@@ -347,7 +347,7 @@ void SecondaryPass(float4 arg_worldColor, float4 arg_materialInfo, float4 arg_no
         
         //ÉåÉCÇåÇÇ¬
         float3 rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
-        CastRay(payloadData, rayOrigin, refract(normalize(rayOrigin - arg_cameraEyePos.m_eye), arg_normalColor.xyz, 0.1f), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(payloadData, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
         
         //åãâ äiî[
         arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
@@ -362,7 +362,7 @@ void SecondaryPass(float4 arg_worldColor, float4 arg_materialInfo, float4 arg_no
         
         //ÉåÉCÇåÇÇ¬
         float3 rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
-        CastRay(payloadData, rayOrigin, reflect(normalize(rayOrigin - arg_cameraEyePos.m_eye), arg_normalColor.xyz), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(payloadData, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
         
         //åãâ äiî[
         arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
