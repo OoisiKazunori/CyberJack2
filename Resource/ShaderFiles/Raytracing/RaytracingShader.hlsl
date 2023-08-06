@@ -160,13 +160,23 @@ void mainRayGen()
     float4 worldColor = worldMap[launchIndex];
     
     //海を描画
-    bool isSea = (cameraEyePos.m_eye + dir * 10000.0f).y < 0 && length(normalColor.xyz) < 0.1f;
-    if (worldColor.y < 0.0f || isSea)
+    bool isSea = 0 < cameraEyePos.m_eye.y && (cameraEyePos.m_eye + dir * 10000.0f).y < 0 && length(normalColor.xyz) < 0.1f;
+    isSea |= cameraEyePos.m_eye.y < 0 && 0 < (cameraEyePos.m_eye + dir * 10000.0f).y && length(normalColor.xyz) < 0.1f;
+    isSea |= cameraEyePos.m_eye.y < 0 && 0 < worldColor.y;
+    isSea |= 0 < cameraEyePos.m_eye.y && worldColor.y < 0;
+    if (isSea)
     {
         float2 uv = launchIndex.xy / dims.xy;
         uv = uv * 2.0f - 1.0f;
         
         float3 origin = cameraEyePos.m_eye;
+        
+        //Y-だったらY軸を反転
+        if (origin.y < 0)
+        {
+            origin.y *= -1.0f;
+            //dir.y *= -1.0f;
+        }
         
         float3 position;
         HeightMapRayMarching(origin, dir, position);
