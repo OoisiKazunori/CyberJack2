@@ -339,15 +339,30 @@ void SecondaryPass(float4 arg_worldColor, float4 arg_materialInfo, float4 arg_no
 {
         
     //ƒŒƒC‚ÌID‚ğ‚İ‚ÄAƒŒƒC‚ğ‘Å‚Â‚©‚Ç‚¤‚©‚ğ”»’f
-    if (arg_materialInfo.w != 0 && 0.1f < length(arg_normalColor.xyz))
+    if (arg_materialInfo.w == 2 && 0.1f < length(arg_normalColor.xyz))
     {
         
         Payload payloadData;
         payloadData.m_color = float3(1, 1, 1);
         
         //ƒŒƒC‚ğŒ‚‚Â
-        float rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
-        CastRay(payloadData, rayOrigin, refract(normalize(rayOrigin - arg_cameraEyePos.m_eye), arg_normalColor.xyz, 0.01f), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        float3 rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
+        CastRay(payloadData, rayOrigin, refract(normalize(rayOrigin - arg_cameraEyePos.m_eye), arg_normalColor.xyz, 0.1f), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        
+        //Œ‹‰ÊŠi”[
+        arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
+        arg_finalColor += float4((payloadData.m_color), 1) * (1.0f - arg_materialInfo.y);
+        
+    }
+    else if (arg_materialInfo.w == 1 && 0.1f < length(arg_normalColor.xyz))
+    {
+        
+        Payload payloadData;
+        payloadData.m_color = float3(1, 1, 1);
+        
+        //ƒŒƒC‚ğŒ‚‚Â
+        float3 rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
+        CastRay(payloadData, rayOrigin, reflect(normalize(rayOrigin - arg_cameraEyePos.m_eye), arg_normalColor.xyz), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
         
         //Œ‹‰ÊŠi”[
         arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;

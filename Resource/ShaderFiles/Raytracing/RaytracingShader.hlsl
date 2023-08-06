@@ -93,7 +93,7 @@ float MappingHeightNoise(float3 arg_position)
     float freq = 0.16f;
     float amp = 0.6f;
     float choppy = 4.0f;
-    float seaSpeed = 0.8f;
+    float seaSpeed = 5.8f;
 
     //XZ平面による計算
     float2 uv = arg_position.xz;
@@ -137,7 +137,7 @@ float HeightMapRayMarching(float3 arg_origin, float3 arg_direction, out float3 a
 {
     float tm = 0.0f;
 
-    float tx = 100.0f;
+    float tx = 10000.0f;
 
     //一旦遠くの位置のサンプリングを行い、結果の高さが0以上だったらレイが海に当たらないということなのでReturnする。
     float hx = MappingHeightNoise(arg_origin + arg_direction * tx);
@@ -174,7 +174,7 @@ float HeightMapRayMarching(float3 arg_origin, float3 arg_direction, out float3 a
             hm = hmid;
         }
     }
-
+    
     return tmid;
 }
 
@@ -196,11 +196,47 @@ void mainRayGen()
     //現在のレイのインデックス。左上基準のスクリーン座標として使える。
     uint2 launchIndex = DispatchRaysIndex().xy;
     
+    //カメラから見たレイの方向を計算。
+    float2 dims = float2(DispatchRaysDimensions().xy);
+    float2 d = (launchIndex.xy + 0.5f) / dims.xy * 2.0f - 1.0f;
+    float aspect = dims.x / dims.y;
+    float4 target = mul(cameraEyePos.m_projMat, float4(d.x, -d.y, 1, 1));
+    float3 dir = mul(cameraEyePos.m_viewMat, float4(target.xyz, 0)).xyz;
+    
     //GBufferから値を抜き取る。
     float4 albedoColor = albedoMap[launchIndex];
     float4 normalColor = normalMap[launchIndex];
     float4 materialInfo = materialMap[launchIndex];
     float4 worldColor = worldMap[launchIndex];
+    
+    //海を描画
+    bool isSea = (cameraEyePos.m_eye + dir * 10000.0f).y < 0 && length(normalColor.xyz) < 0.1f;
+    if (worldColor.y < 0.0f || isSea)
+    {
+        float2 uv = launchIndex.xy / dims.xy;
+        uv = uv * 2.0f - 1.0f;
+        
+        float3 origin = cameraEyePos.m_eye;
+        
+        float3 position;
+        HeightMapRayMarching(origin, dir, position);
+
+        float3 dist = position - origin;
+        float3 n = GetNormal(position, dot(dist, dist) * (0.1f / dims.x));
+        
+        float3 sky = GetSkyColor(dir);
+        float3 sea = GetSeaColor(position, n, lightData.m_dirLight.m_dir, dir, dist);
+        
+        float t = pow(smoothstep(0.0f, -0.05f, dir.y), 0.3f);
+        float3 color = lerp(sky, sea, t);
+        
+        albedoColor.xyz = color;
+        worldColor.xyz = position;
+        normalColor.xyz = float3(0, 1, 0);
+        materialInfo.y = 1.0f;
+        materialInfo.w = 2;
+
+    }
     
     //ライティングパスを行う。
     float bright = 0.0f;
@@ -222,45 +258,13 @@ void mainRayGen()
     float4 final = float4(0, 0, 0, 1);
     SecondaryPass(worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
     
-    
-    ////カメラから見たレイの方向を計算。
-    //float2 dims = float2(DispatchRaysDimensions().xy);
-    //float2 d = (launchIndex.xy + 0.5f) / dims.xy * 2.0f - 1.0f;
-    //float aspect = dims.x / dims.y;
-    //float4 target = mul(cameraEyePos.m_projMat, float4(d.x, -d.y, 1, 1));
-    //float3 dir = mul(cameraEyePos.m_viewMat, float4(target.xyz, 0)).xyz;
-    
-    ////海を描画
-    //if (worldColor.y < 0.0f || length(normalColor.xyz) < 0.1f)
-    //{
-    //    float2 uv = launchIndex.xy / dims.xy;
-    //    uv = uv * 2.0f - 1.0f;
+    //なにも描画されていないところでは空の色を取得。
+    if (length(worldColor.xyz) < 0.1f && length(normalColor.xyz) < 0.1f && !isSea)
+    {
         
-    //    float3 origin = cameraEyePos.m_eye;
+        final.xyz = GetSkyColor(dir);
         
-    //    float3 position;
-    //    HeightMapRayMarching(origin, dir, position);
-
-    //    float3 dist = position - origin;
-    //    float3 n = GetNormal(position, dot(dist, dist) * (0.1f / dims.x));
-        
-    //    float3 sky = GetSkyColor(dir);
-    //    float3 sea = GetSeaColor(position, n, lightData.m_dirLight.m_dir, dir, dist);
-        
-    //    float t = pow(smoothstep(0.0f, -0.05f, dir.y), 0.3f);
-    //    float3 color = lerp(sky, sea, t);
-        
-    //    albedoColor.xyz += color;
-    //    final.xyz += color;
-    //}
-    
-    ////なにも描画されていないところでは空の色を取得。
-    //if (length(albedoColor.xyz) < 0.1f && length(worldColor.xyz) < 0.1f && length(normalColor.xyz) < 0.1f)
-    //{
-        
-    //    final.xyz = GetSkyColor(dir);
-        
-    //}
+    }
     
     //合成の結果を入れる。
     finalColor[launchIndex.xy] = final;
@@ -299,7 +303,7 @@ void shadowMS(inout Payload payload)
     Vertex vtx = GetHitVertex(attrib, vertexBuffer, indexBuffer);
     
     //当たった位置のピクセルをサンプリングして、色をPayloadに入れる。
-    float4 mainTexColor = objectTexture.SampleLevel(smp, vtx.uv, 1);
+    float4 mainTexColor = objectTexture.SampleLevel(smp, vtx.uv, 0);
     payload.m_color = mainTexColor.xyz;
            
 }
