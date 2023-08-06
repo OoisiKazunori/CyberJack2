@@ -7,6 +7,12 @@ static const float PI = 3.141592653589f;
 static const int MISS_DEFAULT = 0;
 static const int MISS_LIGHTING = 1;
 
+//マテリアルの種類
+static const int MATERIAL_NONE = 0;
+static const int MATERIAL_REFLECT = 1;
+static const int MATERIAL_REFRACT = 2;
+static const int MATERIAL_SEA = 3;
+
 //頂点情報
 struct Vertex
 {
@@ -339,7 +345,7 @@ void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materia
 {
         
     //レイのIDをみて、レイを打つかどうかを判断
-    if (arg_materialInfo.w == 2 && 0.1f < length(arg_normalColor.xyz))
+    if (arg_materialInfo.w == MATERIAL_REFRACT && 0.1f < length(arg_normalColor.xyz))
     {
         
         Payload payloadData;
@@ -354,7 +360,7 @@ void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materia
         arg_finalColor += float4((payloadData.m_color), 1) * (1.0f - arg_materialInfo.y);
         
     }
-    else if (arg_materialInfo.w == 1 && 0.1f < length(arg_normalColor.xyz))
+    else if (arg_materialInfo.w == MATERIAL_REFLECT && 0.1f < length(arg_normalColor.xyz))
     {
         
         Payload payloadData;
@@ -367,6 +373,28 @@ void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materia
         //結果格納
         arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
         arg_finalColor += float4((payloadData.m_color), 1) * (1.0f - arg_materialInfo.y);
+        
+    }
+    else if (arg_materialInfo.w == MATERIAL_SEA && 0.1f < length(arg_normalColor.xyz))
+    {
+        
+        Payload refractionColor;
+        refractionColor.m_color = float3(1, 1, 1);
+        Payload reflectionColor;
+        reflectionColor.m_color = float3(1, 1, 1);
+        
+        //レイを撃つ
+        float3 rayOrigin = arg_worldColor.xyz;
+        CastRay(refractionColor, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(reflectionColor, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        
+        //海の色の割合
+        float perOfSeaColor = (1.0f - arg_materialInfo.y);
+        
+        //結果格納
+        arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
+        arg_finalColor += float4((refractionColor.m_color), 1) * (perOfSeaColor / 2.0f);
+        arg_finalColor += float4((reflectionColor.m_color), 1) * (perOfSeaColor / 2.0f);
         
     }
     else

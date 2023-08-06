@@ -234,7 +234,7 @@ void mainRayGen()
         worldColor.xyz = position;
         normalColor.xyz = n;
         materialInfo.y = 0.8f;
-        materialInfo.w = 2;
+        materialInfo.w = MATERIAL_SEA;
 
     }
     
