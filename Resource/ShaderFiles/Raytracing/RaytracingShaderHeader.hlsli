@@ -222,11 +222,11 @@ float Specular(float3 arg_normal, float3 arg_light, float3 arg_eye, float arg_sp
 }
 
 //海の色を取得
+static const float3 SEA_BASE = float3(0.1f, 0.19f, 0.22f); //謎。 海が完成したら動かしてみて何かを判断する。
+static const float3 SEA_WATER_COLOR = float3(0.8f, 0.9f, 0.6f); //名前的に水の色
 float3 GetSeaColor(float3 arg_position, float3 arg_normal, float3 arg_light, float3 arg_rayDir, float3 arg_dist /*arg_position - レイの原点*/)
 {
     //海に関する定数 実装出来たらこれらを定数バッファに入れて変えられるようにする。
-    const float3 SEA_BASE = float3(0.1f, 0.19f, 0.22f); //謎。 海が完成したら動かしてみて何かを判断する。
-    const float3 SEA_WATER_COLOR = float3(0.8f, 0.9f, 0.6f); //名前的に水の色
     const float SEA_HEIGHT = 0.6f; //海の限界の高さ？
     
     //フレネルの計算で反射率を求める。 http://marupeke296.com/DXPS_PS_No7_FresnelReflection.html

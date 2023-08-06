@@ -175,7 +175,7 @@ void mainRayGen()
         if (origin.y < 0)
         {
             origin.y *= -1.0f;
-            //dir.y *= -1.0f;
+            dir.y *= -1.0f;
         }
         
         float3 position;
@@ -195,7 +195,7 @@ void mainRayGen()
         normalColor.xyz = n;
         materialInfo.y = 0.8f;
         materialInfo.w = MATERIAL_SEA;
-
+        
     }
     
     //ライティングパスを行う。
@@ -218,11 +218,24 @@ void mainRayGen()
     float4 final = float4(0, 0, 0, 1);
     SecondaryPass(dir, worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
     
+    //描画されているけど水中！だったら水中っぽい見た目にする。
+    if (cameraEyePos.m_eye.y < 0 && worldColor.y < 0)
+    {
+        float perOfSea = 0.5f;
+        final = float4(albedoColor.xyz, 1) * perOfSea;
+        final += float4(SEA_BASE, 1) * (1.0f - perOfSea);
+    }
     //なにも描画されていないところでは空の色を取得。
-    if (length(worldColor.xyz) < 0.1f && length(normalColor.xyz) < 0.1f && !isSea)
+    else if (length(worldColor.xyz) < 0.1f && length(normalColor.xyz) < 0.1f && !isSea)
     {
         
         final.xyz = GetSkyColor(dir);
+        
+        //下方向を向いていたら海を描画
+        if ((cameraEyePos.m_eye + dir * 1000).y < 0)
+        {
+            final.xyz = SEA_BASE;
+        }
         
     }
     
