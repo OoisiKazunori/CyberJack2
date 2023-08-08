@@ -46,7 +46,7 @@ float MappingHeightNoise(float3 arg_position)
     float seaSpeed = 5.8f;
 
     //XZ平面による計算
-    float2 uv = arg_position.xz * 2.0f;
+    float2 uv = arg_position.xz / 2.0f;
 
     float d, h = 0.0f;
     

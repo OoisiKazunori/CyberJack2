@@ -18,7 +18,7 @@
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
-	scene.emplace_back(std::make_unique<RenderScene>());
+	scene.emplace_back(std::make_unique<TitleScene>());
 	scene.emplace_back(std::make_unique<GameScene>());
 	scene.emplace_back(std::make_unique<GameClearScene>());
 	scene.emplace_back(std::make_unique<GameOverScene>());
@@ -186,6 +186,9 @@ void SceneManager::Update()
 	m_noiseParam.m_timer += 0.001f;
 	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
 	//m_volumeNoiseShader.Compute({ static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 4) });
+
+	//ノイズ用のタイマーを加算。
+	GBufferMgr::Instance()->m_cameraEyePosData.m_noiseTimer += 0.02f;
 
 }
 

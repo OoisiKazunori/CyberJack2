@@ -260,9 +260,6 @@ void RenderScene::Update()
 
 	m_particle.UpdateEmitterAndParticleOnGPU();
 
-	//ノイズ用のタイマーを加算。
-	GBufferMgr::Instance()->m_cameraEyePosData.m_noiseTimer += 0.02f;
-
 
 }
 

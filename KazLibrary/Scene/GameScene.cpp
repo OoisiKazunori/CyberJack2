@@ -77,7 +77,7 @@ void GameScene::Update()
 
 void GameScene::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
-	game->Draw(arg_rasterize);
+	game->Draw(arg_rasterize, arg_blasVec);
 }
 
 int GameScene::SceneChange()

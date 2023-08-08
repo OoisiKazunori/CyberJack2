@@ -8,6 +8,7 @@
 #include"../KazLibrary/Render/DrawFunc.h"
 #include"../KazLibrary/Loader/ModelLoader.h"
 #include"../KazLibrary/Render/DrawingByRasterize.h"
+#include"../KazLibrary/Raytracing/BlasVector.h"
 
 class Player
 {
@@ -17,7 +18,7 @@ public:
 	void Finalize();
 	void Input();
 	void Update();
-	void Draw(DrawingByRasterize& arg_rasterize);
+	void Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec);
 	
 	void ForceAnim(int PATTERN)
 	{

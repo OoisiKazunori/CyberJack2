@@ -20,7 +20,7 @@ public:
 	/// <summary>
 	/// スプライン曲線に沿った動きを得る
 	/// </summary>
-	const KazMath::Vec3<float>& GetPosition();
+	KazMath::Vec3<float> GetPosition();
 private:
 	//スプライン曲線の挙動---------------------------------------
 	std::vector<KazMath::Vec3<float>>m_splineRailPosArray;

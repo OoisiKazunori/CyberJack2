@@ -402,9 +402,9 @@ void InGame::Update()
 
 }
 
-void InGame::Draw(DrawingByRasterize& arg_rasterize)
+void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
-	m_player.Draw(arg_rasterize);
+	m_player.Draw(arg_rasterize, arg_blasVec);
 	m_cursor.Draw(arg_rasterize);
 
 #ifdef _DEBUG

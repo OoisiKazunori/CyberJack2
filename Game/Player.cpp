@@ -39,7 +39,8 @@ Player::Player()
 	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSPosNormalUvLightMain", "vs_6_4", SHADER_TYPE_VERTEX);
 	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvLightMain", "ps_6_4", SHADER_TYPE_PIXEL);
 	lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
-	m_playerModel = DrawFuncData::SetDrawGLTFIndexMaterialData(*ModelLoader::Instance()->Load("Resource/Test/glTF/Avocado/", "Avocado.gltf"), lData);
+	//m_playerModel = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*ModelLoader::Instance()->Load("Resource/Test/glTF/Avocado/", "Avocado.gltf"), lData);
+	m_playerModel = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/Test/glTF/Avocado/", "Avocado.gltf"));
 }
 
 void Player::Init(const KazMath::Vec3<float>& POS, bool DRAW_UI_FLAG, bool APPEAR_FLAG)
@@ -246,9 +247,12 @@ void Player::Update()
 	//前フレームの座標を保存。移動した方向を求めて姿勢制御に使用する。
 	prevPos = pos;
 
+
+	DrawFunc::DrawModelInRaytracing(m_playerModel, m_transform, DrawFunc::NONE);
+
 }
 
-void Player::Draw(DrawingByRasterize& arg_rasterize)
+void Player::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
 	/*if (leftFlag)
 	{
@@ -272,6 +276,9 @@ void Player::Draw(DrawingByRasterize& arg_rasterize)
 	m_transform.scale = { 50.0f,50.0f,50.0f };
 	DrawFunc::DrawModel(m_playerModel, m_transform);
 	arg_rasterize.ObjectRender(m_playerModel);
+	for (auto& index : m_playerModel.m_raytracingData.m_blas) {
+		arg_blasVec.Add(index, m_transform.GetMat());
+	}
 }
 
 void Player::Hit()
