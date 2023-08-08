@@ -214,6 +214,36 @@ void Player::Update()
 		adjRota.z = 15.0f + 75.0f * -cameraRate.y;
 	}
 
+	//移動した方向をもとにプレイヤーの姿勢を求める。
+	KazMath::Vec3<float> movedVec = pos - prevPos;
+	//動いていたら姿勢を更新。動いていなかったらやばい値になるため。
+	if (0 < movedVec.Length()) {
+
+		//デフォルトの回転軸と移動した方向のベクトルが同じ値だったらデフォルトの回転軸の方向に移動しているってこと！
+		if (0.999f < movedVec.GetNormal().Dot(KazMath::Vec3<float>(0, 0, 1))) {
+			m_transform.rotation = {};
+		}
+		else {
+			//回転を求めるためにまずはデフォルトのベクトルと移動方向の回転軸を求める。
+			KazMath::Vec3<float> moveRotationAxis = movedVec.GetNormal().Cross(KazMath::Vec3<float>(0, 0, 1));
+			//次は回転量
+			float moveRotationAngle = acosf(movedVec.GetNormal().Dot(KazMath::Vec3<float>(0, 0, 1)));
+
+			//回転させる。
+			DirectX::XMVECTOR playerQ = DirectX::XMQuaternionRotationAxis(DirectX::XMVectorSet(moveRotationAxis.x, moveRotationAxis.y, moveRotationAxis.z, 0.0f), moveRotationAngle);
+
+			//回転をオイラー角に直す。
+			DirectX::XMVECTOR scale, position, rotate;
+			DirectX::XMMatrixDecompose(&scale, &rotate, &position, DirectX::XMMatrixRotationQuaternion(playerQ));
+			m_transform.rotation = KazMath::Vec3<float>(rotate.m128_f32[0], rotate.m128_f32[1], rotate.m128_f32[2]);
+
+		}
+
+	}
+
+	//前フレームの座標を保存。移動した方向を求めて姿勢制御に使用する。
+	prevPos = pos;
+
 }
 
 void Player::Draw(DrawingByRasterize& arg_rasterize)

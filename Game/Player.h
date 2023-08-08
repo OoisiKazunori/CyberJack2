@@ -43,8 +43,10 @@ public:
 	void Hit();
 
 	bool IsAlive();
+	KazMath::Vec3<float> prevPos;
 	KazMath::Vec3<float> pos;
 	KazMath::Vec2<float> cameraRate;
+	KazMath::Transform3D m_transform;
 private:
 
 	enum { LEFT, RIGHT, HEAD };
@@ -77,6 +79,5 @@ private:
 	float forceCameraRate;
 
 	DrawFuncData::DrawCallData m_playerModel;
-	KazMath::Transform3D m_transform;
 };
 

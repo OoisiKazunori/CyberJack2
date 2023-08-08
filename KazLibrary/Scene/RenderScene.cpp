@@ -253,7 +253,7 @@ void RenderScene::Input()
 
 void RenderScene::Update()
 {
-	m_camera.Update({}, {}, true);
+	m_camera.Update({}, {}, {}, true);
 	CameraMgr::Instance()->Camera(m_camera.GetEyePos(), m_camera.GetTargetPos(), { 0.0f,1.0f,0.0f });
 
 

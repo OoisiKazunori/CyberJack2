@@ -1,5 +1,6 @@
 #include"CameraWork.h"
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
+#include<DirectXMath.h>
 
 CameraWork::CameraWork()
 {
@@ -30,7 +31,7 @@ void CameraWork::Init(const KazMath::Vec3<float> &BASE_POS)
 	forceCameraDirVel.x = FORCE_CAMERA_FRONT;
 }
 
-void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<float> *PLAYER_POS, bool DEBUG_FLAG)
+void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<float> *PLAYER_POS, KazMath::Vec3<float> PLAYER_ROTATE, bool DEBUG_FLAG)
 {
 	if (!DEBUG_FLAG)
 	{
@@ -97,9 +98,19 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 
 		//上下左右の回転
 		cameraPoly->data.transform.pos = centralPos + (besidePoly->data.transform.pos + verticlaPoly->data.transform.pos);
+
+		//カメラの基準となる向きを決めるためにプレイヤーの回転からクォータニオンを生成する。
+		DirectX::XMVECTOR playerQ = DirectX::XMQuaternionRotationRollPitchYaw(PLAYER_ROTATE.y, PLAYER_ROTATE.z, PLAYER_ROTATE.x);
+
+		//カメラをプレイヤーの後ろに追従させるため、プレイヤーの後ろベクトルを求める。
+		DirectX::XMVECTOR playerBehindVec = DirectX::XMVector3Transform(DirectX::XMVectorSet(0,0,-1,0), DirectX::XMMatrixRotationQuaternion(playerQ));
+
+		//eyePos = cameraPoly->data.transform.pos;
+		eyePos = *PLAYER_POS + KazMath::Vec3<float>(playerBehindVec.m128_f32[0], playerBehindVec.m128_f32[1], playerBehindVec.m128_f32[2]) * 10.0f;
+		//targetPos = baseTargetPos;
+		targetPos = *PLAYER_POS;
+
 #pragma endregion
-		eyePos = cameraPoly->data.transform.pos;
-		targetPos = baseTargetPos;
 	}
 	else
 	{

@@ -350,16 +350,15 @@ void InGame::Update()
 	}
 
 
-	m_player.Update();
 	m_rail.Update();
 	m_stageArray[m_gameStageLevel]->Update();
 
-	//レール移動
-	m_player.pos = m_rail.GetPosition();
 	//カメラ移動とプレイヤーを移動させる
 	m_player.Update();
+	//レール移動
+	m_player.pos = m_rail.GetPosition();
 	m_cursor.Update();
-	m_camera.Update(m_cursor.GetValue(), &m_player.pos, false);
+	m_camera.Update(m_cursor.GetValue(), &m_player.pos, m_player.m_transform.rotation, false);
 
 	if (!m_debugFlag)
 	{
