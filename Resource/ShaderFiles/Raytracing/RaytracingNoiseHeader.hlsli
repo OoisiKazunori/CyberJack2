@@ -143,7 +143,7 @@ float ValueNoise(float2 arg_point)
     float2 f = frac(arg_point);
 
     //u = -2.0f^3 + 3.0f^2
-    float2 u = f * f * (3.0 - 2.0 * f);
+    float2 u = f * f * (3.0f - 2.0f * f);
 
     //グリッド上に乱数を求めて補間する。
     // +---+---+

@@ -46,7 +46,7 @@ float MappingHeightNoise(float3 arg_position)
     float seaSpeed = 5.8f;
 
     //XZ平面による計算
-    float2 uv = arg_position.xz;
+    float2 uv = arg_position.xz * 2.0f;
 
     float d, h = 0.0f;
     
@@ -166,8 +166,6 @@ void mainRayGen()
     isSea |= 0 < cameraEyePos.m_eye.y && worldColor.y < 0;
     if (isSea)
     {
-        float2 uv = launchIndex.xy / dims.xy;
-        uv = uv * 2.0f - 1.0f;
         
         float3 origin = cameraEyePos.m_eye;
         
