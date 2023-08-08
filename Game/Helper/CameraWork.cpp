@@ -101,6 +101,12 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 		//上下左右の回転
 		cameraPoly->data.transform.pos = centralPos + (besidePoly->data.transform.pos + verticlaPoly->data.transform.pos);
 
+
+
+
+		/*--------------------   ここから追加*/
+
+
 		//カメラの基準となる向きを決めるためにプレイヤーの回転からクォータニオンを生成する。
 		DirectX::XMVECTOR playerQ = DirectX::XMQuaternionRotationRollPitchYaw(DirectX::XMConvertToRadians(PLAYER_ROTATE.x), DirectX::XMConvertToRadians(PLAYER_ROTATE.y), DirectX::XMConvertToRadians(PLAYER_ROTATE.z));
 
