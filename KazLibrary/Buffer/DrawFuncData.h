@@ -838,6 +838,40 @@ namespace DrawFuncData
 		return lDrawCallData;
 	};
 
+
+	static DrawCallData SetSpriteAlphaData(const PipelineGenerateData& PIPELINE_DATA)
+	{
+		DrawCallData lDrawCallData;
+
+		RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GeneratePlaneBuffer();
+		//頂点情報
+		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(handle).index;
+		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
+
+		//行列情報
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
+		//乗算
+		lDrawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
+		);
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+
+		//テクスチャ情報
+		lDrawCallData.extraBufferArray.emplace_back();
+		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
+		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
+		lDrawCallData.pipelineData = PIPELINE_DATA;
+
+		return lDrawCallData;
+	};
+
 	static DrawCallData SetDefferdRenderingModel(std::shared_ptr<ModelInfomation>arg_model)
 	{
 		DrawCallData drawCall;
@@ -915,6 +949,16 @@ namespace DrawFuncData
 		lData.desc = DrawFuncPipelineData::SetTex();
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+		return lData;
+	};
+
+	static DrawFuncData::PipelineGenerateData GetSpriteAlphaShader()
+	{
+		DrawFuncData::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetTex();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "PSAlphaMain", "ps_6_4", SHADER_TYPE_PIXEL);
 		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 		return lData;
 	};

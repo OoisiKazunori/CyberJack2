@@ -20,18 +20,9 @@ Cursor::Cursor()
 	cursorFlameTex->data.handleData = flameHandle;
 
 	//”Žšƒnƒ“ƒhƒ‹‚Ì•Û‘¶
-	numberHandle[0] = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::CursorPath + "CursorBase2.png");
-	numberHandle[1] = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::CursorPath + "CursorNum1.png");
-	numberHandle[2] = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::CursorPath + "CursorNum2.png");
-	numberHandle[3] = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::CursorPath + "CursorNum3.png");
-	numberHandle[4] = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::CursorPath + "CursorNum4.png");
-	numberHandle[5] = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::CursorPath + "CursorNum5.png");
-	numberHandle[6] = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::CursorPath + "CursorNum6.png");
-	numberHandle[7] = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::CursorPath + "CursorNum7.png");
-	numberHandle[8] = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::CursorPath + "CursorNumMax.png");
-
-
-	numberRender = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
+	DrawFuncData::PipelineGenerateData pipelineData = DrawFuncData::GetSpriteShader();
+	pipelineData.desc.BlendState.AlphaToCoverageEnable = true;
+	numberRender = DrawFuncData::SetTexPlaneData(pipelineData);
 	numberTexBufferArray[0] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorBase2.png");
 	numberTexBufferArray[1] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorNum1.png");
 	numberTexBufferArray[2] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorNum2.png");
@@ -43,6 +34,10 @@ Cursor::Cursor()
 	numberTexBufferArray[8] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorNumMax.png");
 
 
+	flameRender = DrawFuncData::SetTexPlaneData(pipelineData);
+	flameTextureBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorBase.png");
+
+
 	cursorPos = { static_cast<float>(WIN_X) / 2.0f,static_cast<float>(WIN_Y) / 2.0f };
 	limitValue = { 570.0f,static_cast<float>(WIN_Y) / 2.0f };
 
@@ -52,13 +47,6 @@ Cursor::Cursor()
 	stopFlag = { 0,0 };
 	baseScale = { 2.0f,2.0f };
 	deadLine = 0.25f;
-
-
-	for (int i = 0; i < cursorEffectTex.size(); ++i)
-	{
-		cursorEffectTex[i].cursorEffectTex->data.handleData = flameHandle;
-		cursorEffectTex[i].cursorEffectTex->data.pipelineName = PIPELINE_NAME_SPRITE_Z_ALWAYS;
-	}
 
 	clickSoundHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "Push.wav", false);
 	initClickSoundFlag = false;
@@ -469,9 +457,9 @@ void Cursor::Update()
 	{
 		if (releaseFlag && !cursorEffectTex[i].initFlag && !disappearFlag)
 		{
-			cursorEffectTex[i].cursorEffectTex->data.transform.pos = cursorPos;
-			cursorEffectTex[i].cursorEffectTex->data.colorData.color.a = 255;
-			cursorEffectTex[i].cursorEffectTex->data.transform.scale = baseScale;
+			cursorEffectTex[i].cursorEffectTex.m_transform.pos = cursorPos;
+			cursorEffectTex[i].cursorEffectTex.m_transform.scale = baseScale;
+			cursorEffectTex[i].alpha = 255;
 			cursorEffectTex[i].initFlag = true;
 			break;
 		}
@@ -481,11 +469,11 @@ void Cursor::Update()
 	{
 		if (cursorEffectTex[i].initFlag)
 		{
-			cursorEffectTex[i].cursorEffectTex->data.colorData.color.a -= 255 / 10;
+			cursorEffectTex[i].alpha -= 255 / 10;
 			KazMath::Vec2<float> addSize = { 0.1f,0.1f };
-			cursorEffectTex[i].cursorEffectTex->data.transform.scale += addSize;
+			cursorEffectTex[i].cursorEffectTex.m_transform.scale += addSize;
 		}
-		if (cursorEffectTex[i].cursorEffectTex->data.colorData.color.a <= 0)
+		if (cursorEffectTex[i].alpha <= 0)
 		{
 			cursorEffectTex[i].initFlag = false;
 		}
@@ -517,30 +505,60 @@ void Cursor::Update()
 void Cursor::Draw(DrawingByRasterize& arg_rasterize)
 {
 	//”Žš
-	KazMath::Transform2D transform;
-	transform.pos = numberTex->data.transform.pos;
-	transform.scale =
 	{
-		static_cast<float>(numberTexBufferArray[0].bufferWrapper->GetBuffer()->GetDesc().Width),
-		static_cast<float>(numberTexBufferArray[0].bufferWrapper->GetBuffer()->GetDesc().Height)
-	};
-	DrawFunc::DrawTextureIn2D(numberRender, transform, numberTexBufferArray[lockOnNum]);
-	arg_rasterize.ObjectRender(numberRender);
+		KazMath::Transform2D transform;
+		transform.pos = numberTex->data.transform.pos;
+		transform.scale =
+		{
+			static_cast<float>(numberTexBufferArray[lockOnNum].bufferWrapper->GetBuffer()->GetDesc().Width) * 2.0f,
+			static_cast<float>(numberTexBufferArray[lockOnNum].bufferWrapper->GetBuffer()->GetDesc().Height) * 2.0f
+		};
+		transform.rotation = numberTex->data.transform.rotation;
+		DrawFunc::DrawTextureIn2D(numberRender, transform, numberTexBufferArray[lockOnNum]);
+		arg_rasterize.ObjectRender(numberRender);
+	}
 
-	//numberTex->Draw();
-	//cursorFlameTex->Draw();
+	{
+		KazMath::Transform2D transform;
+		transform.pos = cursorFlameTex->data.transform.pos;
+		transform.scale =
+		{
+			static_cast<float>(flameTextureBuffer.bufferWrapper->GetBuffer()->GetDesc().Width) * 2.0f,
+			static_cast<float>(flameTextureBuffer.bufferWrapper->GetBuffer()->GetDesc().Height) * 2.0f
+		};
+		DrawFunc::DrawTextureIn2D(flameRender, transform, flameTextureBuffer);
+		arg_rasterize.ObjectRender(flameRender);
+	}
 
-	//for (int i = 0; i < boxEffectArray.size(); ++i)
-	//{
-	//	boxEffectArray[i].Draw();
-	//}
-	//for (int i = 0; i < cursorEffectTex.size(); ++i)
-	//{
-	//	if (cursorEffectTex[i].initFlag)
-	//	{
-	//		cursorEffectTex[i].cursorEffectTex->Draw();
-	//	}
-	//}
+	/*for (int i = 0; i < boxEffectArray.size(); ++i)
+	{
+		boxEffectArray[i].Draw();
+	}*/
+
+	for (int i = 0; i < cursorEffectTex.size(); ++i)
+	{
+		if (cursorEffectTex[i].initFlag)
+		{
+			KazMath::Transform2D transform;
+			transform.pos = cursorFlameTex->data.transform.pos;
+			transform.scale =
+			{
+				static_cast<float>(flameTextureBuffer.bufferWrapper->GetBuffer()->GetDesc().Width) *
+				cursorEffectTex[i].cursorEffectTex.m_transform.scale.x,
+				static_cast<float>(flameTextureBuffer.bufferWrapper->GetBuffer()->GetDesc().Height) *
+				cursorEffectTex[i].cursorEffectTex.m_transform.scale.y
+			};
+			DrawFunc::DrawTextureIn2D(cursorEffectTex[i].cursorEffectTex.m_drawCommand, transform, cursorEffectTex[i].cursorEffectTex.m_textureBuffer, KazMath::Color(255, 255, 255, cursorEffectTex[i].alpha));
+			arg_rasterize.ObjectRender(cursorEffectTex[i].cursorEffectTex.m_drawCommand);
+		}
+	}
+	/*for (int i = 0; i < cursorEffectTex.size(); ++i)
+	{
+		if (cursorEffectTex[i].initFlag)
+		{
+			cursorEffectTex[i].cursorEffectTex->Draw();
+		}
+	}*/
 }
 
 bool Cursor::LockOn()

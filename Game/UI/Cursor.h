@@ -13,7 +13,7 @@ public:
 	Cursor();
 
 	void Init();
-	void Input(bool UP_FLAG, bool DOWN_FLAG, bool LEFT_FLAG, bool RIGHT_FLAG, bool DONE_FLAG, bool RELEASE_FLAG, const KazMath::Vec2<float> &ANGLE);
+	void Input(bool UP_FLAG, bool DOWN_FLAG, bool LEFT_FLAG, bool RIGHT_FLAG, bool DONE_FLAG, bool RELEASE_FLAG, const KazMath::Vec2<float>& ANGLE);
 	void Update();
 	void Draw(DrawingByRasterize& arg_rasterize);
 
@@ -25,8 +25,8 @@ public:
 	bool LockOn();
 	bool Release();
 
-	void Hit(KazMath::Vec3<float> *POS);
-	const int &GetCount();
+	void Hit(KazMath::Vec3<float>* POS);
+	const int& GetCount();
 
 	KazMath::Vec2<float> GetValue();
 
@@ -65,7 +65,7 @@ private:
 	int enableLockOnTimer;
 
 	//ˆÚ“®----------------------------------------------------------------
-	bool upFlag, downFlag, leftFlag, rightFlag,doneFlag;
+	bool upFlag, downFlag, leftFlag, rightFlag, doneFlag;
 	KazMath::Vec2<float> stickAngle;
 	float deadLine;
 	float baseSpeed;
@@ -76,9 +76,9 @@ private:
 	struct CursorEffectData
 	{
 		bool initFlag;
-		Sprite2DRenderPtr cursorEffectTex;
-
-		CursorEffectData() :cursorEffectTex(std::make_unique<Sprite2DRender>()), initFlag(false)
+		DrawFunc::TextureRender cursorEffectTex;
+		int alpha;
+		CursorEffectData() :cursorEffectTex(KazFilePathName::CursorPath + "CursorBase.png", true), initFlag(false)
 		{
 		}
 	};
@@ -123,5 +123,7 @@ private:
 	DrawFuncData::DrawCallData numberRender;
 	std::array<KazBufferHelper::BufferData, 10>numberTexBufferArray;
 
+	DrawFuncData::DrawCallData flameRender;
+	KazBufferHelper::BufferData flameTextureBuffer;
 };
 

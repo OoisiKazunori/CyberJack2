@@ -113,6 +113,8 @@ void DrawingByRasterize::Sort()
 				break;
 			}
 		}
+		result.pipelineData.BlendState.AlphaToCoverageEnable = true;
+
 
 
 		//シェーダーのコンパイル

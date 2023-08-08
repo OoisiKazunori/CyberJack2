@@ -1,12 +1,17 @@
 struct VSOutput
 {
-    float4 svpos : SV_POSITION; //ƒVƒXƒeƒ€—p’¸“_À•W
-    float2 uv : TEXCOORD; //uv’l
+    float4 svpos : SV_POSITION; //ï¿½Vï¿½Xï¿½eï¿½ï¿½ï¿½pï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½W
+    float2 uv : TEXCOORD; //uvï¿½l
 };
 
 cbuffer MatBuffer : register(b0)
 {
-    matrix mat; //3D•ÏŠ·s—ñ
+    matrix mat; //3Dï¿½ÏŠï¿½ï¿½sï¿½ï¿½
+}
+
+cbuffer ColorBuffer : register(b1)
+{
+    float4 color; //3Dï¿½ÏŠï¿½ï¿½sï¿½ï¿½
 }
 
 VSOutput VSmain(float4 pos : POSITION, float2 uv : TEXCOORD)
@@ -24,4 +29,11 @@ float4 PSmain(VSOutput input) : SV_TARGET
 {
     float4 output = float4(tex.Sample(smp, input.uv));    
     return output;
+}
+
+//ã‚¢ãƒ«ãƒ•ã‚¡å¯¾å¿œ
+float4 PSAlphaMain(VSOutput input) : SV_TARGET
+{
+    float4 output = float4(tex.Sample(smp, input.uv));    
+    return output * color;
 }

@@ -204,7 +204,10 @@ namespace KazBufferHelper
 		BufferData() :rangeType(GRAPHICS_RANGE_TYPE_NONE), rootParamType(GRAPHICS_PRAMTYPE_NONE), structureSize(0), elementNum(0)
 		{
 		}
-
+		~BufferData()
+		{
+			bool debug = false;
+		}
 		void operator=(const BufferData &rhs)
 		{
 			rangeType = rhs.rangeType;
