@@ -289,6 +289,8 @@
     <ClCompile Include="KazLibrary\Scene\DebugScene.cpp" />
     <ClCompile Include="KazLibrary\Scene\DebugStageScene.cpp" />
     <ClCompile Include="KazLibrary\Scene\EnemyDebugScene.cpp" />
+    <ClCompile Include="KazLibrary\Scene\GameClearScene.cpp" />
+    <ClCompile Include="KazLibrary\Scene\GameOverScene.cpp" />
     <ClCompile Include="KazLibrary\Scene\GameScene.cpp" />
     <ClCompile Include="KazLibrary\Scene\main.cpp" />
     <ClCompile Include="KazLibrary\Scene\PortalScene.cpp" />
@@ -493,6 +495,8 @@
     <ClInclude Include="KazLibrary\Scene\DebugScene.h" />
     <ClInclude Include="KazLibrary\Scene\DebugStageScene.h" />
     <ClInclude Include="KazLibrary\Scene\EnemyDebugScene.h" />
+    <ClInclude Include="KazLibrary\Scene\GameClearScene.h" />
+    <ClInclude Include="KazLibrary\Scene\GameOverScene.h" />
     <ClInclude Include="KazLibrary\Scene\GameScene.h" />
     <ClInclude Include="KazLibrary\Scene\PortalScene.h" />
     <ClInclude Include="KazLibrary\Scene\RayTracingScene.h" />

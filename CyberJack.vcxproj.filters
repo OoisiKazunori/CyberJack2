@@ -190,6 +190,8 @@
     <ClCompile Include="Game\Debug\DebugCamera.cpp" />
     <ClCompile Include="Game\Stage\ChildOfEdenStage.cpp" />
     <ClCompile Include="Game\Enemy\VirusEnemy.cpp" />
+    <ClCompile Include="KazLibrary\Scene\GameClearScene.cpp" />
+    <ClCompile Include="KazLibrary\Scene\GameOverScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -399,6 +401,8 @@
     <ClInclude Include="Game\Stage\ChildOfEdenStage.h" />
     <ClInclude Include="Game\Enemy\VirusEnemy.h" />
     <ClInclude Include="Game\Enemy\EnemyData.h" />
+    <ClInclude Include="KazLibrary\Scene\GameClearScene.h" />
+    <ClInclude Include="KazLibrary\Scene\GameOverScene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
