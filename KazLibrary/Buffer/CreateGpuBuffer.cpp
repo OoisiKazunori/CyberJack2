@@ -123,7 +123,7 @@ void CreateGpuBuffer::CreateBufferView(RESOURCE_HANDLE HANDLE, D3D12_SHADER_RESO
 	DirectX12Device::Instance()->dev->CreateShaderResourceView(buffers[lCaluHandle].Get(), &srvDesc, heapHandle);
 }
 
-void CreateGpuBuffer::ReleaseBuffer(RESOURCE_HANDLE HANDLE)
+void CreateGpuBuffer::ReleaseVeretexIndexBuffer(RESOURCE_HANDLE HANDLE)
 {
 	RESOURCE_HANDLE lCaluHandle = handle->CaluNowHandle(HANDLE);
 	if (KazHelper::IsitInAnArray(lCaluHandle, buffers.size()))

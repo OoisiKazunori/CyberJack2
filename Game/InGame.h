@@ -21,7 +21,6 @@
 #include"../Game/UI/AnnounceStageUI.h"
 #include"../Game/Event/EventSprite.h"
 #include"../Game/Event/TutorialWindow.h"
-#include"../Game/Enemy/HitEnemyEffect.h"
 #include"../Game/Event/PortalEffect.h"
 #include"../Game/Effect/IHitEffectEmitter.h"
 #include"../Game/Effect/HitEffectPattern1Emitter.h"
@@ -68,14 +67,12 @@ public:
 	void Finalize();
 	void Input();
 	void Update();
-	void Draw();
+	void Draw(DrawingByRasterize& arg_rasterize);
 
 	int SceneChange();
 
 private:
 	//描画---------------------------------------
-	DrawingByRasterize m_rasterize;
-
 
 	//ボリュームフォグ用3Dテクスチャ
 	KazBufferHelper::BufferData m_volumeFogTextureBuffer;
@@ -121,8 +118,12 @@ private:
 
 	//インゲーム---------------------------------------
 	//進行にかかわるもの
-	int m_gameFlame;
-	int m_gameStageLevel;
+	bool m_gameStartFlag;						//ゲーム開始を知らせるフラグ
+	bool m_sceneChangeFlag;
+	int m_gameFlame;							//1ステージの経過時間
+	int m_gameSpeed;							//1ステージで進む時間のスピード
+	int m_gameStageLevel;						//現在のステージのレベル
+	int m_gameLeyerLevel;						//現在のステージのレベル
 
 	Player m_player;
 	Cursor m_cursor;
@@ -131,19 +132,17 @@ private:
 	CameraWork m_camera;
 
 	//敵----------------------------------------------------------------
-	std::array<unique_ptr<IEnemy>, 2>enemy;					//敵(サンプル)
+	std::array<unique_ptr<IEnemy>, 2>enemy;																					//敵(サンプル)
 	std::array<std::array<unique_ptr<IEnemy>, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> m_enemies;	//1ステージに生成する敵の総数
-	std::array<int, 10> enemiesHandle;						//0から順番に初期化する際に必要
-	std::array<int, 10> addEnemiesHandle;					//0から順番に追加で初期化する際に必要
+	std::array<int, KazEnemyHelper::ENEMY_TYPE_MAX> enemiesHandle;															//0から順番に初期化する際に必要
+	std::array<int, KazEnemyHelper::ENEMY_TYPE_MAX> addEnemiesHandle;														//0から順番に追加で初期化する際に必要
 	std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> m_responeData;		//敵を生成する際に必要な設定
-	std::array<ResponeData, 50>m_addResponeData;				//敵を追加で生成する際に必要な設定をスタックしたもの
+	std::array<ResponeData, 50>m_addResponeData;																			//敵を追加で生成する際に必要な設定をスタックしたもの
 	bool m_isEnemyNotMoveFlag;
 	int m_notMoveTimer;
 	const int CHANGE_GMAE_FLAME_SPEED_MAX_TIME = 2;	//敵が居なくなってからゲーム内時間の進むスピードが速まるまでの間隔
+	std::vector<Sphere*>m_enemyHitBoxArray;
 
-#ifdef _DEBUG
-	std::array<std::array<BoxPolygonRender, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> m_enemyHitBox;
-#endif
 	//敵----------------------------------------------------------------
 
 	//インゲーム---------------------------------------

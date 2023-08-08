@@ -39,12 +39,12 @@ void GameScene::PreInit()
 
 	//2-----------------------------------------------------------------
 	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].layerLevel = layerLevel;
-	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].flame = time * 10;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].flame = 0;
 	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].generateData.initPos = { 50.0f,10.0f,z };
 	++respoineIndex;
 
 	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].layerLevel = layerLevel;
-	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].flame = time * 10;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].flame = 0;
 	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].generateData.initPos = { 90.0f,10.0f,z };
 	++respoineIndex;
 	//2-----------------------------------------------------------------
@@ -75,9 +75,9 @@ void GameScene::Update()
 	game->Update();
 }
 
-void GameScene::Draw()
+void GameScene::Draw(DrawingByRasterize& arg_rasterize)
 {
-	game->Draw();
+	game->Draw(arg_rasterize);
 }
 
 int GameScene::SceneChange()

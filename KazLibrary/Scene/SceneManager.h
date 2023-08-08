@@ -8,7 +8,7 @@
 #include"../RenderTarget/GaussianBuler.h"
 #include"../RenderTarget/RenderTargetStatus.h"
 #include<memory>
-
+#include"../KazLibrary/Render/DrawingByRasterize.h"
 
 class SceneManager
 {
@@ -30,4 +30,5 @@ private:
 	bool itisInArrayFlag;
 	bool gameFirstInitFlag;
 
+	DrawingByRasterize m_rasterize;
 };

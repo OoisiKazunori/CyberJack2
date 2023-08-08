@@ -36,7 +36,7 @@ private:
 	BoxPolygonRender hitBox;
 
 	BoxPolygonRender player;
-	int gameFlame;
+	int m_gameFlame;
 	int specifiedEnemyType, oldEnemyType;
 	bool initFlag, deadFlag, attackFlag;
 	KazMath::Vec3<float>responePos;

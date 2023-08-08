@@ -4,6 +4,9 @@
 #include"../Render/KazRender.h"
 #include"../Render/KazRender.h"
 #include"../Helper/DirtyFlag.h"
+#include"../KazLibrary/Render/DrawingByRasterize.h"
+#include"../KazLibrary/Render/DrawFunc.h"
+
 namespace ChangeScene {
 
 	class SceneChange
@@ -14,7 +17,7 @@ namespace ChangeScene {
 		void Init();
 		void Finalize();
 		void Update();
-		void Draw();
+		void Draw(DrawingByRasterize& arg_rasterize);
 
 		/// <summary>
 		/// ƒV[ƒ“‘JˆÚ‚ğŠJn‚µ‚Ü‚·
@@ -28,7 +31,7 @@ namespace ChangeScene {
 		/// <returns>true...‰B‚ê‚½,false...‰B‚ê‚Ä‚È‚¢</returns>
 		bool AllHiden();
 
-private:
+	private:
 		bool startFlag, finishFlag;
 		bool allHidenFlag;
 		bool initFlag;
@@ -37,7 +40,8 @@ private:
 		float startOutInT[2];
 
 		KazMath::Transform2D transform;
-		//Sprite2DRender sceneTex;
 		RESOURCE_HANDLE handle;
+		DrawFuncData::DrawCallData sceneTex;
+		KazBufferHelper::BufferData texBuffer;
 	};
 }

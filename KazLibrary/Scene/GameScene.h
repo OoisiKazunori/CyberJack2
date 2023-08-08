@@ -21,7 +21,7 @@ public:
 	void Finalize();
 	void Input();
 	void Update();
-	void Draw();
+	void Draw(DrawingByRasterize& arg_rasterize);
 
 	int SceneChange();
 

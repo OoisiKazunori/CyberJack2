@@ -399,7 +399,7 @@ void TitleScene::Update()
 	}
 }
 
-void TitleScene::Draw()
+void TitleScene::Draw(DrawingByRasterize& arg_rasterize)
 {
 	RenderTargetStatus::Instance()->SetDoubleBufferFlame();
 	RenderTargetStatus::Instance()->ClearDoubuleBuffer(BG_COLOR);

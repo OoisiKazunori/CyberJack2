@@ -3,9 +3,10 @@
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
 #include"../KazLibrary/Input/ControllerInputManager.h"
 
-InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX>& RESPONE_DATA, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>& arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX>& BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX>& CAMERA_ARRAY):
-	m_stageArray(arg_stageArray)
+InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX>& arg_responeData, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>& arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX>& BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX>& CAMERA_ARRAY) :
+	m_stageArray(arg_stageArray),m_responeData(arg_responeData)
 {
+	KazEnemyHelper::GenerateEnemy(m_enemies, m_responeData, enemiesHandle, m_enemyHitBoxArray);
 
 	m_debugFlag = false;
 
@@ -73,6 +74,10 @@ void InGame::Init(bool SKIP_FLAG)
 	m_rail.Init();
 	m_player.Init(KazMath::Vec3<float>(0.0f, 0.0f, 30.0f));
 	m_camera.Init();
+	m_gameFlame = 0;
+	m_gameSpeed = 1;
+	m_notMoveTimer = 0;
+	m_isEnemyNotMoveFlag = false;
 }
 
 void InGame::Finalize()
@@ -83,7 +88,7 @@ void InGame::Finalize()
 void InGame::Input()
 {
 	KeyBoradInputManager* input = KeyBoradInputManager::Instance();
-	if(input->InputTrigger(DIK_ESCAPE))
+	if (input->InputTrigger(DIK_ESCAPE))
 	{
 		Init(false);
 	}
@@ -110,50 +115,9 @@ void InGame::Update()
 
 			if (enableToUseThisDataFlag && readyToStartFlag && m_enemies[enemyType][enemyCount] != nullptr && !m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->initFlag)
 			{
-#ifdef _DEBUG
-				const float L_SCALE = m_enemies[enemyType][enemyCount]->GetData()->hitBox.radius;
-				m_enemyHitBox[enemyType][enemyCount].data.transform.scale = { L_SCALE ,L_SCALE ,L_SCALE };
-				m_enemyHitBox[enemyType][enemyCount].data.pipelineName = PIPELINE_NAME_COLOR_WIREFLAME;
-#endif
-
 				m_enemies[enemyType][enemyCount]->OnInit(m_responeData[enemyType][enemyCount].generateData.useMeshPaticleFlag);
 				m_enemies[enemyType][enemyCount]->Init(m_responeData[enemyType][enemyCount].generateData, false);
 
-				//メッシュパーティクルの付与
-				for (int i = 0; i < m_enemies[enemyType][enemyCount]->GetData()->meshParticleData.size(); ++i)
-				{
-					if (enemyType == ENEMY_TYPE_BATTLESHIP_MISILE ||
-						enemyType == ENEMY_TYPE_BIKE_MISILE ||
-						enemyType == ENEMY_TYPE_MISILE_SPLINE
-						)
-					{
-						continue;
-					}
-
-					RESOURCE_HANDLE lHandle = m_enemies[enemyType][enemyCount]->GetData()->meshParticleData[i]->resourceHandle;
-					std::vector<DirectX::XMFLOAT4>lVertData = FbxModelResourceMgr::Instance()->GetResourceData(lHandle)->vertFloat4Data;
-
-					float lScale = 0.5f;
-					switch (enemyType)
-					{
-					case ENEMY_TYPE_BATTLESHIP:
-						lScale = 1.0f;
-						break;
-					default:
-						break;
-					}
-
-					//deadParticle->AddData(
-					//	enemies[enemyType][enemyCount]->GetData()->deadParticleData
-					//);
-
-					/*deadParticleArray[enemyType][enemyCount].push_back(std::make_unique<DeadParticle>(
-						enemies[enemyType][enemyCount]->GetData()->meshParticleData[0]->meshParticleData.vertData,
-						enemies[enemyType][enemyCount]->GetData()->meshParticleData[0]->meshParticleData.triagnleData.x,
-						deadParticleRender.get(),
-						lScale)
-					);*/
-				}
 				if (m_enemies[enemyType][enemyCount]->GetData()->meshParticleFlag)
 				{
 					continue;
@@ -375,9 +339,6 @@ void InGame::Update()
 					m_enemies[enemyType][enemyCount]->SetLight(m_cursor.hitBox.dir, m_enemies[enemyType][enemyCount]->GetData()->objFlag);
 				}
 				m_enemies[enemyType][enemyCount]->Update();
-#ifdef _DEBUG
-				m_enemyHitBox[enemyType][enemyCount].data.transform.pos = *m_enemies[enemyType][enemyCount]->GetData()->hitBox.center;
-#endif
 			}
 
 			//一体でも敵が動いていたらそれを知らせるフラグを上げる
@@ -409,17 +370,41 @@ void InGame::Update()
 		m_debugCamera.Update();
 	}
 
+
+
+	if (m_isEnemyNotMoveFlag)
+	{
+		++m_notMoveTimer;
+	}
+	else
+	{
+		m_notMoveTimer = 0;
+	}
+
+	//敵が何もしていない時間が一定時間を超えたらゲーム内時間を早める
+	if (KazMath::ConvertSecondToFlame(CHANGE_GMAE_FLAME_SPEED_MAX_TIME) <= m_notMoveTimer)
+	{
+		m_gameSpeed = 60;
+	}
+	else
+	{
+		m_gameSpeed = 1;
+	}
+
+	m_gameFlame += m_gameSpeed;
+
+
 }
 
-void InGame::Draw()
+void InGame::Draw(DrawingByRasterize& arg_rasterize)
 {
-	m_player.Draw(m_rasterize);
+	m_player.Draw(arg_rasterize);
 	//m_cursor.Draw();
 
 #ifdef _DEBUG
 	if (m_debugFlag)
 	{
-		m_rail.DebugDraw(m_rasterize);
+		m_rail.DebugDraw(arg_rasterize);
 	}
 #endif
 
@@ -435,7 +420,7 @@ void InGame::Draw()
 				!m_enemies[enemyType][enemyCount]->GetData()->outOfStageFlag;
 			if (enableToUseDataFlag)
 			{
-				m_enemies[enemyType][enemyCount]->Draw(m_rasterize);
+				m_enemies[enemyType][enemyCount]->Draw(arg_rasterize);
 			}
 #ifdef _DEBUG
 			if (enableToUseDataFlag && m_enemies[enemyType][enemyCount]->iOperationData.enableToHitFlag)
@@ -448,23 +433,7 @@ void InGame::Draw()
 	}
 	PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
 
-	m_stageArray[m_gameStageLevel]->Draw(m_rasterize);
-
-
-	m_rasterize.Sort();
-	m_rasterize.Render();
-
-	//Tlasを構築 or 再構築する。
-	m_tlas.Build(m_blasVector);
-
-	//レイトレ用のデータを構築。
-	m_rayPipeline->BuildShaderTable(m_blasVector);
-
-	if (m_blasVector.GetBlasRefCount() != 0)
-	{
-		m_rayPipeline->TraceRay(m_tlas);
-	}
-
+	m_stageArray[m_gameStageLevel]->Draw(arg_rasterize);
 
 	ImGui::Begin("Game");
 	ImGui::Checkbox("Debug", &m_debugFlag);

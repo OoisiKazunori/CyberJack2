@@ -338,6 +338,7 @@
     <ClInclude Include="Game\Effect\HitEffectPattern2Emitter.h" />
     <ClInclude Include="Game\Effect\HitEffectPattern3Emitter.h" />
     <ClInclude Include="Game\Effect\IHitEffectEmitter.h" />
+    <ClInclude Include="Game\Enemy\EnemyData.h" />
     <ClInclude Include="Game\Enemy\VirusEnemy.h" />
     <ClInclude Include="Game\Event\DirectionalMarker.h" />
     <ClInclude Include="Game\Event\EventSprite.h" />

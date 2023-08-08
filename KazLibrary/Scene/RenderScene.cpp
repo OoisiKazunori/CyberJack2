@@ -334,7 +334,7 @@ void RenderScene::Update()
 
 }
 
-void RenderScene::Draw()
+void RenderScene::Draw(DrawingByRasterize& arg_rasterize)
 {
 	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
 

@@ -4,6 +4,8 @@
 #include"../KazLibrary/Imgui/MyImgui.h"
 #include"../KazLibrary/Render/DrawFunc.h"
 #include"../KazLibrary/Buffer/DrawFuncData.h"
+#include"../KazLibrary/Imgui/imgui.h"
+#include"../Game/Debug/ParameterMgr.h"
 
 class SplineRail
 {
@@ -28,7 +30,18 @@ private:
 	//スプライン曲線の挙動---------------------------------------
 
 	//デバック用の処理---------------------------------------
+	ParameterMgr m_jsonData;
 	std::vector<DrawFuncData::DrawCallData> m_boxArray;
+	std::vector<KazMath::Vec3<float>>m_posArray;
+	int m_limitPosMaxNum;
+	bool m_isLoopFlag;
+	
+	int m_vertexBufferHandle;//デバック用のスプライン曲線描画の頂点バッファ
+	DrawFuncData::DrawCallData m_splineDrawCall;
 	//デバック用の処理---------------------------------------
+
+	void Import();
+	void Export();
+	void Reflect();
 };
 

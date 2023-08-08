@@ -1,16 +1,9 @@
 #pragma once
 #include<memory>
 #include<array>
-#include"../Game/Enemy/NormalEnemy.h"
-#include"../Game/Enemy/KidEnemy.h"
-#include"../Game/Enemy/SplineMisile.h"
-#include"../Game/Enemy/NormalMisileEnemy.h"
-#include"../Game/Enemy/BattleshipEnemy.h"
-#include"../Game/Enemy/SplineMisileForBattleShip.h"
-#include"../Game/Enemy/BikeEnemy.h"
-#include"../Game/Enemy/SplineMisileForBikeEnemy.h"
-#include"../Game/Enemy/SummonEnemy.h"
-#include"../Game/Enemy/PopEnemy.h"
+#include"../Game/Enemy/EnemyData.h"
+#include"../Game/Interface/IEnemy.h"
+#include"../Game/Enemy/VirusEnemy.h"
 #include"../Game/UI/Cursor.h"
 #include"../Game/UI/AttackLog.h"
 #include"../Game/Effect/InstanceMeshParticle.h"
@@ -25,20 +18,20 @@ namespace KazEnemyHelper
 	void GenerateEnemy(
 		std::array<std::array<std::unique_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES,
 		std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> RESPONE_DATA,
-		std::array<int, 10> &ENEMISE_HANDLE
+		std::array<int, ENEMY_TYPE_MAX> &ENEMISE_HANDLE
 	);
 
 	void GenerateEnemy(
 		std::array<std::array<std::unique_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES,
 		std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> RESPONE_DATA,
-		std::array<int, 10> &ENEMISE_HANDLE,
+		std::array<int, ENEMY_TYPE_MAX> &ENEMISE_HANDLE,
 		std::vector<Sphere*> &ENEMISE_HITBOX
 	);
 
 	void AddEnemy(
 		const std::array<std::array<std::unique_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES,
 		std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &RESPONE_DATA,
-		std::array<int, 10> &ADD_ENEMISE_HANDLE,
+		std::array<int, ENEMY_TYPE_MAX> &ADD_ENEMISE_HANDLE,
 		int GAME_FLAME,
 		int GAME_STAGE_LEVEL
 	);

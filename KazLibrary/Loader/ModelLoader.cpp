@@ -33,7 +33,7 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string arg_fileDir, std:
 	m_modelNameArray.emplace_back(arg_fileDir + arg_fileName);
 
 
-	std::vector<VertexGenerateData> vertArray;
+	std::vector<VertexAndIndexGenerateData> vertArray;
 	m_modelVertexDataArray.emplace_back();
 	int dex = 0;
 	for (const auto &meshData : modelData)
@@ -41,7 +41,7 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string arg_fileDir, std:
 		std::vector<VertexBufferData>vertexData = GetVertexDataArray(meshData.vertexData, meshData.vertexData.indexArray);
 		m_modelVertexDataArray.back().m_vertexDataArray.emplace_back(vertexData);
 		//頂点バッファ生成用の情報をスタックする。
-		VertexGenerateData vertData(m_modelVertexDataArray.back().m_vertexDataArray[dex].data(), sizeof(VertexBufferData), vertexData.size(), sizeof(vertexData[0]), meshData.vertexData.indexArray);
+		VertexAndIndexGenerateData vertData(m_modelVertexDataArray.back().m_vertexDataArray[dex].data(), sizeof(VertexBufferData), vertexData.size(), sizeof(vertexData[0]), meshData.vertexData.indexArray);
 		vertArray.emplace_back(vertData);
 		++dex;
 	}

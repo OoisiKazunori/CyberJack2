@@ -57,7 +57,7 @@ public:
 	/// バッファを開放します
 	/// </summary>
 	/// <param name="HANDLE">開放したいバッファのハンドル</param>
-	void ReleaseBuffer(RESOURCE_HANDLE HANDLE);
+	void ReleaseVeretexIndexBuffer(RESOURCE_HANDLE HANDLE);
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetViewPointer(RESOURCE_HANDLE HANDLE);
 

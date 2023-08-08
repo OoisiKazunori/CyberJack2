@@ -21,7 +21,6 @@
 #include"../Game/UI/AnnounceStageUI.h"
 #include"../Game/Event/EventSprite.h"
 #include"../Game/Event/TutorialWindow.h"
-#include"../Game/Enemy/HitEnemyEffect.h"
 #include"../Game/Event/PortalEffect.h"
 #include"../Game/Effect/IHitEffectEmitter.h"
 #include"../Game/Effect/HitEffectPattern1Emitter.h"
@@ -73,10 +72,10 @@ private:
 
 
 	//ゲームループ----------------------------------------------------------------
-	bool gameStartFlag;						//ゲーム開始を知らせるフラグ
+	bool m_gameStartFlag;						//ゲーム開始を知らせるフラグ
 	int sceneNum;							//次何処のシーンに飛ぶか
 	bool sceneChangeFlag;
-	int gameFlame;							//1ステージの経過時間
+	int m_gameFlame;							//1ステージの経過時間
 	int gameSpeed;							//1ステージで進む時間のスピード
 	int gameStageLevel;						//現在のステージのレベル
 	int gameLeyerLevel;						//現在のステージのレベル

@@ -398,6 +398,7 @@
     <ClInclude Include="Game\Debug\DebugCamera.h" />
     <ClInclude Include="Game\Stage\ChildOfEdenStage.h" />
     <ClInclude Include="Game\Enemy\VirusEnemy.h" />
+    <ClInclude Include="Game\Enemy\EnemyData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

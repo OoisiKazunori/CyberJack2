@@ -11,7 +11,7 @@ public:
 	void Init(const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG);
 	void Finalize();
 	void Update();
-	void Draw();
+	void Draw(DrawingByRasterize& arg_rasterize);
 
 private:
 };
