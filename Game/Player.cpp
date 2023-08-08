@@ -219,23 +219,25 @@ void Player::Update()
 	//動いていたら姿勢を更新。動いていなかったらやばい値になるため。
 	if (0 < movedVec.Length()) {
 
+		KazMath::Vec3<float> movedVecNormal = movedVec.GetNormal();
+
 		//デフォルトの回転軸と移動した方向のベクトルが同じ値だったらデフォルトの回転軸の方向に移動しているってこと！
-		if (0.999f < movedVec.GetNormal().Dot(KazMath::Vec3<float>(0, 0, 1))) {
+		if (0.999f < movedVecNormal.Dot(KazMath::Vec3<float>(0, 0, 1))) {
 			m_transform.rotation = {};
 		}
 		else {
-			//回転を求めるためにまずはデフォルトのベクトルと移動方向の回転軸を求める。
-			KazMath::Vec3<float> moveRotationAxis = movedVec.GetNormal().Cross(KazMath::Vec3<float>(0, 0, 1));
-			//次は回転量
-			float moveRotationAngle = acosf(movedVec.GetNormal().Dot(KazMath::Vec3<float>(0, 0, 1)));
 
-			//回転させる。
-			DirectX::XMVECTOR playerQ = DirectX::XMQuaternionRotationAxis(DirectX::XMVectorSet(moveRotationAxis.x, moveRotationAxis.y, moveRotationAxis.z, 0.0f), moveRotationAngle);
-
-			//回転をオイラー角に直す。
-			DirectX::XMVECTOR scale, position, rotate;
-			DirectX::XMMatrixDecompose(&scale, &rotate, &position, DirectX::XMMatrixRotationQuaternion(playerQ));
-			m_transform.rotation = KazMath::Vec3<float>(rotate.m128_f32[0], rotate.m128_f32[1], rotate.m128_f32[2]);
+			KazMath::Vec3<float> cameraAxisZ = movedVecNormal;
+			KazMath::Vec3<float> cameraAxisY = KazMath::Vec3<float>(0, 1, 0);
+			KazMath::Vec3<float> cameraAxisX = cameraAxisY.Cross(cameraAxisZ);
+			cameraAxisY = cameraAxisZ.Cross(cameraAxisX);
+			DirectX::XMMATRIX cameraMatWorld = DirectX::XMMatrixIdentity();
+			cameraMatWorld.r[0] = { cameraAxisX.x, cameraAxisX.y, cameraAxisX.z, 0.0f };
+			cameraMatWorld.r[1] = { cameraAxisY.x, cameraAxisY.y, cameraAxisY.z, 0.0f };
+			cameraMatWorld.r[2] = { cameraAxisZ.x, cameraAxisZ.y, cameraAxisZ.z, 0.0f };
+			DirectX::XMVECTOR rotate, scale, position;
+			DirectX::XMMatrixDecompose(&scale, &rotate, &position, cameraMatWorld);
+			m_transform.rotation = KazMath::Vec3<float>(DirectX::XMConvertToDegrees(rotate.m128_f32[0]), DirectX::XMConvertToDegrees(rotate.m128_f32[1]), DirectX::XMConvertToDegrees(rotate.m128_f32[2]));
 
 		}
 

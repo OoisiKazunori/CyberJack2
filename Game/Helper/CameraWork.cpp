@@ -100,7 +100,7 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 		cameraPoly->data.transform.pos = centralPos + (besidePoly->data.transform.pos + verticlaPoly->data.transform.pos);
 
 		//カメラの基準となる向きを決めるためにプレイヤーの回転からクォータニオンを生成する。
-		DirectX::XMVECTOR playerQ = DirectX::XMQuaternionRotationRollPitchYaw(PLAYER_ROTATE.y, PLAYER_ROTATE.z, PLAYER_ROTATE.x);
+		DirectX::XMVECTOR playerQ = DirectX::XMQuaternionRotationRollPitchYaw(DirectX::XMConvertToRadians(PLAYER_ROTATE.x), DirectX::XMConvertToRadians(PLAYER_ROTATE.y), DirectX::XMConvertToRadians(PLAYER_ROTATE.z));
 
 		//カメラをプレイヤーの後ろに追従させるため、プレイヤーの後ろベクトルを求める。
 		DirectX::XMVECTOR playerBehindVec = DirectX::XMVector3Transform(DirectX::XMVectorSet(0,0,-1,0), DirectX::XMMatrixRotationQuaternion(playerQ));

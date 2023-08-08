@@ -485,6 +485,8 @@ DirectX::XMMATRIX KazMath::CaluWorld(const KazMath::Transform3D &TRANSFORM, cons
 		baseMatWorldData.matWorld *= KazMath::CaluFrontMatrix({ 0.0f,1.0f,0.0f }, Z_VEC);
 	}
 	baseMatWorldData.matWorld *= baseMatWorldData.matTrans;
+	DirectX::XMVECTOR rotate, scale, position;
+	DirectX::XMMatrixDecompose(&scale, &rotate, &position, baseMatWorldData.matWorld);
 	return baseMatWorldData.matWorld;
 }
 
