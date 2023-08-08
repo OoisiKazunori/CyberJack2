@@ -13,7 +13,6 @@ SplineRail::SplineRail() :m_vertexBufferHandle(-1)
 void SplineRail::Init()
 {
 	m_timer = 0;
-	m_maxTimer = KazMath::ConvertSecondToFlame(3);
 	m_nowIndex = 1;
 }
 
@@ -46,7 +45,7 @@ void SplineRail::DebugDraw(DrawingByRasterize& arg_rasterize)
 
 	ImGui::Begin("SplineLine");
 	//座標の表示
-	ImGui::BeginChild(ImGui::GetID((void*)0), ImVec2(450, 100), ImGuiWindowFlags_NoTitleBar);
+	ImGui::BeginChild(ImGui::GetID((void*)0), ImVec2(450, 200), ImGuiWindowFlags_NoTitleBar);
 	for (int i = 0; i < m_limitPosMaxNum; ++i)
 	{
 		std::string label = "limitPosIndex : " + std::to_string(i);
@@ -56,6 +55,8 @@ void SplineRail::DebugDraw(DrawingByRasterize& arg_rasterize)
 	ImGui::EndChild();
 	//ループするかどうか
 	ImGui::Checkbox("isLoop", &m_isLoopFlag);
+	//レールの最大フレーム
+	ImGui::DragInt("Timer", &m_maxTimer);
 	//使用する制御点の数
 	ImGui::SliderInt("limitPosMaxNum", &m_limitPosMaxNum, 2, static_cast<int>(m_posArray.size()));
 	importFlag = ImGui::Button("Import");
@@ -91,6 +92,8 @@ void SplineRail::Import()
 	m_limitPosMaxNum = m_jsonData.doc["limitPosNum"].GetInt();
 	//ループするかどうか
 	m_isLoopFlag = m_jsonData.doc["isLoop"].GetBool();
+	//最大時間
+	m_maxTimer = m_jsonData.doc["flame"].GetInt();
 	//読み込み
 	for (int limitPosIndex = 0; limitPosIndex < m_posArray.size(); ++limitPosIndex)
 	{
@@ -120,6 +123,8 @@ void SplineRail::Export()
 	m_jsonData.doc["limitPosNum"].SetInt(m_limitPosMaxNum);
 	//ループするかどうか
 	m_jsonData.doc["isLoop"].SetBool(m_isLoopFlag);
+	//最大時間
+	m_jsonData.doc["flame"].SetInt(m_maxTimer);
 
 	Reflect();
 

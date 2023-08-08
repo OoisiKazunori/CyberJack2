@@ -3,6 +3,8 @@
 #include"../KazLibrary/Collision/CollisionManager.h"
 #include"../KazLibrary/Render/KazRender.h"
 #include"../Game/UI/LockOnBoxEffect.h"
+#include"../KazLibrary/Render/DrawFunc.h"
+#include"../KazLibrary/Buffer/DrawFuncData.h"
 
 class Cursor
 {
@@ -114,6 +116,11 @@ private:
 
 	//ロックオン演出
 	std::array<LockOnBoxEffect, LOCKON_MAX_NUM * 2> boxEffectArray;
+
+
+	//描画処理
+	DrawFuncData::DrawCallData numberRender;
+	std::array<KazBufferHelper::BufferData, 10>numberTexBufferArray;
 
 };
 

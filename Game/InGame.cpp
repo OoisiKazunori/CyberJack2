@@ -79,6 +79,7 @@ void InGame::Init(bool SKIP_FLAG)
 	m_notMoveTimer = 0;
 	m_isEnemyNotMoveFlag = false;
 	m_sceneNum = -1;
+	m_cursor.Init();
 }
 
 void InGame::Finalize()
