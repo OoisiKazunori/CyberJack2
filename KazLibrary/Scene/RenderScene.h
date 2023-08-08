@@ -31,12 +31,11 @@ public:
 	void Finalize();
 	void Input();
 	void Update();
-	void Draw(DrawingByRasterize& arg_rasterize);
+	void Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec);
 
 	int SceneChange();
 
 private:
-	DrawingByRasterize m_rasterizeRenderer;
 
 	//std::array<std::unique_ptr<DrawFunc::KazRender>, 3> testRArray;
 	std::array<KazMath::Transform3D, 5> m_transformArray;
@@ -141,46 +140,6 @@ private:
 	KazMath::Transform3D m_alphaModelTransform;
 
 
-	//ボリュームフォグ用3Dテクスチャ
-	KazBufferHelper::BufferData m_volumeFogTextureBuffer;
-	ComputeShader m_volumeNoiseShader;
-	struct NoiseParam
-	{
-		KazMath::Vec3<float> m_worldPos;
-		float m_timer;
-		float m_windSpeed;
-		float m_windStrength;
-		float m_threshold;
-		float m_skydormScale;
-		int m_octaves;
-		float m_persistence;
-		float m_lacunarity;
-		float m_pad;
-	}m_noiseParam;
-	KazBufferHelper::BufferData m_noiseParamData;
-
-	//ボリュームフォグ用定数バッファ
-	struct RaymarchingParam
-	{
-		KazMath::Vec3<float> m_pos; //ボリュームテクスチャのサイズ
-		float m_gridSize; //サンプリングするグリッドのサイズ
-		KazMath::Vec3<float> m_color; //フォグの色
-		float m_wrapCount; //サンプリング座標がはみ出した際に何回までWrapするか
-		float m_sampleLength; //サンプリング距離
-		float m_density; //濃度係数
-		int m_isSimpleFog;
-		float m_pad;
-	}m_raymarchingParam;
-	KazBufferHelper::BufferData m_raymarchingParamData;
-
-	//レイトレにモデルを組み込む用の配列クラス
-	Raytracing::BlasVector m_blasVector;
-	//レイトレで描画するための情報
-	Raytracing::Tlas m_tlas;
-	//レイトレ用パイプライン
-	std::vector<Raytracing::RayPipelineShaderData> m_pipelineShaders;
-	std::unique_ptr<Raytracing::RayPipeline> m_rayPipeline;
-	bool m_raytracingFlag;
 
 	//std::unique_ptr<DrawFunc::KazRender>normalGBufferRender;
 	//std::unique_ptr<DrawFunc::KazRender>finalGBufferRender;

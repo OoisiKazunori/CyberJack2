@@ -45,7 +45,7 @@ void GameOverScene::Update()
 	}
 }
 
-void GameOverScene::Draw(DrawingByRasterize& arg_rasterize)
+void GameOverScene::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
 	DrawFunc::DrawTextureIn2D(m_clearRender.m_drawCommand, m_clearRender.m_transform, m_clearRender.m_textureBuffer);
 	arg_rasterize.ObjectRender(m_clearRender.m_drawCommand);

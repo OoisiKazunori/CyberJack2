@@ -18,10 +18,6 @@
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
-	//scene.emplace_back(std::make_unique<DebugMeshParticleScene>());
-	//scene.emplace_back(std::make_unique<DebugStageScene>());
-	//scene.emplace_back(std::make_unique<TitleScene>());
-	//scene.emplace_back(std::make_unique<RenderScene>());
 	scene.emplace_back(std::make_unique<TitleScene>());
 	scene.emplace_back(std::make_unique<GameScene>());
 	scene.emplace_back(std::make_unique<GameClearScene>());
@@ -34,6 +30,67 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	initGameFlag = false;
 
 	change = std::make_unique<ChangeScene::SceneChange>();
+
+
+	Raytracing::HitGroupMgr::Instance()->Setting();
+	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS"}, {L"mainCHS", L"mainAnyHit"} });
+	int payloadSize = sizeof(float) * 4;
+	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 5, 3, 2, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
+
+
+
+
+	//ボリュームテクスチャを生成。
+	m_volumeFogTextureBuffer = KazBufferHelper::SetUAV3DTexBuffer(256, 256, 256, DXGI_FORMAT_R8G8B8A8_UNORM);
+	m_volumeFogTextureBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
+	DescriptorHeapMgr::Instance()->CreateBufferView(
+		m_volumeFogTextureBuffer.bufferWrapper->GetViewHandle(),
+		KazBufferHelper::SetUnorderedAccess3DTextureView(sizeof(DirectX::XMFLOAT4), 256 * 256 * 256),
+		m_volumeFogTextureBuffer.bufferWrapper->GetBuffer().Get()
+	);
+	//ボリュームノイズパラメーター
+	m_noiseParamData = KazBufferHelper::SetConstBufferData(sizeof(NoiseParam));
+	//ボリュームノイズのパラメーターを設定
+	m_noiseParam.m_timer = 0.0f;
+	m_noiseParam.m_windSpeed = 10.00f;
+	m_noiseParam.m_windStrength = 1.0f;
+	m_noiseParam.m_threshold = 0.42f;
+	m_noiseParam.m_skydormScale = 356.0f;
+	m_noiseParam.m_octaves = 4;
+	m_noiseParam.m_persistence = 0.5f;
+	m_noiseParam.m_lacunarity = 2.5f;
+	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
+	//ボリュームノイズ書き込み
+	{
+		std::vector<KazBufferHelper::BufferData>extraBuffer =
+		{
+			 m_volumeFogTextureBuffer,
+			 m_noiseParamData
+		};
+		extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
+		extraBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		m_volumeNoiseShader.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "Raytracing/" + "Write3DNoise.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
+
+		m_rayPipeline->SetVolumeFogTexture(&m_volumeFogTextureBuffer);
+	}
+
+	//レイマーチングのパラメーターを設定。
+	m_raymarchingParam.m_pos = KazMath::Vec3<float>();
+	m_raymarchingParam.m_color = KazMath::Vec3<float>(1.0f, 1.0f, 1.0f);
+	m_raymarchingParam.m_wrapCount = 20.0f;
+	m_raymarchingParam.m_gridSize = 4.0f;
+	m_raymarchingParam.m_wrapCount = 30.0f;
+	m_raymarchingParam.m_density = 0.65f;
+	//m_raymarchingParam.m_density = 1.0f;
+	m_raymarchingParam.m_sampleLength = 30.0f;
+	m_raymarchingParam.m_isSimpleFog = 0;
+	m_raymarchingParamData = KazBufferHelper::SetConstBufferData(sizeof(RaymarchingParam));
+	m_raymarchingParamData.bufferWrapper->TransData(&m_raymarchingParam, sizeof(RaymarchingParam));
+
+	//レイマーチングのパラメーター用定数バッファをセット。
+	m_rayPipeline->SetRaymarchingConstData(&m_raymarchingParamData);
 }
 
 SceneManager::~SceneManager()
@@ -118,8 +175,17 @@ void SceneManager::Update()
 
 	change->Update();
 
+	m_blasVector.Update();
+
 	// fpsを制限(今回は60fps)
 	FpsManager::RegulateFps(60);
+
+
+	//ボリュームノイズを書き込む。
+	m_noiseParam.m_timer += 0.001f;
+	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
+	m_volumeNoiseShader.Compute({ static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 4) });
+
 }
 
 void SceneManager::Draw()
@@ -128,11 +194,83 @@ void SceneManager::Draw()
 
 	if (itisInArrayFlag)
 	{
-		scene[nowScene]->Draw(m_rasterize);
+		scene[nowScene]->Draw(m_rasterize, m_blasVector);
 	}
-
 
 	m_rasterize.Sort();
 	m_rasterize.Render();
-	//RenderTargetStatus::Instance()->SwapResourceBarrier();
+
+	if (m_raytracingFlag)
+	{
+		//Tlasを構築 or 再構築する。
+		m_tlas.Build(m_blasVector);
+		//レイトレ用のデータを構築。
+		m_rayPipeline->BuildShaderTable(m_blasVector);
+		if (m_blasVector.GetBlasRefCount() != 0)
+		{
+			m_rayPipeline->TraceRay(m_tlas);
+		}
+	}
+
+
+
+	//ディレクションライト
+	ImGui::Begin("DirLight");
+	ImGui::SliderFloat("VecX", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.x, -1.0f, 1.0f);
+	ImGui::SliderFloat("VecY", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.y, -1.0f, 1.0f);
+	ImGui::SliderFloat("VecZ", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.z, -1.0f, 1.0f);
+	//GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
+	bool isActive = GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive;
+	ImGui::Checkbox("ActiveFlag", &isActive);
+	GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive = isActive;
+	ImGui::End();
+
+	//ポイントライト
+	ImGui::Begin("PointLight");
+	ImGui::DragFloat("PosX", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.x, 0.5f);
+	ImGui::DragFloat("PosY", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.y, 0.5f);
+	ImGui::DragFloat("PosZ", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.z, 0.5f);
+	ImGui::DragFloat("Power", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_power, 0.5f, 1.0f);
+	isActive = GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive;
+	ImGui::Checkbox("ActiveFlag", &isActive);
+	GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive = isActive;
+	ImGui::End();
+
+	//ボリュームフォグ
+	ImGui::Begin("VolumeFog");
+	ImGui::SetWindowSize(ImVec2(400, 100), ImGuiCond_::ImGuiCond_FirstUseEver);
+	ImGui::DragFloat("WindSpeed", &m_noiseParam.m_windSpeed, 0.1f, 0.1f, 10.0f);
+	//風の強度
+	ImGui::DragFloat("WindStrength", &m_noiseParam.m_windStrength, 0.1f, 0.1f, 1.0f);
+	//風のしきい値 ノイズを風として判断するためのもの
+	ImGui::DragFloat("WindThreshold", &m_noiseParam.m_threshold, 0.01f, 0.01f, 1.0f);
+	//ノイズのスケール
+	ImGui::DragFloat("NoiseScale", &m_noiseParam.m_skydormScale, 1.0f, 1.0f, 2000.0f);
+	//ノイズのオクターブ数
+	ImGui::DragInt("NoiseOctaves", &m_noiseParam.m_octaves, 1, 1, 10);
+	//ノイズの持続度 違う周波数のノイズを計算する際にどのくらいノイズを持続させるか。 粒度になる。
+	ImGui::DragFloat("NoisePersistance", &m_noiseParam.m_persistence, 0.01f, 0.01f, 1.0f);
+	//ノイズの黒っぽさ
+	ImGui::DragFloat("NoiseLacunarity", &m_noiseParam.m_lacunarity, 0.01f, 0.01f, 10.0f);
+	ImGui::Text(" ");
+	//ボリュームテクスチャの座標
+	std::array<float, 3> boxPos = { m_raymarchingParam.m_pos.x,m_raymarchingParam.m_pos.y, m_raymarchingParam.m_pos.z };
+	ImGui::DragFloat3("Position", boxPos.data(), 0.1f);
+	m_raymarchingParam.m_pos = KazMath::Vec3<float>(boxPos[0], boxPos[1], boxPos[2]);
+	//フォグの色
+	std::array<float, 3> fogColor = { m_raymarchingParam.m_color.x,m_raymarchingParam.m_color.y, m_raymarchingParam.m_color.z };
+	ImGui::DragFloat3("FogColor", fogColor.data(), 0.001f, 0.001f, 1.0f);
+	m_raymarchingParam.m_color = KazMath::Vec3<float>(fogColor[0], fogColor[1], fogColor[2]);
+	ImGui::DragFloat("WrapCount", &m_raymarchingParam.m_wrapCount, 1.0f, 1.0f, 100.0f);
+	ImGui::DragFloat("GridSize", &m_raymarchingParam.m_gridSize, 0.1f, 0.1f, 1000.0f);
+	ImGui::DragFloat("SamplingLength", &m_raymarchingParam.m_sampleLength, 0.1f, 1.0f, 1000.0f);
+	ImGui::DragFloat("Density", &m_raymarchingParam.m_density, 0.01f, 0.0f, 10.0f);
+	ImGui::End();
+
+	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
+	m_raymarchingParamData.bufferWrapper->TransData(&m_raymarchingParam, sizeof(RaymarchingParam));
+
+	//データを転送。一旦ここで。
+	GBufferMgr::Instance()->m_lightBuffer.bufferWrapper->TransData(&GBufferMgr::Instance()->m_lightConstData, sizeof(GBufferMgr::LightConstData));
+
 }

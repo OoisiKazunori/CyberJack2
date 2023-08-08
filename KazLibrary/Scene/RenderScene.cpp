@@ -8,12 +8,6 @@ RenderScene::RenderScene()
 	endGameFlag = false;
 
 	m_boxData = m_boxBuffer.GenerateBoxBuffer(1.0f);
-
-	Raytracing::HitGroupMgr::Instance()->Setting();
-	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS"}, {L"mainCHS", L"mainAnyHit"} });
-	int payloadSize = sizeof(float) * 4;
-	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 5, 3, 2, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
-
 	//G-Buffer生成
 	GBufferMgr::Instance();
 
@@ -170,61 +164,6 @@ RenderScene::RenderScene()
 		m_dispatch.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "TestCompute.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
 	}
 
-	m_raytracingFlag = true;
-
-
-	//ボリュームテクスチャを生成。
-	m_volumeFogTextureBuffer = KazBufferHelper::SetUAV3DTexBuffer(256, 256, 256, DXGI_FORMAT_R8G8B8A8_UNORM);
-	m_volumeFogTextureBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
-	DescriptorHeapMgr::Instance()->CreateBufferView(
-		m_volumeFogTextureBuffer.bufferWrapper->GetViewHandle(),
-		KazBufferHelper::SetUnorderedAccess3DTextureView(sizeof(DirectX::XMFLOAT4), 256 * 256 * 256),
-		m_volumeFogTextureBuffer.bufferWrapper->GetBuffer().Get()
-	);
-	//ボリュームノイズパラメーター
-	m_noiseParamData = KazBufferHelper::SetConstBufferData(sizeof(NoiseParam));
-	//ボリュームノイズのパラメーターを設定
-	m_noiseParam.m_timer = 0.0f;
-	m_noiseParam.m_windSpeed = 10.00f;
-	m_noiseParam.m_windStrength = 1.0f;
-	m_noiseParam.m_threshold = 0.42f;
-	m_noiseParam.m_skydormScale = 356.0f;
-	m_noiseParam.m_octaves = 4;
-	m_noiseParam.m_persistence = 0.5f;
-	m_noiseParam.m_lacunarity = 2.5f;
-	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
-	//ボリュームノイズ書き込み
-	{
-		std::vector<KazBufferHelper::BufferData>extraBuffer =
-		{
-			 m_volumeFogTextureBuffer,
-			 m_noiseParamData
-		};
-		extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
-		extraBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		m_volumeNoiseShader.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "Raytracing/" + "Write3DNoise.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
-
-		m_rayPipeline->SetVolumeFogTexture(&m_volumeFogTextureBuffer);
-	}
-
-	//レイマーチングのパラメーターを設定。
-	m_raymarchingParam.m_pos = KazMath::Vec3<float>();
-	m_raymarchingParam.m_color = KazMath::Vec3<float>(1.0f, 1.0f, 1.0f);
-	m_raymarchingParam.m_wrapCount = 20.0f;
-	m_raymarchingParam.m_gridSize = 4.0f;
-	m_raymarchingParam.m_wrapCount = 30.0f;
-	m_raymarchingParam.m_density = 0.65f;
-	//m_raymarchingParam.m_density = 1.0f;
-	m_raymarchingParam.m_sampleLength = 30.0f;
-	m_raymarchingParam.m_isSimpleFog = 0;
-	m_raymarchingParamData = KazBufferHelper::SetConstBufferData(sizeof(RaymarchingParam));
-	m_raymarchingParamData.bufferWrapper->TransData(&m_raymarchingParam, sizeof(RaymarchingParam));
-
-	//レイマーチングのパラメーター用定数バッファをセット。
-	m_rayPipeline->SetRaymarchingConstData(&m_raymarchingParamData);
-
 }
 
 RenderScene::~RenderScene()
@@ -309,8 +248,6 @@ void RenderScene::Update()
 	//法線描画
 	m_dispatch.Compute({ 1,1,1 });
 
-	//Blasの配列をクリア
-	m_blasVector.Update();
 
 	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_0))
 	{
@@ -326,21 +263,16 @@ void RenderScene::Update()
 	//ノイズ用のタイマーを加算。
 	GBufferMgr::Instance()->m_cameraEyePosData.m_noiseTimer += 0.02f;
 
-	//ボリュームノイズを書き込む。
-	m_noiseParam.m_timer += 0.001f;
-	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
-	m_volumeNoiseShader.Compute({ static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 4) });
-
 
 }
 
-void RenderScene::Draw(DrawingByRasterize& arg_rasterize)
+void RenderScene::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
 	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
 
-	m_rasterizeRenderer.ObjectRender(m_drawSponza);
+	arg_rasterize.ObjectRender(m_drawSponza);
 	for (int index = 0; index < static_cast<int>(m_drawSponza.m_raytracingData.m_blas.size()); ++index) {
-		m_blasVector.Add(m_drawSponza.m_raytracingData.m_blas[index], m_transformArray[0].GetMat());
+		arg_blasVec.Add(m_drawSponza.m_raytracingData.m_blas[index], m_transformArray[0].GetMat());
 	}
 
 	//レイトレデバッグ用のオブジェクトを描画。後々関数にまとめます。
@@ -356,7 +288,7 @@ void RenderScene::Draw(DrawingByRasterize& arg_rasterize)
 
 	for (int i = 0; i < m_testModelFiledArray.size(); ++i)
 	{
-		m_testModelFiledArray[i].Update(m_rasterizeRenderer, m_blasVector);
+		m_testModelFiledArray[i].Update(arg_rasterize, arg_blasVec);
 	}
 
 	if (m_lightFlag)
@@ -369,7 +301,7 @@ void RenderScene::Draw(DrawingByRasterize& arg_rasterize)
 				for (int z = 0; z < m_lightTransformArray[y][x].size(); ++z)
 				{
 					DrawFunc::DrawModelInRaytracing(m_lightBoxDataArray[y][x][z], m_lightTransformArray[y][x][z], DrawFunc::NONE);
-					m_rasterizeRenderer.ObjectRender(m_lightBoxDataArray[y][x][z]);
+					arg_rasterize.ObjectRender(m_lightBoxDataArray[y][x][z]);
 				}
 			}
 		}
@@ -382,112 +314,33 @@ void RenderScene::Draw(DrawingByRasterize& arg_rasterize)
 		{
 			continue;
 		}
-		m_rasterizeRenderer.ObjectRender(m_drawPlaneArray[i].m_plane);
+		arg_rasterize.ObjectRender(m_drawPlaneArray[i].m_plane);
 	}
 	//最終合成結果
 	if (m_drawFinalPlane.m_drawFlag)
 	{
-		m_rasterizeRenderer.ObjectRender(m_drawFinalPlane.m_plane);
+		arg_rasterize.ObjectRender(m_drawFinalPlane.m_plane);
 	}
 
 	DrawFunc::DrawModelInRaytracing(m_alphaModel, m_alphaModelTransform, DrawFunc::NONE);
-	m_rasterizeRenderer.ObjectRender(m_alphaModel);
-
-	m_rasterizeRenderer.Sort();
-	m_rasterizeRenderer.Render();
+	arg_rasterize.ObjectRender(m_alphaModel);
 
 
-	/*----- レイトレ描画開始 -----*/
-
-	//レイトレ実行。
-	if (m_raytracingFlag)
-	{
-		//Tlasを構築 or 再構築する。
-		m_tlas.Build(m_blasVector);
-
-		//レイトレ用のデータを構築。
-		m_rayPipeline->BuildShaderTable(m_blasVector);
-
-		m_rayPipeline->TraceRay(m_tlas);
-	}
-	/*----- レイトレ描画終了 -----*/
-
-
-	ImGui::Begin("Light");
-	ImGui::DragFloat("VecX", &m_lightVec.x);
-	ImGui::DragFloat("VecY", &m_lightVec.y);
-	ImGui::DragFloat("VecZ", &m_lightVec.z);
-	ImGui::DragFloat("AtemX", &m_atem.x);
-	ImGui::DragFloat("AtemY", &m_atem.y);
-	ImGui::DragFloat("AtemZ", &m_atem.z);
-	for (auto& obj : m_drawPlaneArray)
-	{
-		ImGui::Checkbox(obj.m_bufferName.c_str(), &obj.m_drawFlag);
-	}
-	ImGui::Checkbox(m_drawFinalPlane.m_bufferName.c_str(), &m_drawFinalPlane.m_drawFlag);
-	ImGui::Checkbox("RayTracing", &m_raytracingFlag);
-	ImGui::Checkbox("DrawLightBox", &m_lightFlag);
-	KazImGuiHelper::InputVec3("AlphaModel", &m_alphaModelTransform.pos);
-	ImGui::End();
-
-	//ディレクションライト
-	ImGui::Begin("DirLight");
-	ImGui::SliderFloat("VecX", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.x, -1.0f, 1.0f);
-	ImGui::SliderFloat("VecY", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.y, -1.0f, 1.0f);
-	ImGui::SliderFloat("VecZ", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.z, -1.0f, 1.0f);
-	//GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
-	bool isActive = GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive;
-	ImGui::Checkbox("ActiveFlag", &isActive);
-	GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive = isActive;
-	ImGui::End();
-
-	//ポイントライト
-	ImGui::Begin("PointLight");
-	ImGui::DragFloat("PosX", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.x, 0.5f);
-	ImGui::DragFloat("PosY", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.y, 0.5f);
-	ImGui::DragFloat("PosZ", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.z, 0.5f);
-	ImGui::DragFloat("Power", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_power, 0.5f, 1.0f);
-	isActive = GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive;
-	ImGui::Checkbox("ActiveFlag", &isActive);
-	GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive = isActive;
-	ImGui::End();
-
-	//ボリュームフォグ
-	ImGui::Begin("VolumeFog");
-	ImGui::SetWindowSize(ImVec2(400, 100), ImGuiCond_::ImGuiCond_FirstUseEver);
-	ImGui::DragFloat("WindSpeed", &m_noiseParam.m_windSpeed, 0.1f, 0.1f, 10.0f);
-	//風の強度
-	ImGui::DragFloat("WindStrength", &m_noiseParam.m_windStrength, 0.1f, 0.1f, 1.0f);
-	//風のしきい値 ノイズを風として判断するためのもの
-	ImGui::DragFloat("WindThreshold", &m_noiseParam.m_threshold, 0.01f, 0.01f, 1.0f);
-	//ノイズのスケール
-	ImGui::DragFloat("NoiseScale", &m_noiseParam.m_skydormScale, 1.0f, 1.0f, 2000.0f);
-	//ノイズのオクターブ数
-	ImGui::DragInt("NoiseOctaves", &m_noiseParam.m_octaves, 1, 1, 10);
-	//ノイズの持続度 違う周波数のノイズを計算する際にどのくらいノイズを持続させるか。 粒度になる。
-	ImGui::DragFloat("NoisePersistance", &m_noiseParam.m_persistence, 0.01f, 0.01f, 1.0f);
-	//ノイズの黒っぽさ
-	ImGui::DragFloat("NoiseLacunarity", &m_noiseParam.m_lacunarity, 0.01f, 0.01f, 10.0f);
-	ImGui::Text(" ");
-	//ボリュームテクスチャの座標
-	std::array<float, 3> boxPos = { m_raymarchingParam.m_pos.x,m_raymarchingParam.m_pos.y, m_raymarchingParam.m_pos.z };
-	ImGui::DragFloat3("Position", boxPos.data(), 0.1f);
-	m_raymarchingParam.m_pos = KazMath::Vec3<float>(boxPos[0], boxPos[1], boxPos[2]);
-	//フォグの色
-	std::array<float, 3> fogColor = { m_raymarchingParam.m_color.x,m_raymarchingParam.m_color.y, m_raymarchingParam.m_color.z };
-	ImGui::DragFloat3("FogColor", fogColor.data(), 0.001f, 0.001f, 1.0f);
-	m_raymarchingParam.m_color = KazMath::Vec3<float>(fogColor[0], fogColor[1], fogColor[2]);
-	ImGui::DragFloat("WrapCount", &m_raymarchingParam.m_wrapCount, 1.0f, 1.0f, 100.0f);
-	ImGui::DragFloat("GridSize", &m_raymarchingParam.m_gridSize, 0.1f, 0.1f, 1000.0f);
-	ImGui::DragFloat("SamplingLength", &m_raymarchingParam.m_sampleLength, 0.1f, 1.0f, 1000.0f);
-	ImGui::DragFloat("Density", &m_raymarchingParam.m_density, 0.01f, 0.0f, 10.0f);
-	ImGui::End();
-
-	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
-	m_raymarchingParamData.bufferWrapper->TransData(&m_raymarchingParam, sizeof(RaymarchingParam));
-
-	//データを転送。一旦ここで。
-	GBufferMgr::Instance()->m_lightBuffer.bufferWrapper->TransData(&GBufferMgr::Instance()->m_lightConstData, sizeof(GBufferMgr::LightConstData));
+	//ImGui::Begin("Light");
+	//ImGui::DragFloat("VecX", &m_lightVec.x);
+	//ImGui::DragFloat("VecY", &m_lightVec.y);
+	//ImGui::DragFloat("VecZ", &m_lightVec.z);
+	//ImGui::DragFloat("AtemX", &m_atem.x);
+	//ImGui::DragFloat("AtemY", &m_atem.y);
+	//ImGui::DragFloat("AtemZ", &m_atem.z);
+	//for (auto& obj : m_drawPlaneArray)
+	//{
+	//	ImGui::Checkbox(obj.m_bufferName.c_str(), &obj.m_drawFlag);
+	//}
+	//ImGui::Checkbox(m_drawFinalPlane.m_bufferName.c_str(), &m_drawFinalPlane.m_drawFlag);
+	//ImGui::Checkbox("DrawLightBox", &m_lightFlag);
+	//KazImGuiHelper::InputVec3("AlphaModel", &m_alphaModelTransform.pos);
+	//ImGui::End();
 }
 
 int RenderScene::SceneChange()
