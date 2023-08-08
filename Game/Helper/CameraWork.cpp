@@ -101,6 +101,12 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 		//上下左右の回転
 		cameraPoly->data.transform.pos = centralPos + (besidePoly->data.transform.pos + verticlaPoly->data.transform.pos);
 
+
+
+
+		/*--------------------   ここから追加*/
+
+
 		//カメラの基準となる向きを決めるためにプレイヤーの回転からクォータニオンを生成する。
 		DirectX::XMVECTOR playerQ = DirectX::XMQuaternionRotationRollPitchYaw(DirectX::XMConvertToRadians(PLAYER_ROTATE.x), DirectX::XMConvertToRadians(PLAYER_ROTATE.y), DirectX::XMConvertToRadians(PLAYER_ROTATE.z));
 
@@ -115,7 +121,7 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 		DirectX::XMVECTOR rightVec = DirectX::XMVector3Transform(DirectX::XMVectorSet(1, 0, 0, 0), DirectX::XMMatrixRotationQuaternion(playerQ));
 		DirectX::XMVECTOR upVec = DirectX::XMVector3Transform(DirectX::XMVectorSet(0, 1, 0, 0), DirectX::XMMatrixRotationQuaternion(playerQ));
 
-		//カーソルの移動量
+		//カーソルの移動量(ラジアン)
 		const float MAX_CURSOR_MOVE_RIGHT = 0.5f;
 		const float MAX_CURSOR_MOVE_UP = 0.5f;
 
