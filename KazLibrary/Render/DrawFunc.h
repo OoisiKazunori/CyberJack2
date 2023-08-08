@@ -16,13 +16,27 @@ namespace DrawFunc
 	{
 		DrawFuncData::DrawCallData m_drawCommand;
 		KazBufferHelper::BufferData m_textureBuffer;
-		KazMath::Transform2D m_trasform;
+		KazMath::Transform2D m_transform;
 
 		TextureRender(const std::string &arg_textureFilePass)
 		{
-			m_textureBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer(arg_textureFilePass);
 			m_drawCommand = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
-			m_trasform.scale =
+			m_textureBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer(arg_textureFilePass);
+			m_transform.scale =
+			{
+				static_cast<float>(m_textureBuffer.bufferWrapper->GetBuffer().Get()->GetDesc().Width),
+				static_cast<float>(m_textureBuffer.bufferWrapper->GetBuffer().Get()->GetDesc().Height)
+			};
+		};
+		TextureRender()
+		{
+			m_drawCommand = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
+		};
+
+		void operator=(const KazBufferHelper::BufferData& rhs)
+		{
+			m_textureBuffer = rhs;
+			m_transform.scale =
 			{
 				static_cast<float>(m_textureBuffer.bufferWrapper->GetBuffer().Get()->GetDesc().Width),
 				static_cast<float>(m_textureBuffer.bufferWrapper->GetBuffer().Get()->GetDesc().Height)
