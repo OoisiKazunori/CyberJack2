@@ -31,6 +31,7 @@ Cursor::Cursor()
 	numberHandle[8] = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::CursorPath + "CursorNumMax.png");
 
 
+	numberRender = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
 	numberTexBufferArray[0] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorBase2.png");
 	numberTexBufferArray[1] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorNum1.png");
 	numberTexBufferArray[2] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorNum2.png");
@@ -81,7 +82,7 @@ void Cursor::Init()
 	notEnableLockOnFlag = false;
 }
 
-void Cursor::Input(bool UP_FLAG, bool DOWN_FLAG, bool LEFT_FLAG, bool RIGHT_FLAG, bool DONE_FLAG, bool RELEASE_FLAG, const KazMath::Vec2<float> &ANGLE)
+void Cursor::Input(bool UP_FLAG, bool DOWN_FLAG, bool LEFT_FLAG, bool RIGHT_FLAG, bool DONE_FLAG, bool RELEASE_FLAG, const KazMath::Vec2<float>& ANGLE)
 {
 	if (!dontMoveFlag)
 	{
@@ -513,25 +514,33 @@ void Cursor::Update()
 
 }
 
-void Cursor::Draw()
+void Cursor::Draw(DrawingByRasterize& arg_rasterize)
 {
-	//DrawFunc::DrawTextureIn2D(, , numberTexBufferArray[0]);
-
-
-	numberTex->Draw();
-	cursorFlameTex->Draw();
-
-	for (int i = 0; i < boxEffectArray.size(); ++i)
+	//”Žš
+	KazMath::Transform2D transform;
+	transform.pos = numberTex->data.transform.pos;
+	transform.scale =
 	{
-		boxEffectArray[i].Draw();
-	}
-	for (int i = 0; i < cursorEffectTex.size(); ++i)
-	{
-		if (cursorEffectTex[i].initFlag)
-		{
-			cursorEffectTex[i].cursorEffectTex->Draw();
-		}
-	}
+		static_cast<float>(numberTexBufferArray[0].bufferWrapper->GetBuffer()->GetDesc().Width),
+		static_cast<float>(numberTexBufferArray[0].bufferWrapper->GetBuffer()->GetDesc().Height)
+	};
+	DrawFunc::DrawTextureIn2D(numberRender, transform, numberTexBufferArray[lockOnNum]);
+	arg_rasterize.ObjectRender(numberRender);
+
+	//numberTex->Draw();
+	//cursorFlameTex->Draw();
+
+	//for (int i = 0; i < boxEffectArray.size(); ++i)
+	//{
+	//	boxEffectArray[i].Draw();
+	//}
+	//for (int i = 0; i < cursorEffectTex.size(); ++i)
+	//{
+	//	if (cursorEffectTex[i].initFlag)
+	//	{
+	//		cursorEffectTex[i].cursorEffectTex->Draw();
+	//	}
+	//}
 }
 
 bool Cursor::LockOn()
@@ -550,7 +559,7 @@ bool Cursor::Release()
 	return releaseFlag;
 }
 
-void Cursor::Hit(KazMath::Vec3<float> *POS)
+void Cursor::Hit(KazMath::Vec3<float>* POS)
 {
 	++lockOnNum;
 	notEnableLockOnFlag = true;
@@ -566,7 +575,7 @@ void Cursor::Hit(KazMath::Vec3<float> *POS)
 	}
 }
 
-const int &Cursor::GetCount()
+const int& Cursor::GetCount()
 {
 	return lockOnNum;
 }

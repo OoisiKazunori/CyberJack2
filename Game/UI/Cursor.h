@@ -5,6 +5,7 @@
 #include"../Game/UI/LockOnBoxEffect.h"
 #include"../KazLibrary/Render/DrawFunc.h"
 #include"../KazLibrary/Buffer/DrawFuncData.h"
+#include"../KazLibrary/Render/DrawingByRasterize.h"
 
 class Cursor
 {
@@ -14,7 +15,7 @@ public:
 	void Init();
 	void Input(bool UP_FLAG, bool DOWN_FLAG, bool LEFT_FLAG, bool RIGHT_FLAG, bool DONE_FLAG, bool RELEASE_FLAG, const KazMath::Vec2<float> &ANGLE);
 	void Update();
-	void Draw();
+	void Draw(DrawingByRasterize& arg_rasterize);
 
 	/// <summary>
 	/// ロックオン数が最大値未満であること、ロックオンが有効でロックオンの入力がされている

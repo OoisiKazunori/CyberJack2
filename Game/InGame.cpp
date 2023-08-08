@@ -462,7 +462,7 @@ void InGame::Update()
 void InGame::Draw(DrawingByRasterize& arg_rasterize)
 {
 	m_player.Draw(arg_rasterize);
-	//m_cursor.Draw();
+	m_cursor.Draw(arg_rasterize);
 
 #ifdef _DEBUG
 	if (m_debugFlag)

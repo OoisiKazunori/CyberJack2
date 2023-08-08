@@ -508,7 +508,7 @@ void PortalScene::Draw()
 	redPortal.Draw();
 
 
-	cursor.Draw();
+	//cursor.Draw();
 
 
 	ImGui::Begin("Camera");
