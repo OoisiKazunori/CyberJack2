@@ -12,6 +12,8 @@
 #include"../Scene/RayTracingScene.h"
 #include"../Scene/RenderScene.h"
 #include"../Scene/GameScene.h"
+#include"../Scene/GameClearScene.h"
+#include"../Scene/GameOverScene.h"
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
@@ -20,7 +22,10 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	//scene.emplace_back(std::make_unique<DebugStageScene>());
 	//scene.emplace_back(std::make_unique<TitleScene>());
 	//scene.emplace_back(std::make_unique<RenderScene>());
+	scene.emplace_back(std::make_unique<TitleScene>());
 	scene.emplace_back(std::make_unique<GameScene>());
+	scene.emplace_back(std::make_unique<GameClearScene>());
+	scene.emplace_back(std::make_unique<GameOverScene>());
 
 	nowScene = 0;
 	nextScene = 0;
@@ -117,14 +122,15 @@ void SceneManager::Update()
 	FpsManager::RegulateFps(60);
 }
 
-void SceneManager::Draw() {
+void SceneManager::Draw()
+{
+	change->Draw(m_rasterize);
 
 	if (itisInArrayFlag)
 	{
 		scene[nowScene]->Draw(m_rasterize);
 	}
 
-	change->Draw(m_rasterize);
 
 	m_rasterize.Sort();
 	m_rasterize.Render();

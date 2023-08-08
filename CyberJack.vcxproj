@@ -169,6 +169,7 @@
     <ClCompile Include="Game\Helper\CameraWork.cpp" />
     <ClCompile Include="Game\Helper\EnemyHelper.cpp" />
     <ClCompile Include="Game\InGame.cpp" />
+    <ClCompile Include="Game\Input\Input.cpp" />
     <ClCompile Include="Game\Interface\IEnemy.cpp" />
     <ClCompile Include="Game\Interface\IOperationObject.cpp" />
     <ClCompile Include="Game\Interface\IStage.cpp" />
@@ -363,6 +364,7 @@
     <ClInclude Include="Game\Helper\CameraWork.h" />
     <ClInclude Include="Game\Helper\EnemyHelper.h" />
     <ClInclude Include="Game\InGame.h" />
+    <ClInclude Include="Game\Input\Input.h" />
     <ClInclude Include="Game\Interface\IEnemy.h" />
     <ClInclude Include="Game\Interface\IOperationObject.h" />
     <ClInclude Include="Game\Interface\IStage.h" />

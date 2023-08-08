@@ -915,7 +915,7 @@ namespace DrawFuncData
 		lData.desc = DrawFuncPipelineData::SetTex();
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
-		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::NONE;
+		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 		return lData;
 	};
 }

@@ -82,23 +82,19 @@ void GameScene::Draw(DrawingByRasterize& arg_rasterize)
 
 int GameScene::SceneChange()
 {
-	int lNum = game->SceneChange();
-	if (lNum == 0)
+	int num = game->SceneChange();
+
+	switch (num)
 	{
-		return 0;
-	}
-	else if (lNum == -3)
-	{
+	case 1:
+		break;
+	case -3:
 		skipTurtorialFlag = true;
 		return -2;
-	}
-	else if (ControllerInputManager::Instance()->InputTrigger(XINPUT_GAMEPAD_BACK))
-	{
-		return 0;
-	}
-	else
-	{
-		return SCENE_NONE;
+		break;
+	default:
+		return num;
+		break;
 	}
 	return SCENE_NONE;
 }

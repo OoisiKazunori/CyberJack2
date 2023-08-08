@@ -2,7 +2,7 @@
 #include"../KazLibrary/Scene/SceneBase.h"
 #include"../KazLibrary/Render/DrawFunc.h"
 
-class GameClearScene
+class GameClearScene:public SceneBase
 {
 public:
 	GameClearScene();
@@ -15,5 +15,11 @@ public:
 	int SceneChange();
 
 private:
+	DrawFunc::TextureRender m_clearRender;
+	DrawFunc::TextureRender m_inputRender;
+
+	int m_sceneNum;
+	bool m_flashFlag;
+	int m_flashTimer;
 };
 

@@ -12,6 +12,24 @@ namespace DrawFunc
 		REFLECTION	//レイトレ側でオブジェクトを反射させる
 	};
 
+	struct TextureRender
+	{
+		DrawFuncData::DrawCallData m_drawCommand;
+		KazBufferHelper::BufferData m_textureBuffer;
+		KazMath::Transform2D m_trasform;
+
+		TextureRender(const std::string &arg_textureFilePass)
+		{
+			m_textureBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer(arg_textureFilePass);
+			m_drawCommand = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
+			m_trasform.scale =
+			{
+				static_cast<float>(m_textureBuffer.bufferWrapper->GetBuffer().Get()->GetDesc().Width),
+				static_cast<float>(m_textureBuffer.bufferWrapper->GetBuffer().Get()->GetDesc().Height)
+			};
+		};
+	};
+
 	static void DrawTextureIn2D(DrawFuncData::DrawCallData& arg_callData, const KazMath::Transform2D& arg_transform, const KazBufferHelper::BufferData& arg_texture)
 	{
 		//行列情報

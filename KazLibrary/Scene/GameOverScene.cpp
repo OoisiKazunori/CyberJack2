@@ -1,10 +1,17 @@
 #include "GameOverScene.h"
-#include"../KazLibrary/Input/KeyBoradInputManager.h"
+#include"../Game/Input/Input.h"
+#include"../Helper/ResourceFilePass.h"
 
-GameOverScene::GameOverScene() :m_sceneNum(-1)
+GameOverScene::GameOverScene() :m_sceneNum(-1),
+m_clearRender(KazFilePathName::GameOverPath + "GameOver.png"),
+m_inputRender(KazFilePathName::TitlePath + "Start.png"),
+m_flashTimer(0),
+m_flashFlag(false)
 {
-	m_clearTexDraw = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
-	m_texBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("");
+	m_clearRender.m_trasform.pos = { WIN_X / 2.0f, WIN_Y / 2.0f };
+	m_inputRender.m_trasform.pos = { WIN_X / 2.0f, WIN_Y / 2.0f + 200.0f };
+	m_inputRender.m_trasform.scale *= 0.5f;
+	endGameFlag = false;
 }
 
 void GameOverScene::Init()
@@ -21,7 +28,8 @@ void GameOverScene::Finalize()
 
 void GameOverScene::Input()
 {
-	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_SPACE))
+	//ƒ^ƒCƒgƒ‹‚É–ß‚é
+	if (Input::Instance()->Done())
 	{
 		m_sceneNum = 0;
 	}
@@ -29,12 +37,24 @@ void GameOverScene::Input()
 
 void GameOverScene::Update()
 {
+	++m_flashTimer;
+	if (KazMath::ConvertSecondToFlame(1) <= m_flashTimer)
+	{
+		m_flashTimer = 0;
+		m_flashFlag = !m_flashFlag;
+	}
 }
 
 void GameOverScene::Draw(DrawingByRasterize& arg_rasterize)
 {
-	DrawFunc::DrawTextureIn2D(m_clearTexDraw, m_clearTrasform, m_texBuffer);
-	arg_rasterize.ObjectRender(m_clearTexDraw);
+	DrawFunc::DrawTextureIn2D(m_clearRender.m_drawCommand, m_clearRender.m_trasform, m_clearRender.m_textureBuffer);
+	arg_rasterize.ObjectRender(m_clearRender.m_drawCommand);
+
+	if (m_flashFlag)
+	{
+		DrawFunc::DrawTextureIn2D(m_inputRender.m_drawCommand, m_inputRender.m_trasform, m_inputRender.m_textureBuffer);
+		arg_rasterize.ObjectRender(m_inputRender.m_drawCommand);
+	}
 }
 
 int GameOverScene::SceneChange()
