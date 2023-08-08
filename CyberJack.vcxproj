@@ -169,6 +169,7 @@
     <ClCompile Include="Game\Helper\CameraWork.cpp" />
     <ClCompile Include="Game\Helper\EnemyHelper.cpp" />
     <ClCompile Include="Game\InGame.cpp" />
+    <ClCompile Include="Game\Input\Input.cpp" />
     <ClCompile Include="Game\Interface\IEnemy.cpp" />
     <ClCompile Include="Game\Interface\IOperationObject.cpp" />
     <ClCompile Include="Game\Interface\IStage.cpp" />
@@ -289,6 +290,8 @@
     <ClCompile Include="KazLibrary\Scene\DebugScene.cpp" />
     <ClCompile Include="KazLibrary\Scene\DebugStageScene.cpp" />
     <ClCompile Include="KazLibrary\Scene\EnemyDebugScene.cpp" />
+    <ClCompile Include="KazLibrary\Scene\GameClearScene.cpp" />
+    <ClCompile Include="KazLibrary\Scene\GameOverScene.cpp" />
     <ClCompile Include="KazLibrary\Scene\GameScene.cpp" />
     <ClCompile Include="KazLibrary\Scene\main.cpp" />
     <ClCompile Include="KazLibrary\Scene\PortalScene.cpp" />
@@ -361,6 +364,7 @@
     <ClInclude Include="Game\Helper\CameraWork.h" />
     <ClInclude Include="Game\Helper\EnemyHelper.h" />
     <ClInclude Include="Game\InGame.h" />
+    <ClInclude Include="Game\Input\Input.h" />
     <ClInclude Include="Game\Interface\IEnemy.h" />
     <ClInclude Include="Game\Interface\IOperationObject.h" />
     <ClInclude Include="Game\Interface\IStage.h" />
@@ -493,6 +497,8 @@
     <ClInclude Include="KazLibrary\Scene\DebugScene.h" />
     <ClInclude Include="KazLibrary\Scene\DebugStageScene.h" />
     <ClInclude Include="KazLibrary\Scene\EnemyDebugScene.h" />
+    <ClInclude Include="KazLibrary\Scene\GameClearScene.h" />
+    <ClInclude Include="KazLibrary\Scene\GameOverScene.h" />
     <ClInclude Include="KazLibrary\Scene\GameScene.h" />
     <ClInclude Include="KazLibrary\Scene\PortalScene.h" />
     <ClInclude Include="KazLibrary\Scene\RayTracingScene.h" />

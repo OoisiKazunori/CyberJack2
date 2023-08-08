@@ -30,6 +30,18 @@ Cursor::Cursor()
 	numberHandle[7] = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::CursorPath + "CursorNum7.png");
 	numberHandle[8] = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::CursorPath + "CursorNumMax.png");
 
+
+	numberTexBufferArray[0] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorBase2.png");
+	numberTexBufferArray[1] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorNum1.png");
+	numberTexBufferArray[2] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorNum2.png");
+	numberTexBufferArray[3] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorNum3.png");
+	numberTexBufferArray[4] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorNum4.png");
+	numberTexBufferArray[5] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorNum5.png");
+	numberTexBufferArray[6] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorNum6.png");
+	numberTexBufferArray[7] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorNum7.png");
+	numberTexBufferArray[8] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::CursorPath + "CursorNumMax.png");
+
+
 	cursorPos = { static_cast<float>(WIN_X) / 2.0f,static_cast<float>(WIN_Y) / 2.0f };
 	limitValue = { 570.0f,static_cast<float>(WIN_Y) / 2.0f };
 
@@ -503,6 +515,9 @@ void Cursor::Update()
 
 void Cursor::Draw()
 {
+	//DrawFunc::DrawTextureIn2D(, , numberTexBufferArray[0]);
+
+
 	numberTex->Draw();
 	cursorFlameTex->Draw();
 
@@ -517,7 +532,6 @@ void Cursor::Draw()
 			cursorEffectTex[i].cursorEffectTex->Draw();
 		}
 	}
-
 }
 
 bool Cursor::LockOn()

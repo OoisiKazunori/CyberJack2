@@ -28,4 +28,5 @@ private:
 
 	UINT vertByte;
 	UINT indexByte;
+
 };

@@ -4,7 +4,7 @@
 #include"../KazLibrary/Input/ControllerInputManager.h"
 
 InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX>& arg_responeData, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>& arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX>& BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX>& CAMERA_ARRAY) :
-	m_stageArray(arg_stageArray),m_responeData(arg_responeData)
+	m_stageArray(arg_stageArray), m_responeData(arg_responeData), m_sceneNum(-1)
 {
 	KazEnemyHelper::GenerateEnemy(m_enemies, m_responeData, enemiesHandle, m_enemyHitBoxArray);
 
@@ -78,6 +78,8 @@ void InGame::Init(bool SKIP_FLAG)
 	m_gameSpeed = 1;
 	m_notMoveTimer = 0;
 	m_isEnemyNotMoveFlag = false;
+	m_sceneNum = -1;
+	m_cursor.Init();
 }
 
 void InGame::Finalize()
@@ -349,6 +351,19 @@ void InGame::Update()
 		}
 	}
 
+	//ゲームクリア
+	bool gameClearFlag = !m_debugFlag && m_rail.IsEnd();
+	if (gameClearFlag || KeyBoradInputManager::Instance()->InputTrigger(DIK_3))
+	{
+		m_sceneNum = 2;
+	}
+	//ゲームオーバー
+	if (!m_player.IsAlive() || KeyBoradInputManager::Instance()->InputTrigger(DIK_2))
+	{
+		m_sceneNum = 3;
+	}
+
+
 
 	m_rail.Update();
 	m_stageArray[m_gameStageLevel]->Update();
@@ -368,7 +383,6 @@ void InGame::Update()
 	{
 		m_debugCamera.Update();
 	}
-
 
 
 	if (m_isEnemyNotMoveFlag)
@@ -441,5 +455,11 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize)
 
 int InGame::SceneChange()
 {
-	return -1;
+	if (m_sceneNum != -1)
+	{
+		int tmp = m_sceneNum;
+		m_sceneNum = -1;
+		return tmp;
+	}
+	return SCENE_NONE;
 }

@@ -91,4 +91,8 @@ private:
 	std::vector<IAPolygonBufferData>m_polygonBufferArray;
 	std::vector<PolygonInstanceData>m_drawDataArray;
 	int sDescHandle = 0;
+
+
+	std::vector<DirectX::XMFLOAT3>GetPlaneVertices(const KazMath::Vec2<float>& anchorPoint, const KazMath::Vec2<float>& scale, const KazMath::Vec2<int>& texSize);
+
 };

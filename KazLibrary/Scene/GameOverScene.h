@@ -1,7 +1,8 @@
 #pragma once
 #include"../KazLibrary/Scene/SceneBase.h"
+#include"../KazLibrary/Render/DrawFunc.h"
 
-class GameOverScene
+class GameOverScene:public SceneBase
 {
 public:
 	GameOverScene();
@@ -14,5 +15,11 @@ public:
 	int SceneChange();
 
 private:
+	DrawFunc::TextureRender m_clearRender;
+	DrawFunc::TextureRender m_inputRender;
+
+	int m_sceneNum;
+	bool m_flashFlag;
+	int m_flashTimer;
 };
 

@@ -153,13 +153,57 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const VertexGenerateData& arg_ve
 
 RESOURCE_HANDLE VertexBufferMgr::GeneratePlaneBuffer()
 {
-	m_vertexBufferArray.emplace_back();
-	m_vertexBufferArray.back().emplace_back(std::make_unique<PolygonBuffer>());
-	PolygonIndexData index = m_vertexBufferArray.back().back()->GeneratePlaneTexBuffer({ 1.0f,1.0f }, { 1,1 });
+	//頂点バッファ生成---------------------------------------
+	struct VertUvData
+	{
+		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT2 uv;
+	};
+	std::vector<DirectX::XMFLOAT3> lVertices = GetPlaneVertices(
+		KazMath::Vec2<float>(0.5f, 0.5f),
+		KazMath::Vec2<float>(1.0f, 1.0f),
+		KazMath::Vec2<int>(1, 1)
+	);
+	std::vector<DirectX::XMFLOAT2> lUv(4);
+	KazRenderHelper::InitUvPos(&lUv[0], &lUv[1], &lUv[2], &lUv[3]);
+	std::vector<VertUvData> lVertUv;
+	for (int i = 0; i < lVertices.size(); ++i)
+	{
+		lVertUv.emplace_back();
+		lVertUv[i].pos = { lVertices[i].x,lVertices[i].y,lVertices[i].z };
+		lVertUv[i].uv = lUv[i];
+	}
+	std::vector<UINT> lIndices;
+	for (int i = 0; i < 6; ++i)
+	{
+		lIndices.emplace_back(KazRenderHelper::InitIndciesForPlanePolygon()[i]);
+	}
+
+	VertexAndIndexGenerateData generateData(lVertUv.data(), sizeof(VertUvData), lVertUv.size(), sizeof(lVertUv[0]), lIndices);
+	//頂点バッファ生成---------------------------------------
 
 
-	std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(index.vertBuffer);
-	std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(index.indexBuffer);
+
+	RESOURCE_HANDLE outputHandle = m_handle.GetHandle();
+	bool pushBackFlag = false;
+	if (m_drawIndexDataArray.size() <= outputHandle)
+	{
+		m_drawIndexDataArray.emplace_back();
+		m_polygonIndexBufferArray.emplace_back();
+		pushBackFlag = true;
+	}
+	m_polygonIndexBufferArray[outputHandle].emplace_back();
+	m_polygonIndexBufferArray[outputHandle].back().emplace_back(PolygonGenerateData(generateData.verticesPos, generateData.structureSize, generateData.arraySize));
+	m_polygonIndexBufferArray[outputHandle].back().emplace_back(PolygonGenerateData((void*)generateData.indices.data(), sizeof(UINT), generateData.indices.size()));
+
+
+	std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(m_polygonIndexBufferArray[outputHandle].back()[0].m_gpuBuffer.m_buffer);
+	std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(m_polygonIndexBufferArray[outputHandle].back()[1].m_gpuBuffer.m_buffer);
+
+	vertexBuffer->structureSize = generateData.structureSize;
+	vertexBuffer->elementNum = static_cast<UINT>(generateData.arraySize);
+	indexBuffer->structureSize = sizeof(UINT);
+	indexBuffer->elementNum = static_cast<UINT>(generateData.indices.size());
 
 
 	std::vector<KazRenderHelper::IASetVertexBuffersData> setVertDataArray;
@@ -194,15 +238,13 @@ RESOURCE_HANDLE VertexBufferMgr::GeneratePlaneBuffer()
 	result.startInstanceLocation = 0;
 	drawCommandDataArray.emplace_back(result);
 
-	m_drawIndexDataArray.emplace_back();
-	m_drawIndexDataArray.back().vertBuffer.emplace_back(vertexBuffer);
-	m_drawIndexDataArray.back().indexBuffer.emplace_back(indexBuffer);
-	m_drawIndexDataArray.back().index.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	m_drawIndexDataArray.back().index.vertexBufferDrawData = setVertDataArray;
-	m_drawIndexDataArray.back().index.indexBufferView = indexBufferViewArray;
-	m_drawIndexDataArray.back().index.drawIndexInstancedData = drawCommandDataArray;
+	m_drawIndexDataArray[outputHandle].vertBuffer.emplace_back(vertexBuffer);
+	m_drawIndexDataArray[outputHandle].indexBuffer.emplace_back(indexBuffer);
+	m_drawIndexDataArray[outputHandle].index.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	m_drawIndexDataArray[outputHandle].index.vertexBufferDrawData = setVertDataArray;
+	m_drawIndexDataArray[outputHandle].index.indexBufferView = indexBufferViewArray;
+	m_drawIndexDataArray[outputHandle].index.drawIndexInstancedData = drawCommandDataArray;
 
-	RESOURCE_HANDLE outputHandle = m_handle.GetHandle();
 	return outputHandle;
 }
 
@@ -289,4 +331,22 @@ PolygonMultiMeshedIndexData VertexBufferMgr::GetVertexIndexBuffer(RESOURCE_HANDL
 PolygonInstanceData VertexBufferMgr::GetVertexBuffer(RESOURCE_HANDLE HANDLE)
 {
 	return m_drawDataArray[HANDLE];
+}
+
+std::vector<DirectX::XMFLOAT3> VertexBufferMgr::GetPlaneVertices(const KazMath::Vec2<float>& anchorPoint, const KazMath::Vec2<float>& scale, const KazMath::Vec2<int>& texSize)
+{
+	std::vector<DirectX::XMFLOAT3> vertices(4);
+	KazRenderHelper::InitVerticesPos(&vertices[0], &vertices[1], &vertices[2], &vertices[3], anchorPoint.ConvertXMFLOAT2());
+
+	KazMath::Vec2<float>leftUpPos(vertices[0].x, vertices[0].y);
+	KazMath::Vec2<float>rightDownPos(vertices[3].x, vertices[3].y);
+
+	std::array<KazMath::Vec2<float>, 4> vertArray = KazRenderHelper::ChangePlaneScale(leftUpPos, rightDownPos, scale, {}, texSize);
+
+	for (int i = 0; i < vertArray.size(); ++i)
+	{
+		vertices[i] = { vertArray[i].x,vertArray[i].y,0.0f };
+	}
+
+	return vertices;
 }

@@ -124,6 +124,7 @@ private:
 	int m_gameSpeed;							//1ステージで進む時間のスピード
 	int m_gameStageLevel;						//現在のステージのレベル
 	int m_gameLeyerLevel;						//現在のステージのレベル
+	int m_sceneNum;
 
 	Player m_player;
 	Cursor m_cursor;
