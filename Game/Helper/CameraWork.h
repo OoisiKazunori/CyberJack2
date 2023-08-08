@@ -8,7 +8,7 @@ class CameraWork
 public:
 	CameraWork();
 	void Init(const KazMath::Vec3<float> &BASE_POS = { 0.0f,3.0f,0.0f });
-	void Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<float> *PLAYER_POS, bool DEBUG_FLAG);
+	void Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<float> *PLAYER_POS, KazMath::Vec3<float> PLAYER_ROTATE, bool DEBUG_FLAG);
 
 	void ForceCamera(KazEnemyHelper::CameraDir DIR);
 

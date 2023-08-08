@@ -428,7 +428,7 @@ void DebugMeshParticleScene::Update()
 	CameraMgr::Instance()->Camera(eyePos, targetPos, { 0.0f,1.0f,0.0f });
 
 	KazMath::Vec3<float>lPl(0.0f, 0.0f, 0.0f);
-	cameraWork.Update(KazMath::Vec2<float>(0.0f, 0.0f), &lPl, true);
+	cameraWork.Update(KazMath::Vec2<float>(0.0f, 0.0f), &lPl, {}, true);
 
 
 	//デバック用のGUI
