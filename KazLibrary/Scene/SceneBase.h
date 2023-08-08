@@ -13,7 +13,6 @@ public:
 	virtual void Update() = 0;
 	virtual void Draw(DrawingByRasterize& arg_rasterize) = 0;
 
-
 	virtual int SceneChange() = 0;
 
 	bool endGameFlag;

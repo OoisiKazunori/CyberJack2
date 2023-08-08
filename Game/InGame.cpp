@@ -371,7 +371,6 @@ void InGame::Update()
 	}
 
 
-
 	if (m_isEnemyNotMoveFlag)
 	{
 		++m_notMoveTimer;
