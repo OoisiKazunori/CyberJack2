@@ -106,13 +106,6 @@ private:
 	}m_raymarchingParam;
 	KazBufferHelper::BufferData m_raymarchingParamData;
 
-	//レイトレにモデルを組み込む用の配列クラス
-	Raytracing::BlasVector m_blasVector;
-	//レイトレで描画するための情報
-	Raytracing::Tlas m_tlas;
-	//レイトレ用パイプライン
-	std::vector<Raytracing::RayPipelineShaderData> m_pipelineShaders;
-	std::unique_ptr<Raytracing::RayPipeline> m_rayPipeline;
 	//描画---------------------------------------
 
 

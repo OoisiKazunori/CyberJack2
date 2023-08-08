@@ -18,7 +18,7 @@
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
-	scene.emplace_back(std::make_unique<TitleScene>());
+	scene.emplace_back(std::make_unique<RenderScene>());
 	scene.emplace_back(std::make_unique<GameScene>());
 	scene.emplace_back(std::make_unique<GameClearScene>());
 	scene.emplace_back(std::make_unique<GameOverScene>());
@@ -28,6 +28,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	itisInArrayFlag = true;
 	endGameFlag = false;
 	initGameFlag = false;
+	m_raytracingFlag = true;
 
 	change = std::make_unique<ChangeScene::SceneChange>();
 
@@ -184,7 +185,7 @@ void SceneManager::Update()
 	//ボリュームノイズを書き込む。
 	m_noiseParam.m_timer += 0.001f;
 	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
-	m_volumeNoiseShader.Compute({ static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 4) });
+	//m_volumeNoiseShader.Compute({ static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 8), static_cast<UINT>(256 / 4) });
 
 }
 
