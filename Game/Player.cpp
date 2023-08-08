@@ -231,10 +231,12 @@ void Player::Draw(DrawingByRasterize& arg_rasterize)
 	damageEffect.Draw();
 	damageWindow.Draw();
 
+	*/
+
 	if (drawHpFlag)
 	{
-		hpUi.Draw();
-	}*/
+		hpUi.Draw(arg_rasterize);
+	}
 	m_transform.scale = { 50.0f,50.0f,50.0f };
 	DrawFunc::DrawModel(m_playerModel, m_transform);
 	arg_rasterize.ObjectRender(m_playerModel);

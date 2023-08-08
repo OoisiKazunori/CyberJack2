@@ -3,21 +3,17 @@
 #include"../KazLibrary/Helper/ResourceFilePass.h"
 #include"../KazLibrary/Math/KazMath.h"
 
-PlayerHpUi::PlayerHpUi()
+PlayerHpUi::PlayerHpUi() :hpBackGround(KazFilePathName::HpPath + "HpBackGround.png")
 {
-	RESOURCE_HANDLE hpHandle = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::HpPath + "Hp.png");
-	RESOURCE_HANDLE hpFlameHandle = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::HpPath + "HpFlame.png");
-	RESOURCE_HANDLE redHpHandle = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::HpPath + "RedHp.png");
-
 	for (int i = 0; i < hpTex.size(); ++i)
 	{
-		hpTex[i].data.handleData = hpHandle;
-		hpFlame[i].data.handleData = hpFlameHandle;
-		redHpTex[i].data.handleData = redHpHandle;
-	}
+		hpTex[i] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::HpPath + "Hp.png");
+		hpFlame[i] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::HpPath + "HpFlame.png");
+		redHpTex[i] = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::HpPath + "RedHp.png");
 
-	hpBackGround.data.handleData = TextureResourceMgr::Instance()->LoadGraph(KazFilePathName::HpPath + "HpBackGround.png");
-	hpBackGround.data.transform.pos = { 200.0f,650.0f };
+		baseScale[i] = hpTex[i].m_transform.scale;
+	}
+	hpBackGround.m_transform.pos = { 200.0f,650.0f };
 
 }
 
@@ -86,11 +82,11 @@ void PlayerHpUi::Update()
 
 		if (lerpFlag[i])
 		{
-			lerpScale[i] = { 1.0f,1.5f };
+			lerpScale[i] = { 1.0f * baseScale[i].x,1.5f * baseScale[i].y };
 		}
 		else
 		{
-			lerpScale[i] = { 1.0f,1.0f };
+			lerpScale[i] = { 1.0f * baseScale[i].x,1.0f * baseScale[i].y };
 		}
 	}
 
@@ -100,36 +96,39 @@ void PlayerHpUi::Update()
 	{
 		KazMath::Vec2<float> space = { i * 70.0f,0.0f };
 		KazMath::Vec2<float> pos = basePos + space;
-		hpTex[i].data.transform.pos = pos;
-		hpFlame[i].data.transform.pos = pos;
+		hpTex[i].m_transform.pos = pos;
+		hpFlame[i].m_transform.pos = pos;
 
-		KazMath::Larp(lerpScale[i].y, &hpTex[i].data.transform.scale.y, 0.2f);
+		KazMath::Larp(lerpScale[i].y, &hpTex[i].m_transform.scale.y, 0.2f);
 
 
-		redHpTex[i].data.transform = hpTex[i].data.transform;
+		redHpTex[i].m_transform = hpTex[i].m_transform;
 	}
 
 }
 
-void PlayerHpUi::Draw()
+void PlayerHpUi::Draw(DrawingByRasterize& arg_rasterize)
 {
 	//Hp
 	for (int i = 0; i < hp; ++i)
 	{
-		hpTex[i].Draw();
+		DrawFunc::DrawTextureIn2D(hpTex[i].m_drawCommand, hpTex[i].m_transform, hpTex[i].m_textureBuffer);
+		arg_rasterize.ObjectRender(hpTex[i].m_drawCommand);
 	}
 	//RedHp
 	for (int i = 0; i < redHpUiNum; ++i)
 	{
-		redHpTex[i].Draw();
+		DrawFunc::DrawTextureIn2D(redHpTex[i].m_drawCommand, redHpTex[i].m_transform, redHpTex[i].m_textureBuffer);
+		arg_rasterize.ObjectRender(redHpTex[i].m_drawCommand);
 	}
 	//Hp‚ÌƒtƒŒ[ƒ€
 	for (int i = 0; i < maxHp; ++i)
 	{
-		hpFlame[i].Draw();
+		DrawFunc::DrawTextureIn2D(hpFlame[i].m_drawCommand, hpFlame[i].m_transform, hpFlame[i].m_textureBuffer);
+		arg_rasterize.ObjectRender(hpFlame[i].m_drawCommand);
 	}
-
-	hpBackGround.Draw();
+	DrawFunc::DrawTextureIn2D(hpBackGround.m_drawCommand, hpBackGround.m_transform, hpBackGround.m_textureBuffer);
+	arg_rasterize.ObjectRender(hpBackGround.m_drawCommand);
 }
 
 void PlayerHpUi::Sub()

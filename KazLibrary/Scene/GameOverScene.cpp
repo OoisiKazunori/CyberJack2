@@ -8,9 +8,9 @@ m_inputRender(KazFilePathName::TitlePath + "Start.png"),
 m_flashTimer(0),
 m_flashFlag(false)
 {
-	m_clearRender.m_trasform.pos = { WIN_X / 2.0f, WIN_Y / 2.0f };
-	m_inputRender.m_trasform.pos = { WIN_X / 2.0f, WIN_Y / 2.0f + 200.0f };
-	m_inputRender.m_trasform.scale *= 0.5f;
+	m_clearRender.m_transform.pos = { WIN_X / 2.0f, WIN_Y / 2.0f };
+	m_inputRender.m_transform.pos = { WIN_X / 2.0f, WIN_Y / 2.0f + 200.0f };
+	m_inputRender.m_transform.scale *= 0.5f;
 	endGameFlag = false;
 }
 
@@ -47,12 +47,12 @@ void GameOverScene::Update()
 
 void GameOverScene::Draw(DrawingByRasterize& arg_rasterize)
 {
-	DrawFunc::DrawTextureIn2D(m_clearRender.m_drawCommand, m_clearRender.m_trasform, m_clearRender.m_textureBuffer);
+	DrawFunc::DrawTextureIn2D(m_clearRender.m_drawCommand, m_clearRender.m_transform, m_clearRender.m_textureBuffer);
 	arg_rasterize.ObjectRender(m_clearRender.m_drawCommand);
 
 	if (m_flashFlag)
 	{
-		DrawFunc::DrawTextureIn2D(m_inputRender.m_drawCommand, m_inputRender.m_trasform, m_inputRender.m_textureBuffer);
+		DrawFunc::DrawTextureIn2D(m_inputRender.m_drawCommand, m_inputRender.m_transform, m_inputRender.m_textureBuffer);
 		arg_rasterize.ObjectRender(m_inputRender.m_drawCommand);
 	}
 }
