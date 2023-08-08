@@ -90,11 +90,61 @@ void InGame::Finalize()
 void InGame::Input()
 {
 	KeyBoradInputManager* input = KeyBoradInputManager::Instance();
+	ControllerInputManager* cInput = ControllerInputManager::Instance();
 	if (input->InputTrigger(DIK_ESCAPE))
 	{
 		Init(false);
 	}
 	m_player.Input();
+
+
+	bool upFlag = false;
+	bool downFlag = false;
+	bool leftFlag = false;
+	bool rightFlag = false;
+	bool doneFlag = false;
+	bool releaseFlag = false;
+
+	const int DEAD_ZONE = 3000;
+	if (cInput->InputState(XINPUT_GAMEPAD_A))
+	{
+		doneFlag = true;
+	}
+	if (cInput->InputRelease(XINPUT_GAMEPAD_A))
+	{
+		releaseFlag = true;
+	}
+	if (cInput->InputStickState(LEFT_STICK, UP_SIDE, DEAD_ZONE))
+	{
+		upFlag = true;
+	}
+	if (cInput->InputStickState(LEFT_STICK, DOWN_SIDE, DEAD_ZONE))
+	{
+		downFlag = true;
+	}
+	if (cInput->InputStickState(LEFT_STICK, LEFT_SIDE, DEAD_ZONE))
+	{
+		leftFlag = true;
+	}
+	if (cInput->InputStickState(LEFT_STICK, RIGHT_SIDE, DEAD_ZONE))
+	{
+		rightFlag = true;
+	}
+
+	KazMath::Vec2<float> joyStick;
+	joyStick.x = cInput->GetJoyStickLXNum(0) / 32767.0f;
+	joyStick.y = cInput->GetJoyStickLYNum(0) / 32767.0f;
+
+	m_cursor.Input
+	(
+		upFlag,
+		downFlag,
+		leftFlag,
+		rightFlag,
+		doneFlag,
+		releaseFlag,
+		joyStick
+	);
 }
 
 void InGame::Update()
