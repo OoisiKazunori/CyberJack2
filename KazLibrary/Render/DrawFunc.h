@@ -12,10 +12,10 @@ namespace DrawFunc
 		REFLECTION	//レイトレ側でオブジェクトを反射させる
 	};
 
-	static void DrawTextureIn2D(DrawFuncData::DrawCallData &arg_callData, const KazMath::Transform2D &arg_transform, const KazBufferHelper::BufferData &arg_texture)
+	static void DrawTextureIn2D(DrawFuncData::DrawCallData& arg_callData, const KazMath::Transform2D& arg_transform, const KazBufferHelper::BufferData& arg_texture)
 	{
 		//行列情報
-		static DirectX::XMMATRIX mat = arg_transform.GetMat() * CameraMgr::Instance()->GetOrthographicMatProjection();
+		DirectX::XMMATRIX mat = arg_transform.GetMat() * CameraMgr::Instance()->GetOrthographicMatProjection();
 		arg_callData.extraBufferArray[0].bufferWrapper->TransData(&mat, sizeof(DirectX::XMMATRIX));
 		//テクスチャ情報
 		arg_callData.extraBufferArray[1] = arg_texture;
@@ -23,7 +23,7 @@ namespace DrawFunc
 		arg_callData.extraBufferArray[1].rootParamType = GRAPHICS_PRAMTYPE_DATA;
 	}
 
-	static void DrawModelInRaytracing(DrawFuncData::DrawCallData &arg_callData, const KazMath::Transform3D &arg_transform, RayTracingType arg_type)
+	static void DrawModelInRaytracing(DrawFuncData::DrawCallData& arg_callData, const KazMath::Transform3D& arg_transform, RayTracingType arg_type)
 	{
 		//行列情報
 		static CoordinateSpaceMatData transData(arg_transform.GetMat(), CameraMgr::Instance()->GetViewMatrix(), CameraMgr::Instance()->GetPerspectiveMatProjection());
@@ -40,5 +40,36 @@ namespace DrawFunc
 		//ID
 		UINT num = static_cast<UINT>(arg_type);
 		arg_callData.extraBufferArray[1].bufferWrapper->TransData(&num, sizeof(UINT));
+	}
+
+	static void DrawModel(DrawFuncData::DrawCallData& arg_callData, const KazMath::Transform3D& arg_transform, const KazMath::Color& arg_color = KazMath::Color(255, 255, 255, 255))
+	{
+		//行列情報
+		CoordinateSpaceMatData transData(arg_transform.GetMat(), CameraMgr::Instance()->GetViewMatrix(), CameraMgr::Instance()->GetPerspectiveMatProjection());
+		transData.m_world = arg_transform.GetMat();
+		transData.m_projective = CameraMgr::Instance()->GetPerspectiveMatProjection();
+		transData.m_view = CameraMgr::Instance()->GetViewMatrix();
+
+		DirectX::XMVECTOR pos, scale, rotaQ;
+		DirectX::XMMatrixDecompose(&pos, &scale, &rotaQ, arg_transform.GetMat());
+		DirectX::XMMATRIX rotaMat = DirectX::XMMatrixRotationQuaternion(rotaQ);
+		transData.m_rotaion = rotaMat;
+
+		arg_callData.extraBufferArray[0].bufferWrapper->TransData(&transData, sizeof(CoordinateSpaceMatData));
+
+		arg_callData.extraBufferArray[1].bufferWrapper->TransData(&arg_color.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+	}
+
+	static void DrawLine(DrawFuncData::DrawCallData& arg_callData, std::vector<KazMath::Vec3<float>>arg_limitPosArray, RESOURCE_HANDLE arg_vertexHandle, const KazMath::Color& arg_color = KazMath::Color(255, 255, 255, 255))
+	{
+		VertexBufferMgr::Instance()->GetVertexBuffer(arg_vertexHandle).vertBuffer->bufferWrapper->TransData(
+			arg_limitPosArray.data(),
+			KazBufferHelper::GetBufferSize<UINT>(arg_limitPosArray.size(), sizeof(DirectX::XMFLOAT3))
+		);
+
+		//行列情報
+		DirectX::XMMATRIX mat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
+		arg_callData.extraBufferArray[0].bufferWrapper->TransData(&mat, sizeof(DirectX::XMMATRIX));
+		arg_callData.extraBufferArray[1].bufferWrapper->TransData(&arg_color.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
 	}
 }

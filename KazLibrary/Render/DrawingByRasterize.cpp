@@ -92,6 +92,7 @@ void DrawingByRasterize::Sort()
 		result.depthHandle = callData.depthHandle;
 
 		result.pipelineData = callData.pipelineData.desc;
+
 		for (UINT i = 0; i < result.pipelineData.NumRenderTargets; ++i)
 		{
 			switch (callData.pipelineData.blendMode)

@@ -1,5 +1,7 @@
 #pragma once
 #include"SceneData.h"
+#include"../KazLibrary/Render/DrawingByRasterize.h"
+
 class SceneBase
 {
 public:
@@ -9,8 +11,8 @@ public:
 	virtual void Finalize() = 0;
 	virtual void Input() = 0;
 	virtual void Update() = 0;
-	virtual void Draw() = 0;
-	
+	virtual void Draw(DrawingByRasterize& arg_rasterize) = 0;
+
 
 	virtual int SceneChange() = 0;
 

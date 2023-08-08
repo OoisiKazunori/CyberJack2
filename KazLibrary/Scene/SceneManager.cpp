@@ -11,6 +11,8 @@
 #include"../Scene/DebugMeshParticle.h"
 #include"../Scene/RayTracingScene.h"
 #include"../Scene/RenderScene.h"
+#include"../Scene/GameScene.h"
+#include"../KazLibrary/Input/KeyBoradInputManager.h"
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
@@ -18,7 +20,8 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	//scene.emplace_back(std::make_unique<DebugStageScene>());
 	//scene.emplace_back(std::make_unique<TitleScene>());
 	scene.emplace_back(std::make_unique<RenderScene>());
-	
+	//scene.emplace_back(std::make_unique<GameScene>());
+
 	nowScene = 0;
 	nextScene = 0;
 	itisInArrayFlag = true;
@@ -118,9 +121,12 @@ void SceneManager::Draw() {
 
 	if (itisInArrayFlag)
 	{
-		scene[nowScene]->Draw();
+		scene[nowScene]->Draw(m_rasterize);
 	}
 
-	//change.Draw();
+	change->Draw(m_rasterize);
+
+	m_rasterize.Sort();
+	m_rasterize.Render();
 	//RenderTargetStatus::Instance()->SwapResourceBarrier();
 }

@@ -232,7 +232,7 @@ PolygonIndexData PolygonBuffer::GeneratePlaneBuffer(float scale)
 
 PolygonIndexData PolygonBuffer::GeneratePlaneTexBuffer(const KazMath::Vec2<float> &scale, const KazMath::Vec2<int> &texSize)
 {
-	std::vector<DirectX::XMFLOAT3> lVertices = GetPlaneVertices({ 0.5f,0.5f }, scale, texSize);
+	std::vector<DirectX::XMFLOAT3> lVertices = GetPlaneVertices({ 0.0f,0.0f }, scale, texSize);
 	std::vector<DirectX::XMFLOAT2> lUv(4);
 	KazRenderHelper::InitUvPos(&lUv[0], &lUv[1], &lUv[2], &lUv[3]);
 	std::vector<VertUvData> lVertUv;

@@ -545,7 +545,7 @@ KazMath::Vec3<float> KazMath::SplinePosition(const std::vector<Vec3<float>> &poi
 	else
 	{
 		int size = static_cast<int>(points.size());
-		if (startIndex > size - 3)return points[size - 3];
+		if (startIndex > size - 3)return points[size - 2];
 		p2 = points[startIndex + 1].ConvertXMVECTOR();
 		p3 = points[startIndex + 2].ConvertXMVECTOR();
 	}

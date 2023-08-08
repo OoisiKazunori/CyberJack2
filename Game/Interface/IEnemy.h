@@ -5,6 +5,7 @@
 #include"../KazLibrary/Imgui/MyImgui.h"
 #include"../Enemy/EnemyData.h"
 #include"../Game/Effect/MeshParticleEmitter.h"
+#include"../KazLibrary/Render/DrawingByRasterize.h"
 
 /// <summary>
 /// “G‚Ì’ŠÛƒNƒ‰ƒX
@@ -28,7 +29,7 @@ public:
 	/// ‰Šú‰»ˆ—
 	/// </summary>
 	/// <param name="POS">‰ŠúÀ•W</param>
-	virtual void Init(const EnemyGenerateData &GENERATE_DATA, bool DEMO_FLAG = false) = 0;
+	virtual void Init(const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG = false) = 0;
 
 	/// <summary>
 	/// I—¹ˆ—
@@ -41,7 +42,7 @@ public:
 	/// <summary>
 	/// •`‰æˆ—
 	/// </summary>
-	virtual void Draw() = 0;
+	virtual void Draw(DrawingByRasterize&arg_rasterize) = 0;
 
 	/// <summary>
 	/// “G‚ğ€–S‚³‚¹‚Ü‚·
@@ -51,7 +52,7 @@ public:
 	/// <summary>
 	/// €–S‰‰o
 	/// </summary>
-	void DeadEffect(KazMath::Vec3<float> *POS, KazMath::Vec3<float> *ROTATION, int *ALPHA);
+	void DeadEffect(KazMath::Vec3<float>* POS, KazMath::Vec3<float>* ROTATION, int* ALPHA);
 
 	//€–S”»’è‚Æˆ—
 	bool ProcessingOfDeath(EnemyDeathType TYPE);
@@ -59,11 +60,11 @@ public:
 
 
 	/// <returns>“G‚Ìî•ñ</returns>
-	const std::unique_ptr<EnemyData> &GetData();
+	const std::unique_ptr<EnemyData>& GetData();
 
 	void DeadSound();
 	void ShotSound();
-	void InitModel(const KazMath::Transform3D &TRANSFORM, const std::string &MODEL_FILEPASS, float HITBOX_RADIUS, EnemyModelType MODEL_TYPE, bool REV_UV_FLAG = false, bool GENERATE_PARTICLE_FLAG = true);
+	void InitModel(const KazMath::Transform3D& TRANSFORM, const std::string& MODEL_FILEPASS, float HITBOX_RADIUS, EnemyModelType MODEL_TYPE, bool REV_UV_FLAG = false, bool GENERATE_PARTICLE_FLAG = true);
 
 	//UŒ‚‚ğŠm”F‚·‚é—p‚ÌŠÖ”
 	virtual void DebugShot() { debugShotFlag = true; };

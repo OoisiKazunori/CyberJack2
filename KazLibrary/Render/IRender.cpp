@@ -60,7 +60,7 @@ void IRender::TransData(void *DATA, RESOURCE_HANDLE HANDLE, const string &ID)
 
 void IRender::Release(RESOURCE_HANDLE HANDLE)
 {
-	gpuBuffer->ReleaseBuffer(HANDLE);
+	gpuBuffer->ReleaseVeretexIndexBuffer(HANDLE);
 	handle.DeleteHandle(HANDLE);
 
 	constBufferDataName[HANDLE] = "";

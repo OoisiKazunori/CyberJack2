@@ -40,7 +40,7 @@ bool KazHelper::DirtyFlag(float VALUE, float OLD_VALUE)
 	}
 }
 
-bool KazHelper::IsInScreen(const KazMath::Vec3<float> &POS)
+bool KazHelper::IsInScreen(const KazMath::Vec3<float>& POS)
 {
 	KazMath::Vec3<float> screenPos = KazMath::ConvertWorldPosToScreenPos(POS, CameraMgr::Instance()->GetViewMatrix(), CameraMgr::Instance()->GetPerspectiveMatProjection());
 
@@ -64,7 +64,7 @@ bool KazHelper::IsInScreen(const KazMath::Vec3<float> &POS)
 	return outFlag;
 }
 
-KazMath::Vec3<float> KazHelper::GetScreenPos(const KazMath::Vec3<float> &POS, const KazMath::Vec2<float> &LEFTUP_POS)
+KazMath::Vec3<float> KazHelper::GetScreenPos(const KazMath::Vec3<float>& POS, const KazMath::Vec2<float>& LEFTUP_POS)
 {
 	KazMath::Vec3<float>screenPos = KazMath::ConvertWorldPosToScreenPos(POS, CameraMgr::Instance()->GetViewMatrix(), CameraMgr::Instance()->GetPerspectiveMatProjection());
 
@@ -73,12 +73,12 @@ KazMath::Vec3<float> KazHelper::GetScreenPos(const KazMath::Vec3<float> &POS, co
 	return leftUpPos;
 }
 
-KazMath::Vec3<float> KazHelper::GetRightDownStagePos(const KazMath::Vec3<float> &POS, const KazMath::Vec2<float> &RIGHT_POS)
+KazMath::Vec3<float> KazHelper::GetRightDownStagePos(const KazMath::Vec3<float>& POS, const KazMath::Vec2<float>& RIGHT_POS)
 {
 	KazMath::Vec3<float>screenPos = KazMath::ConvertWorldPosToScreenPos(POS, CameraMgr::Instance()->GetViewMatrix(), CameraMgr::Instance()->GetPerspectiveMatProjection());
 
 	KazMath::Vec3<float> rightDown =
-		KazMath::ConvertScreenPosToWorldPos(KazMath::Vec3<float>(RIGHT_POS.x,RIGHT_POS.y, screenPos.z), CameraMgr::Instance()->GetViewMatrix(), CameraMgr::Instance()->GetPerspectiveMatProjection());
+		KazMath::ConvertScreenPosToWorldPos(KazMath::Vec3<float>(RIGHT_POS.x, RIGHT_POS.y, screenPos.z), CameraMgr::Instance()->GetViewMatrix(), CameraMgr::Instance()->GetPerspectiveMatProjection());
 
 	return rightDown;
 }
@@ -143,8 +143,7 @@ std::vector<char> KazHelper::CovertStringToChar(std::string STRING)
 	return result;
 }
 
-
-void KazHelper::ConvertStringToWchar_t(std::string STRING, wchar_t *WCHAR_STRING, size_t ARRAY_SIZE)
+void KazHelper::ConvertStringToWchar_t(std::string STRING, wchar_t* WCHAR_STRING, size_t ARRAY_SIZE)
 {
 	MultiByteToWideChar(CP_ACP, 0, STRING.c_str(), -1, WCHAR_STRING, static_cast<INT>(ARRAY_SIZE));
 }

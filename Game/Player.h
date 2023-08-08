@@ -4,6 +4,10 @@
 #include"../Game/UI/PlayerHpUi.h"
 #include"../Game/Effect/PlayerDamageEmitter.h"
 #include"../Game/UI/DamageTextWindow.h"
+#include"../KazLibrary/Buffer/DrawFuncData.h"
+#include"../KazLibrary/Render/DrawFunc.h"
+#include"../KazLibrary/Loader/ModelLoader.h"
+#include"../KazLibrary/Render/DrawingByRasterize.h"
 
 class Player
 {
@@ -13,8 +17,8 @@ public:
 	void Finalize();
 	void Input();
 	void Update();
-	void Draw();
-
+	void Draw(DrawingByRasterize& arg_rasterize);
+	
 	void ForceAnim(int PATTERN)
 	{
 		switch (PATTERN)
@@ -71,5 +75,8 @@ private:
 	float sinTimer;
 
 	float forceCameraRate;
+
+	DrawFuncData::DrawCallData m_playerModel;
+	KazMath::Transform3D m_transform;
 };
 

@@ -43,7 +43,7 @@ uint8_t* Raytracing::Blas::WriteShaderRecord(uint8_t* arg_dst, UINT arg_recordSi
 	arg_dst += D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
 
 	//頂点用データ
-	auto vertexData = VertexBufferMgr::Instance()->GetBuffer(m_vertexDataHandle);
+	auto vertexData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_vertexDataHandle);
 
 	//今回のプログラムでは以下の順序でディスクリプタを記録。
 	//[0] : インデックスバッファ
@@ -65,7 +65,7 @@ D3D12_RAYTRACING_GEOMETRY_DESC Raytracing::Blas::GetGeometryDesc(bool arg_isOpaq
 	/*===== Blasの形状設定に必要な構造体を返す =====*/
 
 	//頂点用データ
-	auto vertexData = VertexBufferMgr::Instance()->GetBuffer(m_vertexDataHandle);
+	auto vertexData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_vertexDataHandle);
 
 	//形状データのフラグを設定。
 	auto geometryDesc = D3D12_RAYTRACING_GEOMETRY_DESC{};

@@ -399,7 +399,7 @@ void TitleScene::Update()
 	}
 }
 
-void TitleScene::Draw()
+void TitleScene::Draw(DrawingByRasterize& arg_rasterize)
 {
 	RenderTargetStatus::Instance()->SetDoubleBufferFlame();
 	RenderTargetStatus::Instance()->ClearDoubuleBuffer(BG_COLOR);
@@ -457,7 +457,7 @@ void TitleScene::Draw()
 
 	if (KazMath::ConvertSecondToFlame(2) <= appearTimer)
 	{
-		player.Draw();
+		//player.Draw();
 	}
 
 	pc.Draw();

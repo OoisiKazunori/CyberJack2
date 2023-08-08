@@ -2,6 +2,7 @@
 #include"../DirectXCommon/Base.h"
 #include"IInputManager.h"
 #include"../Helper/ISinglton.h"
+#include"../KazLibrary/Math/KazMath.h"
 
 //DirextInputのバージョン指定
 #define DIRECTINPUT_VERSION 0x0800
@@ -44,6 +45,7 @@ public:
 	bool MouseInputState(MouseInputNumber CLICK);
 	bool MouseInputRelease(MouseInputNumber CLICK);
 	DirectX::XMFLOAT2 GetMousePoint();
+	KazMath::Vec3<float> GetMouseVel();
 	
 private:
 	HRESULT result;

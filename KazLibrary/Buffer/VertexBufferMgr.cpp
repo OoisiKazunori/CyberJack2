@@ -1,7 +1,7 @@
 #include "VertexBufferMgr.h"
 #include"DescriptorHeapMgr.h"
 
-RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerateData>& vertexData)
+RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexAndIndexGenerateData>& vertexData)
 {
 	std::vector<KazRenderHelper::IASetVertexBuffersData> setVertDataArray;
 	std::vector<D3D12_INDEX_BUFFER_VIEW> indexBufferViewArray;
@@ -10,22 +10,21 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerate
 
 	RESOURCE_HANDLE outputHandle = m_handle.GetHandle();
 	bool pushBackFlag = false;
-	if (drawDataArray.size() <= outputHandle)
+	if (m_drawIndexDataArray.size() <= outputHandle)
 	{
-		drawDataArray.emplace_back();
-		m_polygonBufferArray.emplace_back();
+		m_drawIndexDataArray.emplace_back();
+		m_polygonIndexBufferArray.emplace_back();
 		pushBackFlag = true;
 	}
 
 	for (const auto& meshData : vertexData)
 	{
-		m_polygonBufferArray[outputHandle].emplace_back(
-			PolygonGenerateData(meshData.verticesPos, meshData.structureSize, meshData.arraySize),
-			PolygonGenerateData((void*)meshData.indices.data(), sizeof(UINT), meshData.indices.size())
-		);
+		m_polygonIndexBufferArray[outputHandle].emplace_back();
+		m_polygonIndexBufferArray[outputHandle].back().emplace_back(PolygonGenerateData(meshData.verticesPos, meshData.structureSize, meshData.arraySize));
+		m_polygonIndexBufferArray[outputHandle].back().emplace_back(PolygonGenerateData((void*)meshData.indices.data(), sizeof(UINT), meshData.indices.size()));
 
-		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(m_polygonBufferArray[outputHandle].back().m_gpuBuffer.m_vertexBuffer);
-		std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(m_polygonBufferArray[outputHandle].back().m_gpuBuffer.m_indexBuffer);
+		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(m_polygonIndexBufferArray[outputHandle].back()[0].m_gpuBuffer.m_buffer);
+		std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(m_polygonIndexBufferArray[outputHandle].back()[1].m_gpuBuffer.m_buffer);
 
 		vertexBuffer->structureSize = meshData.structureSize;
 		vertexBuffer->elementNum = static_cast<UINT>(meshData.arraySize);
@@ -56,8 +55,8 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerate
 		drawCommandDataArray.emplace_back(result);
 
 
-		drawDataArray[outputHandle].vertBuffer.emplace_back(vertexBuffer);
-		drawDataArray[outputHandle].indexBuffer.emplace_back(indexBuffer);
+		m_drawIndexDataArray[outputHandle].vertBuffer.emplace_back(vertexBuffer);
+		m_drawIndexDataArray[outputHandle].indexBuffer.emplace_back(indexBuffer);
 
 
 		RESOURCE_HANDLE handle = DescriptorHeapMgr::Instance()->GetSize(DESCRIPTORHEAP_MEMORY_IAPOLYGONE).startSize + sDescHandle;
@@ -70,7 +69,7 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerate
 		view.Buffer.FirstElement = 0;
 		view.Buffer.StructureByteStride = meshData.structureSize;
 		DescriptorHeapMgr::Instance()->CreateBufferView(handle, view, vertexBuffer->bufferWrapper->GetBuffer().Get());
-		drawDataArray[outputHandle].vertBuffer.back()->bufferWrapper->CreateViewHandle(handle);
+		m_drawIndexDataArray[outputHandle].vertBuffer.back()->bufferWrapper->CreateViewHandle(handle);
 		++sDescHandle;
 
 
@@ -78,22 +77,85 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexGenerate
 		view.Buffer.NumElements = static_cast<UINT>(meshData.indices.size());
 		view.Buffer.StructureByteStride = sizeof(UINT);
 		DescriptorHeapMgr::Instance()->CreateBufferView(handle, view, indexBuffer->bufferWrapper->GetBuffer().Get());
-		drawDataArray[outputHandle].indexBuffer.back()->bufferWrapper->CreateViewHandle(handle);
+		m_drawIndexDataArray[outputHandle].indexBuffer.back()->bufferWrapper->CreateViewHandle(handle);
 		++sDescHandle;
 	}
-	drawDataArray[outputHandle].index.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	drawDataArray[outputHandle].index.vertexBufferDrawData = setVertDataArray;
-	drawDataArray[outputHandle].index.indexBufferView = indexBufferViewArray;
-	drawDataArray[outputHandle].index.drawIndexInstancedData = drawCommandDataArray;
+	m_drawIndexDataArray[outputHandle].index.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	m_drawIndexDataArray[outputHandle].index.vertexBufferDrawData = setVertDataArray;
+	m_drawIndexDataArray[outputHandle].index.indexBufferView = indexBufferViewArray;
+	m_drawIndexDataArray[outputHandle].index.drawIndexInstancedData = drawCommandDataArray;
+
+	return outputHandle;
+}
+
+RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const VertexGenerateData& arg_vertexData, bool arg_generateInVRAMFlag)
+{
+	RESOURCE_HANDLE outputHandle = m_vertexHandle.GetHandle();
+	bool pushBackFlag = false;
+	if (m_drawDataArray.size() <= outputHandle)
+	{
+		m_drawDataArray.emplace_back();
+		m_polygonBufferArray.emplace_back(PolygonGenerateData(arg_vertexData.verticesPos, arg_vertexData.structureSize, arg_vertexData.arraySize));
+		pushBackFlag = true;
+	}
+	else
+	{
+		m_polygonBufferArray[outputHandle] = PolygonGenerateData(arg_vertexData.verticesPos, arg_vertexData.structureSize, arg_vertexData.arraySize);
+	}
+
+	std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer;
+	if (arg_generateInVRAMFlag)
+	{
+		vertexBuffer = m_polygonBufferArray[outputHandle].m_gpuBuffer.m_buffer;
+	}
+	else
+	{
+		vertexBuffer = m_polygonBufferArray[outputHandle].m_cpuBuffer.m_buffer;
+	}
+	vertexBuffer->structureSize = arg_vertexData.structureSize;
+	vertexBuffer->elementNum = static_cast<UINT>(arg_vertexData.arraySize);
+	m_drawDataArray[outputHandle].vertBuffer = vertexBuffer;
+
+	//頂点情報
+	KazRenderHelper::IASetVertexBuffersData setVertDataArray;
+	setVertDataArray.numViews = 1;
+	setVertDataArray.slot = 0;
+	setVertDataArray.vertexBufferView = KazBufferHelper::SetVertexBufferView(vertexBuffer->bufferWrapper->GetGpuAddress(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(arg_vertexData.arraySize, arg_vertexData.structureSize), arg_vertexData.oneArraySize);
+
+
+	//頂点ビュー
+	RESOURCE_HANDLE handle = DescriptorHeapMgr::Instance()->GetSize(DESCRIPTORHEAP_MEMORY_IAPOLYGONE).startSize + sDescHandle;
+	D3D12_SHADER_RESOURCE_VIEW_DESC view;
+	view.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+	view.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	view.Format = DXGI_FORMAT_UNKNOWN;
+	view.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	view.Buffer.NumElements = static_cast<UINT>(arg_vertexData.arraySize);
+	view.Buffer.FirstElement = 0;
+	view.Buffer.StructureByteStride = arg_vertexData.structureSize;
+	DescriptorHeapMgr::Instance()->CreateBufferView(handle, view, vertexBuffer->bufferWrapper->GetBuffer().Get());
+	m_drawDataArray[outputHandle].vertBuffer->bufferWrapper->CreateViewHandle(handle);
+	++sDescHandle;
+
+
+	m_drawDataArray[outputHandle].instanceData.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	m_drawDataArray[outputHandle].instanceData.vertexBufferDrawData = setVertDataArray;
+	//描画コマンド情報
+	KazRenderHelper::DrawInstancedData result;
+	result.vertexCountPerInstance = static_cast<UINT>(arg_vertexData.arraySize);
+	result.instanceCount = 1;
+	result.startInstanceLocation = 0;
+	result.startVertexLocation = 0;
+	m_drawDataArray[outputHandle].instanceData.drawInstanceData = result;
 
 	return outputHandle;
 }
 
 RESOURCE_HANDLE VertexBufferMgr::GeneratePlaneBuffer()
 {
-	vertexBufferArray.emplace_back();
-	vertexBufferArray.back().emplace_back(std::make_unique<PolygonBuffer>());
-	PolygonIndexData index = vertexBufferArray.back().back()->GeneratePlaneTexBuffer({ 1.0f,1.0f }, { 1,1 });
+	m_vertexBufferArray.emplace_back();
+	m_vertexBufferArray.back().emplace_back(std::make_unique<PolygonBuffer>());
+	PolygonIndexData index = m_vertexBufferArray.back().back()->GeneratePlaneTexBuffer({ 1.0f,1.0f }, { 1,1 });
 
 
 	std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(index.vertBuffer);
@@ -132,13 +194,13 @@ RESOURCE_HANDLE VertexBufferMgr::GeneratePlaneBuffer()
 	result.startInstanceLocation = 0;
 	drawCommandDataArray.emplace_back(result);
 
-	drawDataArray.emplace_back();
-	drawDataArray.back().vertBuffer.emplace_back(vertexBuffer);
-	drawDataArray.back().indexBuffer.emplace_back(indexBuffer);
-	drawDataArray.back().index.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	drawDataArray.back().index.vertexBufferDrawData = setVertDataArray;
-	drawDataArray.back().index.indexBufferView = indexBufferViewArray;
-	drawDataArray.back().index.drawIndexInstancedData = drawCommandDataArray;
+	m_drawIndexDataArray.emplace_back();
+	m_drawIndexDataArray.back().vertBuffer.emplace_back(vertexBuffer);
+	m_drawIndexDataArray.back().indexBuffer.emplace_back(indexBuffer);
+	m_drawIndexDataArray.back().index.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	m_drawIndexDataArray.back().index.vertexBufferDrawData = setVertDataArray;
+	m_drawIndexDataArray.back().index.indexBufferView = indexBufferViewArray;
+	m_drawIndexDataArray.back().index.drawIndexInstancedData = drawCommandDataArray;
 
 	RESOURCE_HANDLE outputHandle = m_handle.GetHandle();
 	return outputHandle;
@@ -146,9 +208,9 @@ RESOURCE_HANDLE VertexBufferMgr::GeneratePlaneBuffer()
 
 RESOURCE_HANDLE VertexBufferMgr::GenerateBoxBuffer()
 {
-	vertexBufferArray.emplace_back();
-	vertexBufferArray.back().emplace_back(std::make_unique<PolygonBuffer>());
-	PolygonIndexData index = vertexBufferArray.back().back()->GenerateBoxBuffer(1.0f);
+	m_vertexBufferArray.emplace_back();
+	m_vertexBufferArray.back().emplace_back(std::make_unique<PolygonBuffer>());
+	PolygonIndexData index = m_vertexBufferArray.back().back()->GenerateBoxBuffer(1.0f);
 
 
 	std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(index.vertBuffer);
@@ -187,32 +249,44 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBoxBuffer()
 	result.startInstanceLocation = 0;
 	drawCommandDataArray.emplace_back(result);
 
-	drawDataArray.emplace_back();
-	drawDataArray.back().vertBuffer.emplace_back(vertexBuffer);
-	drawDataArray.back().indexBuffer.emplace_back(indexBuffer);
-	drawDataArray.back().index.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	drawDataArray.back().index.vertexBufferDrawData = setVertDataArray;
-	drawDataArray.back().index.indexBufferView = indexBufferViewArray;
-	drawDataArray.back().index.drawIndexInstancedData = drawCommandDataArray;
+	m_drawIndexDataArray.emplace_back();
+	m_drawIndexDataArray.back().vertBuffer.emplace_back(vertexBuffer);
+	m_drawIndexDataArray.back().indexBuffer.emplace_back(indexBuffer);
+	m_drawIndexDataArray.back().index.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	m_drawIndexDataArray.back().index.vertexBufferDrawData = setVertDataArray;
+	m_drawIndexDataArray.back().index.indexBufferView = indexBufferViewArray;
+	m_drawIndexDataArray.back().index.drawIndexInstancedData = drawCommandDataArray;
 
 	RESOURCE_HANDLE outputHandle = m_handle.GetHandle();
 	return outputHandle;
 }
 
-void VertexBufferMgr::ReleaseBuffer(RESOURCE_HANDLE HANDLE)
+void VertexBufferMgr::ReleaseVeretexIndexBuffer(RESOURCE_HANDLE HANDLE)
 {
-	drawDataArray[HANDLE].index.Finalize();
-	for (auto& vertBuffer : drawDataArray[HANDLE].vertBuffer)
+	m_handle.DeleteHandle(HANDLE);
+	m_drawIndexDataArray[HANDLE].index.Finalize();
+	for (auto& vertBuffer : m_drawIndexDataArray[HANDLE].vertBuffer)
 	{
 		vertBuffer.reset();
 	}
-	for (auto& indexBuffer : drawDataArray[HANDLE].indexBuffer)
+	for (auto& indexBuffer : m_drawIndexDataArray[HANDLE].indexBuffer)
 	{
 		indexBuffer.reset();
 	}
 }
 
-PolygonMultiMeshedIndexData VertexBufferMgr::GetBuffer(RESOURCE_HANDLE HANDLE)
+void VertexBufferMgr::ReleaseVeretexBuffer(RESOURCE_HANDLE HANDLE)
 {
-	return drawDataArray[HANDLE];
+	m_vertexHandle.DeleteHandle(HANDLE);
+	m_drawDataArray[HANDLE].vertBuffer.reset();
+}
+
+PolygonMultiMeshedIndexData VertexBufferMgr::GetVertexIndexBuffer(RESOURCE_HANDLE HANDLE)
+{
+	return m_drawIndexDataArray[HANDLE];
+}
+
+PolygonInstanceData VertexBufferMgr::GetVertexBuffer(RESOURCE_HANDLE HANDLE)
+{
+	return m_drawDataArray[HANDLE];
 }

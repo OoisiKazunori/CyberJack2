@@ -31,7 +31,7 @@ public:
 	void Finalize();
 	void Input();
 	void Update();
-	void Draw();
+	void Draw(DrawingByRasterize& arg_rasterize);
 
 	int SceneChange();
 
@@ -153,7 +153,7 @@ private:
 		float m_windSpeed;
 		float m_windStrength;
 		float m_threshold;
-		float m_scale;
+		float m_skydormScale;
 		int m_octaves;
 		float m_persistence;
 		float m_lacunarity;
