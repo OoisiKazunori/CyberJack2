@@ -123,3 +123,39 @@ float3 DomainWarping(float2 arg_st, float arg_time)
     return color * coef;
     
 }
+
+
+
+
+//海用
+
+//乱数を得る。
+float Hash(float2 arg_point)
+{
+    float h = dot(arg_point, float2(127.1f, 311.7f));
+    return frac(sin(h) * 43758.5453123f);
+}
+
+//バリューノイズ
+float ValueNoise(float2 arg_point)
+{
+    float2 i = floor(arg_point);
+    float2 f = frac(arg_point);
+
+    //u = -2.0f^3 + 3.0f^2
+    float2 u = f * f * (3.0f - 2.0f * f);
+
+    //グリッド上に乱数を求めて補間する。
+    // +---+---+
+    // | a | b |
+    // +---+---+
+    // | c | d |
+    // +---+---+
+    float a = Hash(i + float2(0.0f, 0.0f));
+    float b = Hash(i + float2(1.0f, 0.0f));
+    float c = Hash(i + float2(0.0f, 1.0f));
+    float d = Hash(i + float2(1.0f, 1.0f));
+    float result = lerp(lerp(a, b, u.x),
+                        lerp(c, d, u.x), u.y);
+    return (2.0f * result) - 1.0f;
+}

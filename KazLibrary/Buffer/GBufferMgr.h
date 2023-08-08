@@ -2,6 +2,12 @@
 #include"../KazLibrary/Helper/ISinglton.h"
 #include"../KazLibrary/Helper/KazBufferHelper.h"
 #include"../KazLibrary/Math/KazMath.h"
+#include<memory>
+
+namespace PostEffect {
+	class GaussianBlur;
+}
+class ComputeShader;
 
 /// <summary>
 /// G-Bufferの管理クラス
@@ -22,9 +28,11 @@ public:
 
 	std::vector<RESOURCE_HANDLE> GetRenderTarget();
 	std::vector<DXGI_FORMAT> GetRenderTargetFormat();
-	void SetCameraPos(DirectX::XMFLOAT3 arg_pos)
+	void SetCameraPos(DirectX::XMFLOAT3 arg_pos, DirectX::XMMATRIX arg_viewMat, DirectX::XMMATRIX arg_projMat)
 	{
 		m_cameraEyePosData.m_eyePos = KazMath::Vec3<float>(arg_pos.x, arg_pos.y, arg_pos.z);
+		m_cameraEyePosData.m_viewMat = DirectX::XMMatrixInverse(nullptr, arg_viewMat);
+		m_cameraEyePosData.m_projMat = DirectX::XMMatrixInverse(nullptr, arg_projMat);;
 		m_cameraPosBuffer.bufferWrapper->TransData(&m_cameraEyePosData,sizeof(CameraEyePosBufferData));
 	};
 	const KazBufferHelper::BufferData &GetEyePosBuffer()
@@ -50,6 +58,20 @@ public:
 		return m_raytracingGBuffer;
 	};
 
+	const KazBufferHelper::BufferData& GetLensFlareBuffer()
+	{
+		return m_lensFlareLuminanceGBuffer;
+	};
+
+	//レンズフレア用のGBufferにブラーをかける。
+	void ApplyLensFlareBlur();
+
+	//レンズフレアとシーン画像を合成する。
+	void ComposeLensFlareAndScene();
+
+	//バッファのステータスを遷移。
+	void BufferStatesTransition(ID3D12Resource* arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after);
+
 	//ライト用構造体
 	struct DirLight {
 		KazMath::Vec3<float> m_dir;
@@ -69,9 +91,14 @@ public:
 	KazBufferHelper::BufferData m_lightBuffer;
 
 	struct CameraEyePosBufferData {
+		DirectX::XMMATRIX m_viewMat;
+		DirectX::XMMATRIX m_projMat;
 		KazMath::Vec3<float> m_eyePos;
 		float m_noiseTimer;
 	}m_cameraEyePosData;
+
+	//レンズフレア用ブラー
+	std::shared_ptr<PostEffect::GaussianBlur> m_lensFlareBlur;
 
 private:
 	//G-Buffer用のレンダーターゲット
@@ -82,6 +109,11 @@ private:
 
 	//最終合成結果
 	KazBufferHelper::BufferData m_finalGBuffer;
-	KazBufferHelper::BufferData m_raytracingGBuffer;
+	KazBufferHelper::BufferData m_raytracingGBuffer;			//レイトレの出力結果
+
+	//レンズフレア関連
+	KazBufferHelper::BufferData m_lensFlareLuminanceGBuffer;	//レンズフレアに使用するGBuffer レイトレを実行すると書き込まれる。
+	KazBufferHelper::BufferData m_lensFlareConposeBuffTexture;	//レンズフレアを合成するときに一旦保存するテクスチャ。
+	std::shared_ptr<ComputeShader> m_lensFlareComposeShader;
 };
 

@@ -18,6 +18,12 @@ struct CameraAxis
 	DirectX::XMVECTOR z;
 	DirectX::XMVECTOR upVec;
 };
+struct CameraVec
+{
+	KazMath::Vec3<float> x;
+	KazMath::Vec3<float> y;
+	KazMath::Vec3<float> z;
+};
 
 struct CameraData
 {
@@ -87,11 +93,16 @@ public:
 	bool BillboardDirty(int CAMERA_INDEX = 0);
 	void Record();
 
+	CameraVec GetCameraAxis(int CAMERA_INDEX = 0) {
+		return m_cameraAxis[CAMERA_INDEX];
+	};
+
 
 	static const int CAMERA_ARRAY_NUM = 3;
 	std::array<DirectX::XMMATRIX, CAMERA_ARRAY_NUM> viewArray;
 
 	std::array<DirectX::XMMATRIX, CAMERA_ARRAY_NUM> yBillBoardArray;
+	std::array<CameraVec, CAMERA_ARRAY_NUM> m_cameraAxis;
 private:
 
 	DirectX::XMMATRIX view;

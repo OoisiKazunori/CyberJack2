@@ -50,8 +50,6 @@ void CameraMgr::Camera(const KazMath::Vec3<float> &EYE_POS, const KazMath::Vec3<
 	DirectX::XMFLOAT3 up = { UP.x,UP.y,UP.z };
 	CameraAxis cameraAxis;
 
-	GBufferMgr::Instance()->SetCameraPos(eye);
-
 
 	bool eyeAll0 = (eye.x == 0 && eye.y == 0 && eye.z == 0);
 	//bool targetAll0 = (target.x == 0 && target.y == 0 && target.z == 0);
@@ -61,6 +59,13 @@ void CameraMgr::Camera(const KazMath::Vec3<float> &EYE_POS, const KazMath::Vec3<
 	{
 		return;
 	}
+
+
+
+	//カメラのベクトルを保存。
+	m_cameraAxis[CAMERA_INDEX].z = KazMath::Vec3<float>(TARGET_POS - EYE_POS).GetNormal();
+	m_cameraAxis[CAMERA_INDEX].y = KazMath::Vec3<float>(up.x, up.y, up.z);
+	m_cameraAxis[CAMERA_INDEX].x = m_cameraAxis[CAMERA_INDEX].y.Cross(m_cameraAxis[CAMERA_INDEX].z);
 
 #pragma region ビュー行列
 	DirectX::XMMATRIX matView;
@@ -152,6 +157,9 @@ void CameraMgr::Camera(const KazMath::Vec3<float> &EYE_POS, const KazMath::Vec3<
 	viewArray[CAMERA_INDEX] = matView;
 	//view = matView;
 	//billBoard = matBillboard;
+
+	GBufferMgr::Instance()->SetCameraPos(eye, GetViewMatrix(CAMERA_INDEX), GetPerspectiveMatProjection(CAMERA_INDEX));
+
 }
 
 DirectX::XMMATRIX CameraMgr::CreateCamera(const KazMath::Vec3<float> &EYE_POS, const KazMath::Vec3<float> &TARGET_POS, const KazMath::Vec3<float> &UP)
