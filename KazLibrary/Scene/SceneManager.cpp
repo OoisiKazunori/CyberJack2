@@ -78,14 +78,14 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	}
 
 	//レイマーチングのパラメーターを設定。
-	m_raymarchingParam.m_pos = KazMath::Vec3<float>();
+	m_raymarchingParam.m_pos = KazMath::Vec3<float>(-100.0f, 1.0f, 1.0f);
 	m_raymarchingParam.m_color = KazMath::Vec3<float>(1.0f, 1.0f, 1.0f);
 	m_raymarchingParam.m_wrapCount = 20.0f;
 	m_raymarchingParam.m_gridSize = 4.0f;
 	m_raymarchingParam.m_wrapCount = 30.0f;
 	m_raymarchingParam.m_density = 0.65f;
 	//m_raymarchingParam.m_density = 1.0f;
-	m_raymarchingParam.m_sampleLength = 30.0f;
+	m_raymarchingParam.m_sampleLength = 8.0f;
 	m_raymarchingParam.m_isSimpleFog = 0;
 	m_raymarchingParamData = KazBufferHelper::SetConstBufferData(sizeof(RaymarchingParam));
 	m_raymarchingParamData.bufferWrapper->TransData(&m_raymarchingParam, sizeof(RaymarchingParam));

@@ -83,7 +83,7 @@ bool SplineRail::IsEnd()
 
 KazMath::Vec3<float> SplineRail::GetPosition()
 {
-	return m_nowPosition + KazMath::Vec3<float>(0,10,0);
+	return m_nowPosition + KazMath::Vec3<float>(0,20,0);
 }
 
 void SplineRail::Import()
