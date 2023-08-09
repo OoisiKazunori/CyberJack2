@@ -160,7 +160,6 @@ void mainRayGen()
     float4 worldColor = worldMap[launchIndex];
     
     //海を描画
-    float seaEmissive = 1.0f;
     bool isSea = 0 < cameraEyePos.m_eye.y && (cameraEyePos.m_eye + dir * 10000.0f).y < 0 && length(normalColor.xyz) < 0.1f;
     isSea |= cameraEyePos.m_eye.y < 0 && 0 < (cameraEyePos.m_eye + dir * 10000.0f).y && length(normalColor.xyz) < 0.1f;
     isSea |= cameraEyePos.m_eye.y < 0 && 0 < worldColor.y;
@@ -194,8 +193,6 @@ void mainRayGen()
         normalColor.xyz = n;
         materialInfo.y = 0.8f;
         materialInfo.w = MATERIAL_SEA;
-        
-        seaEmissive = 0.3f;
 
     }
     
@@ -207,7 +204,7 @@ void mainRayGen()
     const float LENSFLARE_DEADLINE = 0.3f;
     float deadline = step(LENSFLARE_DEADLINE, bright);
     float lensflareBright = deadline * bright;
-    lensFlareTexture[launchIndex.xy] = float4(albedoColor.xyz * lensflareBright * seaEmissive, 1.0f);
+    lensFlareTexture[launchIndex.xy] = float4(albedoColor.xyz * lensflareBright * 0.1f, 1.0f);
     
     //アルベドにライトの色をかける。
     albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);

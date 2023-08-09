@@ -405,14 +405,6 @@ void InGame::Update()
 void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
 	m_player.Draw(arg_rasterize, arg_blasVec);
-	m_cursor.Draw(arg_rasterize);
-
-#ifdef _DEBUG
-	if (m_debugFlag)
-	{
-		m_rail.DebugDraw(arg_rasterize);
-	}
-#endif
 
 	PIXBeginEvent(DirectX12CmdList::Instance()->cmdList.Get(), 0, "Enemy");
 	//“G‚Ì•`‰æˆ—----------------------------------------------------------------
@@ -438,6 +430,15 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 		}
 	}
 	PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
+
+	m_cursor.Draw(arg_rasterize);
+
+#ifdef _DEBUG
+	if (m_debugFlag)
+	{
+		m_rail.DebugDraw(arg_rasterize);
+	}
+#endif
 
 	m_stageArray[m_gameStageLevel]->Draw(arg_rasterize);
 
