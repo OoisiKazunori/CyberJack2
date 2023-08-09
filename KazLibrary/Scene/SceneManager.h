@@ -63,7 +63,7 @@ private:
 		float m_sampleLength; //サンプリング距離
 		float m_density; //濃度係数
 		int m_isSimpleFog;
-		float m_pad;
+		int m_isActive;
 	}m_raymarchingParam;
 	KazBufferHelper::BufferData m_raymarchingParamData;
 

@@ -74,7 +74,7 @@ struct RaymarchingParam
     float m_sampleLength; //サンプリング距離
     float m_density; //濃度係数
     int m_isSimpleFog;
-    float m_pad;
+    int m_isActive;
 };
 
 //barysを計算
@@ -306,6 +306,7 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
     
     //ボリュームフォグ
     float3 fogColor = float3(0,0,0);
+    if (arg_raymarchingParam.m_isActive)
     {
         //レイマーチングの回数を計算。
         float rayLength = length(arg_cameraEyePos.m_eye - arg_worldColor.xyz);
@@ -368,8 +369,8 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
             float fogDensity = dot(noise, weights) * arg_raymarchingParam.m_density;
         
             //Y軸の高さで減衰させる。
-            float maxY = 200.0f;
-            //fogDensity *= 1.0f - saturate(marchingPos.y / maxY);
+            float maxY = 50.0f;
+            fogDensity *= 1.0f - saturate(marchingPos.y / maxY);
         
             //その部分の色を抜き取る。
             fogColor += float3(fogDensity, fogDensity, fogDensity) * arg_raymarchingParam.m_color;

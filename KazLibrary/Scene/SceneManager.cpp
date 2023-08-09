@@ -34,7 +34,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 
 
 	Raytracing::HitGroupMgr::Instance()->Setting();
-	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS", L"checkHitRayMS"}, {L"mainCHS", L"mainAnyHit"}});
+	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS", L"checkHitRayMS"}, {L"mainCHS", L"mainAnyHit"} });
 	int payloadSize = sizeof(float) * 4;
 	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 5, 3, 3, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
@@ -87,6 +87,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	//m_raymarchingParam.m_density = 1.0f;
 	m_raymarchingParam.m_sampleLength = 8.0f;
 	m_raymarchingParam.m_isSimpleFog = 0;
+	m_raymarchingParam.m_isActive = false;
 	m_raymarchingParamData = KazBufferHelper::SetConstBufferData(sizeof(RaymarchingParam));
 	m_raymarchingParamData.bufferWrapper->TransData(&m_raymarchingParam, sizeof(RaymarchingParam));
 
@@ -269,6 +270,7 @@ void SceneManager::Draw()
 	ImGui::DragFloat("GridSize", &m_raymarchingParam.m_gridSize, 0.1f, 0.1f, 1000.0f);
 	ImGui::DragFloat("SamplingLength", &m_raymarchingParam.m_sampleLength, 0.1f, 1.0f, 1000.0f);
 	ImGui::DragFloat("Density", &m_raymarchingParam.m_density, 0.01f, 0.0f, 10.0f);
+	ImGui::SliderInt("IsActive", &m_raymarchingParam.m_isActive, 0, 1);
 	ImGui::End();
 
 	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
