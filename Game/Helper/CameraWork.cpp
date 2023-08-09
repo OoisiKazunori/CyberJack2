@@ -32,7 +32,7 @@ void CameraWork::Init(const KazMath::Vec3<float> &BASE_POS)
 	forceCameraDirVel.x = FORCE_CAMERA_FRONT;
 }
 
-void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<float> *PLAYER_POS, KazMath::Vec3<float> PLAYER_ROTATE, bool DEBUG_FLAG)
+void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<float> *PLAYER_POS, KazMath::Vec3<float>& PLAYER_ROTATE, bool DEBUG_FLAG)
 {
 	if (!DEBUG_FLAG)
 	{
@@ -109,6 +109,7 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 
 		//カメラの基準となる向きを決めるためにプレイヤーの回転からクォータニオンを生成する。
 		DirectX::XMVECTOR playerQ = DirectX::XMQuaternionRotationRollPitchYaw(DirectX::XMConvertToRadians(PLAYER_ROTATE.x), DirectX::XMConvertToRadians(PLAYER_ROTATE.y), DirectX::XMConvertToRadians(PLAYER_ROTATE.z));
+		DirectX::XMVECTOR defaultPlayerQ = playerQ;
 
 		//カメラをプレイヤーの後ろに追従させるため、プレイヤーの後ろベクトルを求める。
 		DirectX::XMVECTOR playerBehindVec = DirectX::XMVector3Transform(DirectX::XMVectorSet(0,0,-1,0), DirectX::XMMatrixRotationQuaternion(playerQ));
@@ -145,6 +146,17 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 		const float PLAYER_OFFSET = 5.0f;
 		eyePos += upVec3 * PLAYER_OFFSET;
 		targetPos += upVec3 * PLAYER_OFFSET;
+
+		//カーソルの値によってプレイヤーをある程度傾ける。
+		const float MAX_PLAYER_MOVE_RIGHT = 1.5f;
+		const float MAX_PLAYER_MOVE_UP = 1.5f;
+		DirectX::XMVECTOR playerRightQ = DirectX::XMQuaternionRotationAxis(upVec, std::clamp(CURSOR_VALUE.x, -CURCOR_CLAMP, CURCOR_CLAMP) * MAX_PLAYER_MOVE_RIGHT);
+		DirectX::XMVECTOR playerUpQ = DirectX::XMQuaternionRotationAxis(rightVec, -std::clamp(CURSOR_VALUE.y, -CURCOR_CLAMP, CURCOR_CLAMP) * MAX_PLAYER_MOVE_UP);
+		defaultPlayerQ = DirectX::XMQuaternionMultiply(DirectX::XMQuaternionMultiply(defaultPlayerQ, playerRightQ), playerUpQ);
+		DirectX::XMVECTOR rotate, scale, position;
+		DirectX::XMMatrixDecompose(&scale, &rotate, &position, DirectX::XMMatrixRotationQuaternion(defaultPlayerQ));
+		PLAYER_ROTATE = KazMath::Vec3<float>(DirectX::XMConvertToDegrees(rotate.m128_f32[0]), DirectX::XMConvertToDegrees(rotate.m128_f32[1]), DirectX::XMConvertToDegrees(rotate.m128_f32[2]));
+
 
 #pragma endregion
 	}
