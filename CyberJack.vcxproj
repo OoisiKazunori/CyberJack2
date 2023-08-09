@@ -147,6 +147,7 @@
     <ClCompile Include="Game\Effect\HitEffectPattern2Emitter.cpp" />
     <ClCompile Include="Game\Effect\HitEffectPattern3Emitter.cpp" />
     <ClCompile Include="Game\Effect\IHitEffectEmitter.cpp" />
+    <ClCompile Include="Game\Enemy\LotusLeafEnemy.cpp" />
     <ClCompile Include="Game\Enemy\VirusEnemy.cpp" />
     <ClCompile Include="Game\Event\DirectionalMarker.cpp" />
     <ClCompile Include="Game\Event\EventSprite.cpp" />
@@ -344,6 +345,7 @@
     <ClInclude Include="Game\Effect\HitEffectPattern3Emitter.h" />
     <ClInclude Include="Game\Effect\IHitEffectEmitter.h" />
     <ClInclude Include="Game\Enemy\EnemyData.h" />
+    <ClInclude Include="Game\Enemy\LotusLeafEnemy.h" />
     <ClInclude Include="Game\Enemy\VirusEnemy.h" />
     <ClInclude Include="Game\Event\DirectionalMarker.h" />
     <ClInclude Include="Game\Event\EventSprite.h" />

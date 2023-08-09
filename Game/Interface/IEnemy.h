@@ -6,6 +6,7 @@
 #include"../Enemy/EnemyData.h"
 #include"../Game/Effect/MeshParticleEmitter.h"
 #include"../KazLibrary/Render/DrawingByRasterize.h"
+#include"../KazLibrary/Raytracing/BlasVector.h"
 
 /// <summary>
 /// “G‚Ì’ŠÛƒNƒ‰ƒX
@@ -29,7 +30,7 @@ public:
 	/// ‰Šú‰»ˆ—
 	/// </summary>
 	/// <param name="POS">‰ŠúÀ•W</param>
-	virtual void Init(const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG = false) = 0;
+	virtual void Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG = false) = 0;
 
 	/// <summary>
 	/// I—¹ˆ—
@@ -42,7 +43,7 @@ public:
 	/// <summary>
 	/// •`‰æˆ—
 	/// </summary>
-	virtual void Draw(DrawingByRasterize&arg_rasterize) = 0;
+	virtual void Draw(DrawingByRasterize&arg_rasterize, Raytracing::BlasVector& arg_blasVec) = 0;
 
 	/// <summary>
 	/// “G‚ğ€–S‚³‚¹‚Ü‚·
@@ -167,6 +168,7 @@ protected:
 	bool initDeadSoundFlag;
 	bool demoFlag;
 	bool debugShotFlag;
+	const KazMath::Transform3D* m_playerTransform;
 private:
 	int deadSoundHandle;
 	int shotSoundHandle;

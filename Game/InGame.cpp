@@ -111,7 +111,7 @@ void InGame::Update()
 			if (enableToUseThisDataFlag && readyToStartFlag && m_enemies[enemyType][enemyCount] != nullptr && !m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->initFlag)
 			{
 				m_enemies[enemyType][enemyCount]->OnInit(m_responeData[enemyType][enemyCount].generateData.useMeshPaticleFlag);
-				m_enemies[enemyType][enemyCount]->Init(m_responeData[enemyType][enemyCount].generateData, false);
+				m_enemies[enemyType][enemyCount]->Init(&(m_player.m_transform), m_responeData[enemyType][enemyCount].generateData, false);
 
 				if (m_enemies[enemyType][enemyCount]->GetData()->meshParticleFlag)
 				{
@@ -426,7 +426,7 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 				!m_enemies[enemyType][enemyCount]->GetData()->outOfStageFlag;
 			if (enableToUseDataFlag)
 			{
-				m_enemies[enemyType][enemyCount]->Draw(arg_rasterize);
+				m_enemies[enemyType][enemyCount]->Draw(arg_rasterize, arg_blasVec);
 			}
 #ifdef _DEBUG
 			if (enableToUseDataFlag && m_enemies[enemyType][enemyCount]->iOperationData.enableToHitFlag)

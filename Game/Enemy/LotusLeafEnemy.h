@@ -2,11 +2,12 @@
 #include"../KazLibrary/Render/KazRender.h"
 #include"../Game/Interface/IEnemy.h"
 #include"../Game/Effect/RocketEffect.h"
+#include"../KazLibrary/Render/DrawFunc.h"
 
-class VirusEnemy:public IEnemy
+class LotusLeafEnemy :public IEnemy
 {
 public:
-	VirusEnemy();
+	LotusLeafEnemy();
 
 	void Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG);
 	void Finalize();
@@ -14,5 +15,9 @@ public:
 	void Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec);
 
 private:
+
+	DrawFuncData::DrawCallData m_model;
+	KazMath::Transform3D m_transform;
+
 };
 

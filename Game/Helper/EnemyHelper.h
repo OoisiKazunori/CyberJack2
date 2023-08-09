@@ -4,6 +4,7 @@
 #include"../Game/Enemy/EnemyData.h"
 #include"../Game/Interface/IEnemy.h"
 #include"../Game/Enemy/VirusEnemy.h"
+#include"../Game/Enemy/LotusLeafEnemy.h"
 #include"../Game/UI/Cursor.h"
 #include"../Game/UI/AttackLog.h"
 #include"../Game/Effect/InstanceMeshParticle.h"
@@ -37,6 +38,7 @@ namespace KazEnemyHelper
 	);
 
 	void InitEnemy(
+		const KazMath::Transform3D* arg_playerTransform,
 		std::array<std::array<std::unique_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES,
 		std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> RESPONE_DATA,
 		int GAME_FLAME,

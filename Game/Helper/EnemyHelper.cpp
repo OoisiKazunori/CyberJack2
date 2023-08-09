@@ -37,6 +37,10 @@ void KazEnemyHelper::GenerateEnemy(std::array<std::array<std::unique_ptr<IEnemy>
 					ENEMIES[enemyType][enemyCount] = std::make_unique<VirusEnemy>();
 					ENEMISE_HITBOX.emplace_back(&ENEMIES[enemyType][enemyCount]->GetData()->hitBox);
 					break;
+				case ENEMY_TYPE_LOTUSLEAF:
+					ENEMIES[enemyType][enemyCount] = std::make_unique<LotusLeafEnemy>();
+					ENEMISE_HITBOX.emplace_back(&ENEMIES[enemyType][enemyCount]->GetData()->hitBox);
+					break;
 				default:
 					break;
 				}
@@ -80,7 +84,7 @@ void KazEnemyHelper::AddEnemy(const std::array<std::array<std::unique_ptr<IEnemy
 	}
 }
 
-void KazEnemyHelper::InitEnemy(std::array<std::array<std::unique_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES, std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> RESPONE_DATA, int GAME_FLAME, int GAME_STAGE_LEVEL, bool DEMO_FLAG)
+void KazEnemyHelper::InitEnemy(const KazMath::Transform3D* arg_playerTransform, std::array<std::array<std::unique_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES, std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> RESPONE_DATA, int GAME_FLAME, int GAME_STAGE_LEVEL, bool DEMO_FLAG)
 {
 	for (int enemyType = 0; enemyType < RESPONE_DATA.size(); ++enemyType)
 	{
@@ -92,7 +96,7 @@ void KazEnemyHelper::InitEnemy(std::array<std::array<std::unique_ptr<IEnemy>, EN
 
 			if (enableToUseThisDataFlag && readyToInitDataFlag && ENEMIES[enemyType][enemyCount] != nullptr)
 			{
-				ENEMIES[enemyType][enemyCount]->Init(RESPONE_DATA[enemyType][enemyCount].generateData, DEMO_FLAG);
+				ENEMIES[enemyType][enemyCount]->Init(arg_playerTransform, RESPONE_DATA[enemyType][enemyCount].generateData, DEMO_FLAG);
 			}
 		}
 	}
