@@ -23,7 +23,7 @@ CameraMgr::CameraMgr() : orthographicMatProjectionDirtyFlag(orthographicMatProje
 		billBoardDirtyFlagArray[i] = std::make_unique<DirtySet>(billBoardArray[i]);
 		perspectiveMatArray[i] =
 			DirectX::XMMatrixPerspectiveFovLH(
-				DirectX::XMConvertToRadians(60.0f),
+				DirectX::XMConvertToRadians(80.0f),
 				static_cast<float>(WIN_X) / static_cast<float>(WIN_Y),
 				0.1f,
 				100000.0f
