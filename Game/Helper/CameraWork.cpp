@@ -148,8 +148,8 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 		targetPos += upVec3 * PLAYER_OFFSET;
 
 		//カーソルの値によってプレイヤーをある程度傾ける。
-		const float MAX_PLAYER_MOVE_RIGHT = 1.5f;
-		const float MAX_PLAYER_MOVE_UP = 1.5f;
+		const float MAX_PLAYER_MOVE_RIGHT = 2.0f;
+		const float MAX_PLAYER_MOVE_UP = 2.0f;
 		DirectX::XMVECTOR playerRightQ = DirectX::XMQuaternionRotationAxis(upVec, std::clamp(CURSOR_VALUE.x, -CURCOR_CLAMP, CURCOR_CLAMP) * MAX_PLAYER_MOVE_RIGHT);
 		DirectX::XMVECTOR playerUpQ = DirectX::XMQuaternionRotationAxis(rightVec, -std::clamp(CURSOR_VALUE.y, -CURCOR_CLAMP, CURCOR_CLAMP) * MAX_PLAYER_MOVE_UP);
 		defaultPlayerQ = DirectX::XMQuaternionMultiply(DirectX::XMQuaternionMultiply(defaultPlayerQ, playerRightQ), playerUpQ);
