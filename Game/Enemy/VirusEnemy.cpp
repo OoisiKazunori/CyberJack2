@@ -113,6 +113,7 @@ void VirusEnemy::Update()
 			m_transform.rotation.z = MOVE_ROTATE - MOVE_ROTATE * easingValue;
 			easingValue = EasingMaker(EasingType::Out, EaseInType::Exp, m_moveTimer / MOVE_TIMER);
 			m_aroundAngle = m_fromAroundAngle + ADD_AROUND_ANGLE * easingValue;
+			m_transform.scale += (m_playerTransform->scale - m_transform.scale) / 10.0;
 
 			//出現が終わったらSTOP状態へ
 			if (MOVE_TIMER <= m_moveTimer) {
@@ -129,6 +130,7 @@ void VirusEnemy::Update()
 
 			//座標を補間する。
 			float easingValue = EasingMaker(EasingType::Out, EaseInType::Sine, m_stopTimer / STOP_TIMER);
+			m_transform.scale = m_playerTransform->scale + easingValue * 30.0f;
 			m_transform.rotation.z = MOVE_ROTATE * easingValue;
 
 			//出現が終わったらMOVE状態へ
