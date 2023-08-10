@@ -33,18 +33,28 @@ private:
 
 	//各ステータスを変えるアングル。
 	const float START_ANGLE = DirectX::XM_PI / 2.0f;
-	const float STAY_START_ANGLE = DirectX::XM_PI / 10.0f;
-	const float STAY_FINISH_ANGLE = -DirectX::XM_PI / 10.0f;
+	const float STAY_START_ANGLE = DirectX::XM_PI / 8.0f;
+	const float STAY_FINISH_ANGLE = -0.1f;
 	const float FINISH_ANGLE = -DirectX::XM_PI / 2.0f;
 
 	//出現、退出中に使用する変数
 	const float APPEAR_EXIT_AROUND_ANGLE = DirectX::XM_PI / 150.0f;
-	const float STAY_AROUND_ANGLE = DirectX::XM_PI / 800.0f;
+	const float STAY_AROUND_ANGLE = DirectX::XM_PI / 2000.0f;
 	float m_addAroundAngle;
 	float m_angleX;
+	float m_angleYEasingTimer;
+	const float ANGLEY_EASING_TIMER = 90.0f;
+	float m_angleXEasingTimer;
+	const float ANGLEX_EASING_TIMER = 80.0f;
 
 	DirectX::XMVECTOR m_postureQ;	//蝶の姿勢
-	
+
+	void RotationMatrixToEuler(const DirectX::XMMATRIX& R, double& roll, double& pitch, double& yaw)
+	{
+		roll = atan2(R.r[2].m128_f32[1], R.r[2].m128_f32[2]);
+		pitch = asin(-R.r[2].m128_f32[0]);
+		yaw = atan2(R.r[1].m128_f32[0], R.r[0].m128_f32[0]);
+	}
 
 	//死亡演出用
 	KazMath::Vec3<float> m_deadEffectVel;

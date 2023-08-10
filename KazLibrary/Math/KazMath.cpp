@@ -467,7 +467,13 @@ DirectX::XMMATRIX KazMath::CaluWorld(const KazMath::Transform3D &TRANSFORM, cons
 	baseMatWorldData.matWorld = DirectX::XMMatrixIdentity();
 	baseMatWorldData.matScale = KazMath::CaluScaleMatrix(TRANSFORM.scale);
 	baseMatWorldData.matTrans = KazMath::CaluTransMatrix(TRANSFORM.pos);
-	baseMatWorldData.matRota = KazMath::CaluRotaMatrix(TRANSFORM.rotation);
+	//クォータニオンに値が入っている or クォータニオンが単位行列じゃなかったらクォータニオンで回転行列を求める。
+	if (0 < TRANSFORM.quaternion.m128_f32[3] || !DirectX::XMQuaternionIsIdentity(TRANSFORM.quaternion)) {
+		baseMatWorldData.matRota = DirectX::XMMatrixRotationQuaternion(TRANSFORM.quaternion);
+	}
+	else {
+		baseMatWorldData.matRota = KazMath::CaluRotaMatrix(TRANSFORM.rotation);
+	}
 	//ワールド行列の計算
 	baseMatWorldData.matWorld = DirectX::XMMatrixIdentity();
 	baseMatWorldData.matWorld *= baseMatWorldData.matScale;

@@ -16,7 +16,9 @@ void ButterflyEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const
 	m_aroundAngle = START_ANGLE;
 	m_addAroundAngle = 0;
 	m_prevAroundAngle = m_aroundAngle;
-	m_angleX = DirectX::XM_PI;
+	m_angleX = DirectX::XM_PIDIV2 * 0.9f;
+	m_angleYEasingTimer = 0;
+	m_angleXEasingTimer = 0;
 
 	m_postureQ = DirectX::XMQuaternionIdentity();
 
@@ -67,30 +69,30 @@ void ButterflyEnemy::Update()
 	auto prevPos = m_playerTransform->pos + TransformVector3(Vec3<float>(0, 0, 1), prevPosutreQ) * SPAWN_R;
 
 
-	////蝶が移動している方向を正面とした姿勢を求める。
-	//movedVec = m_transform.pos - prevPos;
-	////動いていたら姿勢を更新。動いていなかったらやばい値になるため。
-	//auto m_moveQ = DirectX::XMQuaternionIdentity();
-	//if (0 < movedVec.Length()) {
+	//蝶が移動している方向を正面とした姿勢を求める。
+	movedVec = m_transform.pos - prevPos;
+	//動いていたら姿勢を更新。動いていなかったらやばい値になるため。
+	auto m_moveQ = DirectX::XMQuaternionIdentity();
+	if (0 < movedVec.Length()) {
 
-	//	KazMath::Vec3<float> movedVecNormal = movedVec.GetNormal();
+		KazMath::Vec3<float> movedVecNormal = movedVec.GetNormal();
 
-	//	//デフォルトの回転軸と移動した方向のベクトルが同じ値だったらデフォルトの回転軸の方向に移動しているってこと！
-	//	if (movedVecNormal.Dot(KazMath::Vec3<float>(0, 0, 1)) < 0.999f) {
+		//デフォルトの回転軸と移動した方向のベクトルが同じ値だったらデフォルトの回転軸の方向に移動しているってこと！
+		if (movedVecNormal.Dot(KazMath::Vec3<float>(0, 0, 1)) < 0.999f) {
 
-	//		KazMath::Vec3<float> cameraAxisZ = movedVecNormal;
-	//		KazMath::Vec3<float> cameraAxisY = KazMath::Vec3<float>(0, 1, 0);
-	//		KazMath::Vec3<float> cameraAxisX = cameraAxisY.Cross(cameraAxisZ);
-	//		cameraAxisY = cameraAxisZ.Cross(cameraAxisX);
-	//		DirectX::XMMATRIX cameraMatWorld = DirectX::XMMatrixIdentity();
-	//		cameraMatWorld.r[0] = { cameraAxisX.x, cameraAxisX.y, cameraAxisX.z, 0.0f };
-	//		cameraMatWorld.r[1] = { cameraAxisY.x, cameraAxisY.y, cameraAxisY.z, 0.0f };
-	//		cameraMatWorld.r[2] = { cameraAxisZ.x, cameraAxisZ.y, cameraAxisZ.z, 0.0f };
-	//		m_moveQ = DirectX::XMQuaternionRotationMatrix(cameraMatWorld);
+			KazMath::Vec3<float> cameraAxisZ = movedVecNormal;
+			KazMath::Vec3<float> cameraAxisY = KazMath::Vec3<float>(0, 1, 0);
+			KazMath::Vec3<float> cameraAxisX = cameraAxisY.Cross(cameraAxisZ);
+			cameraAxisY = cameraAxisZ.Cross(cameraAxisX);
+			DirectX::XMMATRIX cameraMatWorld = DirectX::XMMatrixIdentity();
+			cameraMatWorld.r[0] = { cameraAxisX.x, cameraAxisX.y, cameraAxisX.z, 0.0f };
+			cameraMatWorld.r[1] = { cameraAxisY.x, cameraAxisY.y, cameraAxisY.z, 0.0f };
+			cameraMatWorld.r[2] = { cameraAxisZ.x, cameraAxisZ.y, cameraAxisZ.z, 0.0f };
+			m_moveQ = DirectX::XMQuaternionRotationMatrix(cameraMatWorld);
 
-	//	}
+		}
 
-	//}
+	}
 
 
 	//++debugTimer;
@@ -106,19 +108,30 @@ void ButterflyEnemy::Update()
 	//角度が変わる前に保存。
 	m_prevAroundAngle = m_aroundAngle;
 
+	//Y軸回転のイージングを更新する。
+	m_angleYEasingTimer = std::clamp(m_angleYEasingTimer + 1, 0.0f, ANGLEY_EASING_TIMER);
+	float easingAmount = EasingMaker(EasingType::Out, EaseInType::Sine, m_angleYEasingTimer / ANGLEY_EASING_TIMER);
+	m_angleXEasingTimer = std::clamp(m_angleXEasingTimer + 1, 0.0f, ANGLEX_EASING_TIMER);
+	float easingXAmount = EasingMaker(EasingType::In, EaseInType::Cubic, m_angleXEasingTimer / ANGLEX_EASING_TIMER);
+
 	switch (m_status)
 	{
 	case ButterflyEnemy::APPEAR:
 	{
 		//出現位置を決定。
 		m_transform.pos = m_playerTransform->pos + TransformVector3(Vec3<float>(0, 0, 1), nowPosutreQ) * SPAWN_R;
+		m_transform.pos.y += 5.0f;
+
+		//現在の動いた角度を01の割合で出す。
+		float maxMoveAngle = (START_ANGLE - STAY_FINISH_ANGLE);
+		float moveAngleRate = fabs(m_aroundAngle - START_ANGLE) / maxMoveAngle;
+
+		m_transform.pos.y += sinf(moveAngleRate * DirectX::XM_PI - DirectX::XM_PI) * 2.0f;
 
 		//回転に関する処理
-		m_postureQ = DirectX::XMQuaternionRotationAxis(GetXMVECTOR({ 1,0,0 }), m_angleX);
-		//オイラー角に直す。
-		DirectX::XMVECTOR rotate, scale, position;
-		DirectX::XMMatrixDecompose(&scale, &rotate, &position, DirectX::XMMatrixRotationQuaternion(m_postureQ));
-		m_transform.rotation = KazMath::Vec3<float>(DirectX::XMConvertToDegrees(rotate.m128_f32[0]), DirectX::XMConvertToDegrees(rotate.m128_f32[1]), DirectX::XMConvertToDegrees(rotate.m128_f32[2]));
+		m_postureQ = DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3({ 1,0,0 }, m_moveQ)), m_angleX - m_angleX * easingXAmount);
+		m_postureQ = DirectX::XMQuaternionMultiply(m_postureQ, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3({ 0,1,0 }, m_postureQ)), easingAmount * (DirectX::XM_2PI * 2.0f)));
+		m_transform.quaternion = m_postureQ;
 
 		//位置に関する処理
 		m_aroundAngle -= m_addAroundAngle;
@@ -135,14 +148,18 @@ void ButterflyEnemy::Update()
 
 		//出現位置を決定。
 		m_transform.pos = m_playerTransform->pos + TransformVector3(Vec3<float>(0, 0, 1), nowPosutreQ) * SPAWN_R;
+		m_transform.pos.y += 5.0f;
+
+		//現在の動いた角度を01の割合で出す。
+		float maxMoveAngle = (START_ANGLE - STAY_FINISH_ANGLE);
+		float moveAngleRate = fabs(m_aroundAngle - START_ANGLE) / maxMoveAngle;
+
+		m_transform.pos.y += sinf(moveAngleRate * DirectX::XM_PI - DirectX::XM_PI) * 2.0f;
 
 		//回転に関する処理
-		m_angleX -= m_angleX / 10.0f;
-		m_postureQ = DirectX::XMQuaternionRotationAxis(GetXMVECTOR({ 1,0,0 }), m_angleX);
-		//オイラー角に直す。
-		DirectX::XMVECTOR rotate, scale, position;
-		DirectX::XMMatrixDecompose(&scale, &rotate, &position, DirectX::XMMatrixRotationQuaternion(m_postureQ));
-		m_transform.rotation = KazMath::Vec3<float>(DirectX::XMConvertToDegrees(rotate.m128_f32[0]), DirectX::XMConvertToDegrees(rotate.m128_f32[1]), DirectX::XMConvertToDegrees(rotate.m128_f32[2]));
+		m_postureQ = DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3({ 1,0,0 }, m_moveQ)), m_angleX - m_angleX * easingXAmount);
+		m_postureQ = DirectX::XMQuaternionMultiply(m_postureQ, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3({ 0,1,0 }, m_postureQ)), easingAmount * (DirectX::XM_2PI * 2.0f)));
+		m_transform.quaternion = m_postureQ;
 
 		//位置に関する処理
 		m_aroundAngle -= m_addAroundAngle;
@@ -170,10 +187,11 @@ void ButterflyEnemy::Update()
 		m_deadEffectVel += m_deadEffectVelStorage;
 
 		m_transform.pos += m_deadEffectVel;
-		m_transform.pos.y -= 0.3f;
+		m_transform.pos.y -= 0.6f;
+		m_transform.pos.x -= 0.2f;
 		m_deadEffectVel -= m_deadEffectVel / 10.0f;
-		m_transform.rotation.x += 3.0f;
-		m_transform.rotation.z += 3.0f;
+		m_transform.quaternion = DirectX::XMQuaternionMultiply(m_transform.quaternion, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3({ 1,0,0 }, m_transform.quaternion)), 0.1f));
+		m_transform.quaternion = DirectX::XMQuaternionMultiply(m_transform.quaternion, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3({ 0,0,1 }, m_transform.quaternion)), 0.1f));
 	}
 	break;
 	default:
