@@ -66,7 +66,7 @@ void VirusEnemy::Update()
 
 
 	++debugTimer;
-	if (180 == debugTimer) {
+	if (240 == debugTimer) {
 		m_status = DEAD;
 
 		//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。

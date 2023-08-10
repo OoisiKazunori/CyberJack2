@@ -95,7 +95,7 @@ GBufferMgr::GBufferMgr()
 
 	m_cameraPosBuffer = KazBufferHelper::SetConstBufferData(sizeof(CameraEyePosBufferData));
 	m_lightBuffer = KazBufferHelper::SetConstBufferData(sizeof(LightConstData));
-	m_lightConstData.m_dirLight.m_dir = KazMath::Vec3<float>(0.0f, -1.0f, 0.0f);
+	m_lightConstData.m_dirLight.m_dir = KazMath::Vec3<float>(0.0f, -1.0f, 0.6f);
 	m_lightConstData.m_dirLight.m_isActive = true;
 	m_lightConstData.m_pointLight.m_power = 100.0f;
 }
