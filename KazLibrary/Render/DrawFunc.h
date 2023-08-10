@@ -119,6 +119,27 @@ namespace DrawFunc
 		arg_callData.extraBufferArray[1].bufferWrapper->TransData(&arg_color.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
 	}
 
+	static void Draw3DObject2D(DrawFuncData::DrawCallData& arg_callData, const KazMath::Transform3D& arg_transform, const KazMath::Color& arg_color = KazMath::Color(255, 255, 255, 255))
+	{
+		//行列情報
+		CoordinateSpaceMatData transData(arg_transform.GetMat(), CameraMgr::Instance()->GetViewMatrix(), CameraMgr::Instance()->GetOrthographicMatProjection());
+		transData.m_world = arg_transform.GetMat();
+		transData.m_projective = CameraMgr::Instance()->GetOrthographicMatProjection();
+		transData.m_view = CameraMgr::Instance()->GetViewMatrix();
+
+		//クォータニオンに値が入っている or クォータニオンが単位行列じゃなかったらクォータニオンで回転行列を求める。
+		if (0 < fabs(arg_transform.quaternion.m128_f32[3])) {
+			transData.m_rotaion = DirectX::XMMatrixRotationQuaternion(arg_transform.quaternion);
+		}
+		else {
+			transData.m_rotaion = KazMath::CaluRotaMatrix(arg_transform.rotation);
+		}
+
+		arg_callData.extraBufferArray[0].bufferWrapper->TransData(&transData, sizeof(CoordinateSpaceMatData));
+
+		arg_callData.extraBufferArray[1].bufferWrapper->TransData(&arg_color.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+	}
+
 	static void DrawLine(DrawFuncData::DrawCallData& arg_callData, std::vector<KazMath::Vec3<float>>arg_limitPosArray, RESOURCE_HANDLE arg_vertexHandle, const KazMath::Color& arg_color = KazMath::Color(255, 255, 255, 255))
 	{
 		VertexBufferMgr::Instance()->GetVertexBuffer(arg_vertexHandle).vertBuffer->bufferWrapper->TransData(

@@ -55,6 +55,27 @@ Cursor::Cursor()
 
 	cursorFlameTex->data.pipelineName = PIPELINE_NAME_SPRITE_Z_ALWAYS;
 	numberTex->data.pipelineName = PIPELINE_NAME_SPRITE_Z_ALWAYS;
+
+	m_spriteNumModelInfo = ModelLoader::Instance()->Load("Resource/UI/", "UI.gltf");
+	m_spriteFrameModelInfo = ModelLoader::Instance()->Load("Resource/UI/", "UI.gltf");
+	m_spriteCursorEffectModelInfo = ModelLoader::Instance()->Load("Resource/UI/", "UI.gltf");
+
+	for (auto& model : m_spriteNumModelInfo->modelData) {
+		model.materialData.textureBuffer.front() = numberTexBufferArray[lockOnNum];
+		model.materialData.textureBuffer.front().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+	}
+	for (auto& model : m_spriteFrameModelInfo->modelData) {
+		model.materialData.textureBuffer.front() = flameTextureBuffer;
+		model.materialData.textureBuffer.front().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+	}
+	for (auto& model : m_spriteCursorEffectModelInfo->modelData) {
+		model.materialData.textureBuffer.front() = cursorEffectTex[0].cursorEffectTex.m_textureBuffer;
+		model.materialData.textureBuffer.front().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+	}
+
+	m_spriteModelNum = DrawFuncData::SetDefferdRenderingModel(m_spriteNumModelInfo);;
+	m_spriteModelFrame = DrawFuncData::SetDefferdRenderingModel(m_spriteFrameModelInfo);;
+	m_spriteModelCursorEffect = DrawFuncData::SetDefferdRenderingModel(m_spriteCursorEffectModelInfo);;
 }
 
 void Cursor::Init()
@@ -514,8 +535,18 @@ void Cursor::Draw(DrawingByRasterize& arg_rasterize)
 			static_cast<float>(numberTexBufferArray[lockOnNum].bufferWrapper->GetBuffer()->GetDesc().Height) * 2.0f
 		};
 		transform.rotation = numberTex->data.transform.rotation;
-		DrawFunc::DrawTextureIn2D(numberRender, transform, numberTexBufferArray[lockOnNum]);
-		arg_rasterize.ObjectRender(numberRender);
+		//DrawFunc::DrawTextureIn2D(numberRender, transform, numberTexBufferArray[lockOnNum]);
+		//arg_rasterize.ObjectRender(numberRender);
+		KazMath::Transform3D transform3D;
+		transform3D.pos.x = transform.pos.x;
+		transform3D.pos.y = transform.pos.y;
+		transform3D.pos.z = 0.1f;
+		transform3D.scale.x = transform.scale.x * 10.0f;
+		transform3D.scale.y = transform.scale.y * 10.0f;
+		transform3D.scale.x = 1.0f;
+		//transform3D.rotation.z = transform.rotation;
+		DrawFunc::Draw3DObject2D(m_spriteModelNum, transform3D);
+		arg_rasterize.ObjectRender(m_spriteModelNum);
 	}
 
 	{
@@ -526,8 +557,18 @@ void Cursor::Draw(DrawingByRasterize& arg_rasterize)
 			static_cast<float>(flameTextureBuffer.bufferWrapper->GetBuffer()->GetDesc().Width) * 2.0f,
 			static_cast<float>(flameTextureBuffer.bufferWrapper->GetBuffer()->GetDesc().Height) * 2.0f
 		};
-		DrawFunc::DrawTextureIn2D(flameRender, transform, flameTextureBuffer);
-		arg_rasterize.ObjectRender(flameRender);
+		/*DrawFunc::DrawTextureIn2D(flameRender, transform, flameTextureBuffer);
+		arg_rasterize.ObjectRender(flameRender);*/
+		KazMath::Transform3D transform3D;
+		transform3D.pos.x = transform.pos.x;
+		transform3D.pos.y = transform.pos.y;
+		transform3D.pos.z = 0.1f;
+		transform3D.scale.x = transform.scale.x * 10.0f;
+		transform3D.scale.y = transform.scale.y * 10.0f;
+		transform3D.scale.x = 1.0f;
+		//transform3D.rotation.z = transform.rotation;
+		DrawFunc::Draw3DObject2D(m_spriteModelFrame, transform3D);
+		arg_rasterize.ObjectRender(m_spriteModelFrame);
 	}
 
 	/*for (int i = 0; i < boxEffectArray.size(); ++i)
@@ -548,8 +589,18 @@ void Cursor::Draw(DrawingByRasterize& arg_rasterize)
 				static_cast<float>(flameTextureBuffer.bufferWrapper->GetBuffer()->GetDesc().Height) *
 				cursorEffectTex[i].cursorEffectTex.m_transform.scale.y
 			};
-			DrawFunc::DrawTextureIn2D(cursorEffectTex[i].cursorEffectTex.m_drawCommand, transform, cursorEffectTex[i].cursorEffectTex.m_textureBuffer, KazMath::Color(255, 255, 255, cursorEffectTex[i].alpha));
-			arg_rasterize.ObjectRender(cursorEffectTex[i].cursorEffectTex.m_drawCommand);
+			/*DrawFunc::DrawTextureIn2D(cursorEffectTex[i].cursorEffectTex.m_drawCommand, transform, cursorEffectTex[i].cursorEffectTex.m_textureBuffer, KazMath::Color(255, 255, 255, cursorEffectTex[i].alpha));
+			arg_rasterize.ObjectRender(cursorEffectTex[i].cursorEffectTex.m_drawCommand);*/
+			KazMath::Transform3D transform3D;
+			transform3D.pos.x = transform.pos.x;
+			transform3D.pos.y = transform.pos.y;
+			transform3D.pos.z = 0.1f;
+			transform3D.scale.x = transform.scale.x * 10.0f;
+			transform3D.scale.y = transform.scale.y * 10.0f;
+			transform3D.scale.x = 1.0f;
+			//transform3D.rotation.z = transform.rotation;
+			DrawFunc::Draw3DObject2D(m_spriteModelCursorEffect, transform3D);
+			arg_rasterize.ObjectRender(m_spriteModelCursorEffect);
 		}
 	}
 	/*for (int i = 0; i < cursorEffectTex.size(); ++i)

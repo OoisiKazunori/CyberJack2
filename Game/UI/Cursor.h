@@ -71,6 +71,15 @@ private:
 	float baseSpeed;
 	DirectX::XMFLOAT2 speed;
 
+	//UIóp
+	DrawFuncData::DrawCallData m_spriteModelNum;
+	DrawFuncData::DrawCallData m_spriteModelFrame;
+	DrawFuncData::DrawCallData m_spriteModelCursorEffect;
+
+	std::shared_ptr<ModelInfomation> m_spriteNumModelInfo;
+	std::shared_ptr<ModelInfomation> m_spriteFrameModelInfo;
+	std::shared_ptr<ModelInfomation> m_spriteCursorEffectModelInfo;
+
 	//ì¸óÕââèo-----------------------
 
 	struct CursorEffectData

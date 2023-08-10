@@ -117,6 +117,7 @@ PosUvNormalTangentBinormalOutput VSDefferdMain(float4 pos : POSITION,float3 norm
     op.worldPos = op.svpos.xyz;
     op.svpos = mul(viewMat,op.svpos);
     op.svpos = mul(projectionMat,op.svpos);
+    
     op.uv = uv;
     op.normal = normal;
     op.binormal = binormal;
