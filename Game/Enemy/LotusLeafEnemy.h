@@ -2,7 +2,6 @@
 #include"../KazLibrary/Render/KazRender.h"
 #include"../Game/Interface/IEnemy.h"
 #include"../Game/Effect/RocketEffect.h"
-#include"../KazLibrary/Render/DrawFunc.h"
 
 class LotusLeafEnemy :public IEnemy
 {
@@ -13,10 +12,6 @@ public:
 	void Finalize();
 	void Update();
 	void Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec);
-
-	KazMath::Vec3<float> GetVec3(DirectX::XMVECTOR arg_target);
-	DirectX::XMVECTOR GetXMVECTOR(KazMath::Vec3<float> arg_target);
-	KazMath::Vec3<float> TransformVector3(KazMath::Vec3<float> arg_target, DirectX::XMVECTOR arg_quaternion);
 
 private:
 

@@ -90,6 +90,22 @@ public:
 		iEnemy_FbxModelRender->Release(fbxLightHandle);
 	}
 
+	KazMath::Vec3<float> GetVec3(DirectX::XMVECTOR arg_target)
+	{
+		return KazMath::Vec3<float>(arg_target.m128_f32[0], arg_target.m128_f32[1], arg_target.m128_f32[2]);
+	}
+
+	DirectX::XMVECTOR GetXMVECTOR(KazMath::Vec3<float> arg_target)
+	{
+		return DirectX::XMVECTOR{ arg_target.x, arg_target.y, arg_target.z, 0.0f };
+	}
+
+	KazMath::Vec3<float> TransformVector3(KazMath::Vec3<float> arg_target, DirectX::XMVECTOR arg_quaternion)
+	{
+		DirectX::XMVECTOR transformVec = DirectX::XMVector3Transform(DirectX::XMVectorSet(arg_target.x, arg_target.y, arg_target.z, 0), DirectX::XMMatrixRotationQuaternion(arg_quaternion));
+		return GetVec3(transformVec);
+	}
+
 	//í«â¡Ç≈ï`âÊÇµÇΩÇ¢Ç‡ÇÃÇ™Ç†Ç¡ÇΩÇÁçƒíËã`Ç∑ÇÈ
 	virtual void DrawIn() {};
 
