@@ -20,3 +20,7 @@ void DrawFuncData::DrawCallData::SetupRaytracing(bool arg_isOpaque)
 	m_raytracingData.m_isRaytracingEnable = true;
 
 }
+
+void DrawFuncData::ExcuteIndirectArgumentData::GenerateArgumentBuffer()
+{
+}

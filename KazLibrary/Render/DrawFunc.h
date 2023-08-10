@@ -2,7 +2,6 @@
 #include"../Buffer/DrawFuncData.h"
 #include"../KazLibrary/Camera/CameraMgr.h"
 
-
 namespace DrawFunc
 {
 	enum RayTracingType

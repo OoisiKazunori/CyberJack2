@@ -25,11 +25,11 @@ public:
 	//描画情報のスタック----------------------------------------
 
 	RESOURCE_HANDLE GetHandle();
-	DrawFuncData::DrawData *StackData(RESOURCE_HANDLE HANDLE);
+	DrawFuncData::DrawData* StackData(RESOURCE_HANDLE HANDLE);
 	//描画情報のスタック----------------------------------------
 
 	//新システムでの描画命令
-	void ObjectRender(const DrawFuncData::DrawCallData &DRAW_DATA);
+	void ObjectRender(const DrawFuncData::DrawCallData& DRAW_DATA);
 	void Sort();
 	void Render();
 
@@ -65,16 +65,17 @@ private:
 
 
 	//描画に必要なバッファをコマンドリストに積む
-	void SetBufferOnCmdList(const  std::vector<KazBufferHelper::BufferData> &BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM);
+	void SetBufferOnCmdList(const  std::vector<KazBufferHelper::BufferData>& BUFFER_ARRAY, std::vector<RootSignatureParameter> ROOT_PARAM);
 
 	//頂点情報のセット
-	void MultiMeshedDrawIndexInstanceCommand(const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData &DATA, const std::vector<std::vector<KazBufferHelper::BufferData>> &MATERIAL_BUFFER, std::vector<RootSignatureParameter> ROOT_PARAM);
-	void DrawIndexInstanceCommand(const KazRenderHelper::DrawIndexInstanceCommandData &DATA);
-	void DrawInstanceCommand(const KazRenderHelper::DrawInstanceCommandData &DATA);
+	void MultiMeshedDrawIndexInstanceCommand(const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData& DATA, const std::vector<std::vector<KazBufferHelper::BufferData>>& MATERIAL_BUFFER, std::vector<RootSignatureParameter> ROOT_PARAM);
+	void DrawIndexInstanceCommand(const KazRenderHelper::DrawIndexInstanceCommandData& DATA);
+	void DrawInstanceCommand(const KazRenderHelper::DrawInstanceCommandData& DATA);
 
+	void DrawExecuteIndirect(const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData& DATA, const Microsoft::WRL::ComPtr<ID3D12CommandSignature>&arg_commandSignature,const DrawFuncData::ExcuteIndirectArgumentData &arg_argmentData);
 
 	//何処の描画関数から呼び出されたかエラー文を書く
-	void ErrorCheck(RESOURCE_HANDLE HANDLE, const std::source_location &DRAW_SOURCE_LOCATION)
+	void ErrorCheck(RESOURCE_HANDLE HANDLE, const std::source_location& DRAW_SOURCE_LOCATION)
 	{
 		if (HANDLE == -1)
 		{
@@ -83,5 +84,5 @@ private:
 		}
 	}
 
-	std::string ErrorMail(const std::source_location &DRAW_SOURCE_LOCATION);
+	std::string ErrorMail(const std::source_location& DRAW_SOURCE_LOCATION);
 };

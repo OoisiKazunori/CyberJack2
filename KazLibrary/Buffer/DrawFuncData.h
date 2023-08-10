@@ -8,8 +8,43 @@
 #include"GBufferMgr.h"
 #include"../KazLibrary/Helper/ResourceFilePass.h"
 
-namespace Raytracing {
+namespace Raytracing
+{
 	class Blas;
+}
+
+namespace ExecuteIndirectData
+{
+	struct DrawIndexedIndirectCommand
+	{
+		D3D12_GPU_VIRTUAL_ADDRESS m_view;
+		D3D12_DRAW_INDEXED_ARGUMENTS m_drawArguments;
+	};
+	struct DrawIndirectCommand
+	{
+		D3D12_GPU_VIRTUAL_ADDRESS m_view;
+		D3D12_DRAW_ARGUMENTS m_drawArguments;
+	};
+
+	static void GenerateCommandSignature(
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature>& arg_commandSignature,
+		const Microsoft::WRL::ComPtr<ID3D12RootSignature>& arg_rootSignature,
+		const std::vector<D3D12_INDIRECT_ARGUMENT_DESC>& arg_indirectDescArray)
+	{
+		//コマンドシグネチャ---------------------------
+		D3D12_COMMAND_SIGNATURE_DESC desc{};
+		desc.pArgumentDescs = arg_indirectDescArray.data();
+		desc.NumArgumentDescs = static_cast<UINT>(arg_indirectDescArray.size());
+		desc.ByteStride = sizeof(DrawIndexedIndirectCommand);
+
+		HRESULT lResult =
+			DirectX12Device::Instance()->dev->CreateCommandSignature(&desc, arg_rootSignature.Get(), IID_PPV_ARGS(&arg_commandSignature));
+		//コマンドシグネチャ---------------------------
+		if (lResult != S_OK)
+		{
+			assert(0);
+		}
+	}
 }
 
 namespace DrawFuncPipelineData
@@ -514,9 +549,23 @@ namespace DrawFuncData
 	{
 		INDEX,
 		INSTANCE,
-		MULTI_MESHED
+		MULTI_MESHED,
+		EXECUTEINDIRECT_INDEX,
+		EXECUTEINDIRECT_INSTANCE,
 	};
 
+	struct ExcuteIndirectArgumentData
+	{
+		KazBufferHelper::BufferData m_uploadArgumentBuffer;
+		KazBufferHelper::BufferData m_uavArgumentBuffer;
+		UINT m_maxCommandCount;
+		std::vector<D3D12_INDIRECT_ARGUMENT_DESC> m_desc;
+		ExecuteIndirectData::DrawIndexedIndirectCommand m_argumentCommandData;
+
+		void GenerateArgumentBuffer();
+	};
+
+	//描画命令の発行を行うデータ
 	struct DrawData
 	{
 		bool generateFlag;
@@ -528,7 +577,10 @@ namespace DrawFuncData
 		DrawFuncData::VERT_TYPE drawCommandType;
 		//マテリアル情報
 		std::vector<std::vector<KazBufferHelper::BufferData>> materialBuffer;
-
+		//ExcuteIndirect発行命令
+		ExcuteIndirectArgumentData m_executeIndirectGenerateData;
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature>m_commandSignature;
+		RESOURCE_HANDLE m_commandRootsignatureHandle;
 
 		//パイプライン情報
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineData;
@@ -580,7 +632,7 @@ namespace DrawFuncData
 	struct DrawCallData
 	{
 		DrawCallData(std::source_location location = std::source_location::current()) :
-			callLocation(location), renderTargetHandle(-1),depthHandle(-1)
+			callLocation(location), renderTargetHandle(-1), depthHandle(-1)
 		{
 		};
 		/// <summary>
@@ -594,6 +646,9 @@ namespace DrawFuncData
 		KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData drawMultiMeshesIndexInstanceCommandData;
 		VERT_TYPE drawCommandType;
 		std::vector<std::vector<KazBufferHelper::BufferData>> materialBuffer;
+
+		//ExecuteIndirect
+		ExcuteIndirectArgumentData m_executeIndirectGenerateData;
 
 		//レイトレーシングに使用する情報
 		RaytracingData m_raytracingData;
@@ -613,7 +668,7 @@ namespace DrawFuncData
 	};
 
 	//単色のポリゴン表示(インデックスなし)
-	static DrawCallData SetDrawPolygonData(const KazRenderHelper::DrawInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	static DrawCallData SetDrawPolygonData(const KazRenderHelper::DrawInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
 		//頂点情報
@@ -741,7 +796,7 @@ namespace DrawFuncData
 	};
 
 	//レイトレでのモデルのポリゴン表示(インデックスあり、マテリアルあり)
-	static DrawCallData SetDrawGLTFIndexMaterialInRayTracingData(const ModelInfomation &MODEL_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	static DrawCallData SetDrawGLTFIndexMaterialInRayTracingData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
 
@@ -751,7 +806,7 @@ namespace DrawFuncData
 		lDrawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
 		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(MODEL_DATA.modelVertDataHandle).index;
 		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
-		for (auto &obj : MODEL_DATA.modelData)
+		for (auto& obj : MODEL_DATA.modelData)
 		{
 			lDrawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
 		}
@@ -780,7 +835,7 @@ namespace DrawFuncData
 		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 		lDrawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
 		KazMath::Color init(255, 255, 255, 255);
-		lDrawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(),sizeof(DirectX::XMFLOAT4));
+		lDrawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
 
 
 
@@ -792,7 +847,7 @@ namespace DrawFuncData
 
 
 	//行列情報のみ
-	static DrawCallData SetTransformData(const KazRenderHelper::DrawIndexInstanceCommandData &VERTEX_DATA, const PipelineGenerateData &PIPELINE_DATA)
+	static DrawCallData SetTransformData(const KazRenderHelper::DrawIndexInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
 		//頂点情報
@@ -812,7 +867,7 @@ namespace DrawFuncData
 	};
 
 	//行列情報とテクスチャ
-	static DrawCallData SetTexPlaneData(const PipelineGenerateData &PIPELINE_DATA)
+	static DrawCallData SetTexPlaneData(const PipelineGenerateData& PIPELINE_DATA)
 	{
 		DrawCallData lDrawCallData;
 
@@ -896,7 +951,6 @@ namespace DrawFuncData
 		return drawCall;
 	};
 
-
 	static DrawCallData SetLine(RESOURCE_HANDLE arg_vertexHandle)
 	{
 		DrawFuncData::PipelineGenerateData lData;
@@ -931,7 +985,56 @@ namespace DrawFuncData
 		return lDrawCallData;
 	}
 
+	static DrawCallData SetExecuteIndirect(const PipelineGenerateData& PIPELINE_DATA, const D3D12_GPU_VIRTUAL_ADDRESS& arg_address, UINT arg_maxCountNum)
+	{
+		DrawCallData lDrawCallData;
 
+		RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GeneratePlaneBuffer();
+		//頂点情報
+		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(handle).index;
+		lDrawCallData.drawCommandType = VERT_TYPE::EXECUTEINDIRECT_INDEX;
+
+		lDrawCallData.pipelineData = PIPELINE_DATA;
+
+		//ExecuteIndirect発行
+		lDrawCallData.m_executeIndirectGenerateData.m_maxCommandCount = arg_maxCountNum;
+
+		std::vector<D3D12_INDIRECT_ARGUMENT_DESC> args;
+		args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
+		args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW;
+		args[0].UnorderedAccessView.RootParameterIndex = 0;
+		args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
+		args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+		lDrawCallData.m_executeIndirectGenerateData.m_desc = args;
+
+		lDrawCallData.m_executeIndirectGenerateData.m_argumentCommandData.m_view = arg_address;
+		lDrawCallData.m_executeIndirectGenerateData.m_argumentCommandData.m_drawArguments =
+		{
+			lDrawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].indexCountPerInstance,
+			arg_maxCountNum,
+			lDrawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].startIndexLocation,
+			(int)lDrawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].baseVertexLocation,
+			lDrawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].startInstanceLocation
+		};
+
+		lDrawCallData.m_executeIndirectGenerateData.m_uploadArgumentBuffer = KazBufferHelper::SetUploadBufferData(sizeof(ExecuteIndirectData::DrawIndexedIndirectCommand));
+		lDrawCallData.m_executeIndirectGenerateData.m_uploadArgumentBuffer.bufferWrapper->TransData(&lDrawCallData.m_executeIndirectGenerateData.m_argumentCommandData, sizeof(ExecuteIndirectData::DrawIndexedIndirectCommand));
+
+		lDrawCallData.m_executeIndirectGenerateData.m_uavArgumentBuffer = KazBufferHelper::SetGPUBufferData(sizeof(ExecuteIndirectData::DrawIndexedIndirectCommand));
+
+		lDrawCallData.m_executeIndirectGenerateData.m_uavArgumentBuffer.bufferWrapper->CopyBuffer(
+			lDrawCallData.m_executeIndirectGenerateData.m_uploadArgumentBuffer.bufferWrapper->GetBuffer(),
+			D3D12_RESOURCE_STATE_COMMON,
+			D3D12_RESOURCE_STATE_COPY_DEST
+		);
+
+		lDrawCallData.m_executeIndirectGenerateData.m_uavArgumentBuffer.bufferWrapper->ChangeBarrier(
+			D3D12_RESOURCE_STATE_COMMON,
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+		);
+
+		return lDrawCallData;
+	};
 
 	static DrawFuncData::PipelineGenerateData GetModelShader()
 	{
@@ -959,6 +1062,16 @@ namespace DrawFuncData
 		lData.desc = DrawFuncPipelineData::SetTex();
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "PSAlphaMain", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+		return lData;
+	};
+
+	static DrawFuncData::PipelineGenerateData GetBasicShader()
+	{
+		DrawFuncData::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetPos();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Basic.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Basic.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
 		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 		return lData;
 	};

@@ -266,7 +266,6 @@ namespace KazBufferHelper
 	KazBufferHelper::BufferResourceData SetGPUBufferData(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME = "GPUBuffer");
 	KazBufferHelper::BufferResourceData SetUploadBufferData(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME = "UploadBuffer");
 
-
 	template<typename T>
 	T GetBufferSize(size_t BUFFER_SIZE, unsigned long long STRUCTURE_SIZE)
 	{
