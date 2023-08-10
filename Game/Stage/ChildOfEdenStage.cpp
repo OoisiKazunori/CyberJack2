@@ -15,6 +15,6 @@ void ChildOfEdenStage::Update()
 
 void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize)
 {
-	DrawFunc::DrawModel(m_drawSkydorm, m_skydormTransform);
-	arg_rasterize.ObjectRender(m_drawSkydorm);
+	//DrawFunc::DrawModel(m_drawSkydorm, m_skydormTransform);
+	//arg_rasterize.ObjectRender(m_drawSkydorm);
 }

@@ -4,6 +4,7 @@
 #include"../KazLibrary/Helper/ResourceFilePass.h"
 #include"RenderTarget/RenderTargetStatus.h"
 #include"../KazLibrary/PostEffect/GaussianBlur.h"
+#include"../KazLibrary/Helper/Compute.h"
 #include <Helper/Compute.h>
 
 //ワールド座標、ラフネス、メタルネス、スぺキュラ、オブジェクトが反射するか屈折するか(インデックス)、Albedo、法線、カメラ座標(定数バッファでも可能)
@@ -62,6 +63,22 @@ GBufferMgr::GBufferMgr()
 			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), winSize.x * winSize.y),
 			m_lensFlareLuminanceGBuffer.bufferWrapper->GetBuffer().Get()
 		);
+
+		m_backBufferCopyBuffer = KazBufferHelper::SetUAVTexBuffer(winSize.x, winSize.y, DXGI_FORMAT_R8G8B8A8_UNORM);
+		m_backBufferCopyBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
+		DescriptorHeapMgr::Instance()->CreateBufferView(
+			m_backBufferCopyBuffer.bufferWrapper->GetViewHandle(),
+			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), winSize.x * winSize.y),
+			m_backBufferCopyBuffer.bufferWrapper->GetBuffer().Get()
+		);
+
+		m_backBufferCompositeBuffer = KazBufferHelper::SetUAVTexBuffer(winSize.x, winSize.y, DXGI_FORMAT_R8G8B8A8_UNORM);
+		m_backBufferCompositeBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
+		DescriptorHeapMgr::Instance()->CreateBufferView(
+			m_backBufferCompositeBuffer.bufferWrapper->GetViewHandle(),
+			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), winSize.x * winSize.y),
+			m_backBufferCompositeBuffer.bufferWrapper->GetBuffer().Get()
+		);
 	}
 
 	//レンズフレア用のブラー
@@ -92,6 +109,23 @@ GBufferMgr::GBufferMgr()
 		m_lensFlareComposeShader = std::make_shared<ComputeShader>();
 		m_lensFlareComposeShader->Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "PostEffect/LensFlare/" + "LensFlareComposeShader.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
 	}
+	{
+		//バックバッファ合成用シェーダーを用意。
+		std::vector<KazBufferHelper::BufferData>extraBuffer =
+		{
+			 m_backBufferCopyBuffer,
+			 m_raytracingGBuffer,
+			 m_backBufferCompositeBuffer,
+		};
+		extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
+		extraBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_TEX2;
+		extraBuffer[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		extraBuffer[2].rootParamType = GRAPHICS_PRAMTYPE_TEX3;
+		m_backBufferRaytracingCompositeShader = std::make_shared<ComputeShader>();
+		m_backBufferRaytracingCompositeShader->Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "Raytracing/" + "BackBufferComposeShader.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
+	}
 
 	m_cameraPosBuffer = KazBufferHelper::SetConstBufferData(sizeof(CameraEyePosBufferData));
 	m_lightBuffer = KazBufferHelper::SetConstBufferData(sizeof(LightConstData));
@@ -114,6 +148,15 @@ D3D12_GPU_DESCRIPTOR_HANDLE GBufferMgr::GetGPUHandle(BufferType arg_type)
 {
 	RESOURCE_HANDLE handle = RenderTargetStatus::Instance()->GetBuffer(m_gBufferRenderTargetHandleArray[arg_type]).bufferWrapper->GetViewHandle();
 	return DescriptorHeapMgr::Instance()->GetGpuDescriptorView(handle);
+}
+
+void GBufferMgr::ComposeBackBuffer()
+{
+	DispatchData dispatchData;
+	dispatchData.x = static_cast<UINT>(1280 / 16) + 1;
+	dispatchData.y = static_cast<UINT>(720 / 16) + 1;
+	dispatchData.z = static_cast<UINT>(1);
+	m_backBufferRaytracingCompositeShader->Compute(dispatchData);
 }
 
 void GBufferMgr::ApplyLensFlareBlur()
