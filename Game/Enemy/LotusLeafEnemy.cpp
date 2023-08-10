@@ -18,6 +18,7 @@ void LotusLeafEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const
 	m_transform.pos = arg_playerTransform->pos;
 	m_transform.pos.y = -100.0f;
 	m_prevPlayerPos = m_playerTransform->pos;
+	m_isDead = false;
 
 	m_appearEasingTimer = 0;
 	m_breathScaleChangeTimer = 0;
@@ -76,14 +77,14 @@ void LotusLeafEnemy::Update()
 	fromPos.y = -40.0f;
 
 	
-	++debugTimer;
-	if (180 == debugTimer) {
+	if (iOperationData.rockOnNum <= 0 && !m_isDead) {
 		m_status = DEAD;
 
 		//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。
 		m_deadEffectVel = m_playerTransform->pos - m_prevPlayerPos;
 		m_deadEffectVelStorage = m_playerTransform->pos - m_prevPlayerPos;
 		m_deadEffectVelStorage *= 1.0f;
+		m_isDead = true;
 	}
 
 	//ステータスによって処理を分ける。
@@ -151,6 +152,9 @@ void LotusLeafEnemy::Update()
 
 	//プレイヤーの座標を保存。
 	m_prevPlayerPos = m_playerTransform->pos;
+
+	iEnemy_EnemyStatusData->hitBox.center = &m_transform.pos;
+	iEnemy_EnemyStatusData->hitBox.radius = 10.0f;
 }
 
 void LotusLeafEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)

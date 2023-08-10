@@ -23,6 +23,7 @@ void ButterflyEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const
 	m_postureQ = DirectX::XMQuaternionIdentity();
 
 	m_status = APPEAR;
+	m_isDead = false;
 
 	debugTimer = 0;
 }
@@ -95,15 +96,14 @@ void ButterflyEnemy::Update()
 	}
 
 
-	//++debugTimer;
-	//if (240 == debugTimer) {
-	//	m_status = DEAD;
-
-	//	//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。
-	//	m_deadEffectVel = m_playerTransform->pos - m_prevPlayerPos;
-	//	m_deadEffectVelStorage = m_playerTransform->pos - m_prevPlayerPos;
-	//	m_deadEffectVelStorage *= 2.0f;
-	//}
+	if (iOperationData.rockOnNum <= 0 && !m_isDead) {
+		m_status = DEAD;
+		//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。
+		m_deadEffectVel = m_playerTransform->pos - m_prevPlayerPos;
+		m_deadEffectVelStorage = m_playerTransform->pos - m_prevPlayerPos;
+		m_deadEffectVelStorage *= 0.05f;
+		m_isDead = true;
+	}
 
 	//角度が変わる前に保存。
 	m_prevAroundAngle = m_aroundAngle;
@@ -204,6 +204,9 @@ void ButterflyEnemy::Update()
 
 	//プレイヤーの座標を保存。
 	m_prevPlayerPos = m_playerTransform->pos;
+
+	iEnemy_EnemyStatusData->hitBox.center = &m_transform.pos;
+	iEnemy_EnemyStatusData->hitBox.radius = 10.0f;
 }
 
 void ButterflyEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)

@@ -20,6 +20,7 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 	m_stopTimer = 0;
 	m_moveTimer = 0;
 	m_isMove = false;
+	m_isDead = false;
 
 	m_status = APPEAR;
 
@@ -65,14 +66,16 @@ void VirusEnemy::Update()
 	playerQ = DirectX::XMQuaternionMultiply(playerQ, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3(Vec3<float>(0, 0, 1), playerQ)), m_aroundAngle));
 
 
-	++debugTimer;
-	if (2400 == debugTimer) {
+	if (iOperationData.rockOnNum <= 0 && !m_isDead) {
 		m_status = DEAD;
 
 		//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。
 		m_deadEffectVel = m_playerTransform->pos - m_prevPlayerPos;
 		m_deadEffectVelStorage = m_playerTransform->pos - m_prevPlayerPos;
 		m_deadEffectVelStorage *= 2.0f;
+		m_isDead = true;
+
+		
 	}
 
 	switch (m_status)
@@ -163,6 +166,9 @@ void VirusEnemy::Update()
 
 	//プレイヤーの座標を保存。
 	m_prevPlayerPos = m_playerTransform->pos;
+
+	iEnemy_EnemyStatusData->hitBox.center = &m_transform.pos;
+	iEnemy_EnemyStatusData->hitBox.radius = 10.0f;
 }
 
 void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)

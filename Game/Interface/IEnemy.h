@@ -179,6 +179,7 @@ public:
 	std::unique_ptr<MeshParticleEmitter> iEnemy_MeshModelRender;
 	KazMath::Vec3<float> lerpPos;
 	float yVel;
+	bool m_isDead;
 
 protected:
 	bool initDeadSoundFlag;

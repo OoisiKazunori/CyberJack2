@@ -30,6 +30,7 @@ private:
 	float m_appearEasingTimer;
 	const float APPEAR_EASING_TIMER = 40.0f;
 
+
 	//プレイヤーの正面ベクトルからどの程度ずらした位置に敵を出現させるかの値。
 	float m_fromAroundAngle;	//場所を変えるときのイージングに使う。
 	float m_aroundAngle;
