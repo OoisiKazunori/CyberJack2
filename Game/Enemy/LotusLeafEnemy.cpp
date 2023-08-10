@@ -77,7 +77,7 @@ void LotusLeafEnemy::Update()
 	fromPos.y = -40.0f;
 
 	
-	if (iOperationData.rockOnNum <= 0 && !m_isDead) {
+	if (!iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag) {
 		m_status = DEAD;
 
 		//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。

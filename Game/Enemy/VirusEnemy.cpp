@@ -66,9 +66,8 @@ void VirusEnemy::Update()
 	playerQ = DirectX::XMQuaternionMultiply(playerQ, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3(Vec3<float>(0, 0, 1), playerQ)), m_aroundAngle));
 
 
-	if (iOperationData.rockOnNum <= 0 && !m_isDead) {
+	if (!iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag) {
 		m_status = DEAD;
-
 		//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。
 		m_deadEffectVel = m_playerTransform->pos - m_prevPlayerPos;
 		m_deadEffectVelStorage = m_playerTransform->pos - m_prevPlayerPos;

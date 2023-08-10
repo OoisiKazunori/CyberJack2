@@ -205,7 +205,7 @@ void SceneManager::Draw()
 	m_rasterize.Sort();
 	m_rasterize.Render();
 
-	if (m_raytracingFlag&&false)
+	if (m_raytracingFlag)
 	{
 		//Tlasを構築 or 再構築する。
 		m_tlas.Build(m_blasVector);

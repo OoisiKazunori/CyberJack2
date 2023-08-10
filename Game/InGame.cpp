@@ -333,8 +333,15 @@ void InGame::Update()
 				{
 					m_enemies[enemyType][enemyCount]->SetLight(m_cursor.hitBox.dir, m_enemies[enemyType][enemyCount]->GetData()->objFlag);
 				}
+				//リリース時死亡
+				if (m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->rockOnNum <= 0 &&
+					m_cursor.Release())
+				{
+					m_enemies[enemyType][enemyCount]->Dead();
+				}
 				m_enemies[enemyType][enemyCount]->Update();
 			}
+
 
 			//一体でも敵が動いていたらそれを知らせるフラグを上げる
 			if (enableToUseDataFlag && m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->enableToHitFlag)

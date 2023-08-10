@@ -148,7 +148,7 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,ui
         ParticleDataBuffer[index].pos,
         ParticleDataBuffer[index].scale,
         float3(0.0f,0.0f,0.0f),
-        MatrixIdentity()
+        bollboard
     ) * viewProj;
     worldDataBuffer[index].color = ParticleDataBuffer[index].color;
 }
