@@ -21,7 +21,7 @@
     "materials" : [
         {
             "doubleSided" : true,
-            "name" : "\u30de\u30c6\u30ea\u30a2\u30eb.002",
+            "name" : "\u30de\u30c6\u30ea\u30a2\u30eb.004",
             "pbrMetallicRoughness" : {
                 "baseColorTexture" : {
                     "index" : 0
@@ -33,7 +33,7 @@
     ],
     "meshes" : [
         {
-            "name" : "\u5186\u9310",
+            "name" : "\u5186\u9310.001",
             "primitives" : [
                 {
                     "attributes" : {
@@ -64,14 +64,14 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 128,
+            "count" : 378,
             "max" : [
-                0.05557685345411301,
+                0.07837072759866714,
                 0.055576857179403305,
                 0.05666567385196686
             ],
             "min" : [
-                -0.05557685345411301,
+                -0.07837072759866714,
                 -0.05557684972882271,
                 -0.05666567012667656
             ],
@@ -80,45 +80,45 @@
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 128,
+            "count" : 378,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 128,
+            "count" : 378,
             "type" : "VEC3"
         },
         {
             "bufferView" : 3,
             "componentType" : 5123,
-            "count" : 186,
+            "count" : 396,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 1536,
+            "byteLength" : 4536,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 1024,
-            "byteOffset" : 1536,
+            "byteLength" : 3024,
+            "byteOffset" : 4536,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 1536,
-            "byteOffset" : 2560,
+            "byteLength" : 4536,
+            "byteOffset" : 7560,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 372,
-            "byteOffset" : 4096,
+            "byteLength" : 792,
+            "byteOffset" : 12096,
             "target" : 34963
         }
     ],
@@ -130,7 +130,7 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 4468,
+            "byteLength" : 12888,
             "uri" : "Virus.bin"
         }
     ]

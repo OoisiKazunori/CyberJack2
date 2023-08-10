@@ -84,10 +84,13 @@ namespace DrawFunc
 		transData.m_projective = CameraMgr::Instance()->GetPerspectiveMatProjection();
 		transData.m_view = CameraMgr::Instance()->GetViewMatrix();
 
-		DirectX::XMVECTOR pos, scale, rotaQ;
-		DirectX::XMMatrixDecompose(&pos, &scale, &rotaQ, arg_transform.GetMat());
-		DirectX::XMMATRIX rotaMat = DirectX::XMMatrixRotationQuaternion(rotaQ);
-		transData.m_rotaion = rotaMat;
+		//クォータニオンに値が入っている or クォータニオンが単位行列じゃなかったらクォータニオンで回転行列を求める。
+		if (0 < fabs(arg_transform.quaternion.m128_f32[3])) {
+			transData.m_rotaion = DirectX::XMMatrixRotationQuaternion(arg_transform.quaternion);
+		}
+		else {
+			transData.m_rotaion = KazMath::CaluRotaMatrix(arg_transform.rotation);
+		}
 
 		arg_callData.extraBufferArray[0].bufferWrapper->TransData(&transData, sizeof(CoordinateSpaceMatData));
 		//ID
@@ -103,10 +106,13 @@ namespace DrawFunc
 		transData.m_projective = CameraMgr::Instance()->GetPerspectiveMatProjection();
 		transData.m_view = CameraMgr::Instance()->GetViewMatrix();
 
-		DirectX::XMVECTOR pos, scale, rotaQ;
-		DirectX::XMMatrixDecompose(&pos, &scale, &rotaQ, arg_transform.GetMat());
-		DirectX::XMMATRIX rotaMat = DirectX::XMMatrixRotationQuaternion(rotaQ);
-		transData.m_rotaion = rotaMat;
+		//クォータニオンに値が入っている or クォータニオンが単位行列じゃなかったらクォータニオンで回転行列を求める。
+		if (0 < fabs(arg_transform.quaternion.m128_f32[3])) {
+			transData.m_rotaion = DirectX::XMMatrixRotationQuaternion(arg_transform.quaternion);
+		}
+		else {
+			transData.m_rotaion = KazMath::CaluRotaMatrix(arg_transform.rotation);
+		}
 
 		arg_callData.extraBufferArray[0].bufferWrapper->TransData(&transData, sizeof(CoordinateSpaceMatData));
 

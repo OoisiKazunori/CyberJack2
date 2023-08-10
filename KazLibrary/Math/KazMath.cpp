@@ -468,7 +468,7 @@ DirectX::XMMATRIX KazMath::CaluWorld(const KazMath::Transform3D &TRANSFORM, cons
 	baseMatWorldData.matScale = KazMath::CaluScaleMatrix(TRANSFORM.scale);
 	baseMatWorldData.matTrans = KazMath::CaluTransMatrix(TRANSFORM.pos);
 	//クォータニオンに値が入っている or クォータニオンが単位行列じゃなかったらクォータニオンで回転行列を求める。
-	if (0 < TRANSFORM.quaternion.m128_f32[3] || DirectX::XMQuaternionIsIdentity(TRANSFORM.quaternion)) {
+	if (0 < fabs(TRANSFORM.quaternion.m128_f32[3])) {
 		baseMatWorldData.matRota = DirectX::XMMatrixRotationQuaternion(TRANSFORM.quaternion);
 	}
 	else {
