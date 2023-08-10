@@ -19,15 +19,15 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(1000.0f)
 		m_computeInitBuffer
 	);
 
-	//ƒp[ƒeƒBƒNƒ‹‚Ì“ü—Í
+	//ï¿½pï¿½[ï¿½eï¿½Bï¿½Nï¿½ï¿½ï¿½Ì“ï¿½ï¿½ï¿½
 	m_computeUpdateBuffer.emplace_back(m_drawTriangleParticle.extraBufferArray[0]);
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-	//o—Í
+	//ï¿½oï¿½ï¿½
 	m_computeUpdateBuffer.emplace_back(KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * PARTICLE_MAX_NUM));
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-	//ƒJƒƒ‰
+	//ï¿½Jï¿½ï¿½ï¿½ï¿½
 	m_computeUpdateBuffer.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(CameraBufferData)));
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;

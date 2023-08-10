@@ -168,7 +168,7 @@ GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
 
     GBufferOutput output;
     output.albedo = texColor * color;
-    output.normal = float4(nWorld,1.0f);
+    output.normal = float4(normal, 1.0f);
     output.metalnessRoughness = float4(mrColor.xyz,raytracingId);
     output.world = float4(input.worldPos,1.0f);
 	return output;

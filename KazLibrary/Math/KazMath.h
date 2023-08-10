@@ -608,14 +608,16 @@ namespace KazMath
 		Vec3<float> pos;
 		Vec3<float> scale;
 		Vec3<float> rotation;
+		DirectX::XMVECTOR quaternion;
 
-		Transform3D():
+		Transform3D() :
 			positionDirtyFlag(DirtyFlag<Vec3<float>>(&pos)),
 			scaleDirtyFlag(DirtyFlag<Vec3<float>>(&scale)),
 			rotationDirtyFlag(DirtyFlag<Vec3<float>>(&rotation)),
 			pos(Vec3<float>(0.0f, 0.0f, 0.0f)),
 			scale(Vec3<float>(1.0f, 1.0f, 1.0f)),
-			rotation(Vec3<float>(0.0f, 0.0f, 0.0f))
+			rotation(Vec3<float>(0.0f, 0.0f, 0.0f)),
+			quaternion({0,0,0,0})
 		{
 		};
 		Transform3D(const Vec3<float> &POS) :
@@ -624,7 +626,8 @@ namespace KazMath
 			rotationDirtyFlag(DirtyFlag<Vec3<float>>(&rotation)),
 			pos(POS),
 			scale(Vec3<float>(1.0f, 1.0f, 1.0f)),
-			rotation(Vec3<float>(0.0f, 0.0f, 0.0f))
+			rotation(Vec3<float>(0.0f, 0.0f, 0.0f)),
+			quaternion({ 0,0,0,0 })
 		{
 		};
 		Transform3D(const Vec3<float> &POS, const Vec3<float> &SCALE, const Vec3<float> &ROTATION):
@@ -633,7 +636,8 @@ namespace KazMath
 			rotationDirtyFlag(DirtyFlag<Vec3<float>>(&rotation)),
 			pos(POS),
 			scale(SCALE),
-			rotation(ROTATION)
+			rotation(ROTATION),
+			quaternion({0,0,0,0})
 		{
 		};
 

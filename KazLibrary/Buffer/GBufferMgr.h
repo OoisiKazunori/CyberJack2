@@ -63,6 +63,19 @@ public:
 		return m_lensFlareLuminanceGBuffer;
 	};
 
+	const KazBufferHelper::BufferData& GetBackBufferCopyBuffer()
+	{
+		return m_backBufferCopyBuffer;
+	};
+
+	const KazBufferHelper::BufferData& GetBackBufferCompositeBuffer()
+	{
+		return m_backBufferCompositeBuffer;
+	};
+
+	//バックバッファを合成
+	void ComposeBackBuffer();
+
 	//レンズフレア用のGBufferにブラーをかける。
 	void ApplyLensFlareBlur();
 
@@ -110,6 +123,9 @@ private:
 	//最終合成結果
 	KazBufferHelper::BufferData m_finalGBuffer;
 	KazBufferHelper::BufferData m_raytracingGBuffer;			//レイトレの出力結果
+	KazBufferHelper::BufferData m_backBufferCopyBuffer;			//レイトレ結果をCopyする際に上書きしてしまわないようにするためのバッファ
+	KazBufferHelper::BufferData m_backBufferCompositeBuffer;				//レイトレ結果をCopyする際に上書きしてしまわないようにするためのバッファ
+	std::shared_ptr<ComputeShader> m_backBufferRaytracingCompositeShader;	//バックバッファとレイトレ出力結果を合成するバッファ
 
 	//レンズフレア関連
 	KazBufferHelper::BufferData m_lensFlareLuminanceGBuffer;	//レンズフレアに使用するGBuffer レイトレを実行すると書き込まれる。

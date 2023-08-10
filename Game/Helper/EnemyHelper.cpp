@@ -41,6 +41,10 @@ void KazEnemyHelper::GenerateEnemy(std::array<std::array<std::unique_ptr<IEnemy>
 					ENEMIES[enemyType][enemyCount] = std::make_unique<LotusLeafEnemy>();
 					ENEMISE_HITBOX.emplace_back(&ENEMIES[enemyType][enemyCount]->GetData()->hitBox);
 					break;
+				case ENEMY_TYPE_BUTTERFLY:
+					ENEMIES[enemyType][enemyCount] = std::make_unique<ButterflyEnemy>();
+					ENEMISE_HITBOX.emplace_back(&ENEMIES[enemyType][enemyCount]->GetData()->hitBox);
+					break;
 				default:
 					break;
 				}

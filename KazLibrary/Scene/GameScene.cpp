@@ -45,13 +45,34 @@ void GameScene::PreInit()
 
 	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].layerLevel = layerLevel;
 	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].flame = 0;
-	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].generateData.initPos = { 90.0f,10.0f,z };
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].generateData.initPos = { 50.0f,10.0f,z };
+	++respoineIndex;
+
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].layerLevel = layerLevel;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].flame = 0;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].generateData.initPos = { 50.0f,10.0f,z };
+	++respoineIndex;
+
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].layerLevel = layerLevel;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].flame = 0;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].generateData.initPos = { 50.0f,10.0f,z };
+	++respoineIndex;
+
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].layerLevel = layerLevel;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].flame = 0;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].generateData.initPos = { 50.0f,10.0f,z };
 	++respoineIndex;
 
 	m_responeData[ENEMY_TYPE_LOTUSLEAF][respoineIndex].layerLevel = layerLevel;
 	m_responeData[ENEMY_TYPE_LOTUSLEAF][respoineIndex].flame = 0;
 	m_responeData[ENEMY_TYPE_LOTUSLEAF][respoineIndex].generateData.initPos = { 90.0f,10.0f,z };
 	++respoineIndex;
+
+	m_responeData[ENEMY_TYPE_BUTTERFLY][respoineIndex].layerLevel = layerLevel;
+	m_responeData[ENEMY_TYPE_BUTTERFLY][respoineIndex].flame = 0;
+	m_responeData[ENEMY_TYPE_BUTTERFLY][respoineIndex].generateData.initPos = { 90.0f,10.0f,z };
+	++respoineIndex;
+
 	//2-----------------------------------------------------------------
 
 #pragma endregion

@@ -310,16 +310,33 @@ namespace Raytracing {
 
 		//バックバッファの状態を遷移。
 		auto backBufferIndex = m_refDirectX12->swapchain->GetCurrentBackBufferIndex();
-		BufferStatesTransition(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_DEST);
+		BufferStatesTransition(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE);
 
-		//レイトレ出力用のテクスチャのステータスを書き込み用のUAVからコピー用に変更。
-		BufferStatesTransition(GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+		//バックバッファ一時保存用テクスチャのステータスをコピー用に変更。
+		BufferStatesTransition(GBufferMgr::Instance()->GetBackBufferCopyBuffer().bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST);
 
 		//コピーを実行。
-		DirectX12CmdList::Instance()->cmdList->CopyResource(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetBuffer().Get());
+		DirectX12CmdList::Instance()->cmdList->CopyResource(GBufferMgr::Instance()->GetBackBufferCopyBuffer().bufferWrapper->GetBuffer().Get(), m_refDirectX12->GetBackBuffer()[backBufferIndex].Get());
 
-		//レイトレ出力用のテクスチャのステータスを元に戻す。
-		BufferStatesTransition(GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		//バックバッファ一時保存用テクスチャのステータスを元に戻す。
+		BufferStatesTransition(GBufferMgr::Instance()->GetBackBufferCopyBuffer().bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+		//バックバッファの状態を元に戻す。
+		BufferStatesTransition(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+
+		/*-- バックバッファを合成する --*/
+
+		//合成を実行。
+		GBufferMgr::Instance()->ComposeBackBuffer();
+
+		//バックバッファ一時保存用テクスチャのステータスをコピー用に変更。
+		BufferStatesTransition(GBufferMgr::Instance()->GetBackBufferCompositeBuffer().bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+		//コピーを実行。
+		DirectX12CmdList::Instance()->cmdList->CopyResource(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), GBufferMgr::Instance()->GetBackBufferCompositeBuffer().bufferWrapper->GetBuffer().Get());
+
+		//バックバッファ一時保存用テクスチャのステータスを元に戻す。
+		BufferStatesTransition(GBufferMgr::Instance()->GetBackBufferCompositeBuffer().bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		//バックバッファの状態を元に戻す。
 		BufferStatesTransition(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);

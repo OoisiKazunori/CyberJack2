@@ -224,7 +224,7 @@ void SceneManager::Draw()
 	ImGui::SliderFloat("VecX", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.x, -1.0f, 1.0f);
 	ImGui::SliderFloat("VecY", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.y, -1.0f, 1.0f);
 	ImGui::SliderFloat("VecZ", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.z, -1.0f, 1.0f);
-	//GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
+	GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
 	bool isActive = GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive;
 	ImGui::Checkbox("ActiveFlag", &isActive);
 	GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive = isActive;

@@ -5,6 +5,7 @@
 #include"../Game/Interface/IEnemy.h"
 #include"../Game/Enemy/VirusEnemy.h"
 #include"../Game/Enemy/LotusLeafEnemy.h"
+#include"../Game/Enemy/ButterflyEnemy.h"
 #include"../Game/UI/Cursor.h"
 #include"../Game/UI/AttackLog.h"
 #include"../Game/Effect/InstanceMeshParticle.h"
