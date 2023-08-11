@@ -41,6 +41,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 
 	m_debugOnOffLineRender = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
 	m_debugOnOffLineBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLine.png");
+	m_debugOnOffLineStayBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLineStay.png");
 
 	//ボリュームテクスチャを生成。
 	m_volumeFogTextureBuffer = KazBufferHelper::SetUAV3DTexBuffer(256, 256, 256, DXGI_FORMAT_R8G8B8A8_UNORM);
@@ -102,6 +103,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_OnOffDebugParamData = KazBufferHelper::SetConstBufferData(sizeof(OnOffDebugParam));
 	m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));
 	m_isDebugOnOff = false;
+	m_isOldDebugOnOff = false;
 
 	//OnOffデバッグ用のパラメーターを用意。
 	m_rayPipeline->SetDebugOnOffConstData(&m_OnOffDebugParamData);
@@ -191,7 +193,7 @@ void SceneManager::Update()
 
 	m_blasVector.Update();
 
-	// fpsを制限(今回は60fps)
+	//fpsを制限(今回は60fps)
 	FpsManager::RegulateFps(60);
 
 
@@ -202,6 +204,23 @@ void SceneManager::Update()
 
 	//ノイズ用のタイマーを加算。
 	GBufferMgr::Instance()->m_cameraEyePosData.m_noiseTimer += 0.02f;
+
+	//デバッグ実行中はOnOffのラインをつかんで動かせるようにする。
+	if (m_isDebugOnOff) {
+
+		//左クリックしていたら。
+		bool isMouseLeftClick = KeyBoradInputManager::Instance()->MouseInputState(MOUSE_INPUT_LEFT);
+		if (isMouseLeftClick) {
+
+			//マウスの移動量を保存して動かす。
+			m_onOffDebugParam.m_sliderRate = KeyBoradInputManager::Instance()->GetMousePoint().x;
+			m_onOffDebugParam.m_sliderRate = std::clamp(m_onOffDebugParam.m_sliderRate, 0.0f, 1280.0f);
+
+		}
+
+	}
+
+	m_isOldDebugOnOff = m_isDebugOnOff;
 
 }
 
@@ -220,7 +239,12 @@ void SceneManager::Draw()
 		m_debugOnOffLineTransform.pos.y = 720.0f / 2.0f;
 		m_debugOnOffLineTransform.scale.x = 10.0f;
 		m_debugOnOffLineTransform.scale.y = 720.0f;
-		DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineBuffer);
+		if (KeyBoradInputManager::Instance()->MouseInputState(MOUSE_INPUT_LEFT)) {
+			DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineBuffer);
+		}
+		else {
+			DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineStayBuffer);
+		}
 		m_rasterize.ObjectRender(m_debugOnOffLineRender);
 	}
 
@@ -282,6 +306,13 @@ void SceneManager::Draw()
 		m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
 	}
 	ImGui::End();
+
+	//このデバッグ機能が切り替わった瞬間だったら初期値を入れる。
+	if (m_isDebugOnOff && !m_isOldDebugOnOff) {
+		m_onOffDebugParam.m_debugReflection = true;
+		m_onOffDebugParam.m_debugShadow = true;
+		m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
+	}
 	m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));
 
 	//ボリュームフォグ

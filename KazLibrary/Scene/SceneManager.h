@@ -81,7 +81,9 @@ private:
 	//デバッグ用のOnOff切り替えライン
 	DrawFuncData::DrawCallData m_debugOnOffLineRender;
 	KazBufferHelper::BufferData m_debugOnOffLineBuffer;
+	KazBufferHelper::BufferData m_debugOnOffLineStayBuffer;
 	KazMath::Transform2D m_debugOnOffLineTransform;
+	bool m_isOldDebugOnOff;
 
 
 	//ラスタライザ描画
