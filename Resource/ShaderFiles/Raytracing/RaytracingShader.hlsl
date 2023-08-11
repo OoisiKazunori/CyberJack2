@@ -94,7 +94,7 @@ float3 AtmosphericScattering(float3 pos, inout float3 mieColor)
     float3 v3CameraPos = float3(0.0, fInnerRadius + 1.0f, 0.0f);
 
     //ディレクショナルライトの場所を求める。
-    float3 dirLightPos = -lightData.m_dirLight.m_dir * 1000000.0f;
+    float3 dirLightPos = -lightData.m_dirLight.m_dir * 15000.0f;
 
     //ディレクショナルライトへの方向を求める。
     float3 v3LightDir = normalize(dirLightPos - worldPos);
