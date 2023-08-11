@@ -22,20 +22,25 @@ public:
 	//ステージ内に漂う三角パーティクル
 	DrawFuncData::DrawCallData m_drawTriangleParticle;
 
-	static const int PARTICLE_MAX_NUM = 1024 * 5;
+	static const int DISPATCH_MAX_NUM = 100;
+	static const int PARTICLE_MAX_NUM = 1024 * DISPATCH_MAX_NUM;
 	struct ParticeArgumentData
 	{
 		DirectX::XMFLOAT3 m_pos;
+		DirectX::XMFLOAT3 m_scale;
 		DirectX::XMFLOAT3 m_rotation;
+		DirectX::XMFLOAT3 m_rotationVel;
+		DirectX::XMFLOAT4 m_color;
 	};
 	struct CameraBufferData
 	{
 		DirectX::XMMATRIX m_billboardMat;
 		DirectX::XMMATRIX m_viewProjMat;
+		float m_playerPosZ;
 	};
 	struct OutputData
 	{
-		DirectX::XMMATRIX mat;
+		DirectX::XMMATRIX m_mat;
 		DirectX::XMFLOAT4 m_color;
 	};
 
@@ -43,5 +48,7 @@ public:
 	std::vector<KazBufferHelper::BufferData> m_computeUpdateBuffer;
 
 	ComputeShader m_computeInit,m_computeUpdate;
+
+	KazBufferHelper::BufferData m_randomTable;
 };
 

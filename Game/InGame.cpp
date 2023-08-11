@@ -10,6 +10,7 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 
 	m_debugFlag = false;
 
+	//m_meshParticleRender = m_particleRender;
 }
 
 void InGame::Init(bool SKIP_FLAG)
@@ -23,6 +24,8 @@ void InGame::Init(bool SKIP_FLAG)
 	m_isEnemyNotMoveFlag = false;
 	m_sceneNum = -1;
 	m_cursor.Init();
+
+	//m_meshParticleRender->Init();
 }
 
 void InGame::Finalize()
@@ -338,6 +341,8 @@ void InGame::Update()
 					m_cursor.Release())
 				{
 					m_enemies[enemyType][enemyCount]->Dead();
+					//メッシュパーティクル発行命令
+					//m_meshParticleRender->AddMeshData(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData[0]->meshParticleData);
 				}
 				m_enemies[enemyType][enemyCount]->Update();
 			}
@@ -364,8 +369,8 @@ void InGame::Update()
 	}
 
 
-
 	m_rail.Update();
+	m_stageArray[m_gameStageLevel]->playerPosZ = m_rail.GetPosition().z;
 	m_stageArray[m_gameStageLevel]->Update();
 
 	//カメラ移動とプレイヤーを移動させる
@@ -406,7 +411,7 @@ void InGame::Update()
 
 	m_gameFlame += m_gameSpeed;
 
-
+	//m_meshParticleRender->Compute();
 }
 
 void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)

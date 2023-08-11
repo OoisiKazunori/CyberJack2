@@ -37,6 +37,7 @@ public:
 	bool hitFlag = false;
 	bool startFlag = false;
 	Sprite3DRender vaporWaveSunRender;
+	float playerPosZ;
 protected:
 	int cameraIndex = 0;
 	float objectSpeed;

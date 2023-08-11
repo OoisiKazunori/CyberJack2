@@ -53,6 +53,8 @@
 #include"../KazLibrary/Helper/Compute.h"
 #include"../KazLibrary/Helper/ResourceFilePass.h"
 
+#include"../Game/Effect/InstanceMeshParticle.h"
+
 class InGame
 {
 public:
@@ -146,4 +148,7 @@ private:
 	DebugCamera m_debugCamera;
 	//デバック処理---------------------------------------
 
+	//メッシュパーティクル
+	KazBufferHelper::BufferData m_particleRender;
+	std::optional<InstanceMeshParticle> m_meshParticleRender;
 };
