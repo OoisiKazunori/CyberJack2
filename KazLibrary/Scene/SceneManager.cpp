@@ -276,16 +276,16 @@ void SceneManager::Draw()
 	GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive = isActive;
 	ImGui::End();
 
-	//ポイントライト
-	ImGui::Begin("PointLight");
-	ImGui::DragFloat("PosX", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.x, 0.5f);
-	ImGui::DragFloat("PosY", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.y, 0.5f);
-	ImGui::DragFloat("PosZ", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.z, 0.5f);
-	ImGui::DragFloat("Power", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_power, 0.5f, 1.0f);
-	isActive = GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive;
-	ImGui::Checkbox("ActiveFlag", &isActive);
-	GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive = isActive;
-	ImGui::End();
+	////ポイントライト
+	//ImGui::Begin("PointLight");
+	//ImGui::DragFloat("PosX", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.x, 0.5f);
+	//ImGui::DragFloat("PosY", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.y, 0.5f);
+	//ImGui::DragFloat("PosZ", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.z, 0.5f);
+	//ImGui::DragFloat("Power", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_power, 0.5f, 1.0f);
+	//isActive = GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive;
+	//ImGui::Checkbox("ActiveFlag", &isActive);
+	//GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive = isActive;
+	//ImGui::End();
 
 	//OnOff
 	ImGui::Begin("DebugOnOff");
@@ -315,37 +315,37 @@ void SceneManager::Draw()
 	}
 	m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));
 
-	//ボリュームフォグ
-	ImGui::Begin("VolumeFog");
-	ImGui::SetWindowSize(ImVec2(400, 100), ImGuiCond_::ImGuiCond_FirstUseEver);
-	ImGui::DragFloat("WindSpeed", &m_noiseParam.m_windSpeed, 0.1f, 0.1f, 10.0f);
-	//風の強度
-	ImGui::DragFloat("WindStrength", &m_noiseParam.m_windStrength, 0.1f, 0.1f, 1.0f);
-	//風のしきい値 ノイズを風として判断するためのもの
-	ImGui::DragFloat("WindThreshold", &m_noiseParam.m_threshold, 0.01f, 0.01f, 1.0f);
-	//ノイズのスケール
-	ImGui::DragFloat("NoiseScale", &m_noiseParam.m_skydormScale, 1.0f, 1.0f, 2000.0f);
-	//ノイズのオクターブ数
-	ImGui::DragInt("NoiseOctaves", &m_noiseParam.m_octaves, 1, 1, 10);
-	//ノイズの持続度 違う周波数のノイズを計算する際にどのくらいノイズを持続させるか。 粒度になる。
-	ImGui::DragFloat("NoisePersistance", &m_noiseParam.m_persistence, 0.01f, 0.01f, 1.0f);
-	//ノイズの黒っぽさ
-	ImGui::DragFloat("NoiseLacunarity", &m_noiseParam.m_lacunarity, 0.01f, 0.01f, 10.0f);
-	ImGui::Text(" ");
-	//ボリュームテクスチャの座標
-	std::array<float, 3> boxPos = { m_raymarchingParam.m_pos.x,m_raymarchingParam.m_pos.y, m_raymarchingParam.m_pos.z };
-	ImGui::DragFloat3("Position", boxPos.data(), 0.1f);
-	m_raymarchingParam.m_pos = KazMath::Vec3<float>(boxPos[0], boxPos[1], boxPos[2]);
-	//フォグの色
-	std::array<float, 3> fogColor = { m_raymarchingParam.m_color.x,m_raymarchingParam.m_color.y, m_raymarchingParam.m_color.z };
-	ImGui::DragFloat3("FogColor", fogColor.data(), 0.001f, 0.001f, 1.0f);
-	m_raymarchingParam.m_color = KazMath::Vec3<float>(fogColor[0], fogColor[1], fogColor[2]);
-	ImGui::DragFloat("WrapCount", &m_raymarchingParam.m_wrapCount, 1.0f, 1.0f, 100.0f);
-	ImGui::DragFloat("GridSize", &m_raymarchingParam.m_gridSize, 0.1f, 0.1f, 1000.0f);
-	ImGui::DragFloat("SamplingLength", &m_raymarchingParam.m_sampleLength, 0.1f, 1.0f, 1000.0f);
-	ImGui::DragFloat("Density", &m_raymarchingParam.m_density, 0.01f, 0.0f, 10.0f);
-	ImGui::SliderInt("IsActive", &m_raymarchingParam.m_isActive, 0, 1);
-	ImGui::End();
+	////ボリュームフォグ
+	//ImGui::Begin("VolumeFog");
+	//ImGui::SetWindowSize(ImVec2(400, 100), ImGuiCond_::ImGuiCond_FirstUseEver);
+	//ImGui::DragFloat("WindSpeed", &m_noiseParam.m_windSpeed, 0.1f, 0.1f, 10.0f);
+	////風の強度
+	//ImGui::DragFloat("WindStrength", &m_noiseParam.m_windStrength, 0.1f, 0.1f, 1.0f);
+	////風のしきい値 ノイズを風として判断するためのもの
+	//ImGui::DragFloat("WindThreshold", &m_noiseParam.m_threshold, 0.01f, 0.01f, 1.0f);
+	////ノイズのスケール
+	//ImGui::DragFloat("NoiseScale", &m_noiseParam.m_skydormScale, 1.0f, 1.0f, 2000.0f);
+	////ノイズのオクターブ数
+	//ImGui::DragInt("NoiseOctaves", &m_noiseParam.m_octaves, 1, 1, 10);
+	////ノイズの持続度 違う周波数のノイズを計算する際にどのくらいノイズを持続させるか。 粒度になる。
+	//ImGui::DragFloat("NoisePersistance", &m_noiseParam.m_persistence, 0.01f, 0.01f, 1.0f);
+	////ノイズの黒っぽさ
+	//ImGui::DragFloat("NoiseLacunarity", &m_noiseParam.m_lacunarity, 0.01f, 0.01f, 10.0f);
+	//ImGui::Text(" ");
+	////ボリュームテクスチャの座標
+	//std::array<float, 3> boxPos = { m_raymarchingParam.m_pos.x,m_raymarchingParam.m_pos.y, m_raymarchingParam.m_pos.z };
+	//ImGui::DragFloat3("Position", boxPos.data(), 0.1f);
+	//m_raymarchingParam.m_pos = KazMath::Vec3<float>(boxPos[0], boxPos[1], boxPos[2]);
+	////フォグの色
+	//std::array<float, 3> fogColor = { m_raymarchingParam.m_color.x,m_raymarchingParam.m_color.y, m_raymarchingParam.m_color.z };
+	//ImGui::DragFloat3("FogColor", fogColor.data(), 0.001f, 0.001f, 1.0f);
+	//m_raymarchingParam.m_color = KazMath::Vec3<float>(fogColor[0], fogColor[1], fogColor[2]);
+	//ImGui::DragFloat("WrapCount", &m_raymarchingParam.m_wrapCount, 1.0f, 1.0f, 100.0f);
+	//ImGui::DragFloat("GridSize", &m_raymarchingParam.m_gridSize, 0.1f, 0.1f, 1000.0f);
+	//ImGui::DragFloat("SamplingLength", &m_raymarchingParam.m_sampleLength, 0.1f, 1.0f, 1000.0f);
+	//ImGui::DragFloat("Density", &m_raymarchingParam.m_density, 0.01f, 0.0f, 10.0f);
+	//ImGui::SliderInt("IsActive", &m_raymarchingParam.m_isActive, 0, 1);
+	//ImGui::End();
 
 	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
 	m_raymarchingParamData.bufferWrapper->TransData(&m_raymarchingParam, sizeof(RaymarchingParam));

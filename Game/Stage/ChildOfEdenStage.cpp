@@ -73,16 +73,16 @@ void ChildOfEdenStage::Update()
 
 void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize)
 {
-	//DrawFunc::DrawModel(m_drawSkydorm, m_skydormTransform);
-	//arg_rasterize.ObjectRender(m_drawSkydorm);
+	////DrawFunc::DrawModel(m_drawSkydorm, m_skydormTransform);
+	////arg_rasterize.ObjectRender(m_drawSkydorm);
 
-	arg_rasterize.ObjectRender(m_drawTriangleParticle);
+	//arg_rasterize.ObjectRender(m_drawTriangleParticle);
 
-	CameraBufferData cameraMat;
-	cameraMat.m_billboardMat = CameraMgr::Instance()->GetMatBillBoard();
-	cameraMat.m_viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
-	cameraMat.m_playerPosZ = playerPosZ;
-	m_computeUpdateBuffer[2].bufferWrapper->TransData(&cameraMat, sizeof(CameraBufferData));
+	//CameraBufferData cameraMat;
+	//cameraMat.m_billboardMat = CameraMgr::Instance()->GetMatBillBoard();
+	//cameraMat.m_viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
+	//cameraMat.m_playerPosZ = playerPosZ;
+	//m_computeUpdateBuffer[2].bufferWrapper->TransData(&cameraMat, sizeof(CameraBufferData));
 
-	m_computeUpdate.Compute({ DISPATCH_MAX_NUM,1,1 });
+	//m_computeUpdate.Compute({ DISPATCH_MAX_NUM,1,1 });
 }
