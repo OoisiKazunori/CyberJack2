@@ -14,6 +14,7 @@ RaytracingAccelerationStructure gRtScene : register(t0);
 ConstantBuffer<CameraEyePosConstData> cameraEyePos : register(b0);
 ConstantBuffer<LightData> lightData : register(b1);
 ConstantBuffer<RaymarchingParam> volumeFogData : register(b2);
+ConstantBuffer<DebugOnOffParam> debugOnOffData : register(b3);
 
 //GBuffer
 Texture2D<float4> albedoMap : register(t1);
@@ -371,7 +372,14 @@ void mainRayGen()
     
     //マテリアルのIDをもとに、反射屈折のレイを飛ばす。
     float4 final = float4(0, 0, 0, 1);
-    SecondaryPass(dir, worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
+    if (debugOnOffData.m_debugID == 1 && launchIndex.x < debugOnOffData.m_sliderRate)
+    {
+        final = albedoColor;
+    }
+    else
+    {
+        SecondaryPass(dir, worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
+    }
     
     //描画されているけど水中！だったら水中っぽい見た目にする。
     if (cameraEyePos.m_eye.y < 0 && worldColor.y < 0)

@@ -583,11 +583,12 @@ namespace Raytracing {
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(5, GBufferMgr::Instance()->GetEyePosBuffer().bufferWrapper->GetGpuAddress());
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(6, GBufferMgr::Instance()->m_lightBuffer.bufferWrapper->GetGpuAddress());
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(7, m_refRaymarchingConstData->bufferWrapper->GetGpuAddress());
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootConstantBufferView(8, m_refDebugOnOffConstData->bufferWrapper->GetGpuAddress());
 
 		//書き込み用UAV
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(8, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetViewHandle()));	//レイトレ出力用
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(9, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(m_refVolumeNoiseTexture->bufferWrapper->GetViewHandle()));	//ボリュームフォグ用テクスチャ
-		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(10, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetViewHandle()));	//レンズフレア用テクスチャ
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(9, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetViewHandle()));	//レイトレ出力用
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(10, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(m_refVolumeNoiseTexture->bufferWrapper->GetViewHandle()));	//ボリュームフォグ用テクスチャ
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(11, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetViewHandle()));	//レンズフレア用テクスチャ
 
 		//パイプラインを設定。
 		DirectX12CmdList::Instance()->cmdList->SetPipelineState1(m_stateObject.Get());

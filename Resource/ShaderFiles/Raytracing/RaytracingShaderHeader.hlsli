@@ -77,6 +77,14 @@ struct RaymarchingParam
     int m_isActive;
 };
 
+//OnOffデバッグ
+struct DebugOnOffParam
+{
+    int m_debugID;
+    float m_sliderRate;
+    float2 m_pad;
+};
+
 //barysを計算
 inline float3 CalcBarycentrics(float2 Barys)
 {

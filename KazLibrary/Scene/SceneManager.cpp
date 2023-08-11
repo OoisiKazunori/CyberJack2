@@ -36,7 +36,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	Raytracing::HitGroupMgr::Instance()->Setting();
 	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS", L"checkHitRayMS"}, {L"mainCHS", L"mainAnyHit"} });
 	int payloadSize = sizeof(float) * 4;
-	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 5, 3, 3, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
+	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 5, 4, 3, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
 
 
@@ -93,6 +93,15 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 
 	//レイマーチングのパラメーター用定数バッファをセット。
 	m_rayPipeline->SetRaymarchingConstData(&m_raymarchingParamData);
+
+	//OnOffデバッグ用のパラメーターを用意。
+	m_onOffDebugParam.m_debugID = 0;
+	m_onOffDebugParam.m_sliderRate = 0;
+	m_OnOffDebugParamData = KazBufferHelper::SetConstBufferData(sizeof(OnOffDebugParam));
+	m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));
+
+	//OnOffデバッグ用のパラメーターを用意。
+	m_rayPipeline->SetDebugOnOffConstData(&m_OnOffDebugParamData);
 }
 
 SceneManager::~SceneManager()
@@ -240,6 +249,19 @@ void SceneManager::Draw()
 	ImGui::Checkbox("ActiveFlag", &isActive);
 	GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive = isActive;
 	ImGui::End();
+
+	//OnOff
+	ImGui::Begin("DebugOnOff");
+	ImGui::RadioButton("OFF", &m_onOffDebugParam.m_debugID, 0);
+	ImGui::SameLine();
+	ImGui::RadioButton("REFLECT", &m_onOffDebugParam.m_debugID, 1);
+	ImGui::SameLine();
+	ImGui::RadioButton("SHADOW", &m_onOffDebugParam.m_debugID, 2);
+	if (m_onOffDebugParam.m_debugID != 0) {
+		ImGui::SliderFloat("RATE", &m_onOffDebugParam.m_sliderRate, 0.0f, 1280.0f);
+	}
+	ImGui::End();
+	m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));
 
 	//ボリュームフォグ
 	ImGui::Begin("VolumeFog");
