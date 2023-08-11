@@ -26,6 +26,162 @@ RWTexture2D<float4> finalColor : register(u0);
 RWTexture3D<float4> volumeNoiseTexture : register(u1);
 RWTexture2D<float4> lensFlareTexture : register(u2);
 
+float3 IntersectionPos(float3 Dir, float3 A, float Radius)
+{
+    float b = dot(A, Dir);
+    float c = dot(A, A) - Radius * Radius;
+    float d = max(b * b - c, 0.0f);
+
+    return A + Dir * (-b + sqrt(d));
+}
+float Scale(float FCos)
+{
+    float x = 1.0f - FCos;
+    return 0.25f * exp(-0.00287f + x * (0.459f + x * (3.83f + x * (-6.80f + x * 5.25f))));
+}
+
+//大気散乱
+float3 AtmosphericScattering(float3 pos, inout float3 mieColor)
+{
+    
+    //レイリー散乱定数
+    float kr = 0.0025f;
+    //ミー散乱定数
+    float km = 0.005f;
+
+    //大気中の線分をサンプリングする数。
+    float fSamples = 2.0f;
+
+    //謎の色 色的には薄めの茶色
+    float3 three_primary_colors = float3(0.68f, 0.55f, 0.44f);
+    //光の波長？
+    float3 v3InvWaveLength = 1.0f / pow(three_primary_colors, 4.0f);
+
+    //大気圏の一番上の高さ。
+    float fOuterRadius = 10250.0f;
+    //地球全体の地上の高さ。
+    float fInnerRadius = 10200.0f;
+
+    //太陽光の強さ？
+    float fESun = 10.0f;
+    //太陽光の強さにレイリー散乱定数をかけてレイリー散乱の強さを求めている。
+    float fKrESun = kr * fESun;
+    //太陽光の強さにミー散乱定数をかけてレイリー散乱の強さを求めている。
+    float fKmESun = km * fESun;
+
+    //レイリー散乱定数に円周率をかけているのだが、限りなく0に近い値。
+    float fKr4PI = kr * 4.0f * PI;
+    //ミー散乱定数に円周率をかけているのだが、ミー散乱定数は0なのでこれの値は0。
+    float fKm4PI = km * 4.0f * PI;
+
+    //地球全体での大気の割合。
+    float fScale = 1.0f / (fOuterRadius - fInnerRadius);
+    //平均大気密度を求める高さ。
+    float fScaleDepth = 0.35f;
+    //地球全体での大気の割合を平均大気密度で割った値。
+    float fScaleOverScaleDepth = fScale / fScaleDepth;
+
+    //散乱定数を求める際に使用する値。
+    float g = -0.999f;
+    //散乱定数を求める際に使用する値を二乗したもの。なぜ。
+    float g2 = g * g;
+
+    //当たった天球のワールド座標
+    float3 worldPos = normalize(pos) * fOuterRadius;
+    worldPos = IntersectionPos(normalize(worldPos), float3(0.0, fInnerRadius, 0.0), fOuterRadius);
+
+    //カメラ座標 元計算式だと中心固定になってしまっていそう。
+    float3 v3CameraPos = float3(0.0, fInnerRadius + 1.0f, 0.0f);
+
+    //ディレクショナルライトの場所を求める。
+    float3 dirLightPos = -lightData.m_dirLight.m_dir * 1000000.0f;
+
+    //ディレクショナルライトへの方向を求める。
+    float3 v3LightDir = normalize(dirLightPos - worldPos);
+
+    //天球上頂点からカメラまでのベクトル(光が大気圏に突入した点からカメラまでの光のベクトル)
+    float3 v3Ray = worldPos - v3CameraPos;
+
+    //大気に突入してからの点とカメラまでの距離。
+    float fFar = length(v3Ray);
+
+    //正規化された拡散光が来た方向。
+    v3Ray /= fFar;
+
+    //サンプリングする始点座標 資料だとAの頂点
+    float3 v3Start = v3CameraPos;
+    //サンプルではカメラの位置が(0,Radius,0)なのでカメラの高さ。どの位置に移動しても地球視点で見れば原点(地球の中心)からの高さ。
+    float fCameraHeight = length(v3CameraPos);
+    //地上からの法線(?)と拡散光がやってきた角度の内積によって求められた角度をカメラの高さで割る。
+    float fStartAngle = dot(v3Ray, v3Start) / fCameraHeight;
+    //開始地点の高さに平均大気密度をかけた値の指数を求める？
+    float fStartDepth = exp(fScaleOverScaleDepth * (fInnerRadius - fCameraHeight));
+    //開始地点のなにかの角度のオフセット。
+    float fStartOffset = fStartDepth * Scale(fStartAngle);
+
+    //サンプルポイント間の長さ。
+    float fSampleLength = fFar / fSamples;
+    //サンプルポイント間の長さに地球の大気の割合をかける。
+    float fScaledLength = fSampleLength * fScale;
+    //拡散光が来た方向にサンプルの長さをかけることでサンプルポイント間のレイをベクトルを求める。
+    float3 v3SampleRay = v3Ray * fSampleLength;
+    //最初のサンプルポイントを求める。0.5をかけてるのは少し動かすため？
+    float3 v3SamplePoint = v3Start + v3SampleRay * 0.5f;
+
+    //色情報
+    float3 v3FrontColor = 0.0f;
+    for (int n = 0; n < int(fSamples); ++n)
+    {
+        //サンプルポイントの高さ。どちらにせよ原点は地球の中心なので、この値が現在位置の高さになる。
+        float fHeight = length(v3SamplePoint);
+        //地上からサンプルポイントの高さの差に平均大気密度をかけたもの。  高度に応じて大気密度が指数的に小さくなっていくのを表現している？
+        float fDepth = exp(fScaleOverScaleDepth * (fInnerRadius - fHeight));
+        //地上から見たサンプルポイントの法線とディレクショナルライトの方向の角度を求めて、サンプルポイントの高さで割る。
+        float fLightAngle = dot(v3LightDir, v3SamplePoint) / fHeight; //こいつの値が-1になる→Scale内の計算でexpの引数が43になり、とてつもなくでかい値が入る。 → -にならないようにする？
+        //地上から見たサンプルポイントの法線と散乱光が飛んできている方区の角度を求めて、サンプルポイントの高さで割る。
+        float fCameraAngle = dot(v3Ray, v3SamplePoint) / fHeight;
+        //散乱光？
+        float fScatter = (fStartOffset + fDepth * (Scale(fLightAngle * 1) - Scale(fCameraAngle * 1)));
+
+        //色ごとの減衰率？
+        float3 v3Attenuate = exp(-fScatter * (v3InvWaveLength * fKr4PI + fKm4PI));
+        //サンプルポイントの位置を考慮して散乱した色を求める。
+        v3FrontColor += v3Attenuate * (fDepth * fScaledLength);
+        //サンプルポイントを移動させる。
+        v3SamplePoint += v3SampleRay;
+
+    }
+
+    //レイリー散乱に使用する色情報
+    float3 c0 = v3FrontColor * (v3InvWaveLength * fKrESun);
+    //ミー散乱に使用する色情報
+    float3 c1 = v3FrontColor * fKmESun;
+    //カメラ座標から天球の座標へのベクトル。
+    float3 v3Direction = v3CameraPos - worldPos;
+
+    //float fcos = dot(v3LightDir, v3Direction) / length(v3Direction);
+    float fcos = dot(v3LightDir, v3Direction) / length(v3Direction);
+    float fcos2 = fcos * fcos;
+
+    //レイリー散乱の明るさ。
+    float rayleighPhase = 0.75f * (1.0f + fcos2);
+    //ミー散乱の明るさ。
+    float miePhase = 1.5f * ((1.0f - g2) / (2.0f + g2)) * (1.0f + fcos2) / pow(1.0f + g2 - 2.0f * g * fcos, 1.5f);
+
+    //ミー散乱の色を保存。
+    mieColor = c0 * rayleighPhase;
+
+    //最終結果の色
+    float3 col = 1.0f;
+    col.rgb = rayleighPhase * c0 + miePhase * c1;
+
+    //交点までのベクトルと太陽までのベクトルが近かったら白色に描画する。
+    int sunWhite = step(0.999f, dot(normalize(dirLightPos - v3CameraPos), normalize(worldPos - v3CameraPos)));
+    
+    return col + float3(sunWhite, sunWhite, sunWhite);
+
+}
+
 //波を計算。
 float SeaOctave(float2 arg_uv, float arg_choppy)
 {
@@ -227,7 +383,10 @@ void mainRayGen()
     else if (length(worldColor.xyz) < 0.1f && length(normalColor.xyz) < 0.1f && !isSea)
     {
         
-        final.xyz = GetSkyColor(dir);
+        //final.xyz = GetSkyColor(dir);
+        float3 mieColor = float3(0,0,0);
+        final.xyz = AtmosphericScattering(dir * 15000.0f, mieColor);
+        lensFlareTexture[launchIndex.xy].xyz += mieColor * 0.1f;
         
         //下方向を向いていたら海を描画
         if ((cameraEyePos.m_eye + dir * 1000).y < 0)
