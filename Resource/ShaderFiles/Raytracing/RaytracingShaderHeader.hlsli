@@ -77,6 +77,15 @@ struct RaymarchingParam
     int m_isActive;
 };
 
+//OnOffデバッグ
+struct DebugOnOffParam
+{
+    int m_debugReflection;
+    int m_debugShadow;
+    float m_sliderRate;
+    float m_pad;
+};
+
 //barysを計算
 inline float3 CalcBarycentrics(float2 Barys)
 {
@@ -131,7 +140,7 @@ void CastRay(inout Payload arg_payload, float3 arg_origin, float3 arg_dir, float
 }
 
 //レイトレ内で行うライティングパス
-void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_normalMap, LightData arg_lightData, RaytracingAccelerationStructure arg_scene)
+void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_normalMap, LightData arg_lightData, uint2 arg_launchIndex, DebugOnOffParam arg_debugOnOffParam, RaytracingAccelerationStructure arg_scene)
 {
     
     //ディレクションライト。
@@ -143,7 +152,14 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。
         
         //レイを撃つ
-        CastRay(payloadData, arg_worldPosMap.xyz, -arg_lightData.m_dirLight.m_dir, 30000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+        if (arg_debugOnOffParam.m_debugShadow == 1 && arg_launchIndex.x < arg_debugOnOffParam.m_sliderRate)
+        {
+            payloadData.m_color = float3(1, 1, 1);
+        }
+        else
+        {
+            CastRay(payloadData, arg_worldPosMap.xyz, -arg_lightData.m_dirLight.m_dir, 30000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+        }
         
         //ライトのベクトルと法線から明るさを計算する。
         float bright = saturate(dot(arg_normalMap.xyz, -arg_lightData.m_dirLight.m_dir));

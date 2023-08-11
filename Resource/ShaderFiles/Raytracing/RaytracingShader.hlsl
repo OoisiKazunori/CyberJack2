@@ -14,6 +14,7 @@ RaytracingAccelerationStructure gRtScene : register(t0);
 ConstantBuffer<CameraEyePosConstData> cameraEyePos : register(b0);
 ConstantBuffer<LightData> lightData : register(b1);
 ConstantBuffer<RaymarchingParam> volumeFogData : register(b2);
+ConstantBuffer<DebugOnOffParam> debugOnOffData : register(b3);
 
 //GBuffer
 Texture2D<float4> albedoMap : register(t1);
@@ -340,6 +341,10 @@ void mainRayGen()
         
         float3 mieColor = float3(0, 0, 0);
         float3 sky = AtmosphericScattering(reflect(dir, n) * 15000.0f, mieColor);
+        if (debugOnOffData.m_debugReflection == 1 && launchIndex.x < debugOnOffData.m_sliderRate)
+        {
+            sky = GetSkyColor(dir);
+        }
         float3 sea = GetSeaColor(position, n, lightData.m_dirLight.m_dir, dir, dist);
         
         float t = pow(smoothstep(0.0f, -0.05f, dir.y), 0.3f);
@@ -355,7 +360,7 @@ void mainRayGen()
     
     //ライティングパスを行う。
     float bright = 0.0f;
-    LightingPass(bright, worldColor, normalColor, lightData, gRtScene);
+    LightingPass(bright, worldColor, normalColor, lightData, launchIndex, debugOnOffData, gRtScene);
     
     //輝度が一定以上だったらレンズフレア用のテクスチャに書きこむ。
     const float LENSFLARE_DEADLINE = 0.3f;
@@ -371,7 +376,14 @@ void mainRayGen()
     
     //マテリアルのIDをもとに、反射屈折のレイを飛ばす。
     float4 final = float4(0, 0, 0, 1);
-    SecondaryPass(dir, worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
+    if (debugOnOffData.m_debugReflection == 1 && launchIndex.x < debugOnOffData.m_sliderRate)
+    {
+        final = albedoColor;
+    }
+    else
+    {
+        SecondaryPass(dir, worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
+    }
     
     //描画されているけど水中！だったら水中っぽい見た目にする。
     if (cameraEyePos.m_eye.y < 0 && worldColor.y < 0)
