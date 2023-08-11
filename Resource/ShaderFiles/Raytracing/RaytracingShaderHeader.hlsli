@@ -370,7 +370,7 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
         
             //Y²‚Ì‚‚³‚ÅŒ¸Š‚³‚¹‚éB
             float maxY = 50.0f;
-            fogDensity *= 1.0f - saturate(marchingPos.y / maxY);
+           // fogDensity *= 1.0f - saturate(marchingPos.y / maxY);
         
             //‚»‚Ì•”•ª‚ÌF‚ğ”²‚«æ‚éB
             fogColor += float3(fogDensity, fogDensity, fogDensity) * arg_raymarchingParam.m_color;

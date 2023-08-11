@@ -96,13 +96,14 @@ void ButterflyEnemy::Update()
 	}
 
 
-	if (iOperationData.rockOnNum <= 0 && !m_isDead) {
+	if (!iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag && !m_isDead) {
 		m_status = DEAD;
 		//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。
 		m_deadEffectVel = m_playerTransform->pos - m_prevPlayerPos;
 		m_deadEffectVelStorage = m_playerTransform->pos - m_prevPlayerPos;
 		m_deadEffectVelStorage *= 0.05f;
 		m_isDead = true;
+		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 	}
 
 	//角度が変わる前に保存。

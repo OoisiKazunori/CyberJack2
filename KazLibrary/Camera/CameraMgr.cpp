@@ -43,6 +43,7 @@ void CameraMgr::CameraSetting(float VIEWING_ANGLE, float FAR_SIDE, int CAMERA_IN
 		);
 }
 
+
 void CameraMgr::Camera(const KazMath::Vec3<float> &EYE_POS, const KazMath::Vec3<float> &TARGET_POS, const KazMath::Vec3<float> &UP, int CAMERA_INDEX)
 {
 	DirectX::XMFLOAT3 eye = { EYE_POS.x,EYE_POS.y,EYE_POS.z };

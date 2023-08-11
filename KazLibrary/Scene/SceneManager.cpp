@@ -18,7 +18,7 @@
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
-	scene.emplace_back(std::make_unique<GameScene>());
+	scene.emplace_back(std::make_unique<RenderScene>());
 	scene.emplace_back(std::make_unique<TitleScene>());
 	scene.emplace_back(std::make_unique<GameClearScene>());
 	scene.emplace_back(std::make_unique<GameOverScene>());

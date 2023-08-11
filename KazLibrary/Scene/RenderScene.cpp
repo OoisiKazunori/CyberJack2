@@ -161,7 +161,7 @@ RenderScene::RenderScene()
 			 RenderTargetStatus::Instance()->GetBuffer(GBufferMgr::Instance()->GetRenderTarget()[GBufferMgr::ALBEDO])
 		};
 		extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		m_dispatch.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "TestCompute.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
+		//m_dispatch.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "TestCompute.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
 	}
 
 }
@@ -247,7 +247,7 @@ void RenderScene::Update()
 	}
 
 	//–@ü•`‰æ
-	m_dispatch.Compute({ 1,1,1 });
+	//m_dispatch.Compute({ 1,1,1 });
 
 
 	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_0))

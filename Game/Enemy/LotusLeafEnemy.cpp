@@ -77,7 +77,7 @@ void LotusLeafEnemy::Update()
 	fromPos.y = -40.0f;
 
 	
-	if (!iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag) {
+	if (!iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag && !m_isDead) {
 		m_status = DEAD;
 
 		//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。
@@ -85,6 +85,7 @@ void LotusLeafEnemy::Update()
 		m_deadEffectVelStorage = m_playerTransform->pos - m_prevPlayerPos;
 		m_deadEffectVelStorage *= 1.0f;
 		m_isDead = true;
+		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 	}
 
 	//ステータスによって処理を分ける。
