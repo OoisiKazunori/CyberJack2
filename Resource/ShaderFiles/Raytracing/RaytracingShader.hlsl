@@ -372,7 +372,7 @@ void mainRayGen()
     
     //マテリアルのIDをもとに、反射屈折のレイを飛ばす。
     float4 final = float4(0, 0, 0, 1);
-    if (debugOnOffData.m_debugID == 1 && launchIndex.x < debugOnOffData.m_sliderRate)
+    if (debugOnOffData.m_debugReflection == 1 && launchIndex.x < debugOnOffData.m_sliderRate)
     {
         final = albedoColor;
     }

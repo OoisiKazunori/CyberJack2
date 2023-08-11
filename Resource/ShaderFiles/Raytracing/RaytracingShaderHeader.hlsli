@@ -80,9 +80,10 @@ struct RaymarchingParam
 //OnOffデバッグ
 struct DebugOnOffParam
 {
-    int m_debugID;
+    int m_debugReflection;
+    int m_debugShadow;
     float m_sliderRate;
-    float2 m_pad;
+    float m_pad;
 };
 
 //barysを計算
@@ -151,7 +152,7 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。
         
         //レイを撃つ
-        if (arg_debugOnOffParam.m_debugID == 2 && arg_launchIndex.x < arg_debugOnOffParam.m_sliderRate)
+        if (arg_debugOnOffParam.m_debugShadow == 1 && arg_launchIndex.x < arg_debugOnOffParam.m_sliderRate)
         {
             payloadData.m_color = float3(1, 1, 1);
         }

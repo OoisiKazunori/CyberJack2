@@ -70,10 +70,12 @@ private:
 	//OnOffデバッグ用
 	struct OnOffDebugParam
 	{
-		int m_debugID;
+		int m_debugReflection;
+		int m_debugShadow;
 		float m_sliderRate;
-		KazMath::Vec2<float> m_pad;
+		float m_pad;
 	}m_onOffDebugParam;
+	bool m_isDebugOnOff;
 	KazBufferHelper::BufferData m_OnOffDebugParamData;
 
 

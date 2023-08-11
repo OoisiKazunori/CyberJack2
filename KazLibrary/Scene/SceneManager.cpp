@@ -95,10 +95,12 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_rayPipeline->SetRaymarchingConstData(&m_raymarchingParamData);
 
 	//OnOffデバッグ用のパラメーターを用意。
-	m_onOffDebugParam.m_debugID = 0;
+	m_onOffDebugParam.m_debugReflection = 0;
+	m_onOffDebugParam.m_debugShadow = 0;
 	m_onOffDebugParam.m_sliderRate = 0;
 	m_OnOffDebugParamData = KazBufferHelper::SetConstBufferData(sizeof(OnOffDebugParam));
 	m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));
+	m_isDebugOnOff = false;
 
 	//OnOffデバッグ用のパラメーターを用意。
 	m_rayPipeline->SetDebugOnOffConstData(&m_OnOffDebugParamData);
@@ -252,12 +254,15 @@ void SceneManager::Draw()
 
 	//OnOff
 	ImGui::Begin("DebugOnOff");
-	ImGui::RadioButton("OFF", &m_onOffDebugParam.m_debugID, 0);
-	ImGui::SameLine();
-	ImGui::RadioButton("REFLECT", &m_onOffDebugParam.m_debugID, 1);
-	ImGui::SameLine();
-	ImGui::RadioButton("SHADOW", &m_onOffDebugParam.m_debugID, 2);
-	if (m_onOffDebugParam.m_debugID != 0) {
+	ImGui::Checkbox("IsDebug", &m_isDebugOnOff);
+	if (m_isDebugOnOff) {
+		bool checkBox = m_onOffDebugParam.m_debugReflection;
+		ImGui::Checkbox("REFLECT", &checkBox);
+		m_onOffDebugParam.m_debugReflection = checkBox;
+		ImGui::SameLine();
+		checkBox = m_onOffDebugParam.m_debugShadow;
+		ImGui::Checkbox("SHADOW", &checkBox);
+		m_onOffDebugParam.m_debugShadow = checkBox;
 		ImGui::SliderFloat("RATE", &m_onOffDebugParam.m_sliderRate, 0.0f, 1280.0f);
 	}
 	ImGui::End();
