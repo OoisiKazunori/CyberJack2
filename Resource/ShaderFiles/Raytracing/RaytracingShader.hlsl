@@ -338,7 +338,8 @@ void mainRayGen()
         float3 dist = position - origin;
         float3 n = GetNormal(position, dot(dist, dist) * (0.1f / dims.x));
         
-        float3 sky = GetSkyColor(dir);
+        float3 mieColor = float3(0, 0, 0);
+        float3 sky = AtmosphericScattering(reflect(dir, n) * 15000.0f, mieColor);
         float3 sea = GetSeaColor(position, n, lightData.m_dirLight.m_dir, dir, dist);
         
         float t = pow(smoothstep(0.0f, -0.05f, dir.y), 0.3f);
@@ -405,8 +406,9 @@ void mainRayGen()
 [shader("miss")]
 void mainMS(inout Payload PayloadData)
 {
-    
-    PayloadData.m_color = GetSkyColor(WorldRayDirection());
+ 
+    float3 mieColor = float3(0,0,0);
+    PayloadData.m_color = AtmosphericScattering(WorldRayDirection() * 15000.0f, mieColor);
 
 }
 
