@@ -4,6 +4,7 @@
 #include"../KazLibrary/Helper/KazBufferHelper.h"
 #include"../KazLibrary/Helper/ISinglton.h"
 #include"../KazLibrary/Render/GPUParticleRender.h"
+#include"../KazLibrary/Helper/Compute.h"
 
 struct InitMeshParticleData
 {
@@ -43,18 +44,18 @@ public:
 private:
 
 
-	ResouceBufferHelper computeInitMeshParticle;
-	RESOURCE_HANDLE vertHandle, uvHandle, meshDataAndColorHandle, colorHandle, meshParticleOutputHandle, meshParticleIDHandle;
-	RESOURCE_HANDLE motherMatrixHandle,particlePosHandle, particleColorHandle,particleMotherMatrixHandle, colorMotherMatrixHandle;
-	RESOURCE_HANDLE scaleRotateBillboardMatHandle;
+	ComputeShader computeInitMeshParticle;
+	KazBufferHelper::BufferData vertHandle, uvHandle, meshDataAndColorHandle, colorHandle, meshParticleOutputHandle, meshParticleIDHandle;
+	KazBufferHelper::BufferData motherMatrixHandle,particlePosHandle, particleColorHandle,particleMotherMatrixHandle, colorMotherMatrixHandle;
+	KazBufferHelper::BufferData scaleRotateBillboardMatHandle;
 
-	ResouceBufferHelper computeUpdateMeshParticle;
-	ResouceBufferHelper computeConvert;
+	ComputeShader computeUpdateMeshParticle;
+	ComputeShader computeConvert;
 
-	ResouceBufferHelper::BufferData commonAndColorBufferData;
-	std::vector<ResouceBufferHelper::BufferData> commonBufferData;
-	std::vector<ResouceBufferHelper::BufferData> commonColorBufferData;
-	ResouceBufferHelper::BufferData meshParticleBufferData;
+	KazBufferHelper::BufferData commonAndColorBufferData;
+	std::vector<KazBufferHelper::BufferData> commonBufferData;
+	std::vector<KazBufferHelper::BufferData> commonColorBufferData;
+	KazBufferHelper::BufferData meshParticleBufferData;
 	struct WorldMatData
 	{
 		DirectX::XMMATRIX scaleRotateBillboardMat;
@@ -103,7 +104,7 @@ private:
 		if (BUFFER_DATA.bufferWrapper.GetBuffer())
 		{
 			GraphicsRootParamType lType = static_cast<GraphicsRootParamType>(GRAPHICS_PRAMTYPE_DATA + setCountNum);
-			computeInitMeshParticle.SetBuffer(BUFFER_DATA, lType);
+			//computeInitMeshParticle.SetBuffer(BUFFER_DATA, lType);
 			++setCountNum;
 		}
 	};

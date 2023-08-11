@@ -452,7 +452,7 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	}
 #endif
 
-	m_stageArray[m_gameStageLevel]->Draw(arg_rasterize);
+	//m_stageArray[m_gameStageLevel]->Draw(arg_rasterize);
 
 	ImGui::Begin("Game");
 	ImGui::Checkbox("Debug", &m_debugFlag);
