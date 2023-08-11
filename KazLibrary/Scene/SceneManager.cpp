@@ -39,7 +39,8 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 5, 4, 3, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
 
-
+	m_debugOnOffLineRender = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
+	m_debugOnOffLineBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLine.png");
 
 	//ボリュームテクスチャを生成。
 	m_volumeFogTextureBuffer = KazBufferHelper::SetUAV3DTexBuffer(256, 256, 256, DXGI_FORMAT_R8G8B8A8_UNORM);
@@ -97,7 +98,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	//OnOffデバッグ用のパラメーターを用意。
 	m_onOffDebugParam.m_debugReflection = 0;
 	m_onOffDebugParam.m_debugShadow = 0;
-	m_onOffDebugParam.m_sliderRate = 0;
+	m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
 	m_OnOffDebugParamData = KazBufferHelper::SetConstBufferData(sizeof(OnOffDebugParam));
 	m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));
 	m_isDebugOnOff = false;
@@ -213,6 +214,16 @@ void SceneManager::Draw()
 		scene[nowScene]->Draw(m_rasterize, m_blasVector);
 	}
 
+	//デバッグ用のOnOffのラインを描画する。
+	if (m_isDebugOnOff) {
+		m_debugOnOffLineTransform.pos.x = m_onOffDebugParam.m_sliderRate;
+		m_debugOnOffLineTransform.pos.y = 720.0f / 2.0f;
+		m_debugOnOffLineTransform.scale.x = 10.0f;
+		m_debugOnOffLineTransform.scale.y = 720.0f;
+		DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineBuffer);
+		m_rasterize.ObjectRender(m_debugOnOffLineRender);
+	}
+
 	m_rasterize.Sort();
 	m_rasterize.Render();
 
@@ -264,6 +275,11 @@ void SceneManager::Draw()
 		ImGui::Checkbox("SHADOW", &checkBox);
 		m_onOffDebugParam.m_debugShadow = checkBox;
 		ImGui::SliderFloat("RATE", &m_onOffDebugParam.m_sliderRate, 0.0f, 1280.0f);
+	}
+	else {
+		m_onOffDebugParam.m_debugReflection = false;
+		m_onOffDebugParam.m_debugShadow = false;
+		m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
 	}
 	ImGui::End();
 	m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));

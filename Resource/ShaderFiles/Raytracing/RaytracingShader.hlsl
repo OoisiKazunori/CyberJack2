@@ -341,6 +341,10 @@ void mainRayGen()
         
         float3 mieColor = float3(0, 0, 0);
         float3 sky = AtmosphericScattering(reflect(dir, n) * 15000.0f, mieColor);
+        if (debugOnOffData.m_debugReflection == 1 && launchIndex.x < debugOnOffData.m_sliderRate)
+        {
+            sky = GetSkyColor(dir);
+        }
         float3 sea = GetSeaColor(position, n, lightData.m_dirLight.m_dir, dir, dist);
         
         float t = pow(smoothstep(0.0f, -0.05f, dir.y), 0.3f);
