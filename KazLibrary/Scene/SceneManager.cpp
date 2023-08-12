@@ -108,6 +108,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_isDebugTimeZone = false;
 	m_isDebugVolumeFog = false;
 	m_isDebugSea = false;
+	m_isPause = false;
 
 	m_debugTimeZone = 0;
 
@@ -124,8 +125,9 @@ void SceneManager::Update()
 {
 	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
 
-	if (m_isDebugCamera) {
+	if (m_isPause) {
 		m_blasVector.Update();
+		return;
 	}
 
 	//シーン遷移の開始
@@ -284,20 +286,20 @@ void SceneManager::Draw()
 
 	ImGui::End();
 
-	////カメラのデバッグメニュー
-	//if (m_isDebugCamera) {
+	//カメラのデバッグメニュー
+	if (m_isDebugCamera) {
 
-	//	m_isPause = true;
+		m_isPause = true;
 
-	//	ImGui::Begin("DebugCamera");
+		ImGui::Begin("DebugCamera");
 
 
-	//	ImGui::End();
+		ImGui::End();
 
-	//}
-	//else {
-	//	m_isPause = false;
-	//}
+	}
+	else {
+		m_isPause = false;
+	}
 
 	//レイトレのデバッグメニュー
 	if (m_isDebugRaytracing) {

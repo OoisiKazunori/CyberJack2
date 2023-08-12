@@ -91,6 +91,9 @@ private:
 	bool m_isDebugVolumeFog;
 	bool m_isDebugSea;
 
+	//デバッグカメラ系変数
+	bool m_isPause;
+
 	//時間帯のデバッグ
 	int m_debugTimeZone;
 
