@@ -91,7 +91,7 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	command.vertexBufferDrawData.numViews = 1;
 	command.vertexBufferDrawData.vertexBufferView =
 		KazBufferHelper::SetVertexBufferView(
-			VertexBufferMgr::Instance()->GetVertexIndexBuffer(3).vertBuffer.back()->bufferWrapper->GetGpuAddress(),
+			m_particleVertexBuffer->bufferWrapper->GetGpuAddress(),
 			sizeof(VertexBufferData) * (PARTICLE_MAX_NUM * 4),
 			sizeof(VertexBufferData)
 		);
