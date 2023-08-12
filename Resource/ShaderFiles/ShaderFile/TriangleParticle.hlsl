@@ -305,6 +305,6 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
     }
 
 
-    WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
+    //WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
     WorldDataBuffer[index].color = ParticleDataBuffer[index].color;
 }

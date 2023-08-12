@@ -44,7 +44,7 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 
-	m_particleVertexBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData((sizeof(VertexBufferData) * PARTICLE_MAX_NUM) * 4,"GPUParticle-VertexBuffer"));
+	m_particleVertexBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData((sizeof(VertexBufferData) * PARTICLE_MAX_NUM) * 4, "GPUParticle-VertexBuffer"));
 	m_particleVertexBuffer->structureSize = sizeof(VertexBufferData);
 	m_particleVertexBuffer->elementNum = PARTICLE_MAX_NUM * 4;
 	m_drawTriangleParticleInRaytracing = DrawFuncData::SetParticleInRaytracing(
@@ -109,7 +109,11 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 		D3D12_RESOURCE_STATE_COMMON,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 	);
+
+	m_particleVertexBuffer->bufferWrapper->ChangeBarrierUAV();
 	m_computeUpdate.Compute({ DISPATCH_MAX_NUM,1,1 });
+	m_particleVertexBuffer->bufferWrapper->ChangeBarrierUAV();
+
 	m_particleVertexBuffer->bufferWrapper->ChangeBarrier(
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		D3D12_RESOURCE_STATE_COMMON
