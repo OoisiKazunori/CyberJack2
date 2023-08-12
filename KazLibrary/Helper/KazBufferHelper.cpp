@@ -260,6 +260,7 @@ KazBufferHelper::BufferResourceData KazBufferHelper::SetGPUBufferData(BUFFER_SIZ
 		nullptr,
 		BUFFER_NAME
 	);
+	lData.resourceDesc.Format;
 	return lData;
 }
 
