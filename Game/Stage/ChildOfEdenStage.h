@@ -54,5 +54,7 @@ public:
 	KazBufferHelper::BufferData m_randomTable;
 
 	std::shared_ptr<KazBufferHelper::BufferData>m_particleVertexBuffer;
+
+	DrawFuncData::DrawCallData m_drawCall;
 };
 

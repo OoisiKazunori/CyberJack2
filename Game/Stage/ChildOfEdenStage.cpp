@@ -64,13 +64,13 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	);
 
 	m_computeUpdateBuffer[1].bufferWrapper->ChangeBarrier(
-		D3D12_RESOURCE_STATE_COMMON,
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_COMMON
 	);
 
 	m_drawTriangleParticle =
 		DrawFuncData::SetExecuteIndirect(
-			DrawFuncData::GetBasicShader(),
+			DrawFuncData::GetBasicInstanceShader(),
 			m_computeUpdateBuffer[1].bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
 			PARTICLE_MAX_NUM
 		);
@@ -80,6 +80,22 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_drawTriangleParticle.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 	m_computeInit.Compute({ DISPATCH_MAX_NUM,1,1 });
+
+	//KazRenderHelper::DrawInstanceCommandData command;
+	////topology
+	//command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	////indexinstance
+	//command.drawInstanceData = { PARTICLE_MAX_NUM * 4,1,0,0 };
+	////view
+	//command.vertexBufferDrawData.slot = 0;
+	//command.vertexBufferDrawData.numViews = 1;
+	//command.vertexBufferDrawData.vertexBufferView =
+	//	KazBufferHelper::SetVertexBufferView(
+	//		VertexBufferMgr::Instance()->GetVertexIndexBuffer(3).vertBuffer.back()->bufferWrapper->GetGpuAddress(),
+	//		sizeof(VertexBufferData) * (PARTICLE_MAX_NUM * 4),
+	//		sizeof(VertexBufferData)
+	//	);
+	//m_drawCall = DrawFuncData::SetDrawPolygonData(command, DrawFuncData::GetBasicInstanceShader());
 
 }
 
@@ -93,6 +109,11 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 	//arg_rasterize.ObjectRender(m_drawSkydorm);
 
 	arg_rasterize.ObjectRender(m_drawTriangleParticle);
+
+	for (auto& index : m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas)
+	{
+		arg_blasVec.Add(index, DirectX::XMMatrixIdentity());
+	}
 
 	CameraBufferData cameraMat;
 	cameraMat.m_billboardMat = CameraMgr::Instance()->GetMatBillBoard();
@@ -114,8 +135,5 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 		D3D12_RESOURCE_STATE_COMMON
 	);
 
-	for (auto& index : m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas)
-	{
-		arg_blasVec.Add(index, DirectX::XMMatrixIdentity());
-	}
+	//arg_rasterize.ObjectRender(m_drawCall);
 }
