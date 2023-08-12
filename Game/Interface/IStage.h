@@ -5,6 +5,7 @@
 #include"../Game/CollisionDetection/InstanceMeshCollision.h"
 #include"../KazLibrary/Loader/MeshParticleLoader.h"
 #include"../KazLibrary/Render/DrawingByRasterize.h"
+#include"../KazLibrary/Raytracing/BlasVector.h"
 
 /// <summary>
 /// ステージの抽象クラス
@@ -20,7 +21,7 @@ public:
 	void DrawBackGround();
 
 	virtual void Update() = 0;
-	virtual void Draw(DrawingByRasterize& arg_rasterize) = 0;
+	virtual void Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec) = 0;
 
 	void SetCamera(int CAMERA_INDEX)
 	{

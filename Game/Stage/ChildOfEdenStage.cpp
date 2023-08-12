@@ -43,13 +43,21 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-	m_computeUpdateBuffer.emplace_back(KazBufferHelper::SetGPUBufferData((sizeof(VertexBufferData) * PARTICLE_MAX_NUM) * 4));
-	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-	m_computeUpdateBuffer.back().bufferWrapper->ChangeBarrier(
-		D3D12_RESOURCE_STATE_COMMON,
+
+	m_particleVertexBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData((sizeof(VertexBufferData) * PARTICLE_MAX_NUM) * 4));
+	m_particleVertexBuffer->structureSize = sizeof(VertexBufferData);
+	m_particleVertexBuffer->elementNum = PARTICLE_MAX_NUM * 4;
+	m_drawTriangleParticleInRaytracing = DrawFuncData::SetParticleInRaytracing(
+		m_particleVertexBuffer
+	);
+	m_particleVertexBuffer->bufferWrapper->ChangeBarrier(
+		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 	);
+
+	m_computeUpdateBuffer.emplace_back(*m_particleVertexBuffer);
+	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 	m_computeUpdate.Generate(
 		ShaderOptionData("Resource/ShaderFiles/ShaderFile/TriangleParticle.hlsl", "UpdateCSmain", "cs_6_4", SHADER_TYPE_COMPUTE),
 		m_computeUpdateBuffer
@@ -79,12 +87,17 @@ void ChildOfEdenStage::Update()
 {
 }
 
-void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize)
+void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
 	//DrawFunc::DrawModel(m_drawSkydorm, m_skydormTransform);
 	//arg_rasterize.ObjectRender(m_drawSkydorm);
 
 	arg_rasterize.ObjectRender(m_drawTriangleParticle);
+
+	for (auto& index : m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas)
+	{
+		arg_blasVec.Add(index, DirectX::XMMatrixIdentity());
+	}
 
 	CameraBufferData cameraMat;
 	cameraMat.m_billboardMat = CameraMgr::Instance()->GetMatBillBoard();
@@ -92,5 +105,13 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize)
 	cameraMat.m_playerPosZ = playerPosZ;
 	m_computeUpdateBuffer[2].bufferWrapper->TransData(&cameraMat, sizeof(CameraBufferData));
 
+	m_particleVertexBuffer->bufferWrapper->ChangeBarrier(
+		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+	);
 	m_computeUpdate.Compute({ DISPATCH_MAX_NUM,1,1 });
+	m_particleVertexBuffer->bufferWrapper->ChangeBarrier(
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_COMMON
+	);
 }

@@ -74,6 +74,8 @@ public:
 	RESOURCE_HANDLE GenerateBuffer(const VertexGenerateData& arg_vertexData, bool arg_generateInVRAMFlag);
 	RESOURCE_HANDLE GeneratePlaneBuffer();
 	RESOURCE_HANDLE GenerateBoxBuffer();
+	RESOURCE_HANDLE StackVertexBuffer(const std::shared_ptr<KazBufferHelper::BufferData> & arg_vertexBuffer,
+		const std::shared_ptr<KazBufferHelper::BufferData>& arg_indexBuffer);
 
 	void ReleaseVeretexIndexBuffer(RESOURCE_HANDLE HANDLE);
 	void ReleaseVeretexBuffer(RESOURCE_HANDLE HANDLE);

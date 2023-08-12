@@ -303,6 +303,41 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBoxBuffer()
 	return outputHandle;
 }
 
+RESOURCE_HANDLE VertexBufferMgr::StackVertexBuffer(const std::shared_ptr<KazBufferHelper::BufferData>& arg_vertexBuffer, const std::shared_ptr<KazBufferHelper::BufferData>& arg_indexBuffer)
+{
+	RESOURCE_HANDLE outputHandle = m_handle.GetHandle();
+	if (m_drawIndexDataArray.size() <= outputHandle)
+	{
+		m_drawIndexDataArray.emplace_back();
+		m_polygonIndexBufferArray.emplace_back();
+	}
+	m_drawIndexDataArray[outputHandle].vertBuffer.emplace_back(arg_vertexBuffer);
+
+	RESOURCE_HANDLE handle = DescriptorHeapMgr::Instance()->GetSize(DESCRIPTORHEAP_MEMORY_IAPOLYGONE).startSize + sDescHandle;
+	D3D12_SHADER_RESOURCE_VIEW_DESC view;
+	view.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+	view.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	view.Format = DXGI_FORMAT_UNKNOWN;
+	view.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	view.Buffer.NumElements = static_cast<UINT>(m_drawIndexDataArray[outputHandle].vertBuffer[0]->elementNum);
+	view.Buffer.FirstElement = 0;
+	view.Buffer.StructureByteStride = m_drawIndexDataArray[outputHandle].vertBuffer[0]->structureSize;
+	DescriptorHeapMgr::Instance()->CreateBufferView(handle, view, m_drawIndexDataArray[outputHandle].vertBuffer[0]->bufferWrapper->GetBuffer().Get());
+	m_drawIndexDataArray[outputHandle].vertBuffer[0]->bufferWrapper->CreateViewHandle(handle);
+	++sDescHandle;
+
+
+	handle = DescriptorHeapMgr::Instance()->GetSize(DESCRIPTORHEAP_MEMORY_IAPOLYGONE).startSize + sDescHandle;
+	view.Buffer.NumElements = static_cast<UINT>(arg_indexBuffer->elementNum);
+	view.Buffer.StructureByteStride = sizeof(UINT);
+	DescriptorHeapMgr::Instance()->CreateBufferView(handle, view, arg_indexBuffer->bufferWrapper->GetBuffer().Get());
+	m_drawIndexDataArray[outputHandle].indexBuffer.emplace_back(arg_indexBuffer);
+	m_drawIndexDataArray[outputHandle].indexBuffer.back()->bufferWrapper->CreateViewHandle(handle);
+	++sDescHandle;
+
+	return outputHandle;
+}
+
 void VertexBufferMgr::ReleaseVeretexIndexBuffer(RESOURCE_HANDLE HANDLE)
 {
 	m_handle.DeleteHandle(HANDLE);

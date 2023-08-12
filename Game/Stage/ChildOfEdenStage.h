@@ -12,7 +12,7 @@ class ChildOfEdenStage :public IStage
 public:
 	ChildOfEdenStage();
 	void Update()override;
-	void Draw(DrawingByRasterize& arg_rasterize)override;
+	void Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)override;
 
 public:
 	KazMath::Transform3D m_skydormTransform;
@@ -21,6 +21,8 @@ public:
 
 	//ステージ内に漂う三角パーティクル
 	DrawFuncData::DrawCallData m_drawTriangleParticle;
+	//上記のパーティクルをレイトレで描画する
+	DrawFuncData::DrawCallData m_drawTriangleParticleInRaytracing;
 
 	static const int DISPATCH_MAX_NUM = 100;
 	static const int PARTICLE_MAX_NUM = 1024 * DISPATCH_MAX_NUM;
@@ -54,5 +56,7 @@ public:
 	ComputeShader m_computeInit,m_computeUpdate;
 
 	KazBufferHelper::BufferData m_randomTable;
+
+	std::shared_ptr<KazBufferHelper::BufferData>m_particleVertexBuffer;
 };
 
