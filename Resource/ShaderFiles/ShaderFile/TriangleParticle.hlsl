@@ -270,7 +270,18 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,ui
         ParticleDataBuffer[index].rotation
     );
 
-    VertexBuffer[index].svpos = mul(WorldDataBuffer[index].mat,ParticleDataBuffer[index].pos);
+    uint vertexIndex = index * 4;
+    float vertScale = 1.0f;
+    
+    VertexBuffer[vertexIndex].svpos.xyz = float3(-0.5f,0.5f,0.0f);
+    VertexBuffer[vertexIndex + 1].svpos.xyz = float3(-0.5f,-0.5f,0.0f);
+    VertexBuffer[vertexIndex + 2].svpos.xyz = float3(0.5f,0.5f,0.0f);
+    VertexBuffer[vertexIndex + 3].svpos.xyz = float3(0.5f,-0.5f,0.0f);
+
+    VertexBuffer[vertexIndex].svpos.xyz =     mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex].svpos.xyz);
+    VertexBuffer[vertexIndex + 1].svpos.xyz = mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex + 1].svpos.xyz);
+    VertexBuffer[vertexIndex + 2].svpos.xyz = mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex + 2].svpos.xyz);
+    VertexBuffer[vertexIndex + 3].svpos.xyz = mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex + 3].svpos.xyz);
 
     WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
     WorldDataBuffer[index].color = ParticleDataBuffer[index].color;

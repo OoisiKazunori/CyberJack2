@@ -43,7 +43,7 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-	m_computeUpdateBuffer.emplace_back(KazBufferHelper::SetGPUBufferData(sizeof(VertexBufferData) * PARTICLE_MAX_NUM));
+	m_computeUpdateBuffer.emplace_back(KazBufferHelper::SetGPUBufferData((sizeof(VertexBufferData) * PARTICLE_MAX_NUM) * 4));
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 	m_computeUpdateBuffer.back().bufferWrapper->ChangeBarrier(
