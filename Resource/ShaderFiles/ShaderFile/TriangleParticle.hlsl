@@ -258,6 +258,7 @@ float3 GetNormal(RWStructuredBuffer<VertexBufferData> vertex,uint index,uint2 of
 
 RWStructuredBuffer<OutputData> WorldDataBuffer : register(u1);
 RWStructuredBuffer<VertexBufferData> VertexBuffer : register(u2);
+RWStructuredBuffer<uint> IndexBuffer : register(u3);
 [numthreads(1024, 1, 1)]
 void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, uint3 groupThreadID : SV_GroupThreadID)
 {
@@ -303,8 +304,13 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
         VertexBuffer[vertexIndex + 1].binormal = float3(0.0f,0.0f,0.0f);
         VertexBuffer[vertexIndex + 1].tangent = float3(0.0f,0.0f,0.0f);
     }
-
-
+    uint indeciesIndex = index * 6;
+    IndexBuffer[indeciesIndex] = 0;
+	IndexBuffer[indeciesIndex + 1] = 1;
+	IndexBuffer[indeciesIndex + 2] = 2;
+	IndexBuffer[indeciesIndex + 3] = 2;
+	IndexBuffer[indeciesIndex + 4] = 1;
+	IndexBuffer[indeciesIndex + 5] = 3;
     //WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
     WorldDataBuffer[index].color = ParticleDataBuffer[index].color;
 }

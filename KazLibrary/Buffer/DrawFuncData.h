@@ -1038,11 +1038,11 @@ namespace DrawFuncData
 		return lDrawCallData;
 	};
 
-	static DrawCallData SetParticleInRaytracing(const std::shared_ptr<KazBufferHelper::BufferData>& arg_buffer)
+	static DrawCallData SetParticleInRaytracing(const std::shared_ptr<KazBufferHelper::BufferData>& arg_buffer, const std::shared_ptr<KazBufferHelper::BufferData>& arg_indexBuffer)
 	{
 		DrawCallData lDrawCallData;
 		RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GeneratePlaneBuffer();
-		lDrawCallData.m_modelVertDataHandle = VertexBufferMgr::Instance()->StackVertexBuffer(arg_buffer, VertexBufferMgr::Instance()->GetVertexIndexBuffer(handle).indexBuffer[0]);
+		lDrawCallData.m_modelVertDataHandle = VertexBufferMgr::Instance()->StackVertexBuffer(arg_buffer, arg_indexBuffer);
 		lDrawCallData.materialBuffer.emplace_back();
 		lDrawCallData.materialBuffer.back().emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::TestPath + "Test.png"));
 		lDrawCallData.materialBuffer.back().back().rootParamType = GRAPHICS_PRAMTYPE_TEX;

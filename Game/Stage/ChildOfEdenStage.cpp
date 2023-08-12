@@ -43,14 +43,24 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-
+	//頂点情報
 	m_particleVertexBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData((sizeof(VertexBufferData) * PARTICLE_MAX_NUM) * 4, "GPUParticle-VertexBuffer"));
 	m_particleVertexBuffer->structureSize = sizeof(VertexBufferData);
 	m_particleVertexBuffer->elementNum = PARTICLE_MAX_NUM * 4;
+	//インデックス情報
+	m_particleIndexBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData((sizeof(UINT) * PARTICLE_MAX_NUM) * 6, "GPUParticle-IndexBuffer"));
+	m_particleIndexBuffer->structureSize = sizeof(UINT);
+	m_particleIndexBuffer->elementNum = PARTICLE_MAX_NUM * 6;
+
 	m_drawTriangleParticleInRaytracing = DrawFuncData::SetParticleInRaytracing(
-		m_particleVertexBuffer
+		m_particleVertexBuffer,
+		m_particleIndexBuffer
 	);
 	m_particleVertexBuffer->bufferWrapper->ChangeBarrier(
+		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+	);
+	m_particleIndexBuffer->bufferWrapper->ChangeBarrier(
 		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 	);
@@ -58,6 +68,10 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_computeUpdateBuffer.emplace_back(*m_particleVertexBuffer);
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+
+	m_computeUpdateBuffer.emplace_back(*m_particleIndexBuffer);
+	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
 	m_computeUpdate.Generate(
 		ShaderOptionData("Resource/ShaderFiles/ShaderFile/TriangleParticle.hlsl", "UpdateCSmain", "cs_6_4", SHADER_TYPE_COMPUTE),
 		m_computeUpdateBuffer
@@ -81,11 +95,11 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 
 	m_computeInit.Compute({ DISPATCH_MAX_NUM,1,1 });
 
-	KazRenderHelper::DrawInstanceCommandData command;
+	KazRenderHelper::DrawIndexInstanceCommandData command;
 	//topology
 	command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	//indexinstance
-	command.drawInstanceData = { PARTICLE_MAX_NUM * 4,1,0,0 };
+	command.drawIndexInstancedData = { PARTICLE_MAX_NUM * 6,1,0,0,0 };
 	//view
 	command.vertexBufferDrawData.slot = 0;
 	command.vertexBufferDrawData.numViews = 1;
@@ -95,8 +109,9 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 			sizeof(VertexBufferData) * (PARTICLE_MAX_NUM * 4),
 			sizeof(VertexBufferData)
 		);
-	m_drawCall = DrawFuncData::SetDrawPolygonData(command, DrawFuncData::GetBasicShader());
+	command.indexBufferView = KazBufferHelper::SetIndexBufferView(m_particleIndexBuffer->bufferWrapper->GetGpuAddress(), sizeof(UINT) * PARTICLE_MAX_NUM * 6);
 
+	m_drawCall = DrawFuncData::SetDrawPolygonIndexData(command, DrawFuncData::GetBasicShader());
 }
 
 void ChildOfEdenStage::Update()
@@ -125,15 +140,24 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 		D3D12_RESOURCE_STATE_COMMON,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 	);
+	m_particleIndexBuffer->bufferWrapper->ChangeBarrier(
+		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+	);
 
 	m_particleVertexBuffer->bufferWrapper->ChangeBarrierUAV();
+	m_particleIndexBuffer->bufferWrapper->ChangeBarrierUAV();
 	m_computeUpdate.Compute({ DISPATCH_MAX_NUM,1,1 });
 	m_particleVertexBuffer->bufferWrapper->ChangeBarrierUAV();
+	m_particleIndexBuffer->bufferWrapper->ChangeBarrierUAV();
 
 	m_particleVertexBuffer->bufferWrapper->ChangeBarrier(
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		D3D12_RESOURCE_STATE_COMMON
 	);
-
+	m_particleIndexBuffer->bufferWrapper->ChangeBarrier(
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_COMMON
+	);
 	arg_rasterize.ObjectRender(m_drawCall);
 }
