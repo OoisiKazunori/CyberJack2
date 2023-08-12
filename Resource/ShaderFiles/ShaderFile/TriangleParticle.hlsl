@@ -273,15 +273,15 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,ui
     uint vertexIndex = index * 4;
     float vertScale = 1.0f;
     
-    VertexBuffer[vertexIndex].svpos.xyz = float3(-0.5f,0.5f,0.0f);
-    VertexBuffer[vertexIndex + 1].svpos.xyz = float3(-0.5f,-0.5f,0.0f);
-    VertexBuffer[vertexIndex + 2].svpos.xyz = float3(0.5f,0.5f,0.0f);
-    VertexBuffer[vertexIndex + 3].svpos.xyz = float3(0.5f,-0.5f,0.0f);
+    VertexBuffer[vertexIndex].svpos = float4(-0.5f,0.5f,0.0f,0.0f);
+    VertexBuffer[vertexIndex + 1].svpos = float4(-0.5f,-0.5f,0.0f,0.0f);
+    VertexBuffer[vertexIndex + 2].svpos = float4(0.5f,0.5f,0.0f,0.0f);
+    VertexBuffer[vertexIndex + 3].svpos = float4(0.5f,-0.5f,0.0f,0.0f);
 
-    VertexBuffer[vertexIndex].svpos.xyz =     mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex].svpos.xyz);
-    VertexBuffer[vertexIndex + 1].svpos.xyz = mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex + 1].svpos.xyz);
-    VertexBuffer[vertexIndex + 2].svpos.xyz = mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex + 2].svpos.xyz);
-    VertexBuffer[vertexIndex + 3].svpos.xyz = mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex + 3].svpos.xyz);
+    VertexBuffer[vertexIndex].svpos =     mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex].svpos);
+    VertexBuffer[vertexIndex + 1].svpos = mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex + 1].svpos);
+    VertexBuffer[vertexIndex + 2].svpos = mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex + 2].svpos);
+    VertexBuffer[vertexIndex + 3].svpos = mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex + 3].svpos);
 
     WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
     WorldDataBuffer[index].color = ParticleDataBuffer[index].color;
