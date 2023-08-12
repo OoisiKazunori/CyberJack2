@@ -283,6 +283,6 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,ui
     VertexBuffer[vertexIndex + 2].svpos = mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex + 2].svpos);
     VertexBuffer[vertexIndex + 3].svpos = mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex + 3].svpos);
 
-    WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
+    //WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
     WorldDataBuffer[index].color = ParticleDataBuffer[index].color;
 }
