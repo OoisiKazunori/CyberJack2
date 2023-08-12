@@ -109,6 +109,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_isDebugVolumeFog = false;
 	m_isDebugSea = false;
 	m_isPause = false;
+	m_isMoveOnly1F = false;
 
 	m_debugTimeZone = 0;
 
@@ -125,7 +126,7 @@ void SceneManager::Update()
 {
 	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
 
-	if (m_isPause) {
+	if (m_isPause && !m_isMoveOnly1F) {
 		m_blasVector.Update();
 		return;
 	}
@@ -293,6 +294,7 @@ void SceneManager::Draw()
 
 		ImGui::Begin("DebugCamera");
 
+		m_isMoveOnly1F = ImGui::Button("MoveOnly1F");
 
 		ImGui::End();
 

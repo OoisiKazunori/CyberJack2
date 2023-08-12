@@ -93,6 +93,7 @@ private:
 
 	//デバッグカメラ系変数
 	bool m_isPause;
+	bool m_isMoveOnly1F;
 
 	//時間帯のデバッグ
 	int m_debugTimeZone;
