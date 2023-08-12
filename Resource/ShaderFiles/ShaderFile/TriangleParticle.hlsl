@@ -287,10 +287,10 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
     VertexBuffer[vertexIndex + 2].svpos = float4(0.5f, 0.5f, 0.0f, 1.0f);
     VertexBuffer[vertexIndex + 3].svpos = float4(0.5f, -0.5f, 0.0f, 1.0f);
 
-    VertexBuffer[vertexIndex].svpos = mul(WorldDataBuffer[index].mat, VertexBuffer[vertexIndex].svpos);
-    VertexBuffer[vertexIndex + 1].svpos = mul(WorldDataBuffer[index].mat, VertexBuffer[vertexIndex + 1].svpos);
-    VertexBuffer[vertexIndex + 2].svpos = mul(WorldDataBuffer[index].mat, VertexBuffer[vertexIndex + 2].svpos);
-    VertexBuffer[vertexIndex + 3].svpos = mul(WorldDataBuffer[index].mat, VertexBuffer[vertexIndex + 3].svpos);
+    VertexBuffer[vertexIndex].svpos =     mul(WorldDataBuffer[index].mat, float4(VertexBuffer[vertexIndex].svpos    , 1.0f));
+    VertexBuffer[vertexIndex + 1].svpos = mul(WorldDataBuffer[index].mat, float4(VertexBuffer[vertexIndex + 1].svpos, 1.0f));
+    VertexBuffer[vertexIndex + 2].svpos = mul(WorldDataBuffer[index].mat, float4(VertexBuffer[vertexIndex + 2].svpos, 1.0f));
+    VertexBuffer[vertexIndex + 3].svpos = mul(WorldDataBuffer[index].mat, float4(VertexBuffer[vertexIndex + 3].svpos, 1.0f));
 
     VertexBuffer[vertexIndex].normal =     GetNormal(VertexBuffer,vertexIndex,uint2(1,2));
     VertexBuffer[vertexIndex + 1].normal = GetNormal(VertexBuffer,vertexIndex,uint2(1,2));

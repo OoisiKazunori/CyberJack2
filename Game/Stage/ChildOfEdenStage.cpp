@@ -94,11 +94,6 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 
 	arg_rasterize.ObjectRender(m_drawTriangleParticle);
 
-	for (auto& index : m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas)
-	{
-		arg_blasVec.Add(index, DirectX::XMMatrixIdentity());
-	}
-
 	CameraBufferData cameraMat;
 	cameraMat.m_billboardMat = CameraMgr::Instance()->GetMatBillBoard();
 	cameraMat.m_viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
@@ -118,4 +113,9 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		D3D12_RESOURCE_STATE_COMMON
 	);
+
+	for (auto& index : m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas)
+	{
+		arg_blasVec.Add(index, DirectX::XMMatrixIdentity());
+	}
 }
