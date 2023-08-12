@@ -278,10 +278,10 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,ui
     VertexBuffer[vertexIndex + 2].svpos = float4(0.5f,0.5f,0.0f,0.0f);
     VertexBuffer[vertexIndex + 3].svpos = float4(0.5f,-0.5f,0.0f,0.0f);
 
-    VertexBuffer[vertexIndex].svpos =     mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex].svpos);
-    VertexBuffer[vertexIndex + 1].svpos = mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex + 1].svpos);
-    VertexBuffer[vertexIndex + 2].svpos = mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex + 2].svpos);
-    VertexBuffer[vertexIndex + 3].svpos = mul(WorldDataBuffer[index].mat,VertexBuffer[vertexIndex + 3].svpos);
+    VertexBuffer[vertexIndex].svpos =     mul(VertexBuffer[vertexIndex].svpos,WorldDataBuffer[index].mat);
+    VertexBuffer[vertexIndex + 1].svpos = mul(VertexBuffer[vertexIndex + 1].svpos,WorldDataBuffer[index].mat);
+    VertexBuffer[vertexIndex + 2].svpos = mul(VertexBuffer[vertexIndex + 2].svpos,WorldDataBuffer[index].mat);
+    VertexBuffer[vertexIndex + 3].svpos = mul(VertexBuffer[vertexIndex + 3].svpos,WorldDataBuffer[index].mat);
 
     //WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
     WorldDataBuffer[index].color = ParticleDataBuffer[index].color;
