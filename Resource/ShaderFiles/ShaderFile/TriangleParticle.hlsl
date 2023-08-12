@@ -244,8 +244,17 @@ cbuffer CameraBuffer : register(b0)
 
 struct VertexBufferData
 {
-    float4 svpos;
+    float3 svpos;
+    float3 normal;
+    float2 uv;
+    float3 tangent;
+    float3 binormal;
 };
+
+float3 GetNormal(RWStructuredBuffer<VertexBufferData> vertex,uint index,uint2 offset)
+{
+    return cross(normalize(vertex[index + offset.x].svpos - vertex[index].svpos),normalize(vertex[index + offset.y].svpos - vertex[index].svpos));
+}
 
 RWStructuredBuffer<OutputData> WorldDataBuffer : register(u1);
 RWStructuredBuffer<VertexBufferData> VertexBuffer : register(u2);
@@ -282,6 +291,19 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
     VertexBuffer[vertexIndex + 1].svpos = mul(WorldDataBuffer[index].mat, VertexBuffer[vertexIndex + 1].svpos);
     VertexBuffer[vertexIndex + 2].svpos = mul(WorldDataBuffer[index].mat, VertexBuffer[vertexIndex + 2].svpos);
     VertexBuffer[vertexIndex + 3].svpos = mul(WorldDataBuffer[index].mat, VertexBuffer[vertexIndex + 3].svpos);
+
+    VertexBuffer[vertexIndex].normal =     GetNormal(VertexBuffer,vertexIndex,uint2(1,2));
+    VertexBuffer[vertexIndex + 1].normal = GetNormal(VertexBuffer,vertexIndex,uint2(1,2));
+    VertexBuffer[vertexIndex + 2].normal = GetNormal(VertexBuffer,vertexIndex,uint2(1,2));
+    VertexBuffer[vertexIndex + 3].normal = GetNormal(VertexBuffer,vertexIndex,uint2(1,2));
+
+    for(int i = vertexIndex;i < vertexIndex + 4; ++i)
+    {
+        VertexBuffer[vertexIndex + 1].uv = float2(0.0f,0.0f);
+        VertexBuffer[vertexIndex + 1].binormal = float3(0.0f,0.0f,0.0f);
+        VertexBuffer[vertexIndex + 1].tangent = float3(0.0f,0.0f,0.0f);
+    }
+
 
     WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
     WorldDataBuffer[index].color = ParticleDataBuffer[index].color;

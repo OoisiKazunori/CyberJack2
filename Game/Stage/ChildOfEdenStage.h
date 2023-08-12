@@ -45,10 +45,6 @@ public:
 		DirectX::XMMATRIX m_mat;
 		DirectX::XMFLOAT4 m_color;
 	};
-	struct VertexBufferData
-	{
-		DirectX::XMFLOAT4 m_pos;
-	};
 
 	std::vector<KazBufferHelper::BufferData> m_computeInitBuffer;
 	std::vector<KazBufferHelper::BufferData> m_computeUpdateBuffer;

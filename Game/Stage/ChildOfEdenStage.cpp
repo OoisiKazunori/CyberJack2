@@ -44,7 +44,7 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 
-	m_particleVertexBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData((sizeof(VertexBufferData) * PARTICLE_MAX_NUM) * 4));
+	m_particleVertexBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData((sizeof(VertexBufferData) * PARTICLE_MAX_NUM) * 4,"GPUParticle-VertexBuffer"));
 	m_particleVertexBuffer->structureSize = sizeof(VertexBufferData);
 	m_particleVertexBuffer->elementNum = PARTICLE_MAX_NUM * 4;
 	m_drawTriangleParticleInRaytracing = DrawFuncData::SetParticleInRaytracing(
