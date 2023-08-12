@@ -1046,7 +1046,7 @@ namespace DrawFuncData
 		lDrawCallData.materialBuffer.emplace_back();
 		lDrawCallData.materialBuffer.back().emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::TestPath + "Test.png"));
 		lDrawCallData.materialBuffer.back().back().rootParamType = GRAPHICS_PRAMTYPE_TEX;
-		lDrawCallData.SetupRaytracing(true);
+		//lDrawCallData.SetupRaytracing(true);
 
 		return lDrawCallData;
 	};
