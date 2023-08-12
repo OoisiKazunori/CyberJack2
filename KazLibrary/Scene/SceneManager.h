@@ -75,7 +75,6 @@ private:
 		float m_sliderRate;
 		float m_pad;
 	}m_onOffDebugParam;
-	bool m_isDebugOnOff;
 	KazBufferHelper::BufferData m_OnOffDebugParamData;
 
 	//デバッグ用のOnOff切り替えライン
@@ -83,7 +82,15 @@ private:
 	KazBufferHelper::BufferData m_debugOnOffLineBuffer;
 	KazBufferHelper::BufferData m_debugOnOffLineStayBuffer;
 	KazMath::Transform2D m_debugOnOffLineTransform;
-	bool m_isOldDebugOnOff;
+	bool m_isOldDebugRaytracing;
+
+	//デバッグ関連の変数
+	bool m_isDebugPause;
+	bool m_isDebugCamera;
+	bool m_isDebugRaytracing;
+	bool m_isDebugTimeZone;
+	bool m_isDebugVolumeFog;
+	bool m_isDebugSea;
 
 
 	//ラスタライザ描画

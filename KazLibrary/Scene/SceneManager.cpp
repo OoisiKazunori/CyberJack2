@@ -102,8 +102,13 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
 	m_OnOffDebugParamData = KazBufferHelper::SetConstBufferData(sizeof(OnOffDebugParam));
 	m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));
-	m_isDebugOnOff = false;
-	m_isOldDebugOnOff = false;
+	m_isDebugRaytracing = false;
+	m_isOldDebugRaytracing = false;
+	m_isDebugPause = false;
+	m_isDebugCamera = false;
+	m_isDebugTimeZone = false;
+	m_isDebugVolumeFog = false;
+	m_isDebugSea = false;
 
 	//OnOffデバッグ用のパラメーターを用意。
 	m_rayPipeline->SetDebugOnOffConstData(&m_OnOffDebugParamData);
@@ -206,7 +211,7 @@ void SceneManager::Update()
 	GBufferMgr::Instance()->m_cameraEyePosData.m_noiseTimer += 0.02f;
 
 	//デバッグ実行中はOnOffのラインをつかんで動かせるようにする。
-	if (m_isDebugOnOff) {
+	if (m_isDebugRaytracing) {
 
 		//左クリックしていたら。
 		bool isMouseLeftClick = KeyBoradInputManager::Instance()->MouseInputState(MOUSE_INPUT_LEFT);
@@ -220,7 +225,7 @@ void SceneManager::Update()
 
 	}
 
-	m_isOldDebugOnOff = m_isDebugOnOff;
+	m_isOldDebugRaytracing = m_isDebugRaytracing;
 
 }
 
@@ -234,7 +239,7 @@ void SceneManager::Draw()
 	}
 
 	//デバッグ用のOnOffのラインを描画する。
-	if (m_isDebugOnOff) {
+	if (m_isDebugRaytracing) {
 		m_debugOnOffLineTransform.pos.x = m_onOffDebugParam.m_sliderRate;
 		m_debugOnOffLineTransform.pos.y = 720.0f / 2.0f;
 		m_debugOnOffLineTransform.scale.x = 10.0f;
@@ -263,18 +268,58 @@ void SceneManager::Draw()
 		}
 	}
 
+	//デバッグメニューの大本
+	ImGui::Begin("DebugMenu");
 
+	ImGui::Checkbox("Pause", &m_isDebugPause);
+	ImGui::Checkbox("DebugCamera", &m_isDebugCamera);
+	ImGui::Checkbox("Raytracing", &m_isDebugRaytracing);
+	ImGui::Checkbox("TimeZone", &m_isDebugTimeZone);
+	ImGui::Checkbox("VolumeFog", &m_isDebugVolumeFog);
+	ImGui::Checkbox("Sea", &m_isDebugSea);
 
-	//ディレクションライト
-	ImGui::Begin("DirLight");
-	ImGui::SliderFloat("VecX", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.x, -1.0f, 1.0f);
-	ImGui::SliderFloat("VecY", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.y, -1.0f, 1.0f);
-	ImGui::SliderFloat("VecZ", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.z, -1.0f, 1.0f);
-	GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
-	bool isActive = GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive;
-	ImGui::Checkbox("ActiveFlag", &isActive);
-	GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive = isActive;
 	ImGui::End();
+
+	//一時停止のデバッグメニュー
+	if (m_isDebugPause) {
+
+		ImGui::Begin("Pause");
+
+		ImGui::End();
+
+	}
+
+	//カメラのデバッグメニュー
+	if (m_isDebugPause) {
+
+		ImGui::Begin("Camera");
+
+		ImGui::End();
+
+	}
+
+	//レイトレのデバッグメニュー
+	m_isOldDebugRaytracing = m_isDebugRaytracing;
+	if (m_isDebugRaytracing) {
+
+		ImGui::Begin("Raytracing");
+
+		ImGui::End();
+
+	}
+
+
+
+	////ディレクションライト
+	//ImGui::Begin("DirLight");
+	//ImGui::SliderFloat("VecX", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.x, -1.0f, 1.0f);
+	//ImGui::SliderFloat("VecY", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.y, -1.0f, 1.0f);
+	//ImGui::SliderFloat("VecZ", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.z, -1.0f, 1.0f);
+	//GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
+	//bool isActive = GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive;
+	//ImGui::Checkbox("ActiveFlag", &isActive);
+	//GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive = isActive;
+	//ImGui::End();
 
 	////ポイントライト
 	//ImGui::Begin("PointLight");
@@ -287,33 +332,33 @@ void SceneManager::Draw()
 	//GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive = isActive;
 	//ImGui::End();
 
-	//OnOff
-	ImGui::Begin("DebugOnOff");
-	ImGui::Checkbox("IsDebug", &m_isDebugOnOff);
-	if (m_isDebugOnOff) {
-		bool checkBox = m_onOffDebugParam.m_debugReflection;
-		ImGui::Checkbox("REFLECT", &checkBox);
-		m_onOffDebugParam.m_debugReflection = checkBox;
-		ImGui::SameLine();
-		checkBox = m_onOffDebugParam.m_debugShadow;
-		ImGui::Checkbox("SHADOW", &checkBox);
-		m_onOffDebugParam.m_debugShadow = checkBox;
-		ImGui::SliderFloat("RATE", &m_onOffDebugParam.m_sliderRate, 0.0f, 1280.0f);
-	}
-	else {
-		m_onOffDebugParam.m_debugReflection = false;
-		m_onOffDebugParam.m_debugShadow = false;
-		m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
-	}
-	ImGui::End();
+	////OnOff
+	//ImGui::Begin("DebugOnOff");
+	//ImGui::Checkbox("IsDebug", &m_isDebugOnOff);
+	//if (m_isDebugOnOff) {
+	//	bool checkBox = m_onOffDebugParam.m_debugReflection;
+	//	ImGui::Checkbox("REFLECT", &checkBox);
+	//	m_onOffDebugParam.m_debugReflection = checkBox;
+	//	ImGui::SameLine();
+	//	checkBox = m_onOffDebugParam.m_debugShadow;
+	//	ImGui::Checkbox("SHADOW", &checkBox);
+	//	m_onOffDebugParam.m_debugShadow = checkBox;
+	//	ImGui::SliderFloat("RATE", &m_onOffDebugParam.m_sliderRate, 0.0f, 1280.0f);
+	//}
+	//else {
+	//	m_onOffDebugParam.m_debugReflection = false;
+	//	m_onOffDebugParam.m_debugShadow = false;
+	//	m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
+	//}
+	//ImGui::End();
 
-	//このデバッグ機能が切り替わった瞬間だったら初期値を入れる。
-	if (m_isDebugOnOff && !m_isOldDebugOnOff) {
-		m_onOffDebugParam.m_debugReflection = true;
-		m_onOffDebugParam.m_debugShadow = true;
-		m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
-	}
-	m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));
+	////このデバッグ機能が切り替わった瞬間だったら初期値を入れる。
+	//if (m_isDebugOnOff && !m_isOldDebugOnOff) {
+	//	m_onOffDebugParam.m_debugReflection = true;
+	//	m_onOffDebugParam.m_debugShadow = true;
+	//	m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
+	//}
+	//m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));
 
 	////ボリュームフォグ
 	//ImGui::Begin("VolumeFog");
