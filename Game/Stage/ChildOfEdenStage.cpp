@@ -116,6 +116,7 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 
 void ChildOfEdenStage::Update()
 {
+	m_drawTriangleParticleInRaytracing.SetupRaytracing(true);
 }
 
 void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
@@ -137,11 +138,11 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 	m_computeUpdateBuffer[2].bufferWrapper->TransData(&cameraMat, sizeof(CameraBufferData));
 
 	m_particleVertexBuffer->bufferWrapper->ChangeBarrier(
-		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 	);
 	m_particleIndexBuffer->bufferWrapper->ChangeBarrier(
-		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 	);
 
@@ -153,11 +154,11 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 
 	m_particleVertexBuffer->bufferWrapper->ChangeBarrier(
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		D3D12_RESOURCE_STATE_COMMON
+		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
 	);
 	m_particleIndexBuffer->bufferWrapper->ChangeBarrier(
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		D3D12_RESOURCE_STATE_COMMON
+		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
 	);
-	arg_rasterize.ObjectRender(m_drawCall);
+	//arg_rasterize.ObjectRender(m_drawCall);
 }
