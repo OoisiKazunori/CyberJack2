@@ -1033,6 +1033,8 @@ namespace DrawFuncData
 			D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 		);
 
+		lDrawCallData.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+
 		return lDrawCallData;
 	};
 
