@@ -201,7 +201,7 @@ static const int PARTICLE_MAX_NUM = 1024;
 static const float SCALE = 1.5f;
 
 RWStructuredBuffer<ParticeArgumentData> ParticleDataBuffer : register(u0);
-RWStructuredBuffer<uint> randomTableBuffer : register(u1);
+RWStructuredBuffer<uint> RandomTableBuffer : register(u1);
 [numthreads(1024, 1, 1)]
 void InitCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 groupThreadID : SV_GroupThreadID)
 {    
@@ -211,21 +211,21 @@ void InitCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     float3 pos;
     const float2 HEIGHT_MAX = float2(200.0f,0.0f);
     const float2 WIDTH_MAX = float2(400.0f,200.0f);
-    pos.y = RandVec3(randomTableBuffer[index],HEIGHT_MAX.x,HEIGHT_MAX.y).y;
-    pos.z = RandVec3(randomTableBuffer[index],2000.0f,0.0f).z;
+    pos.y = RandVec3(RandomTableBuffer[index],HEIGHT_MAX.x,HEIGHT_MAX.y).y;
+    pos.z = RandVec3(RandomTableBuffer[index],2000.0f,0.0f).z;
     //高さの割合をとってX軸の最低値から値をずらす
     pos.x = WIDTH_MAX.y + (WIDTH_MAX.x - WIDTH_MAX.y) * (pos.y / HEIGHT_MAX.x);
-    pos.x += RandVec3(randomTableBuffer[index],50.0f,-50.0f).x;
+    pos.x += RandVec3(RandomTableBuffer[index],50.0f,-50.0f).x;
     //左右どちらにつくか
-    if(1 <= RandVec3(randomTableBuffer[index],2,0).x)
+    if(1 <= RandVec3(RandomTableBuffer[index],2,0).x)
     {
         pos.x *= -1.0f;
     }
     ParticleDataBuffer[index].pos = pos;
 
     ParticleDataBuffer[index].scale = float3(SCALE,SCALE,SCALE);
-    ParticleDataBuffer[index].rotation = RandVec3(randomTableBuffer[index],360.0f,0.0f);
-    ParticleDataBuffer[index].rotationVel = RandVec3(randomTableBuffer[index],10.0f,0.0f);
+    ParticleDataBuffer[index].rotation = RandVec3(RandomTableBuffer[index],360.0f,0.0f);
+    ParticleDataBuffer[index].rotationVel = RandVec3(RandomTableBuffer[index],10.0f,0.0f);
     ParticleDataBuffer[index].color = float4(1.0f,1.0f,1.0f,1.0f);
 }
 
@@ -242,7 +242,13 @@ cbuffer CameraBuffer : register(b0)
     float playerPosZ;
 }
 
-RWStructuredBuffer<OutputData> worldDataBuffer : register(u1);
+struct VertexBufferData
+{
+    float4 svpos;
+};
+
+RWStructuredBuffer<OutputData> WorldDataBuffer : register(u1);
+RWStructuredBuffer<VertexBufferData> VertexBuffer : register(u2);
 [numthreads(1024, 1, 1)]
 void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 groupThreadID : SV_GroupThreadID)
 {    
@@ -257,12 +263,15 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,ui
     ParticleDataBuffer[index].scale = Lerp(ParticleDataBuffer[index].scale,float3(SCALE,SCALE,SCALE),0.1f);
     ParticleDataBuffer[index].rotation += ParticleDataBuffer[index].rotationVel;
 
-    worldDataBuffer[index].mat = 
+    WorldDataBuffer[index].mat = 
     CalucurateWorldMat(
         ParticleDataBuffer[index].pos,
         ParticleDataBuffer[index].scale,
         ParticleDataBuffer[index].rotation
     );
-    worldDataBuffer[index].mat = mul(viewProj,worldDataBuffer[index].mat);
-    worldDataBuffer[index].color = ParticleDataBuffer[index].color;
+
+    VertexBuffer[index].svpos = mul(WorldDataBuffer[index].mat,ParticleDataBuffer[index].pos);
+
+    WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
+    WorldDataBuffer[index].color = ParticleDataBuffer[index].color;
 }

@@ -14,7 +14,7 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_drawTriangleParticle.extraBufferArray[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 	//óêêîÉeÅ[ÉuÉãê∂ê¨
-	m_randomTable = KazBufferHelper::SetUploadBufferData(sizeof(UINT) * PARTICLE_MAX_NUM,"RandomTable-UAV-UploadBuffer");
+	m_randomTable = KazBufferHelper::SetUploadBufferData(sizeof(UINT) * PARTICLE_MAX_NUM, "RandomTable-UAV-UploadBuffer");
 	std::array<UINT, PARTICLE_MAX_NUM>table;
 	for (int i = 0; i < PARTICLE_MAX_NUM; ++i)
 	{
@@ -42,6 +42,14 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_computeUpdateBuffer.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(CameraBufferData)));
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
+	m_computeUpdateBuffer.emplace_back(KazBufferHelper::SetGPUBufferData(sizeof(VertexBufferData) * PARTICLE_MAX_NUM));
+	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+	m_computeUpdateBuffer.back().bufferWrapper->ChangeBarrier(
+		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+	);
 	m_computeUpdate.Generate(
 		ShaderOptionData("Resource/ShaderFiles/ShaderFile/TriangleParticle.hlsl", "UpdateCSmain", "cs_6_4", SHADER_TYPE_COMPUTE),
 		m_computeUpdateBuffer
