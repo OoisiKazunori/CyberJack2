@@ -81,21 +81,21 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 
 	m_computeInit.Compute({ DISPATCH_MAX_NUM,1,1 });
 
-	//KazRenderHelper::DrawInstanceCommandData command;
-	////topology
-	//command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	////indexinstance
-	//command.drawInstanceData = { PARTICLE_MAX_NUM * 4,1,0,0 };
-	////view
-	//command.vertexBufferDrawData.slot = 0;
-	//command.vertexBufferDrawData.numViews = 1;
-	//command.vertexBufferDrawData.vertexBufferView =
-	//	KazBufferHelper::SetVertexBufferView(
-	//		VertexBufferMgr::Instance()->GetVertexIndexBuffer(3).vertBuffer.back()->bufferWrapper->GetGpuAddress(),
-	//		sizeof(VertexBufferData) * (PARTICLE_MAX_NUM * 4),
-	//		sizeof(VertexBufferData)
-	//	);
-	//m_drawCall = DrawFuncData::SetDrawPolygonData(command, DrawFuncData::GetBasicInstanceShader());
+	KazRenderHelper::DrawInstanceCommandData command;
+	//topology
+	command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	//indexinstance
+	command.drawInstanceData = { PARTICLE_MAX_NUM * 4,1,0,0 };
+	//view
+	command.vertexBufferDrawData.slot = 0;
+	command.vertexBufferDrawData.numViews = 1;
+	command.vertexBufferDrawData.vertexBufferView =
+		KazBufferHelper::SetVertexBufferView(
+			VertexBufferMgr::Instance()->GetVertexIndexBuffer(3).vertBuffer.back()->bufferWrapper->GetGpuAddress(),
+			sizeof(VertexBufferData) * (PARTICLE_MAX_NUM * 4),
+			sizeof(VertexBufferData)
+		);
+	m_drawCall = DrawFuncData::SetDrawPolygonData(command, DrawFuncData::GetBasicShader());
 
 }
 
@@ -135,5 +135,5 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 		D3D12_RESOURCE_STATE_COMMON
 	);
 
-	//arg_rasterize.ObjectRender(m_drawCall);
+	arg_rasterize.ObjectRender(m_drawCall);
 }
