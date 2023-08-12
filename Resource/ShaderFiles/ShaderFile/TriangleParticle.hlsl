@@ -305,12 +305,12 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
         VertexBuffer[vertexIndex + 1].tangent = float3(0.0f,0.0f,0.0f);
     }
     uint indeciesIndex = index * 6;
-    IndexBuffer[indeciesIndex] = 0;
-	IndexBuffer[indeciesIndex + 1] = 1;
-	IndexBuffer[indeciesIndex + 2] = 2;
-	IndexBuffer[indeciesIndex + 3] = 2;
-	IndexBuffer[indeciesIndex + 4] = 1;
-	IndexBuffer[indeciesIndex + 5] = 3;
+    IndexBuffer[indeciesIndex] = indeciesIndex;
+	IndexBuffer[indeciesIndex + 1] = indeciesIndex + 1;
+	IndexBuffer[indeciesIndex + 2] = indeciesIndex + 2;
+	IndexBuffer[indeciesIndex + 3] = indeciesIndex + 2;
+	IndexBuffer[indeciesIndex + 4] = indeciesIndex + 1;
+	IndexBuffer[indeciesIndex + 5] = indeciesIndex + 3;
     //WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
     WorldDataBuffer[index].color = ParticleDataBuffer[index].color;
 }
