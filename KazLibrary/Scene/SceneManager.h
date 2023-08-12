@@ -91,6 +91,9 @@ private:
 	bool m_isDebugVolumeFog;
 	bool m_isDebugSea;
 
+	//時間帯のデバッグ
+	int m_debugTimeZone;
+
 
 	//ラスタライザ描画
 	DrawingByRasterize m_rasterize;

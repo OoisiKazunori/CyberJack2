@@ -345,7 +345,6 @@ void mainRayGen()
         {
             sky = GetSkyColor(dir);
         }
-        sky = GetSkyColor(dir);
         if (isnan(sky.x))
         {
             sky = float3(1, 1, 1);

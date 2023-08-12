@@ -109,6 +109,8 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_isDebugVolumeFog = false;
 	m_isDebugSea = false;
 
+	m_debugTimeZone = 0;
+
 	//OnOffデバッグ用のパラメーターを用意。
 	m_rayPipeline->SetDebugOnOffConstData(&m_debugRaytracingParamData);
 }
@@ -124,8 +126,6 @@ void SceneManager::Update()
 
 	if (m_isDebugCamera) {
 		m_blasVector.Update();
-		InGame
-		return;
 	}
 
 	//シーン遷移の開始
@@ -334,7 +334,19 @@ void SceneManager::Draw()
 
 		ImGui::Begin("TimeZone");
 
+		ImGui::RadioButton("Noon", &m_debugTimeZone, 0);
+		ImGui::RadioButton("Evening", &m_debugTimeZone, 1);
+
 		ImGui::End();
+
+		//選択されている値によってDirLightの角度を変える。
+		if (m_debugTimeZone == 0) {
+			GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir += (KazMath::Vec3<float>(0.0f, -0.857f, 0.514f) - GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir) / 10.0f;
+		}
+		else if (m_debugTimeZone == 1) {
+			GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir += (KazMath::Vec3<float>(0.0f, -0.683f, -0.73f) - GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir) / 10.0f;
+		}
+		GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
 
 	}
 
