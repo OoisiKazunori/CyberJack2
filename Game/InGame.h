@@ -149,6 +149,6 @@ private:
 	//デバック処理---------------------------------------
 
 	//メッシュパーティクル
-	KazBufferHelper::BufferData m_particleRender;
-	std::optional<InstanceMeshParticle> m_meshParticleRender;
+	KazBufferHelper::BufferData m_particleRender, m_particleColorRender;
+	std::unique_ptr<InstanceMeshParticle> m_meshParticleRender;
 };

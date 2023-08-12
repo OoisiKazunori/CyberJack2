@@ -10,7 +10,14 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 
 	m_debugFlag = false;
 
-	//m_meshParticleRender = m_particleRender;
+	struct OutputData
+	{
+		DirectX::XMMATRIX mat;
+		DirectX::XMFLOAT4 color;
+	};
+	m_particleRender = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * 3000000);
+	m_particleColorRender = KazBufferHelper::SetGPUBufferData(sizeof(DirectX::XMFLOAT4) * 3000000);
+	m_meshParticleRender = std::make_unique<InstanceMeshParticle>(m_particleRender, m_particleColorRender);
 }
 
 void InGame::Init(bool SKIP_FLAG)
@@ -25,7 +32,14 @@ void InGame::Init(bool SKIP_FLAG)
 	m_sceneNum = -1;
 	m_cursor.Init();
 
-	//m_meshParticleRender->Init();
+
+
+	InitMeshParticleData initMeshParticleData;
+	initMeshParticleData.vertData = ;
+	initMeshParticleData.uvData = ;
+	m_meshParticleRender->AddMeshData(initMeshParticleData);
+
+	m_meshParticleRender->Init();
 }
 
 void InGame::Finalize()
@@ -411,7 +425,7 @@ void InGame::Update()
 
 	m_gameFlame += m_gameSpeed;
 
-	//m_meshParticleRender->Compute();
+	m_meshParticleRender->Compute();
 }
 
 void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)

@@ -5,11 +5,12 @@
 #include"../KazLibrary/Helper/ISinglton.h"
 #include"../KazLibrary/Render/GPUParticleRender.h"
 #include"../KazLibrary/Helper/Compute.h"
+#include<vector>
 
 struct InitMeshParticleData
 {
-	ResouceBufferHelper::BufferData vertData;
-	ResouceBufferHelper::BufferData uvData;
+	KazBufferHelper::BufferData vertData;
+	KazBufferHelper::BufferData uvData;
 	RESOURCE_HANDLE textureHandle;
 	//x vertNum, y bias,z perTriangleNum,w faceCountNum
 	DirectX::XMUINT4 triagnleData;
@@ -27,7 +28,7 @@ struct InitMeshParticleData
 class InstanceMeshParticle
 {
 public:
-	InstanceMeshParticle(const GPUParticleRender *RENDER_PTR);
+	InstanceMeshParticle(const KazBufferHelper::BufferData &arg_outputMat, const KazBufferHelper::BufferData& arg_colorBuffer);
 
 	void Init();
 	void AddMeshData(const InitMeshParticleData &DATA);
@@ -42,7 +43,8 @@ public:
 	};
 
 private:
-
+	KazBufferHelper::BufferData m_outputMatrixBuffer;
+	KazBufferHelper::BufferData m_outputColorBuffer;
 
 	ComputeShader computeInitMeshParticle;
 	KazBufferHelper::BufferData vertHandle, uvHandle, meshDataAndColorHandle, colorHandle, meshParticleOutputHandle, meshParticleIDHandle;
@@ -99,12 +101,13 @@ private:
 		INIT_POS_UV,
 		INIT_POS_UV_NORMAL,
 	};
-	void IsSetBuffer(const ResouceBufferHelper::BufferData &BUFFER_DATA)
+	void IsSetBuffer(const KazBufferHelper::BufferData &BUFFER_DATA,std::vector<KazBufferHelper::BufferData>& arg_bufferArray)
 	{
-		if (BUFFER_DATA.bufferWrapper.GetBuffer())
+		if (BUFFER_DATA.bufferWrapper->GetBuffer())
 		{
 			GraphicsRootParamType lType = static_cast<GraphicsRootParamType>(GRAPHICS_PRAMTYPE_DATA + setCountNum);
-			//computeInitMeshParticle.SetBuffer(BUFFER_DATA, lType);
+			arg_bufferArray.emplace_back(BUFFER_DATA);
+			arg_bufferArray.back().rootParamType = lType;
 			++setCountNum;
 		}
 	};

@@ -38,11 +38,11 @@ const InitMeshParticleData &MeshParticleLoader::Load(const std::string &MODEL_NA
 	InitMeshParticleData lMeshData;
 	if (meshBuffer[lNowHandle].IsDataIn(CreateMeshBuffer::DATA_VERT))
 	{
-		lMeshData.vertData = meshBuffer[lNowHandle].GetBufferData(CreateMeshBuffer::DATA_VERT);
+		//lMeshData.vertData = meshBuffer[lNowHandle].GetBufferData(CreateMeshBuffer::DATA_VERT);
 	}
 	if (meshBuffer[lNowHandle].IsDataIn(CreateMeshBuffer::DATA_UV))
 	{
-		lMeshData.uvData = meshBuffer[lNowHandle].GetBufferData(CreateMeshBuffer::DATA_UV);
+		//lMeshData.uvData = meshBuffer[lNowHandle].GetBufferData(CreateMeshBuffer::DATA_UV);
 	}
 	lMeshData.motherMat = MOTHER_MAT;
 	lMeshData.triagnleData =

@@ -14,7 +14,7 @@ DeadParticle::DeadParticle(const ResouceBufferHelper::BufferData &ADDRESS, int V
 {
 	PARTICLE_MAX_NUM = VERT_NUM;
 
-	data.vertData = ADDRESS;
+	//data.vertData = ADDRESS;
 	data.triagnleData.x = 650;
 	data.triagnleData.y = 70;
 	data.triagnleData.z = 50;
