@@ -14,7 +14,7 @@ RaytracingAccelerationStructure gRtScene : register(t0);
 ConstantBuffer<CameraEyePosConstData> cameraEyePos : register(b0);
 ConstantBuffer<LightData> lightData : register(b1);
 ConstantBuffer<RaymarchingParam> volumeFogData : register(b2);
-ConstantBuffer<DebugOnOffParam> debugOnOffData : register(b3);
+ConstantBuffer<DebugRaytracingParam> debugRaytracingData : register(b3);
 
 //GBuffer
 Texture2D<float4> albedoMap : register(t1);
@@ -341,9 +341,15 @@ void mainRayGen()
         
         float3 mieColor = float3(0, 0, 0);
         float3 sky = AtmosphericScattering(reflect(dir, n) * 15000.0f, mieColor);
-        if (debugOnOffData.m_debugReflection == 1 && launchIndex.x < debugOnOffData.m_sliderRate)
+        if (debugRaytracingData.m_debugReflection == 1 && launchIndex.x < debugRaytracingData.m_sliderRate)
         {
             sky = GetSkyColor(dir);
+        }
+        sky = GetSkyColor(dir);
+        if (isnan(sky.x))
+        {
+            sky = float3(1, 1, 1);
+
         }
         float3 sea = GetSeaColor(position, n, lightData.m_dirLight.m_dir, dir, dist);
         
@@ -360,7 +366,7 @@ void mainRayGen()
     
     //ライティングパスを行う。
     float bright = 0.0f;
-    LightingPass(bright, worldColor, normalColor, lightData, launchIndex, debugOnOffData, gRtScene);
+    LightingPass(bright, worldColor, normalColor, lightData, launchIndex, debugRaytracingData, gRtScene);
     
     //輝度が一定以上だったらレンズフレア用のテクスチャに書きこむ。
     const float LENSFLARE_DEADLINE = 0.3f;
@@ -376,7 +382,7 @@ void mainRayGen()
     
     //マテリアルのIDをもとに、反射屈折のレイを飛ばす。
     float4 final = float4(0, 0, 0, 1);
-    if (debugOnOffData.m_debugReflection == 1 && launchIndex.x < debugOnOffData.m_sliderRate)
+    if (debugRaytracingData.m_debugReflection == 1 && launchIndex.x < debugRaytracingData.m_sliderRate)
     {
         final = albedoColor;
     }
@@ -397,7 +403,7 @@ void mainRayGen()
     {
         
         //final.xyz = GetSkyColor(dir);
-        float3 mieColor = float3(0,0,0);
+        float3 mieColor = float3(0, 0, 0);
         final.xyz = AtmosphericScattering(dir * 15000.0f, mieColor);
         lensFlareTexture[launchIndex.xy].xyz += mieColor * 0.1f;
         
@@ -419,7 +425,7 @@ void mainRayGen()
 void mainMS(inout Payload PayloadData)
 {
  
-    float3 mieColor = float3(0,0,0);
+    float3 mieColor = float3(0, 0, 0);
     PayloadData.m_color = AtmosphericScattering(WorldRayDirection() * 15000.0f, mieColor);
 
 }

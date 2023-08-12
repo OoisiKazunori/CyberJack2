@@ -97,21 +97,20 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_rayPipeline->SetRaymarchingConstData(&m_raymarchingParamData);
 
 	//OnOffデバッグ用のパラメーターを用意。
-	m_onOffDebugParam.m_debugReflection = 0;
-	m_onOffDebugParam.m_debugShadow = 0;
-	m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
-	m_OnOffDebugParamData = KazBufferHelper::SetConstBufferData(sizeof(OnOffDebugParam));
-	m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));
+	m_debugRaytracingParam.m_debugReflection = 0;
+	m_debugRaytracingParam.m_debugShadow = 0;
+	m_debugRaytracingParam.m_sliderRate = 1280.0f / 2.0f;
+	m_debugRaytracingParamData = KazBufferHelper::SetConstBufferData(sizeof(DebugRaytracingParam));
+	m_debugRaytracingParamData.bufferWrapper->TransData(&m_debugRaytracingParam, sizeof(DebugRaytracingParam));
 	m_isDebugRaytracing = false;
 	m_isOldDebugRaytracing = false;
-	m_isDebugPause = false;
 	m_isDebugCamera = false;
 	m_isDebugTimeZone = false;
 	m_isDebugVolumeFog = false;
 	m_isDebugSea = false;
 
 	//OnOffデバッグ用のパラメーターを用意。
-	m_rayPipeline->SetDebugOnOffConstData(&m_OnOffDebugParamData);
+	m_rayPipeline->SetDebugOnOffConstData(&m_debugRaytracingParamData);
 }
 
 SceneManager::~SceneManager()
@@ -122,6 +121,12 @@ SceneManager::~SceneManager()
 void SceneManager::Update()
 {
 	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
+
+	if (m_isDebugCamera) {
+		m_blasVector.Update();
+		InGame
+		return;
+	}
 
 	//シーン遷移の開始
 	if (nextScene != nowScene)
@@ -218,8 +223,8 @@ void SceneManager::Update()
 		if (isMouseLeftClick) {
 
 			//マウスの移動量を保存して動かす。
-			m_onOffDebugParam.m_sliderRate = KeyBoradInputManager::Instance()->GetMousePoint().x;
-			m_onOffDebugParam.m_sliderRate = std::clamp(m_onOffDebugParam.m_sliderRate, 0.0f, 1280.0f);
+			m_debugRaytracingParam.m_sliderRate = KeyBoradInputManager::Instance()->GetMousePoint().x;
+			m_debugRaytracingParam.m_sliderRate = std::clamp(m_debugRaytracingParam.m_sliderRate, 0.0f, 1280.0f);
 
 		}
 
@@ -240,7 +245,7 @@ void SceneManager::Draw()
 
 	//デバッグ用のOnOffのラインを描画する。
 	if (m_isDebugRaytracing) {
-		m_debugOnOffLineTransform.pos.x = m_onOffDebugParam.m_sliderRate;
+		m_debugOnOffLineTransform.pos.x = m_debugRaytracingParam.m_sliderRate;
 		m_debugOnOffLineTransform.pos.y = 720.0f / 2.0f;
 		m_debugOnOffLineTransform.scale.x = 10.0f;
 		m_debugOnOffLineTransform.scale.y = 720.0f;
@@ -271,7 +276,6 @@ void SceneManager::Draw()
 	//デバッグメニューの大本
 	ImGui::Begin("DebugMenu");
 
-	ImGui::Checkbox("Pause", &m_isDebugPause);
 	ImGui::Checkbox("DebugCamera", &m_isDebugCamera);
 	ImGui::Checkbox("Raytracing", &m_isDebugRaytracing);
 	ImGui::Checkbox("TimeZone", &m_isDebugTimeZone);
@@ -280,34 +284,77 @@ void SceneManager::Draw()
 
 	ImGui::End();
 
-	//一時停止のデバッグメニュー
-	if (m_isDebugPause) {
+	////カメラのデバッグメニュー
+	//if (m_isDebugCamera) {
 
-		ImGui::Begin("Pause");
+	//	m_isPause = true;
 
-		ImGui::End();
+	//	ImGui::Begin("DebugCamera");
 
-	}
 
-	//カメラのデバッグメニュー
-	if (m_isDebugPause) {
+	//	ImGui::End();
 
-		ImGui::Begin("Camera");
-
-		ImGui::End();
-
-	}
+	//}
+	//else {
+	//	m_isPause = false;
+	//}
 
 	//レイトレのデバッグメニュー
-	m_isOldDebugRaytracing = m_isDebugRaytracing;
 	if (m_isDebugRaytracing) {
 
 		ImGui::Begin("Raytracing");
 
+		bool checkBox = m_debugRaytracingParam.m_debugReflection;
+		ImGui::Checkbox("REFLECT", &checkBox);
+		m_debugRaytracingParam.m_debugReflection = checkBox;
+		ImGui::SameLine();
+		checkBox = m_debugRaytracingParam.m_debugShadow;
+		ImGui::Checkbox("SHADOW", &checkBox);
+		m_debugRaytracingParam.m_debugShadow = checkBox;
+		ImGui::SliderFloat("RATE", &m_debugRaytracingParam.m_sliderRate, 0.0f, 1280.0f);
+
+		ImGui::End();
+
+	}
+	else {
+		m_debugRaytracingParam.m_debugReflection = false;
+		m_debugRaytracingParam.m_debugShadow = false;
+		m_debugRaytracingParam.m_sliderRate = 1280.0f / 2.0f;
+	}
+	//このデバッグ機能が切り替わった瞬間だったら初期値を入れる。
+	if (m_isDebugRaytracing && !m_isOldDebugRaytracing) {
+		m_debugRaytracingParam.m_debugReflection = true;
+		m_debugRaytracingParam.m_debugShadow = true;
+		m_debugRaytracingParam.m_sliderRate = 1280.0f / 2.0f;
+	}
+	m_debugRaytracingParamData.bufferWrapper->TransData(&m_debugRaytracingParam, sizeof(DebugRaytracingParam));
+
+	//時間帯のデバッグメニュー
+	if (m_isDebugTimeZone) {
+
+		ImGui::Begin("TimeZone");
+
 		ImGui::End();
 
 	}
 
+	//ボリュームフォグのデバッグメニュー
+	if (m_isDebugVolumeFog) {
+
+		ImGui::Begin("VolumeFog");
+
+		ImGui::End();
+
+	}
+
+	//海のデバッグメニュー
+	if (m_isDebugSea) {
+
+		ImGui::Begin("Sea");
+
+		ImGui::End();
+
+	}
 
 
 	////ディレクションライト
