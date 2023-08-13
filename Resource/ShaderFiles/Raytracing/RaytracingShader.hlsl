@@ -358,8 +358,8 @@ void mainRayGen()
         float3 sea = GetSeaColor(position, n, lightData.m_dirLight.m_dir, dir, dist);
         
         float t = pow(smoothstep(0.0f, -0.05f, dir.y), 0.3f);
-        //float3 color = lerp(sky, sea, t);
-        float3 color = float3(0,0,0);
+        float3 color = lerp(sky, sea, t);
+        //float3 color = float3(0,0,0);
         
         albedoColor.xyz = color;
         worldColor.xyz = position;

@@ -456,8 +456,8 @@ void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materia
         
         //レイを撃つ
         float3 rayOrigin = arg_worldColor.xyz;
-        CastRay(refractionColor, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 100.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
-        CastRay(reflectionColor, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 100.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(refractionColor, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 500.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(reflectionColor, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 500.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
         
         //レイが当たったか当たっていないかで色を変える。
         if (refractionColor.m_color.x < 0)
