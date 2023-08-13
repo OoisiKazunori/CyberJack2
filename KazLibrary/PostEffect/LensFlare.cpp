@@ -112,7 +112,7 @@ namespace PostEffect {
 
 		//ƒuƒ‹[ƒ€‚à‚©‚¯‚¿‚á‚¤B
 		PIXBeginEvent(DirectX12CmdList::Instance()->cmdList.Get(), 0, "Bloom");
-		CopyTexture(m_bloomTexture, m_lensFlareTargetCopyTexture);
+		//CopyTexture(m_bloomTexture, m_lensFlareTargetCopyTexture);
 		m_bloom->Apply();
 		PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
 

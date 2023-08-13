@@ -385,7 +385,7 @@ void mainRayGen()
     const float LENSFLARE_DEADLINE = 0.3f;
     float deadline = step(LENSFLARE_DEADLINE, bright);
     float lensflareBright = (deadline * bright);
-    lensFlareTexture[launchIndex.xy] = saturate(float4(albedoColor.xyz * lensflareBright * 0.1f, 1.0f));
+    lensFlareTexture[launchIndex.xy] = saturate(float4(albedoColor.xyz * lensflareBright * 0.1f, 1.0f) + emissiveColor * 0.5f);
     emissiveTexture[launchIndex.xy] = emissiveColor;
     
     //アルベドにライトの色をかける。
