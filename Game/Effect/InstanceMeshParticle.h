@@ -27,6 +27,7 @@ private:
 	KazBufferHelper::BufferData m_outputMatrixBuffer;
 	KazBufferHelper::BufferData m_outputColorBuffer;
 
+	bool isInitFlag;
 	ComputeShader computeInitMeshParticle;
 	KazBufferHelper::BufferData vertHandle, uvHandle, meshDataAndColorHandle, colorHandle, meshParticleOutputHandle, meshParticleIDHandle;
 	KazBufferHelper::BufferData motherMatrixHandle,particlePosHandle, particleColorHandle,particleMotherMatrixHandle, colorMotherMatrixHandle;

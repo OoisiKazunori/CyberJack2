@@ -8,22 +8,18 @@ CreateMeshBuffer::CreateMeshBuffer(std::vector<DirectX::XMFLOAT3> VERT, std::vec
 	//頂点情報を書き込む--------------------------------------------
 	if (VERT.size() != 0)
 	{
-		bufferHandleDataArray[DATA_VERT] = KazBufferHelper::SetUploadBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(VERT.size(), sizeof(DirectX::XMFLOAT3)), "MeshParticle-VERTEX-RAM");
-		bufferHandleDataArray[DATA_VERT].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-		bufferHandleDataArray[DATA_VERT].rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		bufferHandleDataArray[DATA_VERT].bufferWrapper->TransData(VERT.data(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(VERT.size(), sizeof(DirectX::XMFLOAT3)));
+		GenerateBuffer(DATA_VERT, GRAPHICS_PRAMTYPE_DATA, KazBufferHelper::GetBufferSize<BUFFER_SIZE>(VERT.size(), sizeof(DirectX::XMFLOAT3)), VERT.data(), "MeshParticle-VERTEX-");
 	}
 	//頂点情報を書き込む--------------------------------------------
 
 	//UV情報を書き込む--------------------------------------------
 	if (UV.size() != 0)
 	{
-		bufferHandleDataArray[DATA_UV] = KazBufferHelper::SetUploadBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(UV.size(), sizeof(DirectX::XMFLOAT2)), "MeshParticle-UV-RAM");
-		bufferHandleDataArray[DATA_UV].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-		bufferHandleDataArray[DATA_UV].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-		bufferHandleDataArray[DATA_UV].bufferWrapper->TransData(UV.data(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(UV.size(), sizeof(DirectX::XMFLOAT2)));
+		GenerateBuffer(DATA_UV, GRAPHICS_PRAMTYPE_DATA2, KazBufferHelper::GetBufferSize<BUFFER_SIZE>(UV.size(), sizeof(DirectX::XMFLOAT2)), UV.data(), "MeshParticle-UV-");
 	}
 	//UV情報を書き込む--------------------------------------------
+
+	UploadToVRAM();
 }
 
 CreateMeshBuffer::CreateMeshBuffer(std::vector<KazMath::Vec3<float>> VERT, std::vector<KazMath::Vec2<float>> UV)
@@ -31,35 +27,55 @@ CreateMeshBuffer::CreateMeshBuffer(std::vector<KazMath::Vec3<float>> VERT, std::
 	//頂点情報を書き込む--------------------------------------------
 	if (VERT.size() != 0)
 	{
-		bufferHandleDataArray[DATA_VERT] = KazBufferHelper::SetUploadBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(VERT.size(), sizeof(DirectX::XMFLOAT3)), "MeshParticle-VERTEX-RAM");
-		bufferHandleDataArray[DATA_VERT].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-		bufferHandleDataArray[DATA_VERT].rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		bufferHandleDataArray[DATA_VERT].bufferWrapper->TransData(VERT.data(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(VERT.size(), sizeof(DirectX::XMFLOAT3)));
+		GenerateBuffer(DATA_VERT, GRAPHICS_PRAMTYPE_DATA, KazBufferHelper::GetBufferSize<BUFFER_SIZE>(VERT.size(), sizeof(DirectX::XMFLOAT3)), VERT.data(), "MeshParticle-VERTEX-");
 	}
 	//頂点情報を書き込む--------------------------------------------
 
 	//UV情報を書き込む--------------------------------------------
 	if (UV.size() != 0)
 	{
-		bufferHandleDataArray[DATA_UV] = KazBufferHelper::SetUploadBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(UV.size(), sizeof(DirectX::XMFLOAT2)), "MeshParticle-UV-RAM");
-		bufferHandleDataArray[DATA_UV].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-		bufferHandleDataArray[DATA_UV].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-		bufferHandleDataArray[DATA_UV].bufferWrapper->TransData(UV.data(), KazBufferHelper::GetBufferSize<BUFFER_SIZE>(UV.size(), sizeof(DirectX::XMFLOAT2)));
+		GenerateBuffer(DATA_UV, GRAPHICS_PRAMTYPE_DATA2, KazBufferHelper::GetBufferSize<BUFFER_SIZE>(UV.size(), sizeof(DirectX::XMFLOAT2)), UV.data(), "MeshParticle-UV-");
 	}
 	//UV情報を書き込む--------------------------------------------
+
+	UploadToVRAM();
 }
 
 const KazBufferHelper::BufferData& CreateMeshBuffer::GetBufferData(MeshBufferView ENUM_VIEW)
 {
 	RESOURCE_HANDLE lHandle = static_cast<RESOURCE_HANDLE>(ENUM_VIEW);
-	if (bufferHandleDataArray[lHandle].bufferWrapper)
+	if (m_VRAMBufferHandleDataArray[lHandle].bufferWrapper)
 	{
-		return bufferHandleDataArray[lHandle];
+		return m_VRAMBufferHandleDataArray[lHandle];
 	}
 	else
 	{
 		//生成されていないバッファにアクセスしようとしています。
 		assert(0);
-		return bufferHandleDataArray[lHandle];
+		return m_VRAMBufferHandleDataArray[lHandle];
+	}
+}
+
+void CreateMeshBuffer::GenerateBuffer(MeshBufferView TYPE, GraphicsRootParamType ROOT_TYPE, BUFFER_SIZE DATA_SIZE, void* ADDRESS, std::string BUFFER_NAME)
+{
+	m_uploadBufferHandleDataArray[TYPE] = KazBufferHelper::SetUploadBufferData(DATA_SIZE, BUFFER_NAME + std::string("-RAM"));
+	m_uploadBufferHandleDataArray[TYPE].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	m_uploadBufferHandleDataArray[TYPE].rootParamType = ROOT_TYPE;
+	m_uploadBufferHandleDataArray[TYPE].bufferWrapper->TransData(ADDRESS, DATA_SIZE);
+
+	m_VRAMBufferHandleDataArray[TYPE] = KazBufferHelper::SetGPUBufferData(DATA_SIZE, BUFFER_NAME + std::string("-VRAM"));
+}
+
+void CreateMeshBuffer::UploadToVRAM()
+{
+	for (int i = 0; i < DATA_NORMAL; ++i)
+	{
+		m_VRAMBufferHandleDataArray[i].bufferWrapper->CopyBuffer(
+			m_uploadBufferHandleDataArray[i].bufferWrapper->GetBuffer()
+		);
+		m_VRAMBufferHandleDataArray[i].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+		m_VRAMBufferHandleDataArray[i].rootParamType = static_cast<GraphicsRootParamType>(GRAPHICS_PRAMTYPE_DATA + i);
+
+		m_VRAMBufferHandleDataArray[i].bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	}
 }

@@ -19,7 +19,7 @@ public:
 	const ResouceBufferHelper::BufferData &GetStackIDBuffer();
 
 private:
-	ResouceBufferHelper computeHelper;
+	ResouceBufferHelper m_computeHelper;
 	RESOURCE_HANDLE cpuHitBoxBufferHandle, meshCircleArrayBufferHandle, hitIdBufferHandle;
 	RESOURCE_HANDLE commonDataHandle;
 

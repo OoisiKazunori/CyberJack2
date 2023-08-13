@@ -177,7 +177,7 @@ void InstanceMeshCollision::Compute()
 	}
 	motherMatrixBuffer.bufferWrapper.TransData(lMatArray.data(), sizeof(DirectX::XMMATRIX) * static_cast<int>(lMatArray.size()));
 
-	updatePosCompute.GetBufferData(motherMatHandle).bufferWrapper.CopyBuffer(motherMatrixBuffer.bufferWrapper.GetBuffer().Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST);
+	updatePosCompute.GetBufferData(motherMatHandle).bufferWrapper.CopyBuffer(motherMatrixBuffer.bufferWrapper.GetBuffer().Get());
 
 #pragma endregion
 

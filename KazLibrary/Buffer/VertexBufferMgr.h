@@ -31,7 +31,7 @@ struct IAPolygonBufferData
 		)
 	{
 		m_cpuBuffer.m_buffer->bufferWrapper->TransData(arg_vertex.m_ptr, KazBufferHelper::GetBufferSize<BUFFER_SIZE>(arg_vertex.m_arraySize, arg_vertex.m_structureSize));
-		m_gpuBuffer.m_buffer->bufferWrapper->CopyBuffer(m_cpuBuffer.m_buffer->bufferWrapper->GetBuffer(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+		m_gpuBuffer.m_buffer->bufferWrapper->CopyBuffer(m_cpuBuffer.m_buffer->bufferWrapper->GetBuffer());
 	};
 };
 

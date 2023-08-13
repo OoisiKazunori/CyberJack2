@@ -34,7 +34,7 @@ public:
 	bool IsDataIn(MeshBufferView ENUM_VIEW)
 	{
 		RESOURCE_HANDLE lHandle = static_cast<RESOURCE_HANDLE>(ENUM_VIEW);
-		if (bufferHandleDataArray[lHandle].bufferWrapper)
+		if (m_uploadBufferHandleDataArray[lHandle].bufferWrapper)
 		{
 			return true;
 		}
@@ -44,8 +44,12 @@ public:
 		}
 	}
 private:
-	std::array<KazBufferHelper::BufferData, DATA_MAX>bufferHandleDataArray;
+	std::array<KazBufferHelper::BufferData, DATA_MAX>m_uploadBufferHandleDataArray;
+	std::array<KazBufferHelper::BufferData, DATA_MAX>m_VRAMBufferHandleDataArray;
 
-	ComputeShader computeHelper;
+	ComputeShader m_computeHelper;
+
+	void GenerateBuffer(MeshBufferView TYPE, GraphicsRootParamType ROOT_TYPE, BUFFER_SIZE DATA_SIZE, void* ADDRESS, std::string BUFFER_NAME);
+	void UploadToVRAM();
 };
 

@@ -4,7 +4,7 @@
 int InstanceMeshParticle::MESH_PARTICLE_GENERATE_NUM = 0;
 
 InstanceMeshParticle::InstanceMeshParticle(const KazBufferHelper::BufferData& arg_outputMat, const KazBufferHelper::BufferData& arg_colorBuffer) :
-	setCountNum(0), m_outputMatrixBuffer(arg_outputMat), m_outputColorBuffer(arg_colorBuffer)
+	setCountNum(0), m_outputMatrixBuffer(arg_outputMat), m_outputColorBuffer(arg_colorBuffer), isInitFlag(false)
 {
 	//メッシュパーティクルの初期化処理の出力情報
 	meshParticleBufferData = KazBufferHelper::SetGPUBufferData(sizeof(InitOutputData) * PARTICLE_MAX_NUM);
@@ -13,6 +13,10 @@ InstanceMeshParticle::InstanceMeshParticle(const KazBufferHelper::BufferData& ar
 	meshParticleBufferData.structureSize = sizeof(InitOutputData);
 	meshParticleBufferData.elementNum = PARTICLE_MAX_NUM;
 	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	meshParticleBufferData.GenerateCounterBuffer();
+	meshParticleBufferData.CreateUAVView();
+
+
 
 	////パーティクルデータ
 	//computeUpdateMeshParticle.SetBuffer(meshParticleBufferData, GRAPHICS_PRAMTYPE_DATA);
@@ -32,10 +36,6 @@ InstanceMeshParticle::InstanceMeshParticle(const KazBufferHelper::BufferData& ar
 	copyBuffer.CreateBuffer(lBufferData);
 	copyBuffer.TransData(&lNum, sizeof(UINT));
 
-	meshParticleBufferData.counterWrapper = std::make_shared<KazBufferHelper::ID3D12ResourceWrapper>();
-	meshParticleBufferData.counterWrapper->CreateBuffer(KazBufferHelper::SetUploadBufferData(sizeof(UINT)));
-	meshParticleBufferData.counterWrapper->TransData(&lNum, sizeof(UINT));
-
 
 	//ワールド行列
 	m_outputMatrixBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA5;
@@ -47,8 +47,6 @@ InstanceMeshParticle::InstanceMeshParticle(const KazBufferHelper::BufferData& ar
 	scaleRotMat = KazMath::CaluScaleMatrix({ lScale,lScale,lScale }) * KazMath::CaluRotaMatrix({ 0.0f,0.0f,0.0f });
 
 	MESH_PARTICLE_GENERATE_NUM = 0;
-
-	computeInitMeshParticle.Generate(ShaderOptionData("Resource/ShaderFiles/ComputeShader/MeshParticleComputeShader.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), std::vector<KazBufferHelper::BufferData>());
 }
 
 void InstanceMeshParticle::Init()
@@ -185,7 +183,13 @@ void InstanceMeshParticle::AddMeshData(const InitMeshParticleData& DATA)
 		bufferArray.emplace_back(lData);
 	}
 
+
 	computeInitMeshParticle.m_extraBufferArray = bufferArray;
+	if (!isInitFlag)
+	{
+		computeInitMeshParticle.Generate(ShaderOptionData("Resource/ShaderFiles/ComputeShader/MeshParticleComputeShader.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), bufferArray);
+		isInitFlag = false;
+	}
 	computeInitMeshParticle.Compute({ 1,1,1 });
 
 	++MESH_PARTICLE_GENERATE_NUM;
@@ -220,22 +224,13 @@ void InstanceMeshParticle::Compute()
 	scaleRotaBuffer.TransData(lScaleMatArray.data(), sizeof(DirectX::XMMATRIX) * static_cast<int>(scaleRotaMatArray.size()));
 
 	particleMotherMatrixHandle.bufferWrapper->CopyBuffer(
-		motherMatrixBuffer.GetBuffer().Get(),
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		D3D12_RESOURCE_STATE_COPY_DEST
-	);
+		motherMatrixBuffer.GetBuffer().Get());
 
 	colorMotherMatrixHandle.bufferWrapper->CopyBuffer(
-		colorBuffer.GetBuffer().Get(),
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		D3D12_RESOURCE_STATE_COPY_DEST
-	);
+		colorBuffer.GetBuffer().Get());
 
 	scaleRotateBillboardMatHandle.bufferWrapper->CopyBuffer(
-		scaleRotaBuffer.GetBuffer().Get(),
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		D3D12_RESOURCE_STATE_COPY_DEST
-	);
+		scaleRotaBuffer.GetBuffer().Get());
 
 	computeUpdateMeshParticle.Compute({ 1000,1,1 });
 }

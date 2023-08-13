@@ -15,7 +15,7 @@ public:
 
 
 private:
-	ResouceBufferHelper computeHelper;
+	ResouceBufferHelper m_computeHelper;
 	RESOURCE_HANDLE meshCircleArrayBufferHandle, outputParticleBufferHandle;
 	RESOURCE_HANDLE commonDataHandle;
 

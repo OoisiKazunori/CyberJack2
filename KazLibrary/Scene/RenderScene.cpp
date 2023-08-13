@@ -124,7 +124,7 @@ RenderScene::RenderScene()
 		lightUploadBuffer.bufferWrapper->TransData(posArray.data(), sizeof(DirectX::XMFLOAT3) * (LGHIT_ARRAY_X * LGHIT_ARRAY_Y * LGHIT_ARRAY_Z));
 
 		m_drawFinalPlane.m_plane.extraBufferArray.emplace_back(KazBufferHelper::SetGPUBufferData(sizeof(DirectX::XMFLOAT3) * (LGHIT_ARRAY_X * LGHIT_ARRAY_Y * LGHIT_ARRAY_Z)));
-		m_drawFinalPlane.m_plane.extraBufferArray.back().bufferWrapper->CopyBuffer(lightUploadBuffer.bufferWrapper->GetBuffer(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+		m_drawFinalPlane.m_plane.extraBufferArray.back().bufferWrapper->CopyBuffer(lightUploadBuffer.bufferWrapper->GetBuffer());
 		m_drawFinalPlane.m_plane.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 		m_drawFinalPlane.m_plane.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 	}
