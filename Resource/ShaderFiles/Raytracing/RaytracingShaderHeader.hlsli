@@ -481,5 +481,4 @@ void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materia
     {
         arg_finalColor = arg_albedoColor;
     }
-    
 }

@@ -24,7 +24,7 @@ public:
 	//上記のパーティクルをレイトレで描画する
 	DrawFuncData::DrawCallData m_drawTriangleParticleInRaytracing;
 
-	static const int DISPATCH_MAX_NUM = 1;
+	static const int DISPATCH_MAX_NUM = 10;
 	static const int PARTICLE_MAX_NUM = 1024 * DISPATCH_MAX_NUM;
 	struct ParticeArgumentData
 	{
