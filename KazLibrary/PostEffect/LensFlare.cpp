@@ -8,7 +8,7 @@
 
 namespace PostEffect {
 
-	LensFlare::LensFlare(KazBufferHelper::BufferData arg_lnesflareTargetTexture, DirectX12* arg_refDirectX12)
+	LensFlare::LensFlare(KazBufferHelper::BufferData arg_lnesflareTargetTexture, KazBufferHelper::BufferData arg_emissiveTexture)
 	{
 
 		/*===== コンストラクタ =====*/
@@ -33,13 +33,7 @@ namespace PostEffect {
 			m_lensFlareTexture.bufferWrapper->GetBuffer().Get()
 		);
 		//ブルーム用のテクスチャを用意。
-		m_bloomTexture = KazBufferHelper::SetUAVTexBuffer(LENSFLARE_TEXSIZE.x, LENSFLARE_TEXSIZE.y, DXGI_FORMAT_R8G8B8A8_UNORM);
-		m_bloomTexture.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
-		DescriptorHeapMgr::Instance()->CreateBufferView(
-			m_bloomTexture.bufferWrapper->GetViewHandle(),
-			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), LENSFLARE_TEXSIZE.x * LENSFLARE_TEXSIZE.y),
-			m_bloomTexture.bufferWrapper->GetBuffer().Get()
-		);
+		m_bloomTexture = arg_emissiveTexture;
 		m_bloom = std::make_shared<PostEffect::Bloom>(m_bloomTexture);
 		//レンズの色テクスチャをロード
 		m_lensColorTexture = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::LensFlarePath + "lensColor.png");
@@ -98,8 +92,10 @@ namespace PostEffect {
 
 		/*===== レンズフレアをかける =====*/
 
+
 		/*- ①レンズフレアをかける対象を一旦コピーしておく。 -*/
 
+		PIXBeginEvent(DirectX12CmdList::Instance()->cmdList.Get(), 0, "LensFlare Path");
 		GenerateCopyOfLensFlareTexture();
 
 
@@ -111,24 +107,31 @@ namespace PostEffect {
 		lensFlareData.y = static_cast<UINT>(LENSFLARE_TEXSIZE.y / 16) + 1;
 		lensFlareData.z = static_cast<UINT>(1);
 		m_lensFlareShader.Compute(lensFlareData);
+		PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
+
 
 		//ブルームもかけちゃう。
+		PIXBeginEvent(DirectX12CmdList::Instance()->cmdList.Get(), 0, "Bloom");
 		CopyTexture(m_bloomTexture, m_lensFlareTargetCopyTexture);
 		m_bloom->Apply();
+		PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
 
 
 		/*- ③ブラーパス -*/
 
 		//レンズフレアにブラーをかける。
+		PIXBeginEvent(DirectX12CmdList::Instance()->cmdList.Get(), 0, "Blur Path");
 		m_blurPath->ApplyBlur();
 		m_blurPath->ApplyBlur();
 		m_blurPath->ApplyBlur();
 		m_blurPath->ApplyBlur();
 		m_blurPath->ApplyBlur();
+		PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
 
 		/*- ④最終加工パス -*/
 
 		//カメラの情報を保存して転送。
+		PIXBeginEvent(DirectX12CmdList::Instance()->cmdList.Get(), 0, "Final Path");
 		m_cameraVec.m_cameraZVec = CameraMgr::Instance()->GetCameraAxis().z;
 		m_cameraVec.m_cameraXVec = CameraMgr::Instance()->GetCameraAxis().x;
 		KazMath::Vec3<float> yVec = m_cameraVec.m_cameraZVec.Cross(m_cameraVec.m_cameraXVec);
@@ -140,6 +143,7 @@ namespace PostEffect {
 		finalPath.y = static_cast<UINT>(BACKBUFFER_SIZE.y / 16) + 1;
 		finalPath.z = static_cast<UINT>(1);
 		m_finalProcessingShader.Compute(finalPath);
+		PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
 
 
 	}

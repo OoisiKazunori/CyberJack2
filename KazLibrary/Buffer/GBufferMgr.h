@@ -64,6 +64,11 @@ public:
 		return m_lensFlareLuminanceGBuffer;
 	};
 
+	const KazBufferHelper::BufferData& GetEmissiveGBuffer()
+	{
+		return m_emissiveGBuffer;
+	};
+
 	const KazBufferHelper::BufferData& GetBackBufferCopyBuffer()
 	{
 		return m_backBufferCopyBuffer;
@@ -131,6 +136,7 @@ private:
 	//レンズフレア関連
 	KazBufferHelper::BufferData m_lensFlareLuminanceGBuffer;	//レンズフレアに使用するGBuffer レイトレを実行すると書き込まれる。
 	KazBufferHelper::BufferData m_lensFlareConposeBuffTexture;	//レンズフレアを合成するときに一旦保存するテクスチャ。
+	KazBufferHelper::BufferData m_emissiveGBuffer;				//レンズフレアで使用するブルーム用GBuffer レイトレを実行すると書き込まれる。
 	std::shared_ptr<ComputeShader> m_lensFlareComposeShader;
 };
 

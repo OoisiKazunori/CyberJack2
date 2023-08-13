@@ -171,7 +171,7 @@ namespace Raytracing {
 		m_numBlas = 0;
 
 		//レンズフレア
-		m_lensFlare = std::make_shared<PostEffect::LensFlare>(GBufferMgr::Instance()->GetLensFlareBuffer(), m_refDirectX12);
+		m_lensFlare = std::make_shared<PostEffect::LensFlare>(GBufferMgr::Instance()->GetLensFlareBuffer(), GBufferMgr::Instance()->GetEmissiveGBuffer());
 
 	}
 
@@ -285,13 +285,19 @@ namespace Raytracing {
 
 		/*===== レイトレーシングを実行 =====*/
 
+		PIXBeginEvent(DirectX12CmdList::Instance()->cmdList.Get(), 0, "Raytracing");
+
 		//レイトレで使用するリソース類をセット。
 		SetRaytracingResource(arg_tlas);
 
 		//レイトレーシングを実行。
 		DirectX12CmdList::Instance()->cmdList->DispatchRays(&m_dispatchRayDesc);
 
+		PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
+
 		/*===== コピーコマンドを積む =====*/
+
+		PIXBeginEvent(DirectX12CmdList::Instance()->cmdList.Get(), 0, "Lensflare");
 
 		//UAVのバリアを貼る。
 		UAVBarrier({ GBufferMgr::Instance()->GetLensFlareBuffer() , GBufferMgr::Instance()->GetRayTracingBuffer() });
@@ -324,7 +330,11 @@ namespace Raytracing {
 		//バックバッファの状態を元に戻す。
 		BufferStatesTransition(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
 
+		PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
+
 		/*===== バックバッファを合成する =====*/
+
+		PIXBeginEvent(DirectX12CmdList::Instance()->cmdList.Get(), 0, "ComposeBackBuffer");
 
 		//合成を実行。
 		GBufferMgr::Instance()->ComposeBackBuffer();
@@ -340,6 +350,8 @@ namespace Raytracing {
 
 		//バックバッファの状態を元に戻す。
 		BufferStatesTransition(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+		PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
 
 	}
 
@@ -590,6 +602,7 @@ namespace Raytracing {
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(10, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetRayTracingBuffer().bufferWrapper->GetViewHandle()));	//レイトレ出力用
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(11, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(m_refVolumeNoiseTexture->bufferWrapper->GetViewHandle()));	//ボリュームフォグ用テクスチャ
 		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(12, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetLensFlareBuffer().bufferWrapper->GetViewHandle()));	//レンズフレア用テクスチャ
+		DirectX12CmdList::Instance()->cmdList->SetComputeRootDescriptorTable(13, DescriptorHeapMgr::Instance()->GetGpuDescriptorView(GBufferMgr::Instance()->GetEmissiveGBuffer().bufferWrapper->GetViewHandle()));	//ブルーム用テクスチャ
 
 		//パイプラインを設定。
 		DirectX12CmdList::Instance()->cmdList->SetPipelineState1(m_stateObject.Get());

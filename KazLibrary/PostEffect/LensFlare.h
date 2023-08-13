@@ -52,7 +52,7 @@ namespace PostEffect {
 		/*===== 関数 =====*/
 
 		//コンストラクタ
-		LensFlare(KazBufferHelper::BufferData arg_lnesflareTargetTexture, DirectX12* arg_refDirectX12);
+		LensFlare(KazBufferHelper::BufferData arg_lnesflareTargetTexture, KazBufferHelper::BufferData arg_emissiveTexture);
 
 		//レンズフレアをかける。
 		void Apply();

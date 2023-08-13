@@ -27,6 +27,7 @@ Texture2D<float4> emissiveMap : register(t5);
 RWTexture2D<float4> finalColor : register(u0);
 RWTexture3D<float4> volumeNoiseTexture : register(u1);
 RWTexture2D<float4> lensFlareTexture : register(u2);
+RWTexture2D<float4> emissiveTexture : register(u3);
 
 float3 IntersectionPos(float3 Dir, float3 A, float Radius)
 {
@@ -384,7 +385,8 @@ void mainRayGen()
     const float LENSFLARE_DEADLINE = 0.3f;
     float deadline = step(LENSFLARE_DEADLINE, bright);
     float lensflareBright = (deadline * bright);
-    lensFlareTexture[launchIndex.xy] = saturate(float4(albedoColor.xyz * lensflareBright * 0.1f, 1.0f) + emissiveColor);
+    lensFlareTexture[launchIndex.xy] = saturate(float4(albedoColor.xyz * lensflareBright * 0.1f, 1.0f));
+    emissiveTexture[launchIndex.xy] = emissiveColor;
     
     //アルベドにライトの色をかける。
     albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);

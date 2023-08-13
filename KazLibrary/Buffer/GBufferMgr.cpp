@@ -69,6 +69,14 @@ GBufferMgr::GBufferMgr()
 			m_lensFlareLuminanceGBuffer.bufferWrapper->GetBuffer().Get()
 		);
 
+		m_emissiveGBuffer = KazBufferHelper::SetUAVTexBuffer(winSize.x, winSize.y, DXGI_FORMAT_R8G8B8A8_UNORM);
+		m_emissiveGBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
+		DescriptorHeapMgr::Instance()->CreateBufferView(
+			m_emissiveGBuffer.bufferWrapper->GetViewHandle(),
+			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), winSize.x * winSize.y),
+			m_emissiveGBuffer.bufferWrapper->GetBuffer().Get()
+		);
+
 		m_backBufferCopyBuffer = KazBufferHelper::SetUAVTexBuffer(winSize.x, winSize.y, DXGI_FORMAT_R8G8B8A8_UNORM);
 		m_backBufferCopyBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
 		DescriptorHeapMgr::Instance()->CreateBufferView(
