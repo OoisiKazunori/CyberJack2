@@ -87,17 +87,12 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 		DrawFuncData::SetExecuteIndirect(
 			DrawFuncData::GetBasicInstanceShader(),
 			m_computeUpdateBuffer[1].bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
-			m_particleVertexBuffer->bufferWrapper->GetGpuAddress(),
 			PARTICLE_MAX_NUM
 		);
 
 	m_drawTriangleParticle.extraBufferArray.emplace_back(KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * PARTICLE_MAX_NUM));
 	m_drawTriangleParticle.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_drawTriangleParticle.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-
-	m_drawTriangleParticle.extraBufferArray.emplace_back(*m_particleVertexBuffer);
-	m_drawTriangleParticle.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-	m_drawTriangleParticle.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
 	m_computeInit.Compute({ DISPATCH_MAX_NUM,1,1 });
 
@@ -117,6 +112,9 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 		);
 	command.indexBufferView = KazBufferHelper::SetIndexBufferView(m_particleIndexBuffer->bufferWrapper->GetGpuAddress(), sizeof(UINT) * PARTICLE_MAX_NUM * 6);
 
+	m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0] = command.drawIndexInstancedData;
+	m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.vertexBufferDrawData[0] = command.vertexBufferDrawData;
+	m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.indexBufferView[0] = command.indexBufferView;
 	m_drawCall = DrawFuncData::SetDrawPolygonIndexData(command, DrawFuncData::GetBasicShader());
 }
 
@@ -166,5 +164,5 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
 	);
-	arg_rasterize.ObjectRender(m_drawCall);
+	//arg_rasterize.ObjectRender(m_drawCall);
 }

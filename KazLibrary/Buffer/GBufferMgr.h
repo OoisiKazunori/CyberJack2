@@ -22,6 +22,7 @@ public:
 		NORMAL,
 		R_M_S_ID,
 		WORLD,
+		EMISSIVE,
 		MAX
 	};
 	GBufferMgr();

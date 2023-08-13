@@ -18,7 +18,6 @@ namespace ExecuteIndirectData
 	struct DrawIndexedIndirectCommand
 	{
 		D3D12_GPU_VIRTUAL_ADDRESS m_view;
-		D3D12_GPU_VIRTUAL_ADDRESS m_view2;
 		D3D12_DRAW_INDEXED_ARGUMENTS m_drawArguments;
 	};
 	struct DrawIndirectCommand
@@ -986,7 +985,7 @@ namespace DrawFuncData
 		return lDrawCallData;
 	}
 
-	static DrawCallData SetExecuteIndirect(const PipelineGenerateData& PIPELINE_DATA, const D3D12_GPU_VIRTUAL_ADDRESS& arg_address, const D3D12_GPU_VIRTUAL_ADDRESS& arg_address2, UINT arg_maxCountNum)
+	static DrawCallData SetExecuteIndirect(const PipelineGenerateData& PIPELINE_DATA, const D3D12_GPU_VIRTUAL_ADDRESS& arg_address, UINT arg_maxCountNum)
 	{
 		DrawCallData lDrawCallData;
 
@@ -1005,14 +1004,10 @@ namespace DrawFuncData
 		args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW;
 		args[0].UnorderedAccessView.RootParameterIndex = 0;
 		args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
-		args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW;
-		args[1].UnorderedAccessView.RootParameterIndex = 1;
-		args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
-		args[2].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+		args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 		lDrawCallData.m_executeIndirectGenerateData.m_desc = args;
 
 		lDrawCallData.m_executeIndirectGenerateData.m_argumentCommandData.m_view = arg_address;
-		lDrawCallData.m_executeIndirectGenerateData.m_argumentCommandData.m_view2 = arg_address2;
 		lDrawCallData.m_executeIndirectGenerateData.m_argumentCommandData.m_drawArguments =
 		{
 			lDrawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].indexCountPerInstance,
@@ -1090,7 +1085,7 @@ namespace DrawFuncData
 	static DrawFuncData::PipelineGenerateData GetBasicInstanceShader()
 	{
 		DrawFuncData::PipelineGenerateData lData;
-		lData.desc = DrawFuncPipelineData::SetPos();
+		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "BasicInstance.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "BasicInstance.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
 		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
