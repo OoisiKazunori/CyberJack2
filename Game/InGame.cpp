@@ -2,6 +2,7 @@
 #include"../KazLibrary/Buffer/UavViewHandleMgr.h"
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
 #include"../KazLibrary/Input/ControllerInputManager.h"
+#include"../KazLibrary/Loader/MeshParticleLoader.h"
 
 InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX>& arg_responeData, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>& arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX>& BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX>& CAMERA_ARRAY) :
 	m_stageArray(arg_stageArray), m_responeData(arg_responeData), m_sceneNum(-1)
@@ -32,11 +33,9 @@ void InGame::Init(bool SKIP_FLAG)
 	m_sceneNum = -1;
 	m_cursor.Init();
 
+	"Resource/Test/glTF/Box/", "BoxTextured.gltf";
 
-
-	InitMeshParticleData initMeshParticleData;
-	initMeshParticleData.vertData = ;
-	initMeshParticleData.uvData = ;
+	InitMeshParticleData initMeshParticleData(MeshParticleLoader::Instance()->LoadMesh("Resource/Test/glTF/Box/", "BoxTextured.gltf", &m_motherMat, {70,36,36}, -1));
 	m_meshParticleRender->AddMeshData(initMeshParticleData);
 
 	m_meshParticleRender->Init();

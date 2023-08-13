@@ -1,6 +1,7 @@
 #pragma once
 #include"../KazLibrary/Buffer/CreateGpuBuffer.h"
 #include"../KazLibrary/Helper/ResouceBufferHelper.h"
+#include"../KazLibrary/Helper/Compute.h"
 
 /// <summary>
 /// ÉÇÉfÉãÇÃí∏ì_èÓïÒÇVRAMè„Ç…ï€ë∂Ç∑ÇÈ
@@ -26,14 +27,14 @@ public:
 		DATA_MAX
 	};
 
-	CreateMeshBuffer(RESOURCE_HANDLE HANDLE);
 	CreateMeshBuffer(std::vector<DirectX::XMFLOAT3> VERT, std::vector<DirectX::XMFLOAT2> UV);
-	const ResouceBufferHelper::BufferData &GetBufferData(MeshBufferView ENUM_VIEW);
+	CreateMeshBuffer(std::vector<KazMath::Vec3<float>> VERT, std::vector<KazMath::Vec2<float>> UV);
+	const KazBufferHelper::BufferData &GetBufferData(MeshBufferView ENUM_VIEW);
 	
 	bool IsDataIn(MeshBufferView ENUM_VIEW)
 	{
 		RESOURCE_HANDLE lHandle = static_cast<RESOURCE_HANDLE>(ENUM_VIEW);
-		if (bufferHandleDataArray[lHandle].bufferHandle != -1)
+		if (bufferHandleDataArray[lHandle].bufferWrapper)
 		{
 			return true;
 		}
@@ -43,8 +44,8 @@ public:
 		}
 	}
 private:
-	std::array<BufferHandle, DATA_MAX>bufferHandleDataArray;
+	std::array<KazBufferHelper::BufferData, DATA_MAX>bufferHandleDataArray;
 
-	ResouceBufferHelper computeHelper;
+	ComputeShader computeHelper;
 };
 

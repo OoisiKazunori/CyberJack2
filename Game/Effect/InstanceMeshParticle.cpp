@@ -47,6 +47,8 @@ InstanceMeshParticle::InstanceMeshParticle(const KazBufferHelper::BufferData& ar
 	scaleRotMat = KazMath::CaluScaleMatrix({ lScale,lScale,lScale }) * KazMath::CaluRotaMatrix({ 0.0f,0.0f,0.0f });
 
 	MESH_PARTICLE_GENERATE_NUM = 0;
+
+	computeInitMeshParticle.Generate(ShaderOptionData("Resource/ShaderFiles/ComputeShader/MeshParticleComputeShader.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), std::vector<KazBufferHelper::BufferData>());
 }
 
 void InstanceMeshParticle::Init()
@@ -108,6 +110,7 @@ void InstanceMeshParticle::Init()
 			nullptr,
 			"RAMScaleRotaBillData")
 	);
+
 }
 
 void InstanceMeshParticle::AddMeshData(const InitMeshParticleData& DATA)
@@ -119,9 +122,9 @@ void InstanceMeshParticle::AddMeshData(const InitMeshParticleData& DATA)
 	commonColorBufferData.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 	commonColorBufferData.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-	commonColorBufferData.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(CommonData)));
-	commonColorBufferData.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-	commonColorBufferData.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+	commonBufferData.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(CommonData)));
+	commonBufferData.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+	commonBufferData.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 
 	motherMatArray.emplace_back(MotherData(DATA.motherMat, DATA.alpha));
@@ -182,7 +185,8 @@ void InstanceMeshParticle::AddMeshData(const InitMeshParticleData& DATA)
 		bufferArray.emplace_back(lData);
 	}
 
-	computeInitMeshParticle.Compute({ 1000,1,1 });
+	computeInitMeshParticle.m_extraBufferArray = bufferArray;
+	computeInitMeshParticle.Compute({ 1,1,1 });
 
 	++MESH_PARTICLE_GENERATE_NUM;
 #pragma endregion

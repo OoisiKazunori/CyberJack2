@@ -54,6 +54,7 @@
 #include"../KazLibrary/Helper/ResourceFilePass.h"
 
 #include"../Game/Effect/InstanceMeshParticle.h"
+#include"../KazLibrary/Buffer/CreateMeshBuffer.h"
 
 class InGame
 {
@@ -151,4 +152,5 @@ private:
 	//メッシュパーティクル
 	KazBufferHelper::BufferData m_particleRender, m_particleColorRender;
 	std::unique_ptr<InstanceMeshParticle> m_meshParticleRender;
+	DirectX::XMMATRIX m_motherMat;
 };

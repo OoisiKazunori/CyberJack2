@@ -1,29 +1,10 @@
 #pragma once
 #include"../KazLibrary/Helper/ResouceBufferHelper.h"
-#include"../KazLibrary/Render/DrawExcuteIndirect.h"
 #include"../KazLibrary/Helper/KazBufferHelper.h"
 #include"../KazLibrary/Helper/ISinglton.h"
-#include"../KazLibrary/Render/GPUParticleRender.h"
 #include"../KazLibrary/Helper/Compute.h"
+#include"InstanceMeshParticleData.h"
 #include<vector>
-
-struct InitMeshParticleData
-{
-	KazBufferHelper::BufferData vertData;
-	KazBufferHelper::BufferData uvData;
-	RESOURCE_HANDLE textureHandle;
-	//x vertNum, y bias,z perTriangleNum,w faceCountNum
-	DirectX::XMUINT4 triagnleData;
-	const DirectX::XMMATRIX *motherMat;
-	KazMath::Vec4<float>color;
-	KazMath::Vec3<float>particleScale;
-	bool billboardFlag;
-	const float *alpha;
-
-	InitMeshParticleData() :textureHandle(-1), billboardFlag(false)
-	{
-	}
-};
 
 class InstanceMeshParticle
 {

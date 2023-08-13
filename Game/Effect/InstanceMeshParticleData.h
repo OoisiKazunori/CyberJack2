@@ -1,0 +1,21 @@
+#pragma once
+#include"../KazLibrary/Helper/KazBufferHelper.h"
+#include"../KazLibrary/Math/KazMath.h"
+
+struct InitMeshParticleData
+{
+	KazBufferHelper::BufferData vertData;
+	KazBufferHelper::BufferData uvData;
+	RESOURCE_HANDLE textureHandle;
+	//x vertNum, y bias,z perTriangleNum,w faceCountNum
+	DirectX::XMUINT4 triagnleData;
+	const DirectX::XMMATRIX* motherMat;
+	KazMath::Vec4<float>color;
+	KazMath::Vec3<float>particleScale;
+	bool billboardFlag;
+	const float* alpha;
+
+	InitMeshParticleData() :textureHandle(-1), billboardFlag(false)
+	{
+	}
+};
