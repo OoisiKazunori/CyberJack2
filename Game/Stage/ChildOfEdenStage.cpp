@@ -132,7 +132,7 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 
 	for (auto& index : m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas)
 	{
-		arg_blasVec.Add(index, DirectX::XMMatrixIdentity());
+		arg_blasVec.Add(index, DirectX::XMMatrixIdentity(), 1);
 	}
 
 	CameraBufferData cameraMat;

@@ -316,6 +316,10 @@ void mainRayGen()
     float4 materialInfo = materialMap[launchIndex];
     float4 worldColor = worldMap[launchIndex];
     
+    //遠さを見る。
+    const float REFLECTION_DEADLINE = 100.0f;
+    bool isFar = REFLECTION_DEADLINE < length(cameraEyePos.m_eye - worldColor.xyz);
+    
     //海を描画
     bool isSea = 0 < cameraEyePos.m_eye.y && (cameraEyePos.m_eye + dir * 10000.0f).y < 0 && length(normalColor.xyz) < 0.1f;
     isSea |= cameraEyePos.m_eye.y < 0 && 0 < (cameraEyePos.m_eye + dir * 10000.0f).y && length(normalColor.xyz) < 0.1f;
@@ -340,10 +344,16 @@ void mainRayGen()
         float3 n = GetNormal(position, dot(dist, dist) * (0.1f / dims.x));
         
         float3 mieColor = float3(0, 0, 0);
-        float3 sky = AtmosphericScattering(reflect(dir, n) * 15000.0f, mieColor);
-        if (debugOnOffData.m_debugReflection == 1 && launchIndex.x < debugOnOffData.m_sliderRate)
+        float3 sky = float3(0,0,0);
+        bool isDebug = debugOnOffData.m_debugReflection == 1 && launchIndex.x < debugOnOffData.m_sliderRate;
+        isFar = REFLECTION_DEADLINE < length(cameraEyePos.m_eye - position);
+        if (isDebug || isFar)
         {
             sky = GetSkyColor(dir);
+        }
+        else
+        {
+            sky = AtmosphericScattering(reflect(dir, n) * 15000.0f, mieColor);
         }
         float3 sea = GetSeaColor(position, n, lightData.m_dirLight.m_dir, dir, dist);
         
@@ -360,7 +370,7 @@ void mainRayGen()
     
     //ライティングパスを行う。
     float bright = 0.0f;
-    LightingPass(bright, worldColor, normalColor, lightData, launchIndex, debugOnOffData, gRtScene);
+    LightingPass(bright, worldColor, normalColor, lightData, launchIndex, debugOnOffData, gRtScene, isFar);
     
     //輝度が一定以上だったらレンズフレア用のテクスチャに書きこむ。
     const float LENSFLARE_DEADLINE = 0.3f;
@@ -372,11 +382,12 @@ void mainRayGen()
     albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);
     
     //GodRayPass
-    GodRayPass(worldColor, albedoColor, launchIndex, cameraEyePos, lightData, gRtScene, volumeNoiseTexture, volumeFogData);
+    //GodRayPass(worldColor, albedoColor, launchIndex, cameraEyePos, lightData, gRtScene, volumeNoiseTexture, volumeFogData);
     
     //マテリアルのIDをもとに、反射屈折のレイを飛ばす。
     float4 final = float4(0, 0, 0, 1);
-    if (debugOnOffData.m_debugReflection == 1 && launchIndex.x < debugOnOffData.m_sliderRate)
+    bool isDebug = debugOnOffData.m_debugReflection == 1 && launchIndex.x < debugOnOffData.m_sliderRate;
+    if (isDebug || isFar)
     {
         final = albedoColor;
     }
