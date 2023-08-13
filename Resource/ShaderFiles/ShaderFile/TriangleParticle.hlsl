@@ -324,6 +324,6 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
 	    IndexBuffer[indeciesIndex + 4] = offsetIndex + 1;
 	    IndexBuffer[indeciesIndex + 5] = offsetIndex + 3;
     }
-    //WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
+    WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
     WorldDataBuffer[index].color = ParticleDataBuffer[index].color;
 }
