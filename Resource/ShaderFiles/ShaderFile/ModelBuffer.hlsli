@@ -17,7 +17,7 @@ struct GBufferOutput
     float4 normal : SV_TARGET1;
     float4 metalnessRoughness : SV_TARGET2;
     float4 world : SV_TARGET3;
-    float3 emissive : SV_TARGET4;
+    float4 emissive : SV_TARGET4;
 };
 
 //https://coposuke.hateblo.jp/entry/2020/12/21/144327

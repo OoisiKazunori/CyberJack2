@@ -21,6 +21,7 @@ Texture2D<float4> albedoMap : register(t1);
 Texture2D<float4> normalMap : register(t2);
 Texture2D<float4> materialMap : register(t3);
 Texture2D<float4> worldMap : register(t4);
+Texture2D<float4> emissiveMap : register(t5);
 
 //出力先UAV
 RWTexture2D<float4> finalColor : register(u0);
@@ -315,6 +316,7 @@ void mainRayGen()
     float4 normalColor = normalMap[launchIndex];
     float4 materialInfo = materialMap[launchIndex];
     float4 worldColor = worldMap[launchIndex];
+    float4 emissiveColor = emissiveMap[launchIndex];
     
     //遠さを見る。
     const float REFLECTION_DEADLINE = 10000.0f;
@@ -344,7 +346,7 @@ void mainRayGen()
         float3 n = GetNormal(position, dot(dist, dist) * (0.1f / dims.x));
         
         float3 mieColor = float3(0, 0, 0);
-        float3 sky = float3(0,0,0);
+        float3 sky = float3(0, 0, 0);
         bool isDebug = debugRaytracingData.m_debugReflection == 1 && launchIndex.x < debugRaytracingData.m_sliderRate;
         isFar = REFLECTION_DEADLINE < length(cameraEyePos.m_eye - position);
         if (isDebug)
@@ -354,6 +356,11 @@ void mainRayGen()
         else
         {
             sky = AtmosphericScattering(reflect(dir, n) * 15000.0f, mieColor);
+        }
+        if (length(saturate(sky)) < 0.1f)
+        {
+            sky = float3(1, 1, 1);
+
         }
         float3 sea = GetSeaColor(position, n, lightData.m_dirLight.m_dir, dir, dist);
         
@@ -377,7 +384,7 @@ void mainRayGen()
     const float LENSFLARE_DEADLINE = 0.3f;
     float deadline = step(LENSFLARE_DEADLINE, bright);
     float lensflareBright = (deadline * bright);
-    lensFlareTexture[launchIndex.xy] = float4(albedoColor.xyz * lensflareBright * 0.1f, 1.0f);
+    lensFlareTexture[launchIndex.xy] = saturate(float4(albedoColor.xyz * lensflareBright * 0.1f, 1.0f) + emissiveColor);
     
     //アルベドにライトの色をかける。
     albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);

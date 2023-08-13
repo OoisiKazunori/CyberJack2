@@ -36,7 +36,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	Raytracing::HitGroupMgr::Instance()->Setting();
 	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS", L"checkHitRayMS"}, {L"mainCHS", L"mainAnyHit"} });
 	int payloadSize = sizeof(float) * 4;
-	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 5, 4, 3, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
+	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 6, 4, 3, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
 
 	m_debugOnOffLineRender = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());

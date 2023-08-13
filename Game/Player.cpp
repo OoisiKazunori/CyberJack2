@@ -40,7 +40,7 @@ Player::Player()
 	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvLightMain", "ps_6_4", SHADER_TYPE_PIXEL);
 	lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 	//m_playerModel = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*ModelLoader::Instance()->Load("Resource/Test/glTF/Avocado/", "Avocado.gltf"), lData);
-	m_playerModel = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf"));
+	m_playerModel = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingBloomData(*ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf"), DrawFuncData::GetModelBloomShader());
 }
 
 void Player::Init(const KazMath::Vec3<float>& POS, bool DRAW_UI_FLAG, bool APPEAR_FLAG)
@@ -249,6 +249,12 @@ void Player::Update()
 
 
 	DrawFunc::DrawModelInRaytracing(m_playerModel, m_transform, DrawFunc::NONE);
+
+	m_emissive.x = 1;
+	m_emissive.y = 1;
+	m_emissive.z = 1;
+	m_emissive.a = 1;
+	m_playerModel.extraBufferArray.back().bufferWrapper->TransData(&m_emissive, sizeof(DirectX::XMFLOAT4));
 
 }
 

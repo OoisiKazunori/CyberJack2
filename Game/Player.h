@@ -71,6 +71,8 @@ private:
 	bool rightFlag;
 	FbxTime totalTime;
 
+	KazMath::Vec4<float> m_emissive;
+
 	int larpTime;
 	KazMath::Vec3<float>minScale;
 	KazMath::Vec3<float>adjPos;
