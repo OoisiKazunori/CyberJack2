@@ -87,12 +87,17 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 		DrawFuncData::SetExecuteIndirect(
 			DrawFuncData::GetBasicInstanceShader(),
 			m_computeUpdateBuffer[1].bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
+			m_particleIndexBuffer->bufferWrapper->GetGpuAddress(),
 			PARTICLE_MAX_NUM
 		);
 
 	m_drawTriangleParticle.extraBufferArray.emplace_back(KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * PARTICLE_MAX_NUM));
 	m_drawTriangleParticle.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_drawTriangleParticle.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
+	m_drawTriangleParticle.extraBufferArray.emplace_back(*m_particleVertexBuffer);
+	m_drawTriangleParticle.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	m_drawTriangleParticle.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
 	m_computeInit.Compute({ DISPATCH_MAX_NUM,1,1 });
 
