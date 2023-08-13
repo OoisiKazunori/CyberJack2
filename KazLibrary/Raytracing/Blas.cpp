@@ -17,10 +17,44 @@ Raytracing::Blas::Blas(bool IsOpaque, RESOURCE_HANDLE arg_vertexDataHandle, int 
 	m_vertexDataHandle = arg_vertexDataHandle;
 	m_meshNumber = arg_meshNumber;
 	m_textureHandle = arg_textureHandle;
-	D3D12_RAYTRACING_GEOMETRY_DESC geomDesc = GetGeometryDesc(IsOpaque);
+	m_geomDesc = GetGeometryDesc(IsOpaque);
 
 	//Blasを構築。
-	BuildBlas(geomDesc);
+	BuildBlas(m_geomDesc);
+
+}
+
+void Raytracing::Blas::Update()
+{
+
+	//更新のための値を設定。
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC asDesc{};
+	auto& inputs = asDesc.Inputs;
+	inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
+	inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
+	inputs.NumDescs = 1;
+	inputs.pGeometryDescs = &m_geomDesc;
+	//BLAS の更新処理を行うためのフラグを設定する。
+	inputs.Flags =
+		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE |
+		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
+
+	//インプレース更新を実行する。
+	asDesc.SourceAccelerationStructureData = m_blasBuffer->GetGPUVirtualAddress();
+	asDesc.DestAccelerationStructureData = m_blasBuffer->GetGPUVirtualAddress();
+	//更新用の作業バッファを設定する。
+	asDesc.ScratchAccelerationStructureData = m_updateBuffer->GetGPUVirtualAddress();
+
+	//コマンドリストに積む。
+	DirectX12CmdList::Instance()->cmdList->BuildRaytracingAccelerationStructure(
+		&asDesc, 0, nullptr
+	);
+
+	//リソースバリアの設定。
+	D3D12_RESOURCE_BARRIER uavBarrier{};
+	uavBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+	uavBarrier.UAV.pResource = m_blasBuffer.Get();
+	DirectX12CmdList::Instance()->cmdList->ResourceBarrier(1, &uavBarrier);
 
 }
 
