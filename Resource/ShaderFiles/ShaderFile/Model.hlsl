@@ -166,3 +166,46 @@ GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
     output.emissive = float4(0,0,0,1);
 	return output;
 }
+
+cbuffer EmissiveBuffer : register(b3)
+{
+    float4 emissiveColorAndStrength;
+}
+
+//ディファードレンダリング対応、ブルーム付き
+GBufferOutput PSDefferdBloomMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
+{
+    float4 normalColor = NormalTex.Sample(smp,input.uv);
+    //-1.0f ~ 1.0f
+    float3 normalVec = 2 * normalColor - 1.0f;
+    normalVec = normalize(normalVec);
+
+    float3 normal = mul(rotaion,float4(input.normal,1.0f));
+    normal = normalize(normal);
+    float3 tangent = mul(rotaion,float4(input.tangent,1.0f));
+    tangent = normalize(tangent);
+    float3 binormal = cross(normal,tangent);
+
+    float3 nWorld = CalucurateTangentToLocal(normalVec,normal,tangent,binormal);
+    if(IsEnableToUseMaterialTex(normalColor))
+    {
+        nWorld = input.normal;
+    }
+
+	float4 texColor = AlbedoTex.Sample(smp,input.uv);
+    float4 mrColor = MetalnessRoughnessTex.Sample(smp,input.uv);
+
+    if(IsEnableToUseMaterialTex(mrColor))
+    {
+        mrColor.xyz = float3(0.0f,0.0f,0.0f);
+    }
+
+    GBufferOutput output;
+    output.albedo = texColor * color;
+    output.normal = float4(normal, 1.0f);
+    output.metalnessRoughness = float4(mrColor.xyz,raytracingId);
+    output.world = float4(input.worldPos,1.0f);
+    float3 emissiveColor = emissiveColorAndStrength.xyz * emissiveColorAndStrength.a;
+    output.emissive = float4(emissiveColor,1.0f);
+	return output;
+}

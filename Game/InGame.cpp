@@ -10,7 +10,7 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 
 	m_debugFlag = false;
 
-	//m_meshParticleRender = m_particleRender;
+	m_bloomModelRender = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingBloomData(*ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf"), DrawFuncData::GetModelBloomShader());
 }
 
 void InGame::Init(bool SKIP_FLAG)
@@ -453,6 +453,14 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 #endif
 
 	m_stageArray[m_gameStageLevel]->Draw(arg_rasterize, arg_blasVec);
+
+	KazMath::Transform3D transform(KazMath::Vec3<float>(10.0f, 10.0f, 10.0f));
+	DrawFunc::DrawModelInRaytracing(m_bloomModelRender, transform, DrawFunc::NONE, KazMath::Color(255, 0, 0, 255));
+	for (auto& obj : m_bloomModelRender.m_raytracingData.m_blas)
+	{
+		arg_blasVec.Add(obj, transform.GetMat());
+	}
+	arg_rasterize.ObjectRender(m_bloomModelRender);
 
 	ImGui::Begin("Game");
 	ImGui::Checkbox("Debug", &m_debugFlag);
