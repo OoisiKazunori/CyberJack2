@@ -192,6 +192,12 @@
     <ClCompile Include="Game\Enemy\VirusEnemy.cpp" />
     <ClCompile Include="KazLibrary\Scene\GameClearScene.cpp" />
     <ClCompile Include="KazLibrary\Scene\GameOverScene.cpp" />
+    <ClCompile Include="Game\Enemy\ButterflyEnemy.cpp" />
+    <ClCompile Include="Game\Enemy\LotusLeafEnemy.cpp" />
+    <ClCompile Include="Game\Input\Input.cpp" />
+    <ClCompile Include="KazLibrary\PostEffect\GaussianBlur.cpp" />
+    <ClCompile Include="KazLibrary\PostEffect\LensFlare.cpp" />
+    <ClCompile Include="KazLibrary\PostEffect\Bloom.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -403,6 +409,12 @@
     <ClInclude Include="Game\Enemy\EnemyData.h" />
     <ClInclude Include="KazLibrary\Scene\GameClearScene.h" />
     <ClInclude Include="KazLibrary\Scene\GameOverScene.h" />
+    <ClInclude Include="Game\Enemy\ButterflyEnemy.h" />
+    <ClInclude Include="Game\Enemy\LotusLeafEnemy.h" />
+    <ClInclude Include="Game\Input\Input.h" />
+    <ClInclude Include="KazLibrary\PostEffect\GaussianBlur.h" />
+    <ClInclude Include="KazLibrary\PostEffect\LensFlare.h" />
+    <ClInclude Include="KazLibrary\PostEffect\Bloom.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

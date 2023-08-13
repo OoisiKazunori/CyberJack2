@@ -27,7 +27,7 @@ namespace PostEffect {
 		std::array<float, BLOOM_GAUSSIAN_WEIGHTS_COUNT> m_blurWeight;
 
 		//ガウシアンブラーの強さ
-		const float BLUR_POWER = 1000.0f;
+		const float BLUR_POWER = 1000000.0f;
 
 		//ブラーの出力先テクスチャのサイズ
 		const KazMath::Vec2<UINT> BLURX_TEXSIZE = KazMath::Vec2<UINT>(1280 / 2, 720);

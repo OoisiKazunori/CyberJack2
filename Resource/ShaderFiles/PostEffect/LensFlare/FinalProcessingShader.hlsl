@@ -4,9 +4,10 @@ Texture2D<float4> LensStar : register(t1);
 
 //“ü—Íî•ñ
 RWTexture2D<float4> InputImg : register(u0);
+RWTexture2D<float4> BloomImg : register(u1);
 
 //o—ÍæUAV  
-RWTexture2D<float4> OutputImg : register(u1);
+RWTexture2D<float4> OutputImg : register(u2);
 
 cbuffer CameraVec : register(b0)
 {
@@ -49,6 +50,6 @@ void main(uint3 DTid : SV_DispatchThreadID)
     //lensMod += saturate(LensStar[lensStarTexcoord * LENSSTAR_TEXSIZE]) / 0.7f;
     lensMod += saturate(LensStar[float2(DTid.xy / TEXSIZE) * LENSSTAR_TEXSIZE] / 0.7f);
     
-    OutputImg[DTid.xy] = InputImg[DTid.xy] * lensMod;
+    OutputImg[DTid.xy] = InputImg[DTid.xy] * lensMod + BloomImg[DTid.xy];
     
 }

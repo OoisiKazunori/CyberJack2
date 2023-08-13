@@ -5,6 +5,7 @@
 namespace PostEffect {
 
 	class GaussianBlur;
+	class Bloom;
 
 	//実行することでGBufferからシーン情報と明るさ情報を持ってきてレンズフレアをかけてくれるクラス。
 	class LensFlare {
@@ -18,6 +19,10 @@ namespace PostEffect {
 		KazBufferHelper::BufferData m_lensFlareTexture;		//レンズフレアをかけたテクスチャ
 		KazBufferHelper::BufferData m_lensColorTexture;		//レンズの色テクスチャ
 		KazMath::Vec2<UINT> LENSFLARE_TEXSIZE = KazMath::Vec2<UINT>(1280, 720);
+
+		//ブルーム(フレア)パス
+		KazBufferHelper::BufferData m_bloomTexture;
+		std::shared_ptr<Bloom> m_bloom;
 
 		//最終加工パス関連
 		ComputeShader m_finalProcessingShader;				//最終加工 and 合成用シェーダー
@@ -59,6 +64,9 @@ namespace PostEffect {
 
 		//バッファの状態を遷移させる。
 		void BufferStatesTransition(ID3D12Resource* arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after);
+
+		//テクスチャをコピーする。
+		void CopyTexture(KazBufferHelper::BufferData& arg_destTexture, KazBufferHelper::BufferData& arg_srcTexture);
 
 	};
 

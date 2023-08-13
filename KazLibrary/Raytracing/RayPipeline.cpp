@@ -324,7 +324,7 @@ namespace Raytracing {
 		//バックバッファの状態を元に戻す。
 		BufferStatesTransition(m_refDirectX12->GetBackBuffer()[backBufferIndex].Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
 
-		/*-- バックバッファを合成する --*/
+		/*===== バックバッファを合成する =====*/
 
 		//合成を実行。
 		GBufferMgr::Instance()->ComposeBackBuffer();

@@ -3,6 +3,7 @@
 #include "Buffer/DescriptorHeapMgr.h"
 #include "Buffer/UavViewHandleMgr.h"
 #include "../PostEffect/GaussianBlur.h"
+#include "../PostEffect/Bloom.h"
 #include "../../Game/Helper/CameraWork.h"
 
 namespace PostEffect {
@@ -31,6 +32,15 @@ namespace PostEffect {
 			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), LENSFLARE_TEXSIZE.x * LENSFLARE_TEXSIZE.y),
 			m_lensFlareTexture.bufferWrapper->GetBuffer().Get()
 		);
+		//ブルーム用のテクスチャを用意。
+		m_bloomTexture = KazBufferHelper::SetUAVTexBuffer(LENSFLARE_TEXSIZE.x, LENSFLARE_TEXSIZE.y, DXGI_FORMAT_R8G8B8A8_UNORM);
+		m_bloomTexture.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
+		DescriptorHeapMgr::Instance()->CreateBufferView(
+			m_bloomTexture.bufferWrapper->GetViewHandle(),
+			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), LENSFLARE_TEXSIZE.x * LENSFLARE_TEXSIZE.y),
+			m_bloomTexture.bufferWrapper->GetBuffer().Get()
+		);
+		m_bloom = std::make_shared<PostEffect::Bloom>(m_bloomTexture);
 		//レンズの色テクスチャをロード
 		m_lensColorTexture = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::LensFlarePath + "lensColor.png");
 		m_lendDirtTexture = TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::LensFlarePath + "lensDirt.png");
@@ -60,6 +70,7 @@ namespace PostEffect {
 				 m_lendDirtTexture,
 				 m_lensStarTexture,
 				 m_lensFlareTexture,
+				 m_bloomTexture,
 				 m_lensFlareTargetTexture,
 				 m_cametaVecConstBuffer,
 			};
@@ -71,8 +82,10 @@ namespace PostEffect {
 			extraBuffer[2].rootParamType = GRAPHICS_PRAMTYPE_TEX3;
 			extraBuffer[3].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 			extraBuffer[3].rootParamType = GRAPHICS_PRAMTYPE_TEX4;
-			extraBuffer[4].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-			extraBuffer[4].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+			extraBuffer[4].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+			extraBuffer[4].rootParamType = GRAPHICS_PRAMTYPE_TEX5;
+			extraBuffer[5].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+			extraBuffer[5].rootParamType = GRAPHICS_PRAMTYPE_DATA;
 			m_finalProcessingShader.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "PostEffect/LensFlare/" + "FinalProcessingShader.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
 		}
 
@@ -98,6 +111,10 @@ namespace PostEffect {
 		lensFlareData.y = static_cast<UINT>(LENSFLARE_TEXSIZE.y / 16) + 1;
 		lensFlareData.z = static_cast<UINT>(1);
 		m_lensFlareShader.Compute(lensFlareData);
+
+		//ブルームもかけちゃう。
+		CopyTexture(m_bloomTexture, m_lensFlareTargetCopyTexture);
+		m_bloom->Apply();
 
 
 		/*- ③ブラーパス -*/
@@ -158,6 +175,28 @@ namespace PostEffect {
 			arg_after),
 		};
 		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(_countof(barriers), barriers);
+	}
+
+	void LensFlare::CopyTexture(KazBufferHelper::BufferData& arg_destTexture, KazBufferHelper::BufferData& arg_srcTexture)
+	{
+
+		/*===== レンズフレアテクスチャのコピーを作成 =====*/
+
+		//レンズフレアをかける対象のステータスを変更。
+		BufferStatesTransition(arg_srcTexture.bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+		//一旦コピーしておく用のテクスチャのステータスを変更。
+		BufferStatesTransition(arg_destTexture.bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST);
+
+		//コピーを実行
+		DirectX12CmdList::Instance()->cmdList->CopyResource(arg_destTexture.bufferWrapper->GetBuffer().Get(), arg_srcTexture.bufferWrapper->GetBuffer().Get());
+
+		//レンズフレアをかける対象のステータスを元に戻す。
+		BufferStatesTransition(arg_srcTexture.bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+		//コピー先のステータスを元に戻す。
+		BufferStatesTransition(arg_destTexture.bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
 	}
 
 }
