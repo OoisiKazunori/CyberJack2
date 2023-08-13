@@ -47,6 +47,14 @@ InstanceMeshParticle::InstanceMeshParticle(const KazBufferHelper::BufferData& ar
 	scaleRotMat = KazMath::CaluScaleMatrix({ lScale,lScale,lScale }) * KazMath::CaluRotaMatrix({ 0.0f,0.0f,0.0f });
 
 	MESH_PARTICLE_GENERATE_NUM = 0;
+
+	RootSignatureDataTest rootsignature;
+	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA));
+	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA2));
+	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
+	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA4));
+	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA5));
+	computeUpdateMeshParticle.Generate(ShaderOptionData("Resource/ShaderFiles/ComputeShader/UpdateMeshParticle.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), rootsignature);
 }
 
 void InstanceMeshParticle::Init()
@@ -74,7 +82,7 @@ void InstanceMeshParticle::Init()
 	{
 		//親行列
 		particleMotherMatrixHandle = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(motherMatArray.size(), sizeof(DirectX::XMMATRIX)), "VRAMmatData");
-		particleMotherMatrixHandle.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		particleMotherMatrixHandle.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 		particleMotherMatrixHandle.rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 		particleMotherMatrixHandle.elementNum = static_cast<UINT>(motherMatArray.size());
 		particleMotherMatrixHandle.structureSize = sizeof(DirectX::XMMATRIX);
@@ -83,7 +91,7 @@ void InstanceMeshParticle::Init()
 	{
 		//色
 		colorMotherMatrixHandle = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(motherMatArray.size(), sizeof(float)), "VRAMColorData");
-		colorMotherMatrixHandle.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		colorMotherMatrixHandle.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 		colorMotherMatrixHandle.rootParamType = GRAPHICS_PRAMTYPE_DATA4;
 		colorMotherMatrixHandle.elementNum = static_cast<UINT>(motherMatArray.size());
 		colorMotherMatrixHandle.structureSize = sizeof(float);
@@ -93,7 +101,7 @@ void InstanceMeshParticle::Init()
 	//ScaleRotaMat
 	{
 		scaleRotateBillboardMatHandle = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(scaleRotaMatArray.size(), sizeof(DirectX::XMMATRIX)), "VRAMScaleRotaBillData");
-		scaleRotateBillboardMatHandle.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		scaleRotateBillboardMatHandle.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 		scaleRotateBillboardMatHandle.rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 		scaleRotateBillboardMatHandle.elementNum = static_cast<UINT>(scaleRotaMatArray.size());
 		scaleRotateBillboardMatHandle.structureSize = sizeof(DirectX::XMMATRIX);
@@ -108,6 +116,14 @@ void InstanceMeshParticle::Init()
 			nullptr,
 			"RAMScaleRotaBillData")
 	);
+
+
+
+	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(meshParticleBufferData);
+	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(particleMotherMatrixHandle);
+	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(scaleRotateBillboardMatHandle);
+	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(colorMotherMatrixHandle);
+	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(m_outputMatrixBuffer);
 
 }
 
@@ -160,7 +176,7 @@ void InstanceMeshParticle::AddMeshData(const InitMeshParticleData& DATA)
 	case 2:
 		bufferArray.emplace_back(commonBufferData[commonBufferData.size() - 1]);
 		bufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		bufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
+		bufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 		commonData.meshData = DATA.triagnleData;
 		commonData.id = static_cast<UINT>(MESH_PARTICLE_GENERATE_NUM);
@@ -174,20 +190,23 @@ void InstanceMeshParticle::AddMeshData(const InitMeshParticleData& DATA)
 	bufferArray.back().rootParamType = static_cast<GraphicsRootParamType>(GRAPHICS_PRAMTYPE_DATA + setCountNum);
 
 	//テクスチャのセット
-	if (DATA.textureHandle != -1)
+	//if (DATA.textureHandle != -1)
 	{
-		KazBufferHelper::BufferData lData;
-		lData.bufferWrapper->CreateViewHandle(DATA.textureHandle);
-		lData.rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
-		lData.rootParamType = GRAPHICS_PRAMTYPE_TEX;
-		bufferArray.emplace_back(lData);
+		bufferArray.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::TestPath + "Test.png"));
+		bufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
+		bufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_TEX;
 	}
 
 
 	computeInitMeshParticle.m_extraBufferArray = bufferArray;
+	for (int i = 0; i < bufferArray.size(); ++i)
+	{
+		computeInitMeshParticle.m_extraBufferArray[i].rangeType = bufferArray[i].rangeType;
+		computeInitMeshParticle.m_extraBufferArray[i].rootParamType = bufferArray[i].rootParamType;
+	}
 	if (!isInitFlag)
 	{
-		computeInitMeshParticle.Generate(ShaderOptionData("Resource/ShaderFiles/ComputeShader/MeshParticleComputeShader.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), bufferArray);
+		computeInitMeshParticle.Generate(ShaderOptionData("Resource/ShaderFiles/ComputeShader/InitPosUvMeshParticle.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), bufferArray);
 		isInitFlag = false;
 	}
 	computeInitMeshParticle.Compute({ 1,1,1 });
@@ -232,5 +251,25 @@ void InstanceMeshParticle::Compute()
 	scaleRotateBillboardMatHandle.bufferWrapper->CopyBuffer(
 		scaleRotaBuffer.GetBuffer().Get());
 
-	computeUpdateMeshParticle.Compute({ 1000,1,1 });
+	computeUpdateMeshParticle.m_extraBufferArray[0] = meshParticleBufferData;
+	computeUpdateMeshParticle.m_extraBufferArray[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	computeUpdateMeshParticle.m_extraBufferArray[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
+	computeUpdateMeshParticle.m_extraBufferArray[1] = particleMotherMatrixHandle;
+	computeUpdateMeshParticle.m_extraBufferArray[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	computeUpdateMeshParticle.m_extraBufferArray[1].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+
+	computeUpdateMeshParticle.m_extraBufferArray[2] = scaleRotateBillboardMatHandle;
+	computeUpdateMeshParticle.m_extraBufferArray[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	computeUpdateMeshParticle.m_extraBufferArray[2].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+
+	computeUpdateMeshParticle.m_extraBufferArray[3] = colorMotherMatrixHandle;
+	computeUpdateMeshParticle.m_extraBufferArray[3].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	computeUpdateMeshParticle.m_extraBufferArray[3].rootParamType = GRAPHICS_PRAMTYPE_DATA4;
+
+	computeUpdateMeshParticle.m_extraBufferArray[4] = m_outputMatrixBuffer;
+	computeUpdateMeshParticle.m_extraBufferArray[4].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	computeUpdateMeshParticle.m_extraBufferArray[4].rootParamType = GRAPHICS_PRAMTYPE_DATA5;
+
+	computeUpdateMeshParticle.Compute({ 1,1,1 });
 }

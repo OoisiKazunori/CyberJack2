@@ -8,14 +8,14 @@ CreateMeshBuffer::CreateMeshBuffer(std::vector<DirectX::XMFLOAT3> VERT, std::vec
 	//頂点情報を書き込む--------------------------------------------
 	if (VERT.size() != 0)
 	{
-		GenerateBuffer(DATA_VERT, GRAPHICS_PRAMTYPE_DATA, KazBufferHelper::GetBufferSize<BUFFER_SIZE>(VERT.size(), sizeof(DirectX::XMFLOAT3)), VERT.data(), "MeshParticle-VERTEX-");
+		GenerateBuffer(DATA_VERT, GRAPHICS_PRAMTYPE_DATA, VERT.size(), sizeof(DirectX::XMFLOAT3), VERT.data(), "MeshParticle-VERTEX");
 	}
 	//頂点情報を書き込む--------------------------------------------
 
 	//UV情報を書き込む--------------------------------------------
 	if (UV.size() != 0)
 	{
-		GenerateBuffer(DATA_UV, GRAPHICS_PRAMTYPE_DATA2, KazBufferHelper::GetBufferSize<BUFFER_SIZE>(UV.size(), sizeof(DirectX::XMFLOAT2)), UV.data(), "MeshParticle-UV-");
+		GenerateBuffer(DATA_UV, GRAPHICS_PRAMTYPE_DATA2, UV.size(), sizeof(DirectX::XMFLOAT2), UV.data(), "MeshParticle-UV");
 	}
 	//UV情報を書き込む--------------------------------------------
 
@@ -27,14 +27,14 @@ CreateMeshBuffer::CreateMeshBuffer(std::vector<KazMath::Vec3<float>> VERT, std::
 	//頂点情報を書き込む--------------------------------------------
 	if (VERT.size() != 0)
 	{
-		GenerateBuffer(DATA_VERT, GRAPHICS_PRAMTYPE_DATA, KazBufferHelper::GetBufferSize<BUFFER_SIZE>(VERT.size(), sizeof(DirectX::XMFLOAT3)), VERT.data(), "MeshParticle-VERTEX-");
+		GenerateBuffer(DATA_VERT, GRAPHICS_PRAMTYPE_DATA, VERT.size(), sizeof(DirectX::XMFLOAT3), VERT.data(), "MeshParticle-VERTEX");
 	}
 	//頂点情報を書き込む--------------------------------------------
 
 	//UV情報を書き込む--------------------------------------------
 	if (UV.size() != 0)
 	{
-		GenerateBuffer(DATA_UV, GRAPHICS_PRAMTYPE_DATA2, KazBufferHelper::GetBufferSize<BUFFER_SIZE>(UV.size(), sizeof(DirectX::XMFLOAT2)), UV.data(), "MeshParticle-UV-");
+		GenerateBuffer(DATA_UV, GRAPHICS_PRAMTYPE_DATA2, UV.size(), sizeof(DirectX::XMFLOAT2), UV.data(), "MeshParticle-UV");
 	}
 	//UV情報を書き込む--------------------------------------------
 
@@ -56,14 +56,16 @@ const KazBufferHelper::BufferData& CreateMeshBuffer::GetBufferData(MeshBufferVie
 	}
 }
 
-void CreateMeshBuffer::GenerateBuffer(MeshBufferView TYPE, GraphicsRootParamType ROOT_TYPE, BUFFER_SIZE DATA_SIZE, void* ADDRESS, std::string BUFFER_NAME)
+void CreateMeshBuffer::GenerateBuffer(MeshBufferView TYPE, GraphicsRootParamType ROOT_TYPE, size_t SIZE, unsigned long long STRUCTER_SIZE, void* ADDRESS, std::string BUFFER_NAME)
 {
-	m_uploadBufferHandleDataArray[TYPE] = KazBufferHelper::SetUploadBufferData(DATA_SIZE, BUFFER_NAME + std::string("-RAM"));
+	m_uploadBufferHandleDataArray[TYPE] = KazBufferHelper::SetUploadBufferData(KazBufferHelper::GetBufferSize<int>(SIZE,STRUCTER_SIZE), BUFFER_NAME + std::string("-RAM"));
 	m_uploadBufferHandleDataArray[TYPE].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_uploadBufferHandleDataArray[TYPE].rootParamType = ROOT_TYPE;
-	m_uploadBufferHandleDataArray[TYPE].bufferWrapper->TransData(ADDRESS, DATA_SIZE);
+	m_uploadBufferHandleDataArray[TYPE].bufferWrapper->TransData(ADDRESS, KazBufferHelper::GetBufferSize<int>(SIZE, STRUCTER_SIZE));
 
-	m_VRAMBufferHandleDataArray[TYPE] = KazBufferHelper::SetGPUBufferData(DATA_SIZE, BUFFER_NAME + std::string("-VRAM"));
+	m_VRAMBufferHandleDataArray[TYPE] = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<int>(SIZE, STRUCTER_SIZE), BUFFER_NAME + std::string("-VRAM"));
+	m_VRAMBufferHandleDataArray[TYPE].elementNum = static_cast<UINT>(SIZE);
+	m_VRAMBufferHandleDataArray[TYPE].structureSize = static_cast<UINT>(STRUCTER_SIZE);
 }
 
 void CreateMeshBuffer::UploadToVRAM()

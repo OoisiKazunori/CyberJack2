@@ -32,6 +32,28 @@ void ComputeShader::Generate(const ShaderOptionData& arg_shader, std::vector<Kaz
 	m_extraBufferArray = arg_extraBuffer;
 }
 
+void ComputeShader::Generate(const ShaderOptionData& arg_shader,const RootSignatureDataTest &arg_rootsignature)
+{
+	//シェーダーの生成
+	RESOURCE_HANDLE shaderHandle = m_shaderBuffer.GenerateShader(arg_shader);
+	//ルートシグネチャーの生成
+	RootSignatureDataTest data = arg_rootsignature;
+	RESOURCE_HANDLE rootsignatureHandle = m_rootSignatureBuffer.GenerateRootSignature(data);
+
+	D3D12_COMPUTE_PIPELINE_STATE_DESC desc = {};
+	//パイプラインの生成
+	desc.CS = CD3DX12_SHADER_BYTECODE(m_shaderBuffer.GetBuffer(shaderHandle)->GetBufferPointer(), m_shaderBuffer.GetBuffer(shaderHandle)->GetBufferSize());
+	desc.pRootSignature = m_rootSignatureBuffer.GetBuffer(rootsignatureHandle).Get();
+	desc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+	desc.NodeMask = 0;
+	RESOURCE_HANDLE pipelineHandle = m_piplineBuffer.GeneratePipeline(desc);
+	if (pipelineHandle == -1)
+	{
+		assert(0);
+	}
+	m_initFlag = true;
+}
+
 void ComputeShader::Compute(const DispatchData& arg_dispatch)
 {
 	if (!m_initFlag)

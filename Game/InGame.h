@@ -153,4 +153,5 @@ private:
 	KazBufferHelper::BufferData m_particleRender, m_particleColorRender;
 	std::unique_ptr<InstanceMeshParticle> m_meshParticleRender;
 	DirectX::XMMATRIX m_motherMat;
+	float m_alpha;
 };

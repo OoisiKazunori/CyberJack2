@@ -49,7 +49,7 @@ private:
 
 	ComputeShader m_computeHelper;
 
-	void GenerateBuffer(MeshBufferView TYPE, GraphicsRootParamType ROOT_TYPE, BUFFER_SIZE DATA_SIZE, void* ADDRESS, std::string BUFFER_NAME);
+	void GenerateBuffer(MeshBufferView TYPE, GraphicsRootParamType ROOT_TYPE, size_t SIZE, unsigned long long STRUCTER_SIZE, void* ADDRESS, std::string BUFFER_NAME);
 	void UploadToVRAM();
 };
 

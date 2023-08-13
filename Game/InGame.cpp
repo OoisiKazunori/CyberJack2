@@ -17,6 +17,11 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 		DirectX::XMFLOAT4 color;
 	};
 	m_particleRender = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * 3000000);
+	m_particleRender.structureSize = sizeof(OutputData);
+	m_particleRender.elementNum = 3000000;
+	m_particleRender.GenerateCounterBuffer();
+	m_particleRender.CreateUAVView();
+
 	m_particleColorRender = KazBufferHelper::SetGPUBufferData(sizeof(DirectX::XMFLOAT4) * 3000000);
 	m_meshParticleRender = std::make_unique<InstanceMeshParticle>(m_particleRender, m_particleColorRender);
 }
@@ -33,9 +38,10 @@ void InGame::Init(bool SKIP_FLAG)
 	m_sceneNum = -1;
 	m_cursor.Init();
 
-	"Resource/Test/glTF/Box/", "BoxTextured.gltf";
 
-	InitMeshParticleData initMeshParticleData(MeshParticleLoader::Instance()->LoadMesh("Resource/Test/glTF/Box/", "BoxTextured.gltf", &m_motherMat, {70,36,36}, -1));
+	InitMeshParticleData initMeshParticleData(MeshParticleLoader::Instance()->LoadMesh("Resource/Test/glTF/Box/", "BoxTextured.gltf", &m_motherMat, {70,12,8}, -1));
+	initMeshParticleData.alpha = &m_alpha;
+	m_alpha = 1.0f;
 	m_meshParticleRender->AddMeshData(initMeshParticleData);
 
 	m_meshParticleRender->Init();
@@ -108,7 +114,6 @@ void InGame::Input()
 
 void InGame::Update()
 {
-
 #pragma region ¶¬ˆ—
 	//“G‚ð’Ç‰Á‚Å‰Šú‰»‚·‚éˆ—----------------------------------------------------------------
 	KazEnemyHelper::AddEnemy(m_enemies, m_responeData, addEnemiesHandle, m_gameFlame, m_gameStageLevel);
@@ -424,6 +429,7 @@ void InGame::Update()
 
 	m_gameFlame += m_gameSpeed;
 
+	m_particleRender.counterWrapper->CopyBuffer(m_meshParticleRender->copyBuffer.GetBuffer());
 	m_meshParticleRender->Compute();
 }
 

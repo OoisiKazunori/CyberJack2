@@ -127,11 +127,6 @@ namespace KazBufferHelper
 
 		ID3D12ResourceWrapper::~ID3D12ResourceWrapper()
 		{
-			if ("CopyCounterBuffer-VRAM" == bufferName)
-			{
-				bool debug = false;
-			}
-
 			if (isVRAMBufferFlag)
 			{
 				return;

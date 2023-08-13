@@ -1,12 +1,12 @@
 #include"../ShaderHeader/KazMathHeader.hlsli"
 #include"../ShaderHeader/GPUParticle.hlsli"
 
-//“ü—Í
+//ï¿½ï¿½ï¿½ï¿½
 RWStructuredBuffer<ParticleData> updateParticleData : register(u0);
 RWStructuredBuffer<matrix> motherMatData : register(u1);
 RWStructuredBuffer<matrix> scaleRotaMatData : register(u2);
 RWStructuredBuffer<float> alphaData : register(u3);
-//o—Í
+//ï¿½oï¿½ï¿½
 AppendStructuredBuffer<GPUParticleInput> inputGPUParticleData : register(u4);
 
 [numthreads(1024, 1, 1)]
@@ -15,7 +15,7 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     uint index = groupThreadID.x;
     index += 1024 * groupId.x;
 
-    if(1500000 < index)
+    if(96 < index)
     {
         return;
     }

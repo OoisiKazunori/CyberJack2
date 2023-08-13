@@ -23,6 +23,7 @@ public:
 		UINT id;
 	};
 
+	KazBufferHelper::ID3D12ResourceWrapper copyBuffer;
 private:
 	KazBufferHelper::BufferData m_outputMatrixBuffer;
 	KazBufferHelper::BufferData m_outputColorBuffer;
@@ -100,7 +101,6 @@ private:
 
 	std::vector<InitMeshParticleData> initData;
 
-	KazBufferHelper::ID3D12ResourceWrapper copyBuffer;
 	KazBufferHelper::ID3D12ResourceWrapper motherMatrixBuffer;
 	KazBufferHelper::ID3D12ResourceWrapper colorBuffer;
 	KazBufferHelper::ID3D12ResourceWrapper scaleRotaBuffer;

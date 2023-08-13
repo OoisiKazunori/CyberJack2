@@ -235,7 +235,6 @@ float4 GetPos(float3 VERT_POS,float3 WORLD_POS,matrix SCALE_ROTA_MAT)
     return float4(worldMat[0].w,worldMat[1].w,worldMat[2].w,0.0f);
 };
 
-//�X�v���C���Ȑ�
 float4 SplinePosition(RWStructuredBuffer<float3> LIMIT_INDEX_ARRAY,int START_INDEX,float RATE,int INDEX_MAX)
 {
     if (START_INDEX < 1)
@@ -273,7 +272,6 @@ float4 Larp(float4 BASE_POS,float4 POS,float MUL)
     return POS + distance;
 }
 
-//�X���b�h�̈�������0~�X���b�h�̍ő吔���v�Z���܂�
 uint ThreadGroupIndex(uint3 SV_GroupID, uint SV_GroupIndex,uint3 SV_GroupThreadID,int THREAD_INDEX)
 {
     uint index = (SV_GroupThreadID.y * THREAD_INDEX) + SV_GroupThreadID.x + SV_GroupThreadID.z;

@@ -7,11 +7,11 @@ struct InputData
     float2 uv;
 };
 
-//頂点情報
+//???_???
 RWStructuredBuffer<float3> vertciesData : register(u0);
 RWStructuredBuffer<float2> uvData : register(u1);
 
-//出力
+//?o??
 AppendStructuredBuffer<ParticleData> outputData : register(u2);
 
 Texture2D<float4> tex : register(t0);
@@ -51,8 +51,8 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     {
         return;
     }
-    //インデックス数以内なら処理する
-    //三角形を構成するインデックスの指定--------------------------------------------
+    //?C???f?b?N?X???????珈??????
+    //?O?p?`???\??????C???f?b?N?X??w??--------------------------------------------
     uint firstVertIndex = index * 3;
     uint secondVertIndex = index * 3 + 1;
     uint thirdVertIndex = index * 3 + 2;
@@ -60,9 +60,9 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     uint uvFirstVertIndex = firstVertIndex;
     uint uvSecondVertIndex = secondVertIndex;
     uint uvThirdVertIndex = thirdVertIndex;
-    //三角形を構成するインデックスの指定--------------------------------------------
+    //?O?p?`???\??????C???f?b?N?X??w??--------------------------------------------
 
-    //頂点座標からワールド座標に変換後----------------------------------------------
+    //???_???W???烏?[???h???W??????----------------------------------------------
     InputData firstVertWorldPos;
     InputData secondVertWorldPos;
     InputData thirdVertWorldPos;
@@ -73,9 +73,9 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     firstVertWorldPos.uv = uvData[uvFirstVertIndex];
     secondVertWorldPos.uv = uvData[uvSecondVertIndex];
     thirdVertWorldPos.uv = uvData[uvThirdVertIndex];
-    //頂点座標からワールド座標に変換------------------------------------------------
+    //???_???W???烏?[???h???W????------------------------------------------------
 
-    //三角形を構成するレイ--------------------------------------------
+    //?O?p?`???\???????C--------------------------------------------
     const int RAY_MAX_NUM = 3;
     const int RAY_POS_MAX_NUM = 2;
     float3 triangleRay[RAY_MAX_NUM][RAY_POS_MAX_NUM];
@@ -86,53 +86,53 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     triangleRay[2][0] = thirdVertWorldPos.pos.xyz;
     triangleRay[2][1] = firstVertWorldPos.pos.xyz;
 
-    //三角形を構成するレイ--------------------------------------------
+    //?O?p?`???\???????C--------------------------------------------
 
-    //重心座標
+    //?d?S???W
     float3 triangleCentralPos = (firstVertWorldPos.pos.xyz + secondVertWorldPos.pos.xyz + thirdVertWorldPos.pos.xyz) / 3.0f;
 
-    //三角形の面積を計算
+    //?O?p?`??????v?Z
     float triangleArea = CalucurateTriangleArea(firstVertWorldPos.pos.xyz,secondVertWorldPos.pos.xyz,thirdVertWorldPos.pos.xyz);
 
  
-    //パーティクルの配置--------------------------------------------
+    //?p?[?e?B?N????z?u--------------------------------------------
     const int PARTICLE_MAX_NUM = meshData.z;
     const int PER_PARTICLE_MAX_NUM = PARTICLE_MAX_NUM / 3;
     for(int rayIndex = 0; rayIndex < RAY_MAX_NUM; ++rayIndex)
     {
-        //一辺の長さ
+        //???????
         float3 distance = triangleRay[rayIndex][1] - triangleRay[rayIndex][0];
 
         for(int particleIndex = 0; particleIndex < PER_PARTICLE_MAX_NUM; ++particleIndex)
         {
             uint outputIndex = index * PARTICLE_MAX_NUM + rayIndex * PER_PARTICLE_MAX_NUM + particleIndex;
             float rate = RandVec3(outputIndex + 100,1,0).x;
-            //始点算出
+            //?n?_?Z?o
             float3 startPos = triangleRay[rayIndex][0] + distance * rate;
-            //終点算出
+            //?I?_?Z?o
             float3 endPos = triangleCentralPos;
-            //一辺のとある位置から重心座標までの距離
+            //?????????u????d?S???W???????
             float3 resultDistance = endPos - startPos;
 
-            //パーティクルの配置
+            //?p?[?e?B?N????z?u
             float3 resultPos;
             const int PARTICLE_MAX_BIAS = 100;
             const int RANDOM_NUMBER_BIAS = meshData.y;
             
             if(RandVec3(outputIndex,PARTICLE_MAX_BIAS,0).x <= RANDOM_NUMBER_BIAS)
             {
-                //エッジ周辺に偏らせる
+                //?G?b?W??????点??
                 rate = RandVec3(outputIndex + 1000,10,0).x / 100.0f;
                 resultPos = startPos + resultDistance * rate;
             }
             else
             {
-                //面周辺に偏らせる
+                //???????点??
                 rate = RandVec3(startPos.y * 10.0f + outputIndex + 10000,1,0).x;
                 resultPos = startPos + resultDistance * rate;
             }
 
-            //座標からUVを取る------------------------------------------------------------------------------------------------
+            //???W????UV?????------------------------------------------------------------------------------------------------
             float3 uvw;
             uvw.x = CalucurateUVW(firstVertWorldPos.pos.xyz,secondVertWorldPos.pos.xyz,resultPos,triangleArea);
             uvw.y = CalucurateUVW(secondVertWorldPos.pos.xyz,thirdVertWorldPos.pos.xyz,resultPos,triangleArea);
@@ -157,8 +157,8 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
             output.color = tex.SampleLevel(smp,uv,0);
             output.id = motherMatIndex;                
             outputData.Append(output);
-            //座標からUVを取る------------------------------------------------------------------------------------------------
+            //???W????UV?????------------------------------------------------------------------------------------------------
         }
     }
-    //パーティクルの配置--------------------------------------------
+    //?p?[?e?B?N????z?u--------------------------------------------
 }
