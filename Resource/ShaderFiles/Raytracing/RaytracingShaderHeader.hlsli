@@ -159,7 +159,7 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         }
         else
         {
-            CastRay(payloadData, arg_worldPosMap.xyz, -arg_lightData.m_dirLight.m_dir, 30000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+            CastRay(payloadData, arg_worldPosMap.xyz, -arg_lightData.m_dirLight.m_dir, 100.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
         }
         
         //ライトのベクトルと法線から明るさを計算する。
@@ -424,7 +424,7 @@ void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materia
         
         //レイを撃つ
         float3 rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
-        CastRay(payloadData, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(payloadData, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 100.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
         
         //結果格納
         arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
@@ -439,7 +439,7 @@ void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materia
         
         //レイを撃つ
         float3 rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
-        CastRay(payloadData, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 300000.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(payloadData, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 100.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
         
         //結果格納
         arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
@@ -456,8 +456,8 @@ void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materia
         
         //レイを撃つ
         float3 rayOrigin = arg_worldColor.xyz;
-        CastRay(refractionColor, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 300000.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
-        CastRay(reflectionColor, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 300000.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(refractionColor, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 100.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(reflectionColor, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 100.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
         
         //レイが当たったか当たっていないかで色を変える。
         if (refractionColor.m_color.x < 0)
