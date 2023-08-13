@@ -20,6 +20,7 @@ GBufferMgr::GBufferMgr()
 		m_gBufferFormatArray[NORMAL] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		m_gBufferFormatArray[R_M_S_ID] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		m_gBufferFormatArray[WORLD] = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		m_gBufferFormatArray[EMISSIVE] = DXGI_FORMAT_R11G11B10_FLOAT;
 
 		//アルベド
 		multiRenderTargetArray[ALBEDO].backGroundColor = { 0.0f,0.0f,0.0f };
@@ -37,6 +38,10 @@ GBufferMgr::GBufferMgr()
 		multiRenderTargetArray[WORLD].backGroundColor = { 0.0f,0.0f,0.0f };
 		multiRenderTargetArray[WORLD].graphSize = winSize;
 		multiRenderTargetArray[WORLD].format = m_gBufferFormatArray[WORLD];
+		//エミッシブ
+		multiRenderTargetArray[EMISSIVE].backGroundColor = { 0.0f,0.0f,0.0f };
+		multiRenderTargetArray[EMISSIVE].graphSize = winSize;
+		multiRenderTargetArray[EMISSIVE].format = m_gBufferFormatArray[EMISSIVE];
 
 		m_gBufferRenderTargetHandleArray = RenderTargetStatus::Instance()->CreateMultiRenderTarget(multiRenderTargetArray);
 

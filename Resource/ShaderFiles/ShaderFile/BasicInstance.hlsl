@@ -1,3 +1,5 @@
+#include"ModelBuffer.hlsli"
+
 struct OutputData
 {
     matrix mat;
@@ -13,40 +15,41 @@ struct VertexBufferData
 };
 
 RWStructuredBuffer<OutputData> matrixData : register(u0);
-RWStructuredBuffer<VertexBufferData> vertexData : register(u1);
 
 struct VSOutput
 {
     float4 svpos : SV_POSITION;
     float3 normal : NORMAL;
-    float4 worldpos : WORLDPOS;
+    float3 worldpos : WORLDPOS;
     float4 color : COLOR;
 };
 
-VSOutput VSmain(float4 pos : POSITION,uint id : SV_INSTANCEID)
+struct VertexInput
+{
+    float3 svpos : POSITION;
+    float3 normal : NORMAL;
+    float2 uv : TEXCOORD;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
+};
+
+VSOutput VSmain(VertexInput input,uint id : SV_INSTANCEID)
 {
     VSOutput op;
-    op.worldpos = pos;
-	op.svpos = mul(matrixData[id].mat, pos);
+    op.worldpos = input.svpos;
+	op.svpos = mul(matrixData[id].mat, float4(input.svpos,1.0f));
     op.color = matrixData[id].color;
-    op.normal = vertexData[id].normal;
+    op.normal = input.normal;
 	return op;
 }
-
-struct GBufferOutput
-{
-    float4 albedo : SV_TARGET0;
-    float4 normal : SV_TARGET1;
-    float4 metalnessRoughness : SV_TARGET2;
-    float4 world : SV_TARGET3;
-};
 
 GBufferOutput PSmain(VSOutput input) : SV_TARGET
 {
     GBufferOutput output;
     output.albedo = input.color;
     output.normal = float4(input.normal,1.0f);
-    output.metalnessRoughness = float4(0,0,0,0);
-    output.world = input.worldpos;
+    output.metalnessRoughness = float4(0,1,0,1);
+    output.world = float4(input.worldpos,1.0f);
+    output.emissive = float3(1.0f,0.0f,0.0f);
     return output;
 }

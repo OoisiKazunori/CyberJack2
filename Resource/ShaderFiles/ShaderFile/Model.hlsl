@@ -125,14 +125,6 @@ PosUvNormalTangentBinormalOutput VSDefferdMain(float4 pos : POSITION,float3 norm
     return op;
 }
 
-struct GBufferOutput
-{
-    float4 albedo : SV_TARGET0;
-    float4 normal : SV_TARGET1;
-    float4 metalnessRoughness : SV_TARGET2;
-    float4 world : SV_TARGET3;
-};
-
 cbuffer ColorBuffer : register(b2)
 {
     float4 color;
@@ -171,5 +163,6 @@ GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
     output.normal = float4(normal, 1.0f);
     output.metalnessRoughness = float4(mrColor.xyz,raytracingId);
     output.world = float4(input.worldPos,1.0f);
+    output.emissive = float4(0,0,0,1);
 	return output;
 }

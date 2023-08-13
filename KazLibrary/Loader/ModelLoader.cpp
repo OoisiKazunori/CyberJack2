@@ -250,6 +250,30 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 		{
 			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA3));
 		}
+
+		//エミッシブの取得
+		texID = material.emissiveTexture.textureId;
+		if (!texID.empty())
+		{
+			auto& texture = doc.textures.Get(texID);
+			auto& image = doc.images.Get(texture.imageId);
+			if (!image.uri.empty())
+			{
+				std::string textureFilePass(FileDir + image.uri);
+				//テクスチャ読み込み
+				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
+				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
+			}
+			//何もない場合は透明なテクスチャを送る
+			else
+			{
+				modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA4));
+			}
+		}
+		else
+		{
+			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA4));
+		}
 	}
 
 	//モデル一つ分のメッシュの塊
