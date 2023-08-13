@@ -87,7 +87,7 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 		DrawFuncData::SetExecuteIndirect(
 			DrawFuncData::GetBasicInstanceShader(),
 			m_computeUpdateBuffer[1].bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
-			m_particleIndexBuffer->bufferWrapper->GetGpuAddress(),
+			m_particleVertexBuffer->bufferWrapper->GetGpuAddress(),
 			PARTICLE_MAX_NUM
 		);
 
