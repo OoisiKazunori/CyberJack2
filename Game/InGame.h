@@ -151,4 +151,7 @@ private:
 	//メッシュパーティクル
 	KazBufferHelper::BufferData m_particleRender;
 	std::optional<InstanceMeshParticle> m_meshParticleRender;
+
+	//ブルームテスト
+	DrawFuncData::DrawCallData m_bloomModelRender;
 };
