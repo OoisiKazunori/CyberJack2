@@ -8,12 +8,14 @@ RWStructuredBuffer<OutputData> matrixData : register(u0);
 struct VSOutput
 {
     float4 svpos : SV_POSITION;
+    float4 worldpos : WORLDPOS;
     float4 color : COLOR;
 };
 
 VSOutput VSmain(float4 pos : POSITION,uint id : SV_INSTANCEID)
 {
-	VSOutput op;
+    VSOutput op;
+    op.worldpos = pos;
 	op.svpos = mul(matrixData[id].mat, pos);
     op.color = matrixData[id].color;
 	return op;
@@ -31,8 +33,8 @@ GBufferOutput PSmain(VSOutput input) : SV_TARGET
 {
     GBufferOutput output;
     output.albedo = input.color;
-    output.normal = float4(0,0,0,0);
-    output.metalnessRoughness = float4(0,0,0,0);
-    output.world = float4(0,0,0,0);
+    output.normal = float4(1,1,1,1);
+    output.metalnessRoughness = float4(0,1,0,1);
+    output.world = input.worldpos;
     return output;
 }

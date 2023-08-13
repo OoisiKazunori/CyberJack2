@@ -365,7 +365,7 @@ void mainRayGen()
     //輝度が一定以上だったらレンズフレア用のテクスチャに書きこむ。
     const float LENSFLARE_DEADLINE = 0.3f;
     float deadline = step(LENSFLARE_DEADLINE, bright);
-    float lensflareBright = deadline * bright;
+    float lensflareBright = (deadline * bright) + materialInfo.y * materialInfo.w;
     lensFlareTexture[launchIndex.xy] = float4(albedoColor.xyz * lensflareBright * 0.1f, 1.0f);
     
     //アルベドにライトの色をかける。

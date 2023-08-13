@@ -117,7 +117,7 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 
 void ChildOfEdenStage::Update()
 {
-	m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas[0]->Update();
+	//m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas[0]->Update();
 }
 
 void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
