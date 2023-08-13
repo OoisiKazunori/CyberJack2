@@ -305,12 +305,25 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
         VertexBuffer[vertexIndex + 1].tangent = float3(0.0f,0.0f,0.0f);
     }
     uint indeciesIndex = index * 6;
-    IndexBuffer[indeciesIndex] = indeciesIndex;
-	IndexBuffer[indeciesIndex + 1] = indeciesIndex + 1;
-	IndexBuffer[indeciesIndex + 2] = indeciesIndex + 2;
-	IndexBuffer[indeciesIndex + 3] = indeciesIndex + 2;
-	IndexBuffer[indeciesIndex + 4] = indeciesIndex + 1;
-	IndexBuffer[indeciesIndex + 5] = indeciesIndex + 3;
-    WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
+    if(index == 0)
+    {
+        IndexBuffer[indeciesIndex] = indeciesIndex;
+	    IndexBuffer[indeciesIndex + 1] = indeciesIndex + 1;
+	    IndexBuffer[indeciesIndex + 2] = indeciesIndex + 2;
+	    IndexBuffer[indeciesIndex + 3] = indeciesIndex + 2;
+	    IndexBuffer[indeciesIndex + 4] = indeciesIndex + 1;
+	    IndexBuffer[indeciesIndex + 5] = indeciesIndex + 3;
+    }
+    else
+    {
+        uint offsetIndex = index * 4;
+        IndexBuffer[indeciesIndex] = offsetIndex;
+	    IndexBuffer[indeciesIndex + 1] = offsetIndex + 1;
+	    IndexBuffer[indeciesIndex + 2] = offsetIndex + 2;
+	    IndexBuffer[indeciesIndex + 3] = offsetIndex + 2;
+	    IndexBuffer[indeciesIndex + 4] = offsetIndex + 1;
+	    IndexBuffer[indeciesIndex + 5] = offsetIndex + 3;
+    }
+    //WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
     WorldDataBuffer[index].color = ParticleDataBuffer[index].color;
 }
