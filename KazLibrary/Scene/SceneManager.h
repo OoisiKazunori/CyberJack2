@@ -68,22 +68,35 @@ private:
 	KazBufferHelper::BufferData m_raymarchingParamData;
 
 	//OnOffデバッグ用
-	struct OnOffDebugParam
+	struct DebugRaytracingParam
 	{
 		int m_debugReflection;
 		int m_debugShadow;
 		float m_sliderRate;
 		float m_pad;
-	}m_onOffDebugParam;
-	bool m_isDebugOnOff;
-	KazBufferHelper::BufferData m_OnOffDebugParamData;
+	}m_debugRaytracingParam;
+	KazBufferHelper::BufferData m_debugRaytracingParamData;
 
 	//デバッグ用のOnOff切り替えライン
 	DrawFuncData::DrawCallData m_debugOnOffLineRender;
 	KazBufferHelper::BufferData m_debugOnOffLineBuffer;
 	KazBufferHelper::BufferData m_debugOnOffLineStayBuffer;
 	KazMath::Transform2D m_debugOnOffLineTransform;
-	bool m_isOldDebugOnOff;
+	bool m_isOldDebugRaytracing;
+
+	//デバッグ関連の変数
+	bool m_isDebugCamera;
+	bool m_isDebugRaytracing;
+	bool m_isDebugTimeZone;
+	bool m_isDebugVolumeFog;
+	bool m_isDebugSea;
+
+	//デバッグカメラ系変数
+	bool m_isPause;
+	bool m_isMoveOnly1F;
+
+	//時間帯のデバッグ
+	int m_debugTimeZone;
 
 
 	//ラスタライザ描画

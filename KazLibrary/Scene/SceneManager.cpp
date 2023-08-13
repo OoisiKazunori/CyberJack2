@@ -97,16 +97,24 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_rayPipeline->SetRaymarchingConstData(&m_raymarchingParamData);
 
 	//OnOffデバッグ用のパラメーターを用意。
-	m_onOffDebugParam.m_debugReflection = 0;
-	m_onOffDebugParam.m_debugShadow = 0;
-	m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
-	m_OnOffDebugParamData = KazBufferHelper::SetConstBufferData(sizeof(OnOffDebugParam));
-	m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));
-	m_isDebugOnOff = false;
-	m_isOldDebugOnOff = false;
+	m_debugRaytracingParam.m_debugReflection = 0;
+	m_debugRaytracingParam.m_debugShadow = 0;
+	m_debugRaytracingParam.m_sliderRate = 1280.0f / 2.0f;
+	m_debugRaytracingParamData = KazBufferHelper::SetConstBufferData(sizeof(DebugRaytracingParam));
+	m_debugRaytracingParamData.bufferWrapper->TransData(&m_debugRaytracingParam, sizeof(DebugRaytracingParam));
+	m_isDebugRaytracing = false;
+	m_isOldDebugRaytracing = false;
+	m_isDebugCamera = false;
+	m_isDebugTimeZone = false;
+	m_isDebugVolumeFog = false;
+	m_isDebugSea = false;
+	m_isPause = false;
+	m_isMoveOnly1F = false;
+
+	m_debugTimeZone = 0;
 
 	//OnOffデバッグ用のパラメーターを用意。
-	m_rayPipeline->SetDebugOnOffConstData(&m_OnOffDebugParamData);
+	m_rayPipeline->SetDebugOnOffConstData(&m_debugRaytracingParamData);
 }
 
 SceneManager::~SceneManager()
@@ -117,6 +125,11 @@ SceneManager::~SceneManager()
 void SceneManager::Update()
 {
 	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
+
+	if (m_isPause && !m_isMoveOnly1F) {
+		m_blasVector.Update();
+		return;
+	}
 
 	//シーン遷移の開始
 	if (nextScene != nowScene)
@@ -206,21 +219,21 @@ void SceneManager::Update()
 	GBufferMgr::Instance()->m_cameraEyePosData.m_noiseTimer += 0.02f;
 
 	//デバッグ実行中はOnOffのラインをつかんで動かせるようにする。
-	if (m_isDebugOnOff) {
+	if (m_isDebugRaytracing) {
 
 		//左クリックしていたら。
 		bool isMouseLeftClick = KeyBoradInputManager::Instance()->MouseInputState(MOUSE_INPUT_LEFT);
 		if (isMouseLeftClick) {
 
 			//マウスの移動量を保存して動かす。
-			m_onOffDebugParam.m_sliderRate = KeyBoradInputManager::Instance()->GetMousePoint().x;
-			m_onOffDebugParam.m_sliderRate = std::clamp(m_onOffDebugParam.m_sliderRate, 0.0f, 1280.0f);
+			m_debugRaytracingParam.m_sliderRate = KeyBoradInputManager::Instance()->GetMousePoint().x;
+			m_debugRaytracingParam.m_sliderRate = std::clamp(m_debugRaytracingParam.m_sliderRate, 0.0f, 1280.0f);
 
 		}
 
 	}
 
-	m_isOldDebugOnOff = m_isDebugOnOff;
+	m_isOldDebugRaytracing = m_isDebugRaytracing;
 
 }
 
@@ -234,8 +247,8 @@ void SceneManager::Draw()
 	}
 
 	//デバッグ用のOnOffのラインを描画する。
-	if (m_isDebugOnOff) {
-		m_debugOnOffLineTransform.pos.x = m_onOffDebugParam.m_sliderRate;
+	if (m_isDebugRaytracing) {
+		m_debugOnOffLineTransform.pos.x = m_debugRaytracingParam.m_sliderRate;
 		m_debugOnOffLineTransform.pos.y = 720.0f / 2.0f;
 		m_debugOnOffLineTransform.scale.x = 10.0f;
 		m_debugOnOffLineTransform.scale.y = 720.0f;
@@ -263,89 +276,184 @@ void SceneManager::Draw()
 		}
 	}
 
+	//デバッグメニューの大本
+	ImGui::Begin("DebugMenu");
 
+	ImGui::Checkbox("DebugCamera", &m_isDebugCamera);
+	ImGui::Checkbox("Raytracing", &m_isDebugRaytracing);
+	ImGui::Checkbox("TimeZone", &m_isDebugTimeZone);
+	ImGui::Checkbox("VolumeFog", &m_isDebugVolumeFog);
+	ImGui::Checkbox("Sea", &m_isDebugSea);
 
-	//ディレクションライト
-	ImGui::Begin("DirLight");
-	ImGui::SliderFloat("VecX", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.x, -1.0f, 1.0f);
-	ImGui::SliderFloat("VecY", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.y, -1.0f, 1.0f);
-	ImGui::SliderFloat("VecZ", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.z, -1.0f, 1.0f);
-	GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
-	bool isActive = GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive;
-	ImGui::Checkbox("ActiveFlag", &isActive);
-	GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive = isActive;
 	ImGui::End();
 
-	//ポイントライト
-	ImGui::Begin("PointLight");
-	ImGui::DragFloat("PosX", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.x, 0.5f);
-	ImGui::DragFloat("PosY", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.y, 0.5f);
-	ImGui::DragFloat("PosZ", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.z, 0.5f);
-	ImGui::DragFloat("Power", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_power, 0.5f, 1.0f);
-	isActive = GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive;
-	ImGui::Checkbox("ActiveFlag", &isActive);
-	GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive = isActive;
-	ImGui::End();
+	//カメラのデバッグメニュー
+	if (m_isDebugCamera) {
 
-	//OnOff
-	ImGui::Begin("DebugOnOff");
-	ImGui::Checkbox("IsDebug", &m_isDebugOnOff);
-	if (m_isDebugOnOff) {
-		bool checkBox = m_onOffDebugParam.m_debugReflection;
-		ImGui::Checkbox("REFLECT", &checkBox);
-		m_onOffDebugParam.m_debugReflection = checkBox;
-		ImGui::SameLine();
-		checkBox = m_onOffDebugParam.m_debugShadow;
-		ImGui::Checkbox("SHADOW", &checkBox);
-		m_onOffDebugParam.m_debugShadow = checkBox;
-		ImGui::SliderFloat("RATE", &m_onOffDebugParam.m_sliderRate, 0.0f, 1280.0f);
+		m_isPause = true;
+
+		ImGui::Begin("DebugCamera");
+
+		m_isMoveOnly1F = ImGui::Button("MoveOnly1F");
+
+		ImGui::End();
+
 	}
 	else {
-		m_onOffDebugParam.m_debugReflection = false;
-		m_onOffDebugParam.m_debugShadow = false;
-		m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
+		m_isPause = false;
 	}
-	ImGui::End();
 
+	//レイトレのデバッグメニュー
+	if (m_isDebugRaytracing) {
+
+		ImGui::Begin("Raytracing");
+
+		bool checkBox = m_debugRaytracingParam.m_debugReflection;
+		ImGui::Checkbox("REFLECT", &checkBox);
+		m_debugRaytracingParam.m_debugReflection = checkBox;
+		ImGui::SameLine();
+		checkBox = m_debugRaytracingParam.m_debugShadow;
+		ImGui::Checkbox("SHADOW", &checkBox);
+		m_debugRaytracingParam.m_debugShadow = checkBox;
+		ImGui::SliderFloat("RATE", &m_debugRaytracingParam.m_sliderRate, 0.0f, 1280.0f);
+
+		ImGui::End();
+
+	}
+	else {
+		m_debugRaytracingParam.m_debugReflection = false;
+		m_debugRaytracingParam.m_debugShadow = false;
+		m_debugRaytracingParam.m_sliderRate = 1280.0f / 2.0f;
+	}
 	//このデバッグ機能が切り替わった瞬間だったら初期値を入れる。
-	if (m_isDebugOnOff && !m_isOldDebugOnOff) {
-		m_onOffDebugParam.m_debugReflection = true;
-		m_onOffDebugParam.m_debugShadow = true;
-		m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
+	if (m_isDebugRaytracing && !m_isOldDebugRaytracing) {
+		m_debugRaytracingParam.m_debugReflection = true;
+		m_debugRaytracingParam.m_debugShadow = true;
+		m_debugRaytracingParam.m_sliderRate = 1280.0f / 2.0f;
 	}
-	m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));
+	m_debugRaytracingParamData.bufferWrapper->TransData(&m_debugRaytracingParam, sizeof(DebugRaytracingParam));
 
-	//ボリュームフォグ
-	ImGui::Begin("VolumeFog");
-	ImGui::SetWindowSize(ImVec2(400, 100), ImGuiCond_::ImGuiCond_FirstUseEver);
-	ImGui::DragFloat("WindSpeed", &m_noiseParam.m_windSpeed, 0.1f, 0.1f, 10.0f);
-	//風の強度
-	ImGui::DragFloat("WindStrength", &m_noiseParam.m_windStrength, 0.1f, 0.1f, 1.0f);
-	//風のしきい値 ノイズを風として判断するためのもの
-	ImGui::DragFloat("WindThreshold", &m_noiseParam.m_threshold, 0.01f, 0.01f, 1.0f);
-	//ノイズのスケール
-	ImGui::DragFloat("NoiseScale", &m_noiseParam.m_skydormScale, 1.0f, 1.0f, 2000.0f);
-	//ノイズのオクターブ数
-	ImGui::DragInt("NoiseOctaves", &m_noiseParam.m_octaves, 1, 1, 10);
-	//ノイズの持続度 違う周波数のノイズを計算する際にどのくらいノイズを持続させるか。 粒度になる。
-	ImGui::DragFloat("NoisePersistance", &m_noiseParam.m_persistence, 0.01f, 0.01f, 1.0f);
-	//ノイズの黒っぽさ
-	ImGui::DragFloat("NoiseLacunarity", &m_noiseParam.m_lacunarity, 0.01f, 0.01f, 10.0f);
-	ImGui::Text(" ");
-	//ボリュームテクスチャの座標
-	std::array<float, 3> boxPos = { m_raymarchingParam.m_pos.x,m_raymarchingParam.m_pos.y, m_raymarchingParam.m_pos.z };
-	ImGui::DragFloat3("Position", boxPos.data(), 0.1f);
-	m_raymarchingParam.m_pos = KazMath::Vec3<float>(boxPos[0], boxPos[1], boxPos[2]);
-	//フォグの色
-	std::array<float, 3> fogColor = { m_raymarchingParam.m_color.x,m_raymarchingParam.m_color.y, m_raymarchingParam.m_color.z };
-	ImGui::DragFloat3("FogColor", fogColor.data(), 0.001f, 0.001f, 1.0f);
-	m_raymarchingParam.m_color = KazMath::Vec3<float>(fogColor[0], fogColor[1], fogColor[2]);
-	ImGui::DragFloat("WrapCount", &m_raymarchingParam.m_wrapCount, 1.0f, 1.0f, 100.0f);
-	ImGui::DragFloat("GridSize", &m_raymarchingParam.m_gridSize, 0.1f, 0.1f, 1000.0f);
-	ImGui::DragFloat("SamplingLength", &m_raymarchingParam.m_sampleLength, 0.1f, 1.0f, 1000.0f);
-	ImGui::DragFloat("Density", &m_raymarchingParam.m_density, 0.01f, 0.0f, 10.0f);
-	ImGui::SliderInt("IsActive", &m_raymarchingParam.m_isActive, 0, 1);
-	ImGui::End();
+	//時間帯のデバッグメニュー
+	if (m_isDebugTimeZone) {
+
+		ImGui::Begin("TimeZone");
+
+		ImGui::RadioButton("Noon", &m_debugTimeZone, 0);
+		ImGui::RadioButton("Evening", &m_debugTimeZone, 1);
+
+		ImGui::End();
+
+		//選択されている値によってDirLightの角度を変える。
+		if (m_debugTimeZone == 0) {
+			GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir += (KazMath::Vec3<float>(0.0f, -0.857f, 0.514f) - GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir) / 10.0f;
+		}
+		else if (m_debugTimeZone == 1) {
+			GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir += (KazMath::Vec3<float>(0.0f, -0.683f, -0.73f) - GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir) / 10.0f;
+		}
+		GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
+
+	}
+
+	//ボリュームフォグのデバッグメニュー
+	if (m_isDebugVolumeFog) {
+
+		ImGui::Begin("VolumeFog");
+
+		ImGui::End();
+
+	}
+
+	//海のデバッグメニュー
+	if (m_isDebugSea) {
+
+		ImGui::Begin("Sea");
+
+		ImGui::End();
+
+	}
+
+
+	////ディレクションライト
+	//ImGui::Begin("DirLight");
+	//ImGui::SliderFloat("VecX", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.x, -1.0f, 1.0f);
+	//ImGui::SliderFloat("VecY", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.y, -1.0f, 1.0f);
+	//ImGui::SliderFloat("VecZ", &GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.z, -1.0f, 1.0f);
+	//GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
+	//bool isActive = GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive;
+	//ImGui::Checkbox("ActiveFlag", &isActive);
+	//GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_isActive = isActive;
+	//ImGui::End();
+
+	////ポイントライト
+	//ImGui::Begin("PointLight");
+	//ImGui::DragFloat("PosX", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.x, 0.5f);
+	//ImGui::DragFloat("PosY", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.y, 0.5f);
+	//ImGui::DragFloat("PosZ", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_pos.z, 0.5f);
+	//ImGui::DragFloat("Power", &GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_power, 0.5f, 1.0f);
+	//isActive = GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive;
+	//ImGui::Checkbox("ActiveFlag", &isActive);
+	//GBufferMgr::Instance()->m_lightConstData.m_pointLight.m_isActive = isActive;
+	//ImGui::End();
+
+	////OnOff
+	//ImGui::Begin("DebugOnOff");
+	//ImGui::Checkbox("IsDebug", &m_isDebugOnOff);
+	//if (m_isDebugOnOff) {
+	//	bool checkBox = m_onOffDebugParam.m_debugReflection;
+	//	ImGui::Checkbox("REFLECT", &checkBox);
+	//	m_onOffDebugParam.m_debugReflection = checkBox;
+	//	ImGui::SameLine();
+	//	checkBox = m_onOffDebugParam.m_debugShadow;
+	//	ImGui::Checkbox("SHADOW", &checkBox);
+	//	m_onOffDebugParam.m_debugShadow = checkBox;
+	//	ImGui::SliderFloat("RATE", &m_onOffDebugParam.m_sliderRate, 0.0f, 1280.0f);
+	//}
+	//else {
+	//	m_onOffDebugParam.m_debugReflection = false;
+	//	m_onOffDebugParam.m_debugShadow = false;
+	//	m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
+	//}
+	//ImGui::End();
+
+	////このデバッグ機能が切り替わった瞬間だったら初期値を入れる。
+	//if (m_isDebugOnOff && !m_isOldDebugOnOff) {
+	//	m_onOffDebugParam.m_debugReflection = true;
+	//	m_onOffDebugParam.m_debugShadow = true;
+	//	m_onOffDebugParam.m_sliderRate = 1280.0f / 2.0f;
+	//}
+	//m_OnOffDebugParamData.bufferWrapper->TransData(&m_onOffDebugParam, sizeof(OnOffDebugParam));
+
+	////ボリュームフォグ
+	//ImGui::Begin("VolumeFog");
+	//ImGui::SetWindowSize(ImVec2(400, 100), ImGuiCond_::ImGuiCond_FirstUseEver);
+	//ImGui::DragFloat("WindSpeed", &m_noiseParam.m_windSpeed, 0.1f, 0.1f, 10.0f);
+	////風の強度
+	//ImGui::DragFloat("WindStrength", &m_noiseParam.m_windStrength, 0.1f, 0.1f, 1.0f);
+	////風のしきい値 ノイズを風として判断するためのもの
+	//ImGui::DragFloat("WindThreshold", &m_noiseParam.m_threshold, 0.01f, 0.01f, 1.0f);
+	////ノイズのスケール
+	//ImGui::DragFloat("NoiseScale", &m_noiseParam.m_skydormScale, 1.0f, 1.0f, 2000.0f);
+	////ノイズのオクターブ数
+	//ImGui::DragInt("NoiseOctaves", &m_noiseParam.m_octaves, 1, 1, 10);
+	////ノイズの持続度 違う周波数のノイズを計算する際にどのくらいノイズを持続させるか。 粒度になる。
+	//ImGui::DragFloat("NoisePersistance", &m_noiseParam.m_persistence, 0.01f, 0.01f, 1.0f);
+	////ノイズの黒っぽさ
+	//ImGui::DragFloat("NoiseLacunarity", &m_noiseParam.m_lacunarity, 0.01f, 0.01f, 10.0f);
+	//ImGui::Text(" ");
+	////ボリュームテクスチャの座標
+	//std::array<float, 3> boxPos = { m_raymarchingParam.m_pos.x,m_raymarchingParam.m_pos.y, m_raymarchingParam.m_pos.z };
+	//ImGui::DragFloat3("Position", boxPos.data(), 0.1f);
+	//m_raymarchingParam.m_pos = KazMath::Vec3<float>(boxPos[0], boxPos[1], boxPos[2]);
+	////フォグの色
+	//std::array<float, 3> fogColor = { m_raymarchingParam.m_color.x,m_raymarchingParam.m_color.y, m_raymarchingParam.m_color.z };
+	//ImGui::DragFloat3("FogColor", fogColor.data(), 0.001f, 0.001f, 1.0f);
+	//m_raymarchingParam.m_color = KazMath::Vec3<float>(fogColor[0], fogColor[1], fogColor[2]);
+	//ImGui::DragFloat("WrapCount", &m_raymarchingParam.m_wrapCount, 1.0f, 1.0f, 100.0f);
+	//ImGui::DragFloat("GridSize", &m_raymarchingParam.m_gridSize, 0.1f, 0.1f, 1000.0f);
+	//ImGui::DragFloat("SamplingLength", &m_raymarchingParam.m_sampleLength, 0.1f, 1.0f, 1000.0f);
+	//ImGui::DragFloat("Density", &m_raymarchingParam.m_density, 0.01f, 0.0f, 10.0f);
+	//ImGui::SliderInt("IsActive", &m_raymarchingParam.m_isActive, 0, 1);
+	//ImGui::End();
 
 	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
 	m_raymarchingParamData.bufferWrapper->TransData(&m_raymarchingParam, sizeof(RaymarchingParam));
