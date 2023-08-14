@@ -154,4 +154,5 @@ private:
 	std::unique_ptr<InstanceMeshParticle> m_meshParticleRender;
 	DirectX::XMMATRIX m_motherMat;
 	float m_alpha;
+	DrawFuncData::DrawCallData m_executeIndirect;
 };

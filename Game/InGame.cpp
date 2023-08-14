@@ -24,6 +24,16 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 
 	m_particleColorRender = KazBufferHelper::SetGPUBufferData(sizeof(DirectX::XMFLOAT4) * 3000000);
 	m_meshParticleRender = std::make_unique<InstanceMeshParticle>(m_particleRender, m_particleColorRender);
+
+	m_executeIndirect = DrawFuncData::SetExecuteIndirect(
+		DrawFuncData::GetBasicShader(),
+		m_particleRender.bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
+		3000000
+	);
+
+	m_executeIndirect.extraBufferArray.emplace_back(m_particleRender);
+	m_executeIndirect.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	m_executeIndirect.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 }
 
 void InGame::Init(bool SKIP_FLAG)
@@ -39,11 +49,13 @@ void InGame::Init(bool SKIP_FLAG)
 	m_cursor.Init();
 
 
-	InitMeshParticleData initMeshParticleData(MeshParticleLoader::Instance()->LoadMesh("Resource/Test/glTF/Box/", "BoxTextured.gltf", &m_motherMat, {70,12,8}, -1));
+	InitMeshParticleData initMeshParticleData(MeshParticleLoader::Instance()->LoadMesh("Resource/Test/glTF/Box/", "BoxTextured.gltf", &m_motherMat, { 70,12,8 }, -1));
 	initMeshParticleData.alpha = &m_alpha;
+	initMeshParticleData.particleScale = { 1.0f,1.0f,1.0f };
 	m_alpha = 1.0f;
 	m_meshParticleRender->AddMeshData(initMeshParticleData);
 
+	m_motherMat = KazMath::Transform3D({ 0.0f,0.0f,0.0f }, { 5.0f,5.0f,5.0f }, { 0.0f,0.0f,0.0f }).GetMat();
 	m_meshParticleRender->Init();
 }
 
@@ -470,6 +482,8 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 		m_rail.DebugDraw(arg_rasterize);
 	}
 #endif
+
+	arg_rasterize.ObjectRender(m_executeIndirect);
 
 	//m_stageArray[m_gameStageLevel]->Draw(arg_rasterize);
 

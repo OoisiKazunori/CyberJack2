@@ -76,7 +76,7 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize)
 	//DrawFunc::DrawModel(m_drawSkydorm, m_skydormTransform);
 	//arg_rasterize.ObjectRender(m_drawSkydorm);
 
-	arg_rasterize.ObjectRender(m_drawTriangleParticle);
+	//arg_rasterize.ObjectRender(m_drawTriangleParticle);
 
 	CameraBufferData cameraMat;
 	cameraMat.m_billboardMat = CameraMgr::Instance()->GetMatBillBoard();

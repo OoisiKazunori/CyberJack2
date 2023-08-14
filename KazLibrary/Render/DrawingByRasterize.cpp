@@ -261,7 +261,10 @@ void DrawingByRasterize::Render()
 		);
 
 		//ルートシグネチャーの情報を元にバッファを積む
-		SetBufferOnCmdList(renderData.buffer, rootSignatureBufferMgr.GetRootParam(rootSignatureHandle));
+		if (renderData.drawCommandType != DrawFuncData::VERT_TYPE::EXECUTEINDIRECT_INDEX)
+		{
+			SetBufferOnCmdList(renderData.buffer, rootSignatureBufferMgr.GetRootParam(rootSignatureHandle));
+		}
 
 		//描画コマンド実行
 		switch (renderData.drawCommandType)
