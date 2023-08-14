@@ -28,6 +28,7 @@ struct Vertex
 struct Payload
 {
     float3 m_color; //色情報
+    float3 m_emissive; //輝度
     uint m_rayID; //レイのID
 };
 
@@ -149,6 +150,7 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         
         //ペイロード(再帰的に処理をするレイトレの中で値の受け渡しに使用する構造体)を宣言。
         Payload payloadData;
+        payloadData.m_emissive = float3(0.0f, 0.0f, 0.0f);
         payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。
         
         //レイを撃つ
@@ -176,6 +178,7 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         
         //ペイロード(再帰的に処理をするレイトレの中で値の受け渡しに使用する構造体)を宣言。
         Payload payloadData;
+        payloadData.m_emissive = float3(0.0f, 0.0f, 0.0f);
         payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。
         
         //ポイントライトからのベクトルを求める。
@@ -290,6 +293,7 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
                 
         //ペイロード(再帰的に処理をするレイトレの中で値の受け渡しに使用する構造体)を宣言。
         Payload payloadData;
+        payloadData.m_emissive = float3(0.0f, 0.0f, 0.0f);
         payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。何かに当たったときに呼ばれるClosestHitShaderが呼ばれたらそこは影なので0を書き込む。
         
         //減衰
@@ -322,7 +326,7 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
     }
     
     //ボリュームフォグ
-    float3 fogColor = float3(0,0,0);
+    float3 fogColor = float3(0, 0, 0);
     if (arg_raymarchingParam.m_isActive)
     {
         //レイマーチングの回数を計算。
@@ -412,7 +416,7 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
     
 }
 
-void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materialInfo, float4 arg_normalColor, float4 arg_albedoColor, RaytracingAccelerationStructure arg_scene, CameraEyePosConstData arg_cameraEyePos, inout float4 arg_finalColor)
+void SecondaryPass(float3 arg_viewDir, inout float4 arg_emissiveColor, float4 arg_worldColor, float4 arg_materialInfo, float4 arg_normalColor, float4 arg_albedoColor, RaytracingAccelerationStructure arg_scene, CameraEyePosConstData arg_cameraEyePos, inout float4 arg_finalColor)
 {
         
     //レイのIDをみて、レイを打つかどうかを判断
@@ -420,6 +424,7 @@ void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materia
     {
         
         Payload payloadData;
+        payloadData.m_emissive = float3(0.0f, 0.0f, 0.0f);
         payloadData.m_color = float3(1, 1, 1);
         
         //レイを撃つ
@@ -429,12 +434,14 @@ void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materia
         //結果格納
         arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
         arg_finalColor += float4((payloadData.m_color), 1) * (1.0f - arg_materialInfo.y);
+        arg_emissiveColor.xyz += payloadData.m_emissive;
         
     }
     else if (arg_materialInfo.w == MATERIAL_REFLECT && 0.1f < length(arg_normalColor.xyz))
     {
         
         Payload payloadData;
+        payloadData.m_emissive = float3(0.0f, 0.0f, 0.0f);
         payloadData.m_color = float3(1, 1, 1);
         
         //レイを撃つ
@@ -444,14 +451,17 @@ void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materia
         //結果格納
         arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
         arg_finalColor += float4((payloadData.m_color), 1) * (1.0f - arg_materialInfo.y);
+        arg_emissiveColor.xyz += payloadData.m_emissive;
         
     }
     else if (arg_materialInfo.w == MATERIAL_SEA && 0.1f < length(arg_normalColor.xyz))
     {
         
         Payload refractionColor;
+        refractionColor.m_emissive = float3(0.0f, 0.0f, 0.0f);
         refractionColor.m_color = float3(1, 1, 1);
         Payload reflectionColor;
+        reflectionColor.m_emissive = float3(0.0f, 0.0f, 0.0f);
         reflectionColor.m_color = float3(1, 1, 1);
         
         //レイを撃つ
@@ -466,7 +476,7 @@ void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materia
         }
         if (reflectionColor.m_color.x < 0)
         {
-            reflectionColor.m_color = float3(0,0,0);
+            reflectionColor.m_color = float3(0, 0, 0);
         }
         
         //海の色の割合
@@ -476,6 +486,9 @@ void SecondaryPass(float3 arg_viewDir, float4 arg_worldColor, float4 arg_materia
         arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
         arg_finalColor += float4((refractionColor.m_color), 1) * (perOfSeaColor / 2.0f);
         arg_finalColor += float4((reflectionColor.m_color), 1) * (perOfSeaColor / 2.0f);
+        
+        arg_emissiveColor.xyz += refractionColor.m_emissive;
+        arg_emissiveColor.xyz += reflectionColor.m_emissive;
         
     }
     else

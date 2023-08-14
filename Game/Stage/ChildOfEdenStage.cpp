@@ -3,10 +3,10 @@
 
 ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 {
-	m_drawSkydorm = DrawFuncData::SetDrawGLTFIndexMaterialData(
-		*ModelLoader::Instance()->Load(KazFilePathName::StagePath + "Skydorm/", "skydome.gltf"),
-		DrawFuncData::GetModelShader()
-	);
+	//m_drawSkydorm = DrawFuncData::SetDrawGLTFIndexMaterialData(
+	//	*ModelLoader::Instance()->Load(KazFilePathName::StagePath + "Skydorm/", "skydome.gltf"),
+	//	DrawFuncData::GetModelShader()
+	//);
 	m_skydormTransform.scale = { m_skydormScale,m_skydormScale,m_skydormScale };
 
 	//パーティクル情報

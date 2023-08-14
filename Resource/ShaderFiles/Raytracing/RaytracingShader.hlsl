@@ -199,9 +199,9 @@ float SeaOctave(float2 arg_uv, float arg_choppy)
 float MappingHeightNoise(float3 arg_position)
 {
     //定数 いずれ定数バッファにする。
-    float freq = 0.16f;
-    float amp = 0.6f;
-    float choppy = 4.0f;
+    float freq = 0.11f;
+    float amp = 0.11f;
+    float choppy = 1.0f;
     float seaSpeed = 5.8f;
 
     //XZ平面による計算
@@ -386,7 +386,6 @@ void mainRayGen()
     float deadline = step(LENSFLARE_DEADLINE, bright);
     float lensflareBright = (deadline * bright);
     lensFlareTexture[launchIndex.xy] = saturate(float4(albedoColor.xyz * lensflareBright * 0.1f, 1.0f) + emissiveColor * 0.45f);
-    emissiveTexture[launchIndex.xy] = emissiveColor;
     
     //アルベドにライトの色をかける。
     albedoColor.xyz *= clamp(bright, 0.3f, 1.0f);
@@ -403,7 +402,7 @@ void mainRayGen()
     }
     else
     {
-        SecondaryPass(dir, worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
+        SecondaryPass(dir, emissiveColor, worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
     }
     
     //描画されているけど水中！だったら水中っぽい見た目にする。
@@ -432,6 +431,7 @@ void mainRayGen()
     
     //合成の結果を入れる。
     finalColor[launchIndex.xy] = final;
+    emissiveTexture[launchIndex.xy] = emissiveColor;
   
 }
 
@@ -479,6 +479,12 @@ void checkHitRayMS(inout Payload payload)
     //当たった位置のピクセルをサンプリングして、色をPayloadに入れる。
     float4 mainTexColor = objectTexture.SampleLevel(smp, vtx.uv, 0);
     payload.m_color = mainTexColor.xyz;
+    
+    //当たったオブジェクトのInstanceIDが1だったら(GPUパーティクルだったら)輝度を保存する。
+    if (InstanceID() == 1)
+    {
+        payload.m_emissive = payload.m_color;
+    }
            
 }
 
