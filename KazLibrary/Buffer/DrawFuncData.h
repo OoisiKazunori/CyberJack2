@@ -1045,7 +1045,7 @@ namespace DrawFuncData
 		return lDrawCallData;
 	}
 
-	static DrawCallData SetExecuteIndirect(const PipelineGenerateData& PIPELINE_DATA, const D3D12_GPU_VIRTUAL_ADDRESS& arg_address, UINT arg_maxCountNum)
+	static DrawCallData SetExecuteIndirect(const PipelineGenerateData& PIPELINE_DATA, const D3D12_GPU_VIRTUAL_ADDRESS& arg_address, UINT arg_maxCountNum, UINT arg_indexNum = -1)
 	{
 		DrawCallData lDrawCallData;
 
@@ -1076,6 +1076,11 @@ namespace DrawFuncData
 			(int)lDrawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].baseVertexLocation,
 			lDrawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].startInstanceLocation
 		};
+
+		if (arg_indexNum != -1)
+		{
+			lDrawCallData.m_executeIndirectGenerateData.m_argumentCommandData.m_drawArguments.IndexCountPerInstance = arg_indexNum;
+		}
 
 		lDrawCallData.m_executeIndirectGenerateData.m_uploadArgumentBuffer = KazBufferHelper::SetUploadBufferData(sizeof(ExecuteIndirectData::DrawIndexedIndirectCommand));
 		lDrawCallData.m_executeIndirectGenerateData.m_uploadArgumentBuffer.bufferWrapper->TransData(&lDrawCallData.m_executeIndirectGenerateData.m_argumentCommandData, sizeof(ExecuteIndirectData::DrawIndexedIndirectCommand));

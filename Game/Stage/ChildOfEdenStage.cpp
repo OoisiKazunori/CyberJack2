@@ -87,7 +87,8 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 		DrawFuncData::SetExecuteIndirect(
 			DrawFuncData::GetBasicInstanceShader(),
 			m_computeUpdateBuffer[1].bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
-			PARTICLE_MAX_NUM
+			PARTICLE_MAX_NUM,
+			PARTICLE_MAX_NUM * 6
 		);
 
 	m_drawTriangleParticle.extraBufferArray.emplace_back(KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * PARTICLE_MAX_NUM));
@@ -110,8 +111,10 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 			sizeof(VertexBufferData) * (PARTICLE_MAX_NUM * 4),
 			sizeof(VertexBufferData)
 		);
-	command.indexBufferView = KazBufferHelper::SetIndexBufferView(m_particleIndexBuffer->bufferWrapper->GetGpuAddress(), sizeof(UINT) * PARTICLE_MAX_NUM * 6);
+	command.indexBufferView = KazBufferHelper::SetIndexBufferView(m_particleIndexBuffer->bufferWrapper->GetGpuAddress(), sizeof(UINT) * (PARTICLE_MAX_NUM * 6));
 
+	
+	command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0] = command.drawIndexInstancedData;
 	m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.vertexBufferDrawData[0] = command.vertexBufferDrawData;
 	m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.indexBufferView[0] = command.indexBufferView;
