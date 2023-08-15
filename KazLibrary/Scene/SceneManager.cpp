@@ -36,7 +36,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	Raytracing::HitGroupMgr::Instance()->Setting();
 	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS", L"checkHitRayMS"}, {L"mainCHS", L"mainAnyHit"} });
 	int payloadSize = sizeof(float) * 7;
-	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 6, 4, 4, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
+	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 6, 5, 4, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
 
 	m_debugOnOffLineRender = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
@@ -110,11 +110,22 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_isDebugSea = false;
 	m_isPause = false;
 	m_isMoveOnly1F = false;
+	m_isSeaEffect = false;
+	m_seaID = SEA_ID::NORMAL;
 
 	m_debugTimeZone = 0;
 
 	//OnOffデバッグ用のパラメーターを用意。
 	m_rayPipeline->SetDebugOnOffConstData(&m_debugRaytracingParamData);
+
+
+	m_debugSeaParam.m_freq = 0.16f;
+	m_debugSeaParam.m_amp = 0.6f;
+	m_debugSeaParam.m_choppy = 4.0f;
+	m_debugSeaParam.m_seaSpeed = 5.8f;
+	m_debugSeaParamData = KazBufferHelper::SetConstBufferData(sizeof(DebugSeaParam));
+	m_debugSeaParamData.bufferWrapper->TransData(&m_debugSeaParam, sizeof(DebugSeaParam));
+	m_rayPipeline->SetDebugSeaConstData(&m_debugSeaParamData);
 }
 
 SceneManager::~SceneManager()
@@ -368,7 +379,50 @@ void SceneManager::Draw()
 
 		ImGui::Begin("Sea");
 
+		const float CALM_SEA_AMP = 0.02f;
+		const float CALM_SEA_FREQ = 0.16f;
+
+		const float NORMAL_SEA_AMP = 0.6f;
+		const float NORMAL_SEA_FREQ = 0.16f;
+
+		const float STORMY_SEA_AMP = 2.8f;
+		const float STORMY_SEA_FREQ = 0.16f;
+
+		const float EFFECT_FREQ = 0.3f;
+
+		ImGui::RadioButton("Calm", &m_seaID, 0);
+		ImGui::SameLine();
+		ImGui::RadioButton("Normal", &m_seaID, 1);
+		ImGui::SameLine();
+		ImGui::RadioButton("Stormy", &m_seaID, 2);
+
+		ImGui::Checkbox("IsEffect", &m_isSeaEffect);
+
+		//静かな海だったら
+		float baseAmp = 0.0f;
+		float baseFreq = 0.0f;
+		if (m_seaID == SEA_ID::CALM) {
+			baseAmp = CALM_SEA_AMP;
+			baseFreq = CALM_SEA_FREQ;
+		}
+		else if (m_seaID == SEA_ID::NORMAL) {
+			baseAmp = NORMAL_SEA_AMP;
+			baseFreq = NORMAL_SEA_FREQ;
+		}
+		else if (m_seaID == SEA_ID::STORMY) {
+			baseAmp = STORMY_SEA_AMP;
+			baseFreq = STORMY_SEA_FREQ;
+		}
+		if (m_isSeaEffect) {
+			baseAmp += 2.0f;
+			baseFreq += EFFECT_FREQ;
+		}
+		m_debugSeaParam.m_amp += (baseAmp - m_debugSeaParam.m_amp) / 5.0f;
+		m_debugSeaParam.m_freq += (baseFreq - m_debugSeaParam.m_freq) / 5.0f;
+
 		ImGui::End();
+
+		m_debugSeaParamData.bufferWrapper->TransData(&m_debugSeaParam, sizeof(DebugSeaParam));
 
 	}
 

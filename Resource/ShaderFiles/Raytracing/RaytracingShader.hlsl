@@ -15,6 +15,7 @@ ConstantBuffer<CameraEyePosConstData> cameraEyePos : register(b0);
 ConstantBuffer<LightData> lightData : register(b1);
 ConstantBuffer<RaymarchingParam> volumeFogData : register(b2);
 ConstantBuffer<DebugRaytracingParam> debugRaytracingData : register(b3);
+ConstantBuffer<DebugSeaParam> debugSeaData : register(b4);
 
 //GBuffer
 Texture2D<float4> albedoMap : register(t1);
@@ -199,10 +200,10 @@ float SeaOctave(float2 arg_uv, float arg_choppy)
 float MappingHeightNoise(float3 arg_position)
 {
     //定数 いずれ定数バッファにする。
-    float freq = 0.16f;
-    float amp = 0.6f;
-    float choppy = 4.0f;
-    float seaSpeed = 5.8f;
+    float freq = debugSeaData.m_freq;
+    float amp = debugSeaData.m_amp;
+    float choppy = debugSeaData.m_choppy;
+    float seaSpeed = debugSeaData.m_seaSpeed;
 
     //XZ平面による計算
     float2 uv = arg_position.xz / 2.0f;

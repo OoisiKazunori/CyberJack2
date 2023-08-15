@@ -77,6 +77,21 @@ private:
 	}m_debugRaytracingParam;
 	KazBufferHelper::BufferData m_debugRaytracingParamData;
 
+	//海デバッグ用
+	struct DebugSeaParam
+	{
+		float m_freq;
+		float m_amp;
+		float m_choppy;
+		float m_seaSpeed;
+	}m_debugSeaParam;
+	KazBufferHelper::BufferData m_debugSeaParamData;
+	enum SEA_ID {
+		CALM, NORMAL, STORMY
+	};
+	int m_seaID;
+	bool m_isSeaEffect;
+
 	//デバッグ用のOnOff切り替えライン
 	DrawFuncData::DrawCallData m_debugOnOffLineRender;
 	KazBufferHelper::BufferData m_debugOnOffLineBuffer;

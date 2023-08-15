@@ -76,6 +76,7 @@ namespace Raytracing {
 		KazBufferHelper::BufferData* m_refVolumeNoiseTexture;
 		KazBufferHelper::BufferData* m_refRaymarchingConstData;
 		KazBufferHelper::BufferData* m_refDebugOnOffConstData;
+		KazBufferHelper::BufferData* m_refDebugSeaConstData;
 
 		//レンズフレアクラス
 		std::shared_ptr<PostEffect::LensFlare> m_lensFlare;
@@ -133,6 +134,7 @@ namespace Raytracing {
 		void SetVolumeFogTexture(KazBufferHelper::BufferData* arg_volumeFogTexture) { m_refVolumeNoiseTexture = arg_volumeFogTexture; }
 		void SetRaymarchingConstData(KazBufferHelper::BufferData* arg_raymarchingParamConstData) { m_refRaymarchingConstData = arg_raymarchingParamConstData; }
 		void SetDebugOnOffConstData(KazBufferHelper::BufferData* arg_debugOnOffConstData) { m_refDebugOnOffConstData = arg_debugOnOffConstData; }
+		void SetDebugSeaConstData(KazBufferHelper::BufferData* arg_debugSeaConstData) { m_refDebugSeaConstData = arg_debugSeaConstData; }
 
 	private:
 

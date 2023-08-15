@@ -87,6 +87,15 @@ struct DebugRaytracingParam
     float m_pad;
 };
 
+//OnOffデバッグ
+struct DebugSeaParam
+{
+    float m_freq;
+    float m_amp;
+    float m_choppy;
+    float m_seaSpeed;
+};
+
 //barysを計算
 inline float3 CalcBarycentrics(float2 Barys)
 {
