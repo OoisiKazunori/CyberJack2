@@ -87,7 +87,7 @@ void LotusLeafEnemy::Update()
 		m_deadEffectVelStorage = m_playerTransform->pos - m_prevPlayerPos;
 		m_deadEffectVelStorage *= 1.0f;
 		m_isDead = true;
-		ShakeMgr::Instance()->m_shakeAmount = 1.0f;
+		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
 		SeaEffect::Instance()->m_isSeaEffect = true;
 		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 	}

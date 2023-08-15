@@ -77,7 +77,7 @@ void VirusEnemy::Update()
 		m_isDead = true;
 		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 
-		ShakeMgr::Instance()->m_shakeAmount = 1.0f;
+		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
 		SeaEffect::Instance()->m_isSeaEffect = true;
 		
 	}

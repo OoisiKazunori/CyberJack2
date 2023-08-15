@@ -1,6 +1,6 @@
 #include "EnemyHelper.h"
 
-void KazEnemyHelper::GenerateEnemy(std::array<std::array<std::unique_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES, std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> RESPONE_DATA, std::array<int, ENEMY_TYPE_MAX> &ENEMISE_HANDLE)
+void KazEnemyHelper::GenerateEnemy(std::array<std::array<std::shared_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES, std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> RESPONE_DATA, std::array<int, ENEMY_TYPE_MAX> &ENEMISE_HANDLE)
 {
 	for (int enemyType = 0; enemyType < RESPONE_DATA.size(); ++enemyType)
 	{
@@ -23,7 +23,7 @@ void KazEnemyHelper::GenerateEnemy(std::array<std::array<std::unique_ptr<IEnemy>
 	}
 }
 
-void KazEnemyHelper::GenerateEnemy(std::array<std::array<std::unique_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES, std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> RESPONE_DATA, std::array<int, ENEMY_TYPE_MAX> &ENEMISE_HANDLE, std::vector<Sphere *> &ENEMISE_HITBOX)
+void KazEnemyHelper::GenerateEnemy(std::array<std::array<std::shared_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES, std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> RESPONE_DATA, std::array<int, ENEMY_TYPE_MAX> &ENEMISE_HANDLE, std::vector<Sphere *> &ENEMISE_HITBOX)
 {
 	for (int enemyType = 0; enemyType < RESPONE_DATA.size(); ++enemyType)
 	{
@@ -54,7 +54,7 @@ void KazEnemyHelper::GenerateEnemy(std::array<std::array<std::unique_ptr<IEnemy>
 	}
 }
 
-void KazEnemyHelper::AddEnemy(const std::array<std::array<std::unique_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES, std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &RESPONE_DATA, std::array<int, ENEMY_TYPE_MAX> &ADD_ENEMISE_HANDLE, int GAME_FLAME, int GAME_STAGE_LEVEL)
+void KazEnemyHelper::AddEnemy(const std::array<std::array<std::shared_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES, std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &RESPONE_DATA, std::array<int, ENEMY_TYPE_MAX> &ADD_ENEMISE_HANDLE, int GAME_FLAME, int GAME_STAGE_LEVEL)
 {
 	for (int enemyType = 0; enemyType < ENEMIES.size(); ++enemyType)
 	{
@@ -88,7 +88,7 @@ void KazEnemyHelper::AddEnemy(const std::array<std::array<std::unique_ptr<IEnemy
 	}
 }
 
-void KazEnemyHelper::InitEnemy(const KazMath::Transform3D* arg_playerTransform, std::array<std::array<std::unique_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES, std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> RESPONE_DATA, int GAME_FLAME, int GAME_STAGE_LEVEL, bool DEMO_FLAG)
+void KazEnemyHelper::InitEnemy(const KazMath::Transform3D* arg_playerTransform, std::array<std::array<std::shared_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES, std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> RESPONE_DATA, int GAME_FLAME, int GAME_STAGE_LEVEL, bool DEMO_FLAG)
 {
 	for (int enemyType = 0; enemyType < RESPONE_DATA.size(); ++enemyType)
 	{
@@ -106,7 +106,7 @@ void KazEnemyHelper::InitEnemy(const KazMath::Transform3D* arg_playerTransform, 
 	}
 }
 
-bool KazEnemyHelper::LockOn(Cursor *CURSOR, const std::unique_ptr<IEnemy> &ENEMY, AttackLog *LOG, float FONT_SIZE, RESOURCE_HANDLE LOCKON_SOUND)
+bool KazEnemyHelper::LockOn(Cursor *CURSOR, const std::shared_ptr<IEnemy> &ENEMY, AttackLog *LOG, float FONT_SIZE, RESOURCE_HANDLE LOCKON_SOUND)
 {
 	if (ENEMY == nullptr)
 	{

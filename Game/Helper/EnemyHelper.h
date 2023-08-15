@@ -18,20 +18,20 @@ namespace KazEnemyHelper
 	static const int STAGE_NUM_MAX = 3;				//1ÉåÉCÉÑÅ[ÉåÉxÉãÇ…ìoèÍÇ∑ÇÈìGÇÃç≈ëÂêî
 
 	void GenerateEnemy(
-		std::array<std::array<std::unique_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES,
+		std::array<std::array<std::shared_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES,
 		std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> RESPONE_DATA,
 		std::array<int, ENEMY_TYPE_MAX> &ENEMISE_HANDLE
 	);
 
 	void GenerateEnemy(
-		std::array<std::array<std::unique_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES,
+		std::array<std::array<std::shared_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES,
 		std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> RESPONE_DATA,
 		std::array<int, ENEMY_TYPE_MAX> &ENEMISE_HANDLE,
 		std::vector<Sphere*> &ENEMISE_HITBOX
 	);
 
 	void AddEnemy(
-		const std::array<std::array<std::unique_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES,
+		const std::array<std::array<std::shared_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES,
 		std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &RESPONE_DATA,
 		std::array<int, ENEMY_TYPE_MAX> &ADD_ENEMISE_HANDLE,
 		int GAME_FLAME,
@@ -40,14 +40,14 @@ namespace KazEnemyHelper
 
 	void InitEnemy(
 		const KazMath::Transform3D* arg_playerTransform,
-		std::array<std::array<std::unique_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES,
+		std::array<std::array<std::shared_ptr<IEnemy>, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> &ENEMIES,
 		std::array<std::array<ResponeData, ENEMY_NUM_MAX>, ENEMY_TYPE_MAX> RESPONE_DATA,
 		int GAME_FLAME,
 		int GAME_STAGE_LEVEL,
 		bool DEMO_FLAG = false
 	);
 
-	bool LockOn(Cursor *CURSOR, const std::unique_ptr<IEnemy> &ENEMY, AttackLog *LOG, float FONT_SIZE, RESOURCE_HANDLE LOCKON_SOUND);
+	bool LockOn(Cursor *CURSOR, const std::shared_ptr<IEnemy> &ENEMY, AttackLog *LOG, float FONT_SIZE, RESOURCE_HANDLE LOCKON_SOUND);
 
 	enum CameraDir
 	{

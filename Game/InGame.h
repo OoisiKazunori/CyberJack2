@@ -129,7 +129,7 @@ private:
 
 	//敵----------------------------------------------------------------
 	std::array<unique_ptr<IEnemy>, 2>enemy;																					//敵(サンプル)
-	std::array<std::array<unique_ptr<IEnemy>, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> m_enemies;	//1ステージに生成する敵の総数
+	std::array<std::array<shared_ptr<IEnemy>, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> m_enemies;	//1ステージに生成する敵の総数
 	std::array<int, KazEnemyHelper::ENEMY_TYPE_MAX> enemiesHandle;															//0から順番に初期化する際に必要
 	std::array<int, KazEnemyHelper::ENEMY_TYPE_MAX> addEnemiesHandle;														//0から順番に追加で初期化する際に必要
 	std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> m_responeData;		//敵を生成する際に必要な設定

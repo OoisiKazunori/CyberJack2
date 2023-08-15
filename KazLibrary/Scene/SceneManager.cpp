@@ -431,9 +431,9 @@ void SceneManager::Draw()
 		m_debugSeaParam.m_freq += EFFECT_FREQ;
 		m_debugSeaParam.m_seaSpeed += 30.0f;
 	}
-	m_debugSeaParam.m_amp += (baseAmp - m_debugSeaParam.m_amp) / 3.0f;
-	m_debugSeaParam.m_freq += (baseFreq - m_debugSeaParam.m_freq) / 3.0f;
-	m_debugSeaParam.m_seaSpeed += (baseSeaSpeed - m_debugSeaParam.m_seaSpeed) / 10.0f;
+	m_debugSeaParam.m_amp += (baseAmp - m_debugSeaParam.m_amp) / 8.0f;
+	m_debugSeaParam.m_freq += (baseFreq - m_debugSeaParam.m_freq) / 8.0f;
+	m_debugSeaParam.m_seaSpeed += (baseSeaSpeed - m_debugSeaParam.m_seaSpeed) / 20.0f;
 
 	m_debugSeaParamData.bufferWrapper->TransData(&m_debugSeaParam, sizeof(DebugSeaParam));
 
