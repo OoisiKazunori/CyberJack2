@@ -199,9 +199,9 @@ float SeaOctave(float2 arg_uv, float arg_choppy)
 float MappingHeightNoise(float3 arg_position)
 {
     //定数 いずれ定数バッファにする。
-    float freq = 0.11f;
-    float amp = 0.11f;
-    float choppy = 1.0f;
+    float freq = 0.16f;
+    float amp = 0.6f;
+    float choppy = 4.0f;
     float seaSpeed = 5.8f;
 
     //XZ平面による計算
