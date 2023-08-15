@@ -160,6 +160,7 @@ void SceneManager::Update()
 		initGameFlag = false;
 	}
 
+	SeaEffect::Instance()->m_isOldSeaEffect = SeaEffect::Instance()->m_isSeaEffect;
 	SeaEffect::Instance()->m_isSeaEffect = false;
 
 	const int RESTART_NUM = -2;
@@ -404,7 +405,7 @@ void SceneManager::Draw()
 	const float STORMY_SEA_AMP = 2.8f;
 	const float STORMY_SEA_FREQ = 0.16f;
 
-	const float EFFECT_FREQ = 0.1f;
+	const float EFFECT_FREQ = 0.05f;
 
 	const float SEA_SPEED = 5.8f;
 
@@ -424,10 +425,11 @@ void SceneManager::Draw()
 		baseAmp = STORMY_SEA_AMP;
 		baseFreq = STORMY_SEA_FREQ;
 	}
-	if (SeaEffect::Instance()->m_isSeaEffect) {
-		baseAmp += 2.0f;
-		baseFreq += EFFECT_FREQ;
-		baseSeaSpeed += 30.0f;
+
+	if (!SeaEffect::Instance()->m_isOldSeaEffect && SeaEffect::Instance()->m_isSeaEffect) {
+		m_debugSeaParam.m_amp += 1.0f;
+		m_debugSeaParam.m_freq += EFFECT_FREQ;
+		m_debugSeaParam.m_seaSpeed += 30.0f;
 	}
 	m_debugSeaParam.m_amp += (baseAmp - m_debugSeaParam.m_amp) / 3.0f;
 	m_debugSeaParam.m_freq += (baseFreq - m_debugSeaParam.m_freq) / 3.0f;

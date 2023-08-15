@@ -9,6 +9,7 @@ class SeaEffect :public ISingleton<SeaEffect>
 
 public:
 
+	bool m_isOldSeaEffect;
 	bool m_isSeaEffect;
 
 };

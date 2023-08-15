@@ -380,7 +380,15 @@ void mainRayGen()
     
     //ライティングパスを行う。
     float bright = 0.0f;
-    LightingPass(bright, worldColor, normalColor, lightData, launchIndex, debugRaytracingData, gRtScene, isFar);
+    if (0 < length(emissiveColor.xyz))
+    {
+        bright = length(emissiveColor.xyz);
+
+    }
+    else
+    {
+        LightingPass(bright, worldColor, normalColor, lightData, launchIndex, debugRaytracingData, gRtScene, isFar);
+    }
     
     //輝度が一定以上だったらレンズフレア用のテクスチャに書きこむ。
     const float LENSFLARE_DEADLINE = 0.3f;

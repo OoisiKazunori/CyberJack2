@@ -2,6 +2,7 @@
 #include "../KazLibrary/Easing/easing.h"
 #include"../KazLibrary/Render/DrawFunc.h"
 #include"../Game/Effect/ShakeMgr.h"
+#include"../Effect/SeaEffect.h"
 
 VirusEnemy::VirusEnemy()
 {
@@ -77,6 +78,7 @@ void VirusEnemy::Update()
 		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 
 		ShakeMgr::Instance()->m_shakeAmount = 1.0f;
+		SeaEffect::Instance()->m_isSeaEffect = true;
 		
 	}
 

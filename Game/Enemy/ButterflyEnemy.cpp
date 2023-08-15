@@ -11,7 +11,7 @@ ButterflyEnemy::ButterflyEnemy()
 
 void ButterflyEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)
 {
-	iEnemy_EnemyStatusData->oprationObjData->Init(1, "Butterfly");
+	iEnemy_EnemyStatusData->oprationObjData->Init(5, "Butterfly");
 	m_playerTransform = arg_playerTransform;
 	//出現させる一を決める。
 	const float HIGH_PRECISION = 1000.0f;	//乱数をより細かくするための定数。
@@ -97,14 +97,6 @@ void ButterflyEnemy::Update()
 
 	}
 
-
-	if (iEnemy_EnemyStatusData->oprationObjData->rockOnNum <= 0 && !m_isDead) {
-
-
-		SeaEffect::Instance()->m_isSeaEffect = true;
-
-	}
-
 	if (!iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag && !m_isDead) {
 		m_status = DEAD;
 		//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。
@@ -114,6 +106,7 @@ void ButterflyEnemy::Update()
 		m_isDead = true;
 		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 		ShakeMgr::Instance()->m_shakeAmount = 1.0f;
+		SeaEffect::Instance()->m_isSeaEffect = true;
 	}
 
 	//角度が変わる前に保存。

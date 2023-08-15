@@ -2,6 +2,7 @@
 #include "../KazLibrary/Easing/easing.h"
 #include"../KazLibrary/Render/DrawFunc.h"
 #include"../Game/Effect/ShakeMgr.h"
+#include"../Effect/SeaEffect.h"
 
 LotusLeafEnemy::LotusLeafEnemy()
 {
@@ -87,6 +88,7 @@ void LotusLeafEnemy::Update()
 		m_deadEffectVelStorage *= 1.0f;
 		m_isDead = true;
 		ShakeMgr::Instance()->m_shakeAmount = 1.0f;
+		SeaEffect::Instance()->m_isSeaEffect = true;
 		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 	}
 
