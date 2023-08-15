@@ -113,6 +113,7 @@ public:
 	void OnInit(bool MESH_PARTICLE_FLAG)
 	{
 		iEnemy_EnemyStatusData->meshParticleFlag = MESH_PARTICLE_FLAG;
+		m_isBeingShot = false;
 	}
 	void OnUpdate()
 	{
@@ -180,6 +181,8 @@ public:
 	KazMath::Vec3<float> lerpPos;
 	float yVel;
 	bool m_isDead;
+	bool m_isBeingShot;		//’e‚ªŒ‚‚½‚ê‚Ä‚¢‚é‚©
+
 
 protected:
 	bool initDeadSoundFlag;
