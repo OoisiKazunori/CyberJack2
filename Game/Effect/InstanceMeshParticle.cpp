@@ -1,5 +1,6 @@
 #include "InstanceMeshParticle.h"
 #include"../KazLibrary/Buffer/DescriptorHeapMgr.h"
+#include"../KazLibrary/Buffer/ShaderRandomTable.h"
 
 int InstanceMeshParticle::MESH_PARTICLE_GENERATE_NUM = 0;
 
@@ -54,7 +55,11 @@ InstanceMeshParticle::InstanceMeshParticle(const KazBufferHelper::BufferData& ar
 	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA4));
 	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA5));
+	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA));
+	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA6));
 	computeUpdateMeshParticle.Generate(ShaderOptionData("Resource/ShaderFiles/ComputeShader/UpdateMeshParticle.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), rootsignature);
+
+	cameraMatBuffer = KazBufferHelper::SetConstBufferData(sizeof(CameraMatData));
 }
 
 void InstanceMeshParticle::Init()
@@ -124,6 +129,8 @@ void InstanceMeshParticle::Init()
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(scaleRotateBillboardMatHandle);
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(colorMotherMatrixHandle);
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(m_outputMatrixBuffer);
+	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(cameraMatBuffer);
+	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(ShaderRandomTable::Instance()->GetBuffer(GRAPHICS_PRAMTYPE_DATA6));
 
 }
 
@@ -209,7 +216,7 @@ void InstanceMeshParticle::AddMeshData(const InitMeshParticleData& DATA)
 		computeInitMeshParticle.Generate(ShaderOptionData("Resource/ShaderFiles/ComputeShader/InitPosUvMeshParticle.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), bufferArray);
 		isInitFlag = false;
 	}
-	computeInitMeshParticle.Compute({ 1,1,1 });
+	computeInitMeshParticle.Compute({ 100,1,1 });
 
 	++MESH_PARTICLE_GENERATE_NUM;
 #pragma endregion
@@ -251,6 +258,11 @@ void InstanceMeshParticle::Compute()
 	scaleRotateBillboardMatHandle.bufferWrapper->CopyBuffer(
 		scaleRotaBuffer.GetBuffer().Get());
 
+	CameraMatData camera;
+	camera.viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
+	camera.billboard = CameraMgr::Instance()->GetMatBillBoard();
+	cameraMatBuffer.bufferWrapper->TransData(&camera, sizeof(CameraMatData));
+
 	computeUpdateMeshParticle.m_extraBufferArray[0] = meshParticleBufferData;
 	computeUpdateMeshParticle.m_extraBufferArray[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 	computeUpdateMeshParticle.m_extraBufferArray[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
@@ -271,5 +283,17 @@ void InstanceMeshParticle::Compute()
 	computeUpdateMeshParticle.m_extraBufferArray[4].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 	computeUpdateMeshParticle.m_extraBufferArray[4].rootParamType = GRAPHICS_PRAMTYPE_DATA5;
 
-	computeUpdateMeshParticle.Compute({ 1,1,1 });
+	computeUpdateMeshParticle.m_extraBufferArray[5] = cameraMatBuffer;
+	computeUpdateMeshParticle.m_extraBufferArray[5].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+	computeUpdateMeshParticle.m_extraBufferArray[5].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
+	computeUpdateMeshParticle.m_extraBufferArray[6] = ShaderRandomTable::Instance()->GetBuffer(GRAPHICS_PRAMTYPE_DATA6);
+
+	computeUpdateMeshParticle.Compute({ 100,1,1 });
+}
+
+void InstanceMeshParticle::InitCompute()
+{
+	meshParticleBufferData.counterWrapper->CopyBuffer(copyBuffer.GetBuffer());
+	computeInitMeshParticle.Compute({ 100,1,1 });
 }

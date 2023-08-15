@@ -1,4 +1,5 @@
 #include "ChildOfEdenStage.h"
+#include"../KazLibrary/Buffer/ShaderRandomTable.h"
 
 ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 {
@@ -13,19 +14,8 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_drawTriangleParticle.extraBufferArray[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_drawTriangleParticle.extraBufferArray[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-	//óêêîÉeÅ[ÉuÉãê∂ê¨
-	m_randomTable = KazBufferHelper::SetUploadBufferData(sizeof(UINT) * PARTICLE_MAX_NUM,"RandomTable-UAV-UploadBuffer");
-	std::array<UINT, PARTICLE_MAX_NUM>table;
-	for (int i = 0; i < PARTICLE_MAX_NUM; ++i)
-	{
-		table[i] = KazMath::Rand<UINT>(1000000, 0);
-	}
-	m_randomTable.bufferWrapper->TransData(table.data(), sizeof(UINT) * PARTICLE_MAX_NUM);
-
 	m_computeInitBuffer.emplace_back(m_drawTriangleParticle.extraBufferArray[0]);
-	m_computeInitBuffer.emplace_back(m_randomTable);
-	m_computeInitBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-	m_computeInitBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+	m_computeInitBuffer.emplace_back(ShaderRandomTable::Instance()->GetBuffer(GRAPHICS_PRAMTYPE_DATA2));
 	m_computeInit.Generate(
 		ShaderOptionData("Resource/ShaderFiles/ShaderFile/TriangleParticle.hlsl", "InitCSmain", "cs_6_4", SHADER_TYPE_COMPUTE),
 		m_computeInitBuffer

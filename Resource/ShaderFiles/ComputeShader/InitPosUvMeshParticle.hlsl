@@ -51,7 +51,7 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     {
         return;
     }
-    //?C???f?b?N?X???????àÛ??????
+    //?C???f?b?N?X???????ï¿½ï¿½??????
     //?O?p?`???\??????C???f?b?N?X??w??--------------------------------------------
     uint firstVertIndex = index * 3;
     uint secondVertIndex = index * 3 + 1;
@@ -62,7 +62,7 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     uint uvThirdVertIndex = thirdVertIndex;
     //?O?p?`???\??????C???f?b?N?X??w??--------------------------------------------
 
-    //???_???W???‰G?[???h???W??????----------------------------------------------
+    //???_???W???ï¿½G?[???h???W??????----------------------------------------------
     InputData firstVertWorldPos;
     InputData secondVertWorldPos;
     InputData thirdVertWorldPos;
@@ -73,7 +73,7 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     firstVertWorldPos.uv = uvData[uvFirstVertIndex];
     secondVertWorldPos.uv = uvData[uvSecondVertIndex];
     thirdVertWorldPos.uv = uvData[uvThirdVertIndex];
-    //???_???W???‰G?[???h???W????------------------------------------------------
+    //???_???W???ï¿½G?[???h???W????------------------------------------------------
 
     //?O?p?`???\???????C--------------------------------------------
     const int RAY_MAX_NUM = 3;
@@ -121,13 +121,13 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
             
             if(RandVec3(outputIndex,PARTICLE_MAX_BIAS,0).x <= RANDOM_NUMBER_BIAS)
             {
-                //?G?b?W??????“_??
+                //?G?b?W??????ï¿½_??
                 rate = RandVec3(outputIndex + 1000,10,0).x / 100.0f;
                 resultPos = startPos + resultDistance * rate;
             }
             else
             {
-                //???????“_??
+                //???????ï¿½_??
                 rate = RandVec3(startPos.y * 10.0f + outputIndex + 10000,1,0).x;
                 resultPos = startPos + resultDistance * rate;
             }
@@ -155,7 +155,9 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
             ParticleData output;
             output.pos = resultPos;
             output.color = tex.SampleLevel(smp,uv,0);
-            output.id = motherMatIndex;                
+            output.id = motherMatIndex;
+            output.timer = RandVec3(startPos.y * 10.0f + outputIndex + 10000,120,0).x;
+            output.maxTimer = output.timer;
             outputData.Append(output);
             //???W????UV?????------------------------------------------------------------------------------------------------
         }

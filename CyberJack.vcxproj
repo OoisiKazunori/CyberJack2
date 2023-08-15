@@ -215,6 +215,7 @@
     <ClCompile Include="KazLibrary\Buffer\DrawFuncData.cpp" />
     <ClCompile Include="KazLibrary\Buffer\GBufferMgr.cpp" />
     <ClCompile Include="KazLibrary\Buffer\Polygon.cpp" />
+    <ClCompile Include="KazLibrary\Buffer\ShaderRandomTable.cpp" />
     <ClCompile Include="KazLibrary\Buffer\UavViewHandleMgr.cpp" />
     <ClCompile Include="KazLibrary\Buffer\VertexBufferMgr.cpp" />
     <ClCompile Include="KazLibrary\Camera\CameraMgr.cpp" />
@@ -415,6 +416,7 @@
     <ClInclude Include="KazLibrary\Buffer\DrawFuncData.h" />
     <ClInclude Include="KazLibrary\Buffer\GBufferMgr.h" />
     <ClInclude Include="KazLibrary\Buffer\Polygon.h" />
+    <ClInclude Include="KazLibrary\Buffer\ShaderRandomTable.h" />
     <ClInclude Include="KazLibrary\Buffer\UavViewHandleMgr.h" />
     <ClInclude Include="KazLibrary\Buffer\VertexBufferMgr.h" />
     <ClInclude Include="KazLibrary\Camera\CameraMgr.h" />

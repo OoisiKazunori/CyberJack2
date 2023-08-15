@@ -3,7 +3,7 @@
 #include"../KazLibrary/Loader/FbxModelResourceMgr.h"
 #include"../KazLibrary/Buffer/DescriptorHeapMgr.h"
 
-CreateMeshBuffer::CreateMeshBuffer(std::vector<DirectX::XMFLOAT3> VERT, std::vector<DirectX::XMFLOAT2> UV)
+CreateMeshBuffer::CreateMeshBuffer(std::vector<DirectX::XMFLOAT3> VERT, std::vector<DirectX::XMFLOAT2> UV, std::vector<UINT>INDICES)
 {
 	//’¸“_î•ñ‚ğ‘‚«‚Ş--------------------------------------------
 	if (VERT.size() != 0)
@@ -22,19 +22,29 @@ CreateMeshBuffer::CreateMeshBuffer(std::vector<DirectX::XMFLOAT3> VERT, std::vec
 	UploadToVRAM();
 }
 
-CreateMeshBuffer::CreateMeshBuffer(std::vector<KazMath::Vec3<float>> VERT, std::vector<KazMath::Vec2<float>> UV)
+CreateMeshBuffer::CreateMeshBuffer(std::vector<KazMath::Vec3<float>> VERT, std::vector<KazMath::Vec2<float>> UV, std::vector<UINT>INDICES)
 {
 	//’¸“_î•ñ‚ğ‘‚«‚Ş--------------------------------------------
 	if (VERT.size() != 0)
 	{
-		GenerateBuffer(DATA_VERT, GRAPHICS_PRAMTYPE_DATA, VERT.size(), sizeof(DirectX::XMFLOAT3), VERT.data(), "MeshParticle-VERTEX");
+		std::vector<KazMath::Vec3<float>> array(Convert<KazMath::Vec3<float>>(VERT, INDICES));
+		if (array.size() == 0)
+		{
+			array = VERT;
+		}
+		GenerateBuffer(DATA_VERT, GRAPHICS_PRAMTYPE_DATA, array.size(), sizeof(DirectX::XMFLOAT3), array.data(), "MeshParticle-VERTEX");
 	}
 	//’¸“_î•ñ‚ğ‘‚«‚Ş--------------------------------------------
 
 	//UVî•ñ‚ğ‘‚«‚Ş--------------------------------------------
 	if (UV.size() != 0)
 	{
-		GenerateBuffer(DATA_UV, GRAPHICS_PRAMTYPE_DATA2, UV.size(), sizeof(DirectX::XMFLOAT2), UV.data(), "MeshParticle-UV");
+		std::vector<KazMath::Vec2<float>> array(Convert<KazMath::Vec2<float>>(UV, INDICES));
+		if (array.size() == 0)
+		{
+			array = UV;
+		}
+		GenerateBuffer(DATA_UV, GRAPHICS_PRAMTYPE_DATA2, array.size(), sizeof(DirectX::XMFLOAT2), array.data(), "MeshParticle-UV");
 	}
 	//UVî•ñ‚ğ‘‚«‚Ş--------------------------------------------
 

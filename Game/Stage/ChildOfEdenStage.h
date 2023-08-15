@@ -49,6 +49,5 @@ public:
 
 	ComputeShader m_computeInit,m_computeUpdate;
 
-	KazBufferHelper::BufferData m_randomTable;
 };
 

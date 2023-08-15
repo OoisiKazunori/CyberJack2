@@ -155,4 +155,6 @@ private:
 	DirectX::XMMATRIX m_motherMat;
 	float m_alpha;
 	DrawFuncData::DrawCallData m_executeIndirect;
+
+	DrawFuncData::DrawCallData m_modelRender;
 };

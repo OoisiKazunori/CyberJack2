@@ -27,8 +27,8 @@ public:
 		DATA_MAX
 	};
 
-	CreateMeshBuffer(std::vector<DirectX::XMFLOAT3> VERT, std::vector<DirectX::XMFLOAT2> UV);
-	CreateMeshBuffer(std::vector<KazMath::Vec3<float>> VERT, std::vector<KazMath::Vec2<float>> UV);
+	CreateMeshBuffer(std::vector<DirectX::XMFLOAT3> VERT, std::vector<DirectX::XMFLOAT2> UV, std::vector<UINT>INDICES = std::vector<UINT>());
+	CreateMeshBuffer(std::vector<KazMath::Vec3<float>> VERT, std::vector<KazMath::Vec2<float>> UV, std::vector<UINT>INDICES = std::vector<UINT>());
 	const KazBufferHelper::BufferData &GetBufferData(MeshBufferView ENUM_VIEW);
 	
 	bool IsDataIn(MeshBufferView ENUM_VIEW)
@@ -51,5 +51,17 @@ private:
 
 	void GenerateBuffer(MeshBufferView TYPE, GraphicsRootParamType ROOT_TYPE, size_t SIZE, unsigned long long STRUCTER_SIZE, void* ADDRESS, std::string BUFFER_NAME);
 	void UploadToVRAM();
+
+	//èdï°ÇµÇΩí∏ì_èÓïÒÇ…ïœä∑Ç∑ÇÈ
+	template<typename T>
+	std::vector<T> Convert(const std::vector<T>& arg_array, const std::vector<UINT>& arg_indicesArray)
+	{
+		std::vector<T>array;
+		for (auto& obj : arg_indicesArray)
+		{
+			array.emplace_back(arg_array[obj]);
+		}
+		return array;
+	}
 };
 

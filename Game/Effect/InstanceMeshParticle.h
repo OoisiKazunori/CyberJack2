@@ -15,6 +15,7 @@ public:
 	void AddMeshData(const InitMeshParticleData &DATA);
 	void Compute();
 
+	void InitCompute();
 
 	struct InitOutputData
 	{
@@ -25,6 +26,13 @@ public:
 
 	KazBufferHelper::ID3D12ResourceWrapper copyBuffer;
 private:
+	struct CameraMatData
+	{
+		DirectX::XMMATRIX viewProjMat;
+		DirectX::XMMATRIX billboard;
+	};
+	KazBufferHelper::BufferData cameraMatBuffer;
+
 	KazBufferHelper::BufferData m_outputMatrixBuffer;
 	KazBufferHelper::BufferData m_outputColorBuffer;
 

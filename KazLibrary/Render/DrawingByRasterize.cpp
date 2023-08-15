@@ -228,7 +228,7 @@ void DrawingByRasterize::Render()
 {
 	RenderTargetStatus::Instance()->SetDoubleBufferFlame();
 	//RenderTargetStatus::Instance()->ClearDoubuleBuffer(BG_COLOR);
-	RenderTargetStatus::Instance()->ClearDoubuleBuffer(DirectX::XMFLOAT3(255,0,0));
+	RenderTargetStatus::Instance()->ClearDoubuleBuffer(DirectX::XMFLOAT3(0,0,0));
 
 
 	RESOURCE_HANDLE preRenderTargetHandle = -1;

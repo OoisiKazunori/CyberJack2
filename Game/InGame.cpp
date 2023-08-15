@@ -32,8 +32,9 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 	);
 
 	m_executeIndirect.extraBufferArray.emplace_back(m_particleRender);
-	m_executeIndirect.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	m_executeIndirect.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_executeIndirect.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+	m_modelRender = DrawFuncData::SetDrawGLTFIndexMaterialData(*ModelLoader::Instance()->Load("Resource/Test/glTF/Box/", "BoxTextured.gltf"), DrawFuncData::GetModelShader());
 }
 
 void InGame::Init(bool SKIP_FLAG)
@@ -49,9 +50,10 @@ void InGame::Init(bool SKIP_FLAG)
 	m_cursor.Init();
 
 
-	InitMeshParticleData initMeshParticleData(MeshParticleLoader::Instance()->LoadMesh("Resource/Test/glTF/Box/", "BoxTextured.gltf", &m_motherMat, { 70,12,8 }, -1));
+	InitMeshParticleData initMeshParticleData(MeshParticleLoader::Instance()->LoadMesh("Resource/Test/glTF/Box/", "BoxTextured.gltf", &m_motherMat, { 70,100,12 }, -1));
 	initMeshParticleData.alpha = &m_alpha;
-	initMeshParticleData.particleScale = { 1.0f,1.0f,1.0f };
+	float scale = 0.01f;
+	initMeshParticleData.particleScale = { scale,scale,scale };
 	m_alpha = 1.0f;
 	m_meshParticleRender->AddMeshData(initMeshParticleData);
 
@@ -72,6 +74,14 @@ void InGame::Input()
 	{
 		Init(false);
 	}
+
+	if (KeyBoradInputManager::Instance()->MouseInputState(MOUSE_INPUT_LEFT))
+	{
+		m_meshParticleRender->InitCompute();
+	}
+	m_particleRender.counterWrapper->CopyBuffer(m_meshParticleRender->copyBuffer.GetBuffer());
+	m_meshParticleRender->Compute();
+
 	m_player.Input();
 
 
@@ -441,8 +451,7 @@ void InGame::Update()
 
 	m_gameFlame += m_gameSpeed;
 
-	m_particleRender.counterWrapper->CopyBuffer(m_meshParticleRender->copyBuffer.GetBuffer());
-	m_meshParticleRender->Compute();
+
 }
 
 void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
@@ -474,17 +483,25 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	}
 	PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
 
-	m_cursor.Draw(arg_rasterize);
+	if (!m_debugFlag)
+	{
+		m_cursor.Draw(arg_rasterize);
+	}
 
 #ifdef _DEBUG
 	if (m_debugFlag)
 	{
-		m_rail.DebugDraw(arg_rasterize);
+		//m_rail.DebugDraw(arg_rasterize);
 	}
 #endif
 
 	arg_rasterize.ObjectRender(m_executeIndirect);
 
+	DrawFunc::DrawModel(m_modelRender, KazMath::Transform3D(KazMath::Vec3<float>(), KazMath::Vec3<float>(6.0f, 6.0f, 6.0f), KazMath::Vec3<float>()));
+	if (!KeyBoradInputManager::Instance()->InputState(DIK_SPACE))
+	{
+		arg_rasterize.ObjectRender(m_modelRender);
+	}
 	//m_stageArray[m_gameStageLevel]->Draw(arg_rasterize);
 
 	ImGui::Begin("Game");

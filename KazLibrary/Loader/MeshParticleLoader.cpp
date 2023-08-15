@@ -33,7 +33,7 @@ const InitMeshParticleData &MeshParticleLoader::LoadMesh(const std::string& FIRL
 
 	//V‚µ‚¢ƒ‚ƒfƒ‹î•ñ‚Ì—pˆÓ
 	handleNameArray.emplace_back(MODEL_NAME);
-	meshBuffer.emplace_back(CreateMeshBuffer(lModelHandle.verticesArray, lModelHandle.uvArray));
+	meshBuffer.emplace_back(CreateMeshBuffer(lModelHandle.verticesArray, lModelHandle.uvArray, lModelHandle.indexArray));
 
 	InitMeshParticleData lMeshData;
 	if (meshBuffer[lNowHandle].IsDataIn(CreateMeshBuffer::DATA_VERT))
