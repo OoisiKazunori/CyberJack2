@@ -90,7 +90,6 @@ private:
 		CALM, NORMAL, STORMY
 	};
 	int m_seaID;
-	bool m_isSeaEffect;
 
 	//デバッグ用のOnOff切り替えライン
 	DrawFuncData::DrawCallData m_debugOnOffLineRender;

@@ -14,6 +14,7 @@
 #include"../Scene/GameScene.h"
 #include"../Scene/GameClearScene.h"
 #include"../Scene/GameOverScene.h"
+#include"../Game/Effect/SeaEffect.h"
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
@@ -110,7 +111,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_isDebugSea = false;
 	m_isPause = false;
 	m_isMoveOnly1F = false;
-	m_isSeaEffect = false;
+	SeaEffect::Instance()->m_isSeaEffect = false;
 	m_seaID = SEA_ID::CALM;
 
 	m_debugTimeZone = 0;
@@ -155,6 +156,7 @@ void SceneManager::Update()
 		initGameFlag = false;
 	}
 
+	SeaEffect::Instance()->m_isSeaEffect = false;
 
 	const int RESTART_NUM = -2;
 
@@ -379,57 +381,55 @@ void SceneManager::Draw()
 
 		ImGui::Begin("Sea");
 
-		const float CALM_SEA_AMP = 0.02f;
-		const float CALM_SEA_FREQ = 0.16f;
-
-		const float NORMAL_SEA_AMP = 0.6f;
-		const float NORMAL_SEA_FREQ = 0.16f;
-
-		const float STORMY_SEA_AMP = 2.8f;
-		const float STORMY_SEA_FREQ = 0.16f;
-
-		const float EFFECT_FREQ = 0.1f;
-
-		const float SEA_SPEED = 5.8f;
-
 		ImGui::RadioButton("Calm", &m_seaID, 0);
 		ImGui::SameLine();
 		ImGui::RadioButton("Normal", &m_seaID, 1);
 		ImGui::SameLine();
 		ImGui::RadioButton("Stormy", &m_seaID, 2);
 
-		ImGui::Checkbox("IsEffect", &m_isSeaEffect);
-
-		//静かな海だったら
-		float baseAmp = 0.0f;
-		float baseFreq = 0.0f;
-		float baseSeaSpeed = SEA_SPEED;
-		if (m_seaID == SEA_ID::CALM) {
-			baseAmp = CALM_SEA_AMP;
-			baseFreq = CALM_SEA_FREQ;
-		}
-		else if (m_seaID == SEA_ID::NORMAL) {
-			baseAmp = NORMAL_SEA_AMP;
-			baseFreq = NORMAL_SEA_FREQ;
-		}
-		else if (m_seaID == SEA_ID::STORMY) {
-			baseAmp = STORMY_SEA_AMP;
-			baseFreq = STORMY_SEA_FREQ;
-		}
-		if (m_isSeaEffect) {
-			baseAmp += 2.0f;
-			baseFreq += EFFECT_FREQ;
-			baseSeaSpeed += 30.0f;
-		}
-		m_debugSeaParam.m_amp += (baseAmp - m_debugSeaParam.m_amp) / 3.0f;
-		m_debugSeaParam.m_freq += (baseFreq - m_debugSeaParam.m_freq) / 3.0f;
-		m_debugSeaParam.m_seaSpeed += (baseSeaSpeed - m_debugSeaParam.m_seaSpeed) / 10.0f;
-
 		ImGui::End();
 
-		m_debugSeaParamData.bufferWrapper->TransData(&m_debugSeaParam, sizeof(DebugSeaParam));
-
 	}
+
+	const float CALM_SEA_AMP = 0.02f;
+	const float CALM_SEA_FREQ = 0.16f;
+
+	const float NORMAL_SEA_AMP = 0.6f;
+	const float NORMAL_SEA_FREQ = 0.16f;
+
+	const float STORMY_SEA_AMP = 2.8f;
+	const float STORMY_SEA_FREQ = 0.16f;
+
+	const float EFFECT_FREQ = 0.1f;
+
+	const float SEA_SPEED = 5.8f;
+
+	//静かな海だったら
+	float baseAmp = 0.0f;
+	float baseFreq = 0.0f;
+	float baseSeaSpeed = SEA_SPEED;
+	if (m_seaID == SEA_ID::CALM) {
+		baseAmp = CALM_SEA_AMP;
+		baseFreq = CALM_SEA_FREQ;
+	}
+	else if (m_seaID == SEA_ID::NORMAL) {
+		baseAmp = NORMAL_SEA_AMP;
+		baseFreq = NORMAL_SEA_FREQ;
+	}
+	else if (m_seaID == SEA_ID::STORMY) {
+		baseAmp = STORMY_SEA_AMP;
+		baseFreq = STORMY_SEA_FREQ;
+	}
+	if (SeaEffect::Instance()->m_isSeaEffect) {
+		baseAmp += 2.0f;
+		baseFreq += EFFECT_FREQ;
+		baseSeaSpeed += 30.0f;
+	}
+	m_debugSeaParam.m_amp += (baseAmp - m_debugSeaParam.m_amp) / 3.0f;
+	m_debugSeaParam.m_freq += (baseFreq - m_debugSeaParam.m_freq) / 3.0f;
+	m_debugSeaParam.m_seaSpeed += (baseSeaSpeed - m_debugSeaParam.m_seaSpeed) / 10.0f;
+
+	m_debugSeaParamData.bufferWrapper->TransData(&m_debugSeaParam, sizeof(DebugSeaParam));
 
 
 	////ディレクションライト

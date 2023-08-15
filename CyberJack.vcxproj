@@ -336,6 +336,7 @@
     <ClInclude Include="Game\Effect\PortalIntermediateDirection.h" />
     <ClInclude Include="Game\Effect\RocketEffect.h" />
     <ClInclude Include="Game\Effect\RocketLightEffect.h" />
+    <ClInclude Include="Game\Effect\SeaEffect.h" />
     <ClInclude Include="Game\Effect\SearchLight.h" />
     <ClInclude Include="Game\Effect\SparkEmitter.h" />
     <ClInclude Include="Game\Effect\SparkParticle.h" />

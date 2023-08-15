@@ -415,6 +415,7 @@
     <ClInclude Include="KazLibrary\PostEffect\GaussianBlur.h" />
     <ClInclude Include="KazLibrary\PostEffect\LensFlare.h" />
     <ClInclude Include="KazLibrary\PostEffect\Bloom.h" />
+    <ClInclude Include="Game\Effect\SeaEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

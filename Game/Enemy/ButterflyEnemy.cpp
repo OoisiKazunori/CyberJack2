@@ -1,6 +1,7 @@
 #include "ButterflyEnemy.h"
 #include "../KazLibrary/Easing/easing.h"
 #include"../KazLibrary/Render/DrawFunc.h"
+#include"../Effect/SeaEffect.h"
 
 ButterflyEnemy::ButterflyEnemy()
 {
@@ -96,6 +97,13 @@ void ButterflyEnemy::Update()
 	}
 
 
+	if (iEnemy_EnemyStatusData->oprationObjData->rockOnNum <= 0 && !m_isDead) {
+
+
+		SeaEffect::Instance()->m_isSeaEffect = true;
+
+	}
+
 	if (!iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag && !m_isDead) {
 		m_status = DEAD;
 		//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。
@@ -165,7 +173,7 @@ void ButterflyEnemy::Update()
 		//位置に関する処理
 		m_aroundAngle -= m_addAroundAngle;
 		m_addAroundAngle += (STAY_AROUND_ANGLE - m_addAroundAngle) / 10.0f;
-		if (m_aroundAngle < STAY_FINISH_ANGLE) {
+		if (m_aroundAngle < STAY_FINISH_ANGLE * 3.0f) {
 			m_status = DEAD;
 			//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。
 			m_deadEffectVel = m_playerTransform->pos - m_prevPlayerPos;
