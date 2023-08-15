@@ -198,6 +198,7 @@
     <ClCompile Include="KazLibrary\PostEffect\GaussianBlur.cpp" />
     <ClCompile Include="KazLibrary\PostEffect\LensFlare.cpp" />
     <ClCompile Include="KazLibrary\PostEffect\Bloom.cpp" />
+    <ClCompile Include="Game\Effect\PlayerShotEffectMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -417,6 +418,7 @@
     <ClInclude Include="KazLibrary\PostEffect\Bloom.h" />
     <ClInclude Include="Game\Effect\SeaEffect.h" />
     <ClInclude Include="Game\Effect\ShakeMgr.h" />
+    <ClInclude Include="Game\Effect\PlayerShotEffectMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
