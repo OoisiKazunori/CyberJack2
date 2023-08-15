@@ -111,7 +111,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_isPause = false;
 	m_isMoveOnly1F = false;
 	m_isSeaEffect = false;
-	m_seaID = SEA_ID::NORMAL;
+	m_seaID = SEA_ID::CALM;
 
 	m_debugTimeZone = 0;
 
@@ -388,7 +388,9 @@ void SceneManager::Draw()
 		const float STORMY_SEA_AMP = 2.8f;
 		const float STORMY_SEA_FREQ = 0.16f;
 
-		const float EFFECT_FREQ = 0.3f;
+		const float EFFECT_FREQ = 0.1f;
+
+		const float SEA_SPEED = 5.8f;
 
 		ImGui::RadioButton("Calm", &m_seaID, 0);
 		ImGui::SameLine();
@@ -401,6 +403,7 @@ void SceneManager::Draw()
 		//静かな海だったら
 		float baseAmp = 0.0f;
 		float baseFreq = 0.0f;
+		float baseSeaSpeed = SEA_SPEED;
 		if (m_seaID == SEA_ID::CALM) {
 			baseAmp = CALM_SEA_AMP;
 			baseFreq = CALM_SEA_FREQ;
@@ -416,9 +419,11 @@ void SceneManager::Draw()
 		if (m_isSeaEffect) {
 			baseAmp += 2.0f;
 			baseFreq += EFFECT_FREQ;
+			baseSeaSpeed += 30.0f;
 		}
-		m_debugSeaParam.m_amp += (baseAmp - m_debugSeaParam.m_amp) / 5.0f;
-		m_debugSeaParam.m_freq += (baseFreq - m_debugSeaParam.m_freq) / 5.0f;
+		m_debugSeaParam.m_amp += (baseAmp - m_debugSeaParam.m_amp) / 3.0f;
+		m_debugSeaParam.m_freq += (baseFreq - m_debugSeaParam.m_freq) / 3.0f;
+		m_debugSeaParam.m_seaSpeed += (baseSeaSpeed - m_debugSeaParam.m_seaSpeed) / 10.0f;
 
 		ImGui::End();
 
