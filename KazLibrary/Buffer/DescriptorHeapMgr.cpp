@@ -44,7 +44,7 @@ DescriptorHeapMgr::~DescriptorHeapMgr()
 {
 }
 
-void DescriptorHeapMgr::CreateBufferView(RESOURCE_HANDLE HANDLE, const D3D12_CONSTANT_BUFFER_VIEW_DESC &BUFFER_VIEW)
+void DescriptorHeapMgr::CreateBufferView(RESOURCE_HANDLE HANDLE, const D3D12_CONSTANT_BUFFER_VIEW_DESC& BUFFER_VIEW)
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE heapHandle;
 	if (isSafeToUseThisHandle(HANDLE))
@@ -60,7 +60,7 @@ void DescriptorHeapMgr::CreateBufferView(RESOURCE_HANDLE HANDLE, const D3D12_CON
 	}
 }
 
-void DescriptorHeapMgr::CreateBufferView(RESOURCE_HANDLE HANDLE, const D3D12_SHADER_RESOURCE_VIEW_DESC &BUFFER_VIEW, ID3D12Resource *RESOURCE)
+void DescriptorHeapMgr::CreateBufferView(RESOURCE_HANDLE HANDLE, const D3D12_SHADER_RESOURCE_VIEW_DESC& BUFFER_VIEW, ID3D12Resource* RESOURCE)
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE heapHandle;
 	if (isSafeToUseThisHandle(HANDLE))
@@ -76,7 +76,7 @@ void DescriptorHeapMgr::CreateBufferView(RESOURCE_HANDLE HANDLE, const D3D12_SHA
 	}
 }
 
-void DescriptorHeapMgr::CreateBufferView(RESOURCE_HANDLE HANDLE, const D3D12_UNORDERED_ACCESS_VIEW_DESC &BUFFER_VIEW, ID3D12Resource *ADDRESS, ID3D12Resource *COUNTER_RESOURCE)
+void DescriptorHeapMgr::CreateBufferView(RESOURCE_HANDLE HANDLE, const D3D12_UNORDERED_ACCESS_VIEW_DESC& BUFFER_VIEW, ID3D12Resource* ADDRESS, ID3D12Resource* COUNTER_RESOURCE)
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE heapHandle;
 	if (isSafeToUseThisHandle(HANDLE))
@@ -100,10 +100,10 @@ void DescriptorHeapMgr::Release(RESOURCE_HANDLE HANDLE)
 	}
 }
 
-void DescriptorHeapMgr::CreateAccelerationStructure(RESOURCE_HANDLE HANDLE, const D3D12_SHADER_RESOURCE_VIEW_DESC& BUFFER_VIEW)
+void DescriptorHeapMgr::CreateAccelerationStructure(RESOURCE_HANDLE HANDLE, const D3D12_SHADER_RESOURCE_VIEW_DESC& BUFFER_VIEW, bool regeneration)
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE heapHandle;
-	if (isSafeToUseThisHandle(HANDLE))
+	if (isSafeToUseThisHandle(HANDLE) || regeneration)
 	{
 		heapHandle = heaps->GetCPUDescriptorHandleForHeapStart();
 		heapHandle.ptr += shaderResourceHeapIncreSize * static_cast<UINT64>(HANDLE);
@@ -139,7 +139,7 @@ const D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapMgr::GetCpuDescriptorView(RESOUR
 	if (isSafeToReadThisHandle(HANDLE))
 	{
 		cpuDescHandle = heaps->GetCPUDescriptorHandleForHeapStart();
-		cpuDescHandle.ptr += shaderResourceHeapIncreSize *HANDLE;
+		cpuDescHandle.ptr += shaderResourceHeapIncreSize * HANDLE;
 		return cpuDescHandle;
 	}
 	else
@@ -150,7 +150,7 @@ const D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapMgr::GetCpuDescriptorView(RESOUR
 	}
 }
 
-BufferMemorySize DescriptorHeapMgr::GetSize(const BufferMemory &TYPE)const
+BufferMemorySize DescriptorHeapMgr::GetSize(const BufferMemory& TYPE)const
 {
 	if (TYPE != DESCRIPTORHEAP_MEMORY_MAX)
 	{
@@ -164,7 +164,7 @@ BufferMemorySize DescriptorHeapMgr::GetSize(const BufferMemory &TYPE)const
 
 void DescriptorHeapMgr::SetDescriptorHeap()
 {
-	ID3D12DescriptorHeap *ppHeap[] = { heaps.Get() };
+	ID3D12DescriptorHeap* ppHeap[] = { heaps.Get() };
 	DirectX12CmdList::Instance()->cmdList->SetDescriptorHeaps(_countof(ppHeap), ppHeap);
 }
 

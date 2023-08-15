@@ -136,7 +136,7 @@ namespace Raytracing {
 			srvDesc.RaytracingAccelerationStructure.Location = m_tlasBuffer->GetGPUVirtualAddress();
 
 			//すでにバッファを生成してある位置に上書きする形で生成。
-			DescriptorHeapMgr::Instance()->CreateAccelerationStructure(m_descHeapIndex, srvDesc);
+			DescriptorHeapMgr::Instance()->CreateAccelerationStructure(m_descHeapIndex, srvDesc, true);
 
 		}
 
