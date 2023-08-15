@@ -1,6 +1,7 @@
 #include "VirusEnemy.h"
 #include "../KazLibrary/Easing/easing.h"
 #include"../KazLibrary/Render/DrawFunc.h"
+#include"../Game/Effect/ShakeMgr.h"
 
 VirusEnemy::VirusEnemy()
 {
@@ -75,6 +76,7 @@ void VirusEnemy::Update()
 		m_isDead = true;
 		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 
+		ShakeMgr::Instance()->m_shakeAmount = 1.0f;
 		
 	}
 

@@ -2,6 +2,7 @@
 #include "../KazLibrary/Easing/easing.h"
 #include"../KazLibrary/Render/DrawFunc.h"
 #include"../Effect/SeaEffect.h"
+#include"../Game/Effect/ShakeMgr.h"
 
 ButterflyEnemy::ButterflyEnemy()
 {
@@ -112,6 +113,7 @@ void ButterflyEnemy::Update()
 		m_deadEffectVelStorage *= 0.05f;
 		m_isDead = true;
 		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
+		ShakeMgr::Instance()->m_shakeAmount = 1.0f;
 	}
 
 	//Šp“x‚ª•Ï‚í‚é‘O‚É•Û‘¶B

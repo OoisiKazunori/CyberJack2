@@ -338,6 +338,7 @@
     <ClInclude Include="Game\Effect\RocketLightEffect.h" />
     <ClInclude Include="Game\Effect\SeaEffect.h" />
     <ClInclude Include="Game\Effect\SearchLight.h" />
+    <ClInclude Include="Game\Effect\ShakeMgr.h" />
     <ClInclude Include="Game\Effect\SparkEmitter.h" />
     <ClInclude Include="Game\Effect\SparkParticle.h" />
     <ClInclude Include="Game\Effect\SplineParticle.h" />

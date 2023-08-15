@@ -1,6 +1,7 @@
 #include "LotusLeafEnemy.h"
 #include "../KazLibrary/Easing/easing.h"
 #include"../KazLibrary/Render/DrawFunc.h"
+#include"../Game/Effect/ShakeMgr.h"
 
 LotusLeafEnemy::LotusLeafEnemy()
 {
@@ -85,6 +86,7 @@ void LotusLeafEnemy::Update()
 		m_deadEffectVelStorage = m_playerTransform->pos - m_prevPlayerPos;
 		m_deadEffectVelStorage *= 1.0f;
 		m_isDead = true;
+		ShakeMgr::Instance()->m_shakeAmount = 1.0f;
 		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 	}
 

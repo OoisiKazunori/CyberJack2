@@ -16,6 +16,7 @@
 #include"../Scene/GameOverScene.h"
 #include"../Game/Effect/SeaEffect.h"
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
+#include"../Game/Effect/ShakeMgr.h"
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
@@ -142,6 +143,9 @@ void SceneManager::Update()
 		m_blasVector.Update();
 		return;
 	}
+
+	//シェイク量を更新。
+	ShakeMgr::Instance()->Update();
 
 	//シーン遷移の開始
 	if (nextScene != nowScene)
