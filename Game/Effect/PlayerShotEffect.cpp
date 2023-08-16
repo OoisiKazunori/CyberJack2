@@ -42,6 +42,9 @@ void PlayerShotEffect::Generate(const KazMath::Vec3<float>* arg_refPlayerPos, sh
 void PlayerShotEffect::Update()
 {
 
+	//現在のフレームのタイマーを更新。
+	++m_frame;
+
 	//始点と終点の値を決める。
 	std::array<KazMath::Vec3<float>, 4> controlPoints;
 	controlPoints.front() = *m_refPlayerPos;
@@ -61,8 +64,15 @@ void PlayerShotEffect::Update()
 
 	}
 
+	//現在の時間を01で求める。
+	float nowTime = static_cast<float>(m_frame) / static_cast<float>(EFFECT_FRAME);
+	//現在の時間以下のIndexの頂点をなくす。
+	int vertexDeadline = std::clamp(static_cast<int>(nowTime * POINT_COUNT), 0, POINT_COUNT - 1);
+	for (int index = 0; index < vertexDeadline; ++index) {
+		m_splineRailPosArray[index] = m_splineRailPosArray[vertexDeadline];
+	}
+
 	//一定フレーム経過したら処理を終わらせる。
-	++m_frame;
 	if (EFFECT_FRAME <= m_frame) {
 		m_refEnemy->Dead();
 		m_isActive = false;
