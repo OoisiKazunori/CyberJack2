@@ -182,6 +182,7 @@ public:
 	float yVel;
 	bool m_isDead;
 	bool m_isBeingShot;		//’e‚ªŒ‚‚½‚ê‚Ä‚¢‚é‚©
+	KazMath::Transform3D m_transform;
 
 
 protected:

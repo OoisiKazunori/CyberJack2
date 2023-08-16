@@ -17,7 +17,6 @@ private:
 
 	DrawFuncData::DrawCallData m_model;
 	KazMath::Vec3<float> m_prevPlayerPos;
-	KazMath::Transform3D m_transform;
 
 	//ステータス
 	enum STATUS {

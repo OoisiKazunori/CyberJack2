@@ -2,6 +2,7 @@
 #include"../KazLibrary/Buffer/UavViewHandleMgr.h"
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
 #include"../KazLibrary/Input/ControllerInputManager.h"
+#include"Effect/PlayerShotEffectMgr.h"
 
 InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX>& arg_responeData, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>& arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX>& BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX>& CAMERA_ARRAY) :
 	m_stageArray(arg_stageArray), m_responeData(arg_responeData), m_sceneNum(-1)
@@ -338,9 +339,15 @@ void InGame::Update()
 				}
 				//リリース時死亡
 				if (m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->rockOnNum <= 0 &&
-					m_cursor.Release())
+					m_cursor.Release() && 
+					!m_enemies[enemyType][enemyCount]->m_isBeingShot)
 				{
-					m_enemies[enemyType][enemyCount]->Dead();
+
+					//プレイヤーの攻撃エフェクトを出す。(敵の参照を渡しているので、エフェクトが終わったらそっち側でDead()を呼ぶ。)
+					PlayerShotEffectMgr::Instance()->Generate(&m_player.pos, m_enemies[enemyType][enemyCount]);
+					m_enemies[enemyType][enemyCount]->m_isBeingShot = true;
+
+					//m_enemies[enemyType][enemyCount]->Dead();
 					//メッシュパーティクル発行命令
 					//m_meshParticleRender->AddMeshData(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData[0]->meshParticleData);
 				}
@@ -409,6 +416,9 @@ void InGame::Update()
 		m_gameSpeed = 1;
 	}
 
+	//プレイヤーの攻撃エフェクトの更新処理
+	PlayerShotEffectMgr::Instance()->Update();
+
 	m_gameFlame += m_gameSpeed;
 
 	//m_meshParticleRender->Compute();
@@ -417,6 +427,9 @@ void InGame::Update()
 void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
 	m_player.Draw(arg_rasterize, arg_blasVec);
+
+	//プレイヤーの攻撃エフェクトの描画処理
+	PlayerShotEffectMgr::Instance()->Draw(arg_rasterize, arg_blasVec);
 
 	PIXBeginEvent(DirectX12CmdList::Instance()->cmdList.Get(), 0, "Enemy");
 	//敵の描画処理----------------------------------------------------------------

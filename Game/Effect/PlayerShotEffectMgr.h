@@ -6,7 +6,7 @@
 #include <Math/KazMath.h>
 #include "../Interface/IEnemy.h"
 
-class PlayerShotEffectMgr : ISingleton<PlayerShotEffectMgr> {
+class PlayerShotEffectMgr : public ISingleton<PlayerShotEffectMgr> {
 
 private:
 
@@ -15,8 +15,9 @@ private:
 
 public:
 
+	PlayerShotEffectMgr();
 	void Init();
-	void Generate(const KazMath::Vec3<float>* arg_refPlayerPoint, const KazMath::Vec3<float>* arg_refEnemyPoint, shared_ptr<IEnemy> arg_refEnemy);
+	void Generate(const KazMath::Vec3<float>* arg_refPlayerPoint, shared_ptr<IEnemy> arg_refEnemy);
 	void Update();
 	void Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec);
 

@@ -134,6 +134,7 @@
     <ClCompile Include="Game\Effect\MisileSmokeParticle.cpp" />
     <ClCompile Include="Game\Effect\PlayerDamageEmitter.cpp" />
     <ClCompile Include="Game\Effect\PlayerDamegePartice.cpp" />
+    <ClCompile Include="Game\Effect\PlayerShotEffect.cpp" />
     <ClCompile Include="Game\Effect\PlayerShotEffectMgr.cpp" />
     <ClCompile Include="Game\Effect\PortalIntermediateDirection.cpp" />
     <ClCompile Include="Game\Effect\RocketEffect.cpp" />
@@ -334,6 +335,7 @@
     <ClInclude Include="Game\Effect\MisileSmokeParticle.h" />
     <ClInclude Include="Game\Effect\PlayerDamageEmitter.h" />
     <ClInclude Include="Game\Effect\PlayerDamegePartice.h" />
+    <ClInclude Include="Game\Effect\PlayerShotEffect.h" />
     <ClInclude Include="Game\Effect\PlayerShotEffectMgr.h" />
     <ClInclude Include="Game\Effect\PortalIntermediateDirection.h" />
     <ClInclude Include="Game\Effect\RocketEffect.h" />
