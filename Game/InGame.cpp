@@ -153,7 +153,9 @@ void InGame::Update()
 					//カーソルのカウント数を増やす
 					m_cursor.Hit(enemyData->hitBox.center);
 					//敵が当たった情報を書く
-					m_enemies[enemyType][enemyCount]->Hit();
+					//m_enemies[enemyType][enemyCount]->Hit();
+					//攻撃のエフェクトを生成。エフェクトが終わったらこっち側でHitを呼ぶ、。
+					PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount]);
 
 					//stringLog.WriteLog(enemies[enemyType][enemyCount]->GetData()->oprationObjData->name, LOG_FONT_SIZE);
 
@@ -344,7 +346,7 @@ void InGame::Update()
 				{
 
 					//プレイヤーの攻撃エフェクトを出す。(敵の参照を渡しているので、エフェクトが終わったらそっち側でDead()を呼ぶ。)
-					PlayerShotEffectMgr::Instance()->Generate(&m_player.pos, m_enemies[enemyType][enemyCount]);
+					PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount]);
 					m_enemies[enemyType][enemyCount]->m_isBeingShot = true;
 
 					//m_enemies[enemyType][enemyCount]->Dead();
@@ -417,7 +419,7 @@ void InGame::Update()
 	}
 
 	//プレイヤーの攻撃エフェクトの更新処理
-	PlayerShotEffectMgr::Instance()->Update();
+	PlayerShotEffectMgr::Instance()->Update(&m_player.pos);
 
 	m_gameFlame += m_gameSpeed;
 

@@ -74,7 +74,18 @@ void PlayerShotEffect::Update()
 
 	//一定フレーム経過したら処理を終わらせる。
 	if (EFFECT_FRAME <= m_frame) {
-		m_refEnemy->Dead();
+
+		if (0 < m_refEnemy->iOperationData.rockOnNum) {
+
+			m_refEnemy->Hit();
+
+		}
+		else {
+
+			m_refEnemy->Dead();
+
+		}
+
 		m_isActive = false;
 	}
 

@@ -11,25 +11,37 @@ void PlayerShotEffectMgr::Init()
 		index.Init();
 
 	}
+	m_effectDelay = 0;
 }
 
-void PlayerShotEffectMgr::Generate(const KazMath::Vec3<float>* arg_refPlayerPoint, shared_ptr<IEnemy> arg_refEnemy)
+void PlayerShotEffectMgr::Generate(shared_ptr<IEnemy> arg_refEnemy)
 {
 
-	for (auto& index : m_effects) {
+	m_enemyStack.emplace_back(arg_refEnemy);
 
-		if (index.m_isActive) continue;
+}
 
-		index.Generate(arg_refPlayerPoint, arg_refEnemy);
+void PlayerShotEffectMgr::Update(const KazMath::Vec3<float>* arg_refPlayerPoint)
+{
 
-		break;
+	++m_effectDelay;
+	if (EFFECT_DELAY <= m_effectDelay && 0 < static_cast<int>(m_enemyStack.size())) {
+
+		for (auto& index : m_effects) {
+
+			if (index.m_isActive) continue;
+
+			index.Generate(arg_refPlayerPoint, m_enemyStack.back());
+			m_enemyStack.pop_back();
+
+			break;
+
+		}
+
+		m_effectDelay = 0;
 
 	}
 
-}
-
-void PlayerShotEffectMgr::Update()
-{
 	for (auto& index : m_effects) {
 
 		if (!index.m_isActive) continue;

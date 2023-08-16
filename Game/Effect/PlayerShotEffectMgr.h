@@ -12,13 +12,17 @@ private:
 
 	static const int EFFECT_NUM = 20;
 	std::array<PlayerShotEffect, EFFECT_NUM> m_effects;
+	std::vector<std::shared_ptr<IEnemy>> m_enemyStack;
+
+	int m_effectDelay;
+	const int EFFECT_DELAY = 4;
 
 public:
 
 	PlayerShotEffectMgr();
 	void Init();
-	void Generate(const KazMath::Vec3<float>* arg_refPlayerPoint, shared_ptr<IEnemy> arg_refEnemy);
-	void Update();
+	void Generate(shared_ptr<IEnemy> arg_refEnemy);
+	void Update(const KazMath::Vec3<float>* arg_refPlayerPoint);
 	void Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec);
 
 };

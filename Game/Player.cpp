@@ -250,9 +250,9 @@ void Player::Update()
 
 	DrawFunc::DrawModelInRaytracing(m_playerModel, m_transform, DrawFunc::NONE);
 
-	m_emissive.x = 1;
-	m_emissive.y = 1;
-	m_emissive.z = 1;
+	m_emissive.x = 0.0f;
+	m_emissive.y = 0.0f;
+	m_emissive.z = 0.0f;
 	m_emissive.a = 1;
 	m_playerModel.extraBufferArray.back().bufferWrapper->TransData(&m_emissive, sizeof(DirectX::XMFLOAT4));
 
