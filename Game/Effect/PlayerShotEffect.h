@@ -12,12 +12,12 @@ private:
 
 	const KazMath::Vec3<float>* m_refPlayerPos;
 	KazMath::Vec3<float> m_controlPointVec;
-	const float CONTROL_POINT_R = 10.0f;
+	const float CONTROL_POINT_R = 3.0f;
 	static const int POINT_COUNT = 10;
 	std::array<KazMath::Vec3<float>, POINT_COUNT> m_points;
 	shared_ptr<IEnemy> m_refEnemy;
 	int m_frame;
-	const int EFFECT_FRAME = 2;
+	const int EFFECT_FRAME = 5;
 
 	//線の描画に必要な変数ら
 	int m_vertexBufferHandle;//デバック用のスプライン曲線描画の頂点バッファ
@@ -40,5 +40,9 @@ public:
 	void Update();
 	
 	void Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec);
+
+private:
+
+	KazMath::Vec3<float> EvaluateBezierCurve(const std::array<KazMath::Vec3<float>, 4>& arg_controlPoints, float arg_t);
 
 };
