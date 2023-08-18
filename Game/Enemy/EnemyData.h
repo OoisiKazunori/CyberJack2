@@ -94,11 +94,13 @@ struct EnemyGenerateData
 
 struct ResponeData
 {
-	ResponeData() :layerLevel(-1), flame(-1)
+	ResponeData() :layerLevel(-1), flame(-1), moveID(0), moveIDparam(0)
 	{
 	}
 	int layerLevel;		//どのレイヤーレベルで現れるか
-	int flame;		//敵が現れるフレーム数
+	int flame;			//敵が現れるフレーム数
+	int moveID;			//敵ごとに設定されている、どういった動きをするかのID
+	float moveIDparam;	//敵ごとに設定されている動きのIDに必要なデータ。物によって用途は違うが、リスポーン時の位置などを指定したりする。
 	EnemyGenerateData generateData;
 };
 

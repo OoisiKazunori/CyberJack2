@@ -190,9 +190,12 @@ protected:
 	bool demoFlag;
 	bool debugShotFlag;
 	const KazMath::Transform3D* m_playerTransform;
+	int moveID;
+	float moveIDparam;
 private:
 	int deadSoundHandle;
 	int shotSoundHandle;
+
 
 	DirtyFlag<short>hpDirtyFlag;
 	bool hitFlag;
