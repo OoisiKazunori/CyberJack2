@@ -4,8 +4,8 @@
 
 int InstanceMeshParticle::MESH_PARTICLE_GENERATE_NUM = 0;
 
-InstanceMeshParticle::InstanceMeshParticle(const KazBufferHelper::BufferData& arg_outputMat, const KazBufferHelper::BufferData& arg_colorBuffer) :
-	setCountNum(0), m_outputMatrixBuffer(arg_outputMat), m_outputColorBuffer(arg_colorBuffer), isInitFlag(false)
+InstanceMeshParticle::InstanceMeshParticle(const KazBufferHelper::BufferData& arg_outputMat) :
+	setCountNum(0), m_outputMatrixBuffer(arg_outputMat), isInitFlag(false)
 {
 	//メッシュパーティクルの初期化処理の出力情報
 	meshParticleBufferData = KazBufferHelper::SetGPUBufferData(sizeof(InitOutputData) * PARTICLE_MAX_NUM);
@@ -40,8 +40,6 @@ InstanceMeshParticle::InstanceMeshParticle(const KazBufferHelper::BufferData& ar
 
 	//ワールド行列
 	m_outputMatrixBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA5;
-	//色
-	m_outputColorBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA4;
 	//Transformを除いたワールド行列
 
 	float lScale = 1.0f;
@@ -55,8 +53,9 @@ InstanceMeshParticle::InstanceMeshParticle(const KazBufferHelper::BufferData& ar
 	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
 	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA4));
 	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA5));
-	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA));
 	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA6));
+	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA7));
+	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA));
 	computeUpdateMeshParticle.Generate(ShaderOptionData("Resource/ShaderFiles/ComputeShader/UpdateMeshParticle.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), rootsignature);
 
 	cameraMatBuffer = KazBufferHelper::SetConstBufferData(sizeof(CameraMatData));
@@ -68,11 +67,13 @@ void InstanceMeshParticle::Init()
 		KazBufferHelper::BufferResourceData(
 			CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
-			CD3DX12_RESOURCE_DESC::Buffer(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(motherMatArray.size(), sizeof(DirectX::XMMATRIX))),
+			CD3DX12_RESOURCE_DESC::Buffer(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(motherMatArray.size(), sizeof(MotherMatData))),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			"RAMmatData")
 	);
+
+	curlNoizeUploadBuffer = KazBufferHelper::SetUploadBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(motherMatArray.size(), sizeof(UINT)));
 
 	colorBuffer.CreateBuffer(
 		KazBufferHelper::BufferResourceData(
@@ -86,11 +87,11 @@ void InstanceMeshParticle::Init()
 
 	{
 		//親行列
-		particleMotherMatrixHandle = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(motherMatArray.size(), sizeof(DirectX::XMMATRIX)), "VRAMmatData");
+		particleMotherMatrixHandle = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(motherMatArray.size(), sizeof(MotherMatData)), "VRAMmatData");
 		particleMotherMatrixHandle.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 		particleMotherMatrixHandle.rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 		particleMotherMatrixHandle.elementNum = static_cast<UINT>(motherMatArray.size());
-		particleMotherMatrixHandle.structureSize = sizeof(DirectX::XMMATRIX);
+		particleMotherMatrixHandle.structureSize = sizeof(MotherMatData);
 	}
 
 	{
@@ -102,6 +103,11 @@ void InstanceMeshParticle::Init()
 		colorMotherMatrixHandle.structureSize = sizeof(float);
 	}
 
+	curlNoizeVRAMBuffer = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(motherMatArray.size(), sizeof(UINT)));
+	curlNoizeVRAMBuffer.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	curlNoizeVRAMBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA6;
+	curlNoizeVRAMBuffer.elementNum = static_cast<UINT>(motherMatArray.size());
+	curlNoizeVRAMBuffer.structureSize = sizeof(UINT);
 
 	//ScaleRotaMat
 	{
@@ -131,6 +137,7 @@ void InstanceMeshParticle::Init()
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(m_outputMatrixBuffer);
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(cameraMatBuffer);
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(ShaderRandomTable::Instance()->GetBuffer(GRAPHICS_PRAMTYPE_DATA6));
+	computeUpdateMeshParticle.m_extraBufferArray.emplace_back();
 
 }
 
@@ -148,7 +155,7 @@ void InstanceMeshParticle::AddMeshData(const InitMeshParticleData& DATA)
 	commonBufferData.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 
-	motherMatArray.emplace_back(MotherData(DATA.motherMat, DATA.alpha));
+	motherMatArray.emplace_back(MotherData(DATA.motherMat, DATA.alpha, DATA.curlNoizeFlag));
 
 
 
@@ -227,12 +234,13 @@ void InstanceMeshParticle::AddMeshData(const InitMeshParticleData& DATA)
 
 void InstanceMeshParticle::Compute()
 {
-	std::vector<DirectX::XMMATRIX>lMatArray(motherMatArray.size());
+	std::vector<MotherMatData>lMatArray(motherMatArray.size());
 	std::vector<float>lColorArray(motherMatArray.size());
 	std::vector<DirectX::XMMATRIX>lScaleMatArray(scaleRotaMatArray.size());
+	std::vector<int>curlNoizeArray(motherMatArray.size());
 	for (int i = 0; i < lMatArray.size(); ++i)
 	{
-		lMatArray[i] = *motherMatArray[i].motherMat;
+		lMatArray[i].motherMat = *motherMatArray[i].motherMat;
 		lColorArray[i] = *motherMatArray[i].alpha;
 
 		if (scaleRotaMatArray[i].billboardFlag)
@@ -243,11 +251,14 @@ void InstanceMeshParticle::Compute()
 		{
 			lScaleMatArray[i] = scaleRotaMatArray[i].scaleRotaMata;
 		}
+		curlNoizeArray[i] = static_cast<int>(*motherMatArray[i].curlNozieFlag);
 	}
 
-	motherMatrixBuffer.TransData(lMatArray.data(), sizeof(DirectX::XMMATRIX) * static_cast<int>(lMatArray.size()));
+	motherMatrixBuffer.TransData(lMatArray.data(), sizeof(MotherMatData) * static_cast<int>(lMatArray.size()));
 	colorBuffer.TransData(lColorArray.data(), sizeof(float) * static_cast<int>(lMatArray.size()));
 	scaleRotaBuffer.TransData(lScaleMatArray.data(), sizeof(DirectX::XMMATRIX) * static_cast<int>(scaleRotaMatArray.size()));
+	curlNoizeUploadBuffer.bufferWrapper->TransData(curlNoizeArray.data(), sizeof(UINT) * static_cast<int>(scaleRotaMatArray.size()));
+
 
 	particleMotherMatrixHandle.bufferWrapper->CopyBuffer(
 		motherMatrixBuffer.GetBuffer().Get());
@@ -257,6 +268,9 @@ void InstanceMeshParticle::Compute()
 
 	scaleRotateBillboardMatHandle.bufferWrapper->CopyBuffer(
 		scaleRotaBuffer.GetBuffer().Get());
+
+	curlNoizeVRAMBuffer.bufferWrapper->CopyBuffer(
+		curlNoizeUploadBuffer.bufferWrapper->GetBuffer().Get());
 
 	CameraMatData camera;
 	camera.viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
@@ -288,6 +302,10 @@ void InstanceMeshParticle::Compute()
 	computeUpdateMeshParticle.m_extraBufferArray[5].rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 	computeUpdateMeshParticle.m_extraBufferArray[6] = ShaderRandomTable::Instance()->GetBuffer(GRAPHICS_PRAMTYPE_DATA6);
+
+	computeUpdateMeshParticle.m_extraBufferArray[7] = curlNoizeVRAMBuffer;
+	computeUpdateMeshParticle.m_extraBufferArray[7].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	computeUpdateMeshParticle.m_extraBufferArray[7].rootParamType = GRAPHICS_PRAMTYPE_DATA7;
 
 	computeUpdateMeshParticle.Compute({ 100,1,1 });
 }

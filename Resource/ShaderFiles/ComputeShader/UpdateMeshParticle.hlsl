@@ -130,15 +130,21 @@ float3 CurlNoise3D(float3 arg_st, float3 arg_pos)
 
 }
 
+struct MotherMatData
+{
+	matrix motherMat;
+};
+
 //����
 RWStructuredBuffer<ParticleData> updateParticleData : register(u0);
-RWStructuredBuffer<matrix> motherMatData : register(u1);
+RWStructuredBuffer<MotherMatData> motherMatData : register(u1);
 RWStructuredBuffer<matrix> scaleRotaMatData : register(u2);
 RWStructuredBuffer<float> alphaData : register(u3);
 //�o��
-RWStructuredBuffer<GPUParticleInput> inputGPUParticleData : register(u4);
+AppendStructuredBuffer<GPUParticleInput> inputGPUParticleData : register(u4);
 
 RWStructuredBuffer<uint> randomTable : register(u5);
+RWStructuredBuffer<uint> curlNoizeBuffer : register(u6);
 
 cbuffer Camera :register(b0)
 {
@@ -152,32 +158,31 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     uint index = groupThreadID.x;
     index += 1024 * groupId.x;
 
-    if(3563 <= index)
-    {
-        return;
-    }
-
-    updateParticleData[index].pos += CurlNoise3D(float3(randomTable[index],randomTable[index],randomTable[index]),updateParticleData[index].pos);
- 
-    updateParticleData[index].color.a = (float)updateParticleData[index].timer / (float)updateParticleData[index].maxTimer;
-    if(0 < updateParticleData[index].timer)
-    {
-        --updateParticleData[index].timer;
-    }
-    else
-    {
-        updateParticleData[index].color.a = 0;
-    }
 
     ParticleData particleData = updateParticleData[index];
+
+	if(curlNoizeBuffer[particleData.id])
+	{
+    	updateParticleData[index].pos += CurlNoise3D(float3(randomTable[index],randomTable[index],randomTable[index]),updateParticleData[index].pos);
+    	updateParticleData[index].color.a = (float)updateParticleData[index].timer / (float)updateParticleData[index].maxTimer;
+    	if(0 < updateParticleData[index].timer)
+    	{
+    	    --updateParticleData[index].timer;
+    	}
+    	else
+    	{
+    	    updateParticleData[index].color.a = 0;
+    	}
+	}
+
     matrix worldMat = mul(scaleRotaMatData[particleData.id],billboard);
     worldMat[0][3] = particleData.pos.x;
     worldMat[1][3] = particleData.pos.y;
     worldMat[2][3] = particleData.pos.z;
-    worldMat = mul(motherMatData[particleData.id],worldMat);
+    worldMat = mul(motherMatData[particleData.id].motherMat,worldMat);
 
     GPUParticleInput inputData;
-    inputData.worldMat = mul(viewProjMat,worldMat);
+    inputData.worldMat = worldMat;
     inputData.color = particleData.color;
-    inputGPUParticleData[index] = inputData;
+    inputGPUParticleData.Append(inputData);
 }

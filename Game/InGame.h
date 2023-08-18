@@ -150,11 +150,14 @@ private:
 	//デバック処理---------------------------------------
 
 	//メッシュパーティクル
-	KazBufferHelper::BufferData m_particleRender, m_particleColorRender;
+	KazBufferHelper::BufferData m_particleRender, m_particleViewProjRender, m_viewBuffer;
 	std::unique_ptr<InstanceMeshParticle> m_meshParticleRender;
-	DirectX::XMMATRIX m_motherMat;
+	std::vector<DirectX::XMMATRIX> m_motherMat;
 	float m_alpha;
 	DrawFuncData::DrawCallData m_executeIndirect;
 
 	DrawFuncData::DrawCallData m_modelRender;
+
+	ComputeShader m_computeCuring;
+	bool curlNozieFlag;
 };

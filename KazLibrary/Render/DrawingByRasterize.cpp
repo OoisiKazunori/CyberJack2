@@ -207,10 +207,10 @@ void DrawingByRasterize::Sort()
 				callData.extraBufferArray[i].rootParamType
 			);
 		}
-		result.rootsignatureHandle = rootSignatureBufferMgr.GenerateRootSignature(rootSignatureGenerateData);
+		result.m_rootsignatureHandle = rootSignatureBufferMgr.GenerateRootSignature(rootSignatureGenerateData);
 
 		//パイプラインの生成
-		result.pipelineData.pRootSignature = rootSignatureBufferMgr.GetBuffer(result.rootsignatureHandle).Get();
+		result.pipelineData.pRootSignature = rootSignatureBufferMgr.GetBuffer(result.m_rootsignatureHandle).Get();
 		result.pipelineHandle = piplineBufferMgr.GeneratePipeline(
 			result.pipelineData,
 			PipelineDuplicateBlocking::PipelineDuplicateData(
@@ -249,21 +249,34 @@ void DrawingByRasterize::Render()
 		preDepthHandle = renderData.depthHandle;
 		preRenderTargetHandle = renderData.renderTargetHandle;
 
-		//パイプラインとルートシグネチャの生成
+
 		RESOURCE_HANDLE pipelineHandle = renderData.pipelineHandle;
-		RESOURCE_HANDLE rootSignatureHandle = renderData.rootsignatureHandle;
-
-		DirectX12CmdList::Instance()->cmdList->SetGraphicsRootSignature(
-			rootSignatureBufferMgr.GetBuffer(rootSignatureHandle).Get()
-		);
-		DirectX12CmdList::Instance()->cmdList->SetPipelineState(
-			piplineBufferMgr.GetBuffer(pipelineHandle).Get()
-		);
-
-		//ルートシグネチャーの情報を元にバッファを積む
+		RESOURCE_HANDLE rootSignatureHandle = -1;
+		//通常の描画
 		if (renderData.drawCommandType != DrawFuncData::VERT_TYPE::EXECUTEINDIRECT_INDEX)
 		{
+			rootSignatureHandle = renderData.m_rootsignatureHandle;
+
+			DirectX12CmdList::Instance()->cmdList->SetGraphicsRootSignature(
+				rootSignatureBufferMgr.GetBuffer(rootSignatureHandle).Get()
+			);
+			DirectX12CmdList::Instance()->cmdList->SetPipelineState(
+				piplineBufferMgr.GetBuffer(pipelineHandle).Get()
+			);
 			SetBufferOnCmdList(renderData.buffer, rootSignatureBufferMgr.GetRootParam(rootSignatureHandle));
+		}
+		//ExcuteIndirectの使用
+		else
+		{
+			rootSignatureHandle = renderData.m_rootsignatureHandle;
+
+			DirectX12CmdList::Instance()->cmdList->SetGraphicsRootSignature(
+				rootSignatureBufferMgr.GetBuffer(rootSignatureHandle).Get()
+			);
+			DirectX12CmdList::Instance()->cmdList->SetPipelineState(
+				piplineBufferMgr.GetBuffer(pipelineHandle).Get()
+			);
+			//SetBufferOnCmdList(renderData.buffer, rootSignatureBufferMgr.GetRootParam(rootSignatureHandle));
 		}
 
 		//描画コマンド実行
@@ -306,6 +319,10 @@ void DrawingByRasterize::SetBufferOnCmdList(const std::vector<KazBufferHelper::B
 	{
 		const int L_PARAM = KazRenderHelper::SetBufferOnCmdList(ROOT_PARAM, BUFFER_ARRAY[i].rangeType, BUFFER_ARRAY[i].rootParamType);
 
+		if (L_PARAM == -1)
+		{
+			continue;
+		}
 		//デスクリプタヒープにコマンドリストに積む。余りが偶数ならデスクリプタヒープだと判断する
 		if (BUFFER_ARRAY[i].rangeType % 2 == 0)
 		{

@@ -14,6 +14,7 @@ struct InitMeshParticleData
 	KazMath::Vec3<float>particleScale;
 	bool billboardFlag;
 	const float* alpha;
+	const bool* curlNoizeFlag;
 
 	InitMeshParticleData() :textureHandle(-1), billboardFlag(false)
 	{

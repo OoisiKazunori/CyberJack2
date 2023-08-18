@@ -9,7 +9,7 @@
 class InstanceMeshParticle
 {
 public:
-	InstanceMeshParticle(const KazBufferHelper::BufferData &arg_outputMat, const KazBufferHelper::BufferData& arg_colorBuffer);
+	InstanceMeshParticle(const KazBufferHelper::BufferData &arg_outputMat);
 
 	void Init();
 	void AddMeshData(const InitMeshParticleData &DATA);
@@ -34,7 +34,6 @@ private:
 	KazBufferHelper::BufferData cameraMatBuffer;
 
 	KazBufferHelper::BufferData m_outputMatrixBuffer;
-	KazBufferHelper::BufferData m_outputColorBuffer;
 
 	bool isInitFlag;
 	ComputeShader computeInitMeshParticle;
@@ -65,6 +64,10 @@ private:
 		DirectX::XMUINT4 meshData;
 		UINT id;
 	};
+	struct MotherMatData
+	{
+		DirectX::XMMATRIX motherMat;
+	};
 
 	static const int PARTICLE_MAX_NUM = 2000000;
 	static const int VERT_BUFFER_SIZE = sizeof(DirectX::XMFLOAT3);
@@ -78,8 +81,9 @@ private:
 	{
 		const DirectX::XMMATRIX *motherMat;
 		const float *alpha;
-		MotherData(const DirectX::XMMATRIX *M_MAT, const float *ALPHA) :
-			motherMat(M_MAT), alpha(ALPHA)
+		const bool *curlNozieFlag;
+		MotherData(const DirectX::XMMATRIX *arg_motherMatPtr, const float *arg_alphaPtr,const bool *arg_curlNoizeFlagPtr) :
+			motherMat(arg_motherMatPtr), alpha(arg_alphaPtr), curlNozieFlag(arg_curlNoizeFlagPtr)
 		{
 		}
 	};
@@ -112,6 +116,8 @@ private:
 	KazBufferHelper::ID3D12ResourceWrapper motherMatrixBuffer;
 	KazBufferHelper::ID3D12ResourceWrapper colorBuffer;
 	KazBufferHelper::ID3D12ResourceWrapper scaleRotaBuffer;
+	KazBufferHelper::BufferData curlNoizeUploadBuffer;
+	KazBufferHelper::BufferData curlNoizeVRAMBuffer;
 
 	struct ScaleRotaBillData
 	{

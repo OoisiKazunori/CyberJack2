@@ -590,7 +590,7 @@ namespace DrawFuncData
 		RESOURCE_HANDLE depthHandle;
 		RESOURCE_HANDLE pipelineHandle;
 		std::vector<RESOURCE_HANDLE> shaderHandleArray;
-		RESOURCE_HANDLE rootsignatureHandle;
+		RESOURCE_HANDLE m_rootsignatureHandle;
 
 
 		//その他描画に必要なバッファ情報

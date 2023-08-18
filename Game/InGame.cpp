@@ -16,18 +16,29 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 		DirectX::XMMATRIX mat;
 		DirectX::XMFLOAT4 color;
 	};
-	m_particleRender = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * 3000000);
+
+	UINT MAXNUM = 1024 * 3000;
+	m_particleRender = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * MAXNUM);
+	m_particleViewProjRender.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	m_particleViewProjRender.rootParamType = GRAPHICS_PRAMTYPE_DATA;
 	m_particleRender.structureSize = sizeof(OutputData);
-	m_particleRender.elementNum = 3000000;
+	m_particleRender.elementNum = MAXNUM;
 	m_particleRender.GenerateCounterBuffer();
 	m_particleRender.CreateUAVView();
 
-	m_particleColorRender = KazBufferHelper::SetGPUBufferData(sizeof(DirectX::XMFLOAT4) * 3000000);
-	m_meshParticleRender = std::make_unique<InstanceMeshParticle>(m_particleRender, m_particleColorRender);
+	m_particleViewProjRender = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * MAXNUM);
+	m_particleViewProjRender.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	m_particleViewProjRender.rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+	m_particleViewProjRender.structureSize = sizeof(OutputData);
+	m_particleViewProjRender.elementNum = MAXNUM;
+	m_particleViewProjRender.GenerateCounterBuffer();
+	m_particleViewProjRender.CreateUAVView();
+
+	m_meshParticleRender = std::make_unique<InstanceMeshParticle>(m_particleRender);
 
 	m_executeIndirect = DrawFuncData::SetExecuteIndirect(
 		DrawFuncData::GetBasicShader(),
-		m_particleRender.bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
+		m_particleViewProjRender.bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
 		3000000
 	);
 
@@ -35,6 +46,25 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 	m_executeIndirect.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_executeIndirect.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 	m_modelRender = DrawFuncData::SetDrawGLTFIndexMaterialData(*ModelLoader::Instance()->Load("Resource/Test/glTF/Box/", "BoxTextured.gltf"), DrawFuncData::GetModelShader());
+
+
+	m_viewBuffer = KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX));
+	std::vector<KazBufferHelper::BufferData>buffer;
+	buffer.emplace_back(m_particleRender);
+	buffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	buffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
+	buffer.emplace_back(m_particleViewProjRender);
+	buffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	buffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+
+	buffer.emplace_back(m_viewBuffer);
+	buffer.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+	buffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+	m_computeCuring.Generate(
+		ShaderOptionData("Resource/ShaderFiles/ShaderFile/ConvertWorldToProj.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE),
+		buffer
+	);
 }
 
 void InGame::Init(bool SKIP_FLAG)
@@ -49,15 +79,28 @@ void InGame::Init(bool SKIP_FLAG)
 	m_sceneNum = -1;
 	m_cursor.Init();
 
+	m_motherMat.emplace_back(KazMath::Transform3D({ 0.0f,0.0f,0.0f }, { 5.0f,5.0f,5.0f }, { 0.0f,0.0f,0.0f }).GetMat());
+	m_motherMat.emplace_back(KazMath::Transform3D({ 20.0f,0.0f,0.0f }, { 5.0f,5.0f,5.0f }, { 0.0f,0.0f,0.0f }).GetMat());
+	curlNozieFlag = false;
+	{
+		InitMeshParticleData initMeshParticleData(MeshParticleLoader::Instance()->LoadMesh("Resource/Test/glTF/Box/", "BoxTextured.gltf", &m_motherMat[0], {70,100,12}, -1));
+		initMeshParticleData.alpha = &m_alpha;
+		float scale = 0.01f;
+		initMeshParticleData.particleScale = { scale,scale,scale };
+		initMeshParticleData.curlNoizeFlag = &curlNozieFlag;
+		m_alpha = 1.0f;
+		m_meshParticleRender->AddMeshData(initMeshParticleData);
+	}
+	{
+		InitMeshParticleData initMeshParticleData(MeshParticleLoader::Instance()->LoadMesh("Resource/Test/glTF/Box/", "BoxTextured.gltf", &m_motherMat[1], {70,100,12}, -1));
+		initMeshParticleData.alpha = &m_alpha;
+		float scale = 0.01f;
+		initMeshParticleData.particleScale = { scale,scale,scale };
+		initMeshParticleData.curlNoizeFlag = &curlNozieFlag;
+		m_alpha = 1.0f;
+		m_meshParticleRender->AddMeshData(initMeshParticleData);
+	}
 
-	InitMeshParticleData initMeshParticleData(MeshParticleLoader::Instance()->LoadMesh("Resource/Test/glTF/Box/", "BoxTextured.gltf", &m_motherMat, { 70,100,12 }, -1));
-	initMeshParticleData.alpha = &m_alpha;
-	float scale = 0.01f;
-	initMeshParticleData.particleScale = { scale,scale,scale };
-	m_alpha = 1.0f;
-	m_meshParticleRender->AddMeshData(initMeshParticleData);
-
-	m_motherMat = KazMath::Transform3D({ 0.0f,0.0f,0.0f }, { 5.0f,5.0f,5.0f }, { 0.0f,0.0f,0.0f }).GetMat();
 	m_meshParticleRender->Init();
 }
 
@@ -74,13 +117,24 @@ void InGame::Input()
 	{
 		Init(false);
 	}
+	if (input->InputTrigger(DIK_0))
+	{
+		curlNozieFlag = !curlNozieFlag;
+	}
 
-	if (KeyBoradInputManager::Instance()->MouseInputState(MOUSE_INPUT_LEFT))
+	if (KeyBoradInputManager::Instance()->MouseInputTrigger(MOUSE_INPUT_MIDDLE))
 	{
 		m_meshParticleRender->InitCompute();
 	}
 	m_particleRender.counterWrapper->CopyBuffer(m_meshParticleRender->copyBuffer.GetBuffer());
+	m_particleViewProjRender.counterWrapper->CopyBuffer(m_meshParticleRender->copyBuffer.GetBuffer());
+
 	m_meshParticleRender->Compute();
+
+	DirectX::XMMATRIX viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
+	m_viewBuffer.bufferWrapper->TransData(&viewProjMat, sizeof(DirectX::XMMATRIX));
+	m_computeCuring.Compute({ 3000,1,1 });
+
 
 	m_player.Input();
 
