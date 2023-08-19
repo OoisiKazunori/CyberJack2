@@ -7,7 +7,7 @@
 class ButterflyEnemy :public IEnemy
 {
 public:
-	ButterflyEnemy();
+	ButterflyEnemy(int arg_moveID, float arg_moveIDparam);
 
 	void Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG);
 	void Finalize();

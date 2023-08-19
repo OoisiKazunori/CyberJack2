@@ -11,7 +11,7 @@ void KazEnemyHelper::GenerateEnemy(std::array<std::array<std::shared_ptr<IEnemy>
 				switch (enemyType)
 				{
 				case ENEMY_TYPE_VIRUS:
-					ENEMIES[enemyType][enemyCount] = std::make_unique<VirusEnemy>();
+					ENEMIES[enemyType][enemyCount] = std::make_unique<VirusEnemy>(RESPONE_DATA[enemyType][enemyCount].moveID, RESPONE_DATA[enemyType][enemyCount].moveIDparam);
 					break;
 
 				default:
@@ -34,15 +34,15 @@ void KazEnemyHelper::GenerateEnemy(std::array<std::array<std::shared_ptr<IEnemy>
 				switch (enemyType)
 				{
 				case ENEMY_TYPE_VIRUS:
-					ENEMIES[enemyType][enemyCount] = std::make_unique<VirusEnemy>();
+					ENEMIES[enemyType][enemyCount] = std::make_unique<VirusEnemy>(RESPONE_DATA[enemyType][enemyCount].moveID, RESPONE_DATA[enemyType][enemyCount].moveIDparam);
 					ENEMISE_HITBOX.emplace_back(&ENEMIES[enemyType][enemyCount]->GetData()->hitBox);
 					break;
 				case ENEMY_TYPE_LOTUSLEAF:
-					ENEMIES[enemyType][enemyCount] = std::make_unique<LotusLeafEnemy>();
+					ENEMIES[enemyType][enemyCount] = std::make_unique<LotusLeafEnemy>(RESPONE_DATA[enemyType][enemyCount].moveID, RESPONE_DATA[enemyType][enemyCount].moveIDparam);
 					ENEMISE_HITBOX.emplace_back(&ENEMIES[enemyType][enemyCount]->GetData()->hitBox);
 					break;
 				case ENEMY_TYPE_BUTTERFLY:
-					ENEMIES[enemyType][enemyCount] = std::make_unique<ButterflyEnemy>();
+					ENEMIES[enemyType][enemyCount] = std::make_unique<ButterflyEnemy>(RESPONE_DATA[enemyType][enemyCount].moveID, RESPONE_DATA[enemyType][enemyCount].moveIDparam);
 					ENEMISE_HITBOX.emplace_back(&ENEMIES[enemyType][enemyCount]->GetData()->hitBox);
 					break;
 				default:

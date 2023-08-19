@@ -4,9 +4,11 @@
 #include"../Game/Effect/ShakeMgr.h"
 #include"../Effect/SeaEffect.h"
 
-LotusLeafEnemy::LotusLeafEnemy()
+LotusLeafEnemy::LotusLeafEnemy(int arg_moveID, float arg_moveIDparam)
 {
 	m_model = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/Enemy/LotusLeaf/", "LotusLeaf.gltf"));
+	moveID = arg_moveID;
+	moveIDparam = arg_moveIDparam;
 }
 
 void LotusLeafEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)

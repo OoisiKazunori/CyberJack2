@@ -4,13 +4,18 @@
 #include"../Game/Effect/ShakeMgr.h"
 #include"../Effect/SeaEffect.h"
 
-VirusEnemy::VirusEnemy()
+VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 {
 	m_model = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/Enemy/Virus/", "Virus.gltf"));
+<<<<<<< HEAD
 
 	m_alpha = 1.0f;
 	iEnemy_EnemyStatusData->fAlpha = &m_alpha;
 	InitMeshPartilce("Resource/Enemy/Virus/", "Virus.gltf", &m_motherMat);
+=======
+	moveID = arg_moveID;
+	moveIDparam = arg_moveIDparam;
+>>>>>>> origin/dev_GameScene
 }
 
 void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)

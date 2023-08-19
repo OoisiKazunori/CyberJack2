@@ -4,9 +4,11 @@
 #include"../Effect/SeaEffect.h"
 #include"../Game/Effect/ShakeMgr.h"
 
-ButterflyEnemy::ButterflyEnemy()
+ButterflyEnemy::ButterflyEnemy(int arg_moveID, float arg_moveIDparam)
 {
 	m_model = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/Enemy/Butterfly/", "Butterfly.gltf"));
+	moveID = arg_moveID;
+	moveIDparam = arg_moveIDparam;
 }
 
 void ButterflyEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)

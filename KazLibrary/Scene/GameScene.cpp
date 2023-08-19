@@ -74,7 +74,12 @@ void GameScene::PreInit()
 	++respoineIndex;
 
 	m_responeData[ENEMY_TYPE_BUTTERFLY][respoineIndex].layerLevel = layerLevel;
-	m_responeData[ENEMY_TYPE_BUTTERFLY][respoineIndex].flame = 30;
+	m_responeData[ENEMY_TYPE_BUTTERFLY][respoineIndex].flame = 60;
+	m_responeData[ENEMY_TYPE_BUTTERFLY][respoineIndex].generateData.initPos = { 90.0f,10.0f,z };
+	++respoineIndex;
+
+	m_responeData[ENEMY_TYPE_BUTTERFLY][respoineIndex].layerLevel = layerLevel;
+	m_responeData[ENEMY_TYPE_BUTTERFLY][respoineIndex].flame = 120;
 	m_responeData[ENEMY_TYPE_BUTTERFLY][respoineIndex].generateData.initPos = { 90.0f,10.0f,z };
 	++respoineIndex;
 
