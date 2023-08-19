@@ -40,7 +40,7 @@ public:
 	void Compute();
 
 private:
-	ResouceBufferHelper computeHelper;
+	ResouceBufferHelper m_computeHelper;
 	struct ParticleHitBoxData
 	{
 		DirectX::XMFLOAT3 pos;

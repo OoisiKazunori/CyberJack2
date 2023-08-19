@@ -49,7 +49,7 @@ float Noise(float3 arg_st)
 	float right = dot(Random3D(intValue + float3(1, 0, 0)),(floatValue - float3(1, 0, 0)));
 	float top = dot(Random3D(intValue + float3(0, 1, 0)),(floatValue - float3(0, 1, 0)));
 	float rightTop = dot(Random3D(intValue + float3(1, 1, 0)),(floatValue - float3(1, 1, 0)));
-	float front = dot(Random3D(intValue + float3(0, 0, 1)),(floatValue - float3(0, 0, 1)));
+	float frontV = dot(Random3D(intValue + float3(0, 0, 1)),(floatValue - float3(0, 0, 1)));
 	float rightFront = dot(Random3D(intValue + float3(1, 0, 1)),(floatValue - float3(1, 0, 1)));
 	float topFront = dot(Random3D(intValue + float3(0, 1, 1)),(floatValue - float3(0, 1, 1)));
 	float rightTopFront = dot(Random3D(intValue + float3(1, 1, 1)),(floatValue - float3(1, 1, 1)));
@@ -57,7 +57,7 @@ float Noise(float3 arg_st)
 	//ノイズ値を補間する。
 	float x1 = Lerp(center, right, u.x);
 	float x2 = Lerp(top, rightTop, u.x);
-	float y1 = Lerp(front, rightFront, u.x);
+	float y1 = Lerp(frontV, rightFront, u.x);
 	float y2 = Lerp(topFront, rightTopFront, u.x);
 
 	float xy1 = Lerp(x1, x2, u.y);
@@ -126,49 +126,4 @@ float3 CurlNoise3D(float3 arg_st, float3 arg_pos)
 
 	return vel;
 
-}
-
-struct ParticeArgumentData
-{
-	float3 pos;
-    float4 color;
-    int timer;
-};
-
-RWStructuredBuffer<ParticeArgumentData> ParticleDataBuffer : register(u0);
-RWStructuredBuffer<uint> RandomTableBuffer : register(u1);
-RWStructuredBuffer<float3> MeshParticltPosBuffer : register(u2);
-
-struct OutputData
-{
-    matrix mat;
-    float4 color;
-};
-RWStructuredBuffer<OutputData> worldDataBuffer : register(u2);
-
-[numthreads(1024, 1, 1)]
-void InitCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 groupThreadID : SV_GroupThreadID)
-{
-    uint index = ThreadGroupIndex(groupId,groupIndex,groupThreadID,1024);
-    ParticleDataBuffer[index].pos = MeshParticltPosBuffer[index];
-    ParticleDataBuffer[index].color = float4(1.0f,1.0f,1.0f,1.0f);
-    ParticleDataBuffer[index].timer = 0;
-}
-
-[numthreads(1024, 1, 1)]
-void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 groupThreadID : SV_GroupThreadID)
-{
-    uint index = ThreadGroupIndex(groupId,groupIndex,groupThreadID,1024);
-    //座標更新
-    int seed = RandomTableBuffer[index];
-    ParticleDataBuffer[index].pos += CurlNoise3D(float3(seed + 100,seed - 100,seed),ParticleDataBuffer[index].pos);
-    //出力
-    worldDataBuffer[index].mat = 
-    CalucurateWorldMat(
-        ParticleDataBuffer[index].pos,
-        ParticleDataBuffer[index].scale,
-        ParticleDataBuffer[index].rotation
-    );
-    worldDataBuffer[index].mat = mul(viewProj,worldDataBuffer[index].mat);
-    worldDataBuffer[index].color = ParticleDataBuffer[index].color;
 }

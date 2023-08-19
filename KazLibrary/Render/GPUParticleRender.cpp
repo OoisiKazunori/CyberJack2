@@ -56,8 +56,8 @@ GPUParticleRender::GPUParticleRender(std::vector<D3D12_INDIRECT_ARGUMENT_DESC> A
 	vertexBuffer->TransData(lVerticesArray.data(), lVertBuffSize);
 	indexBuffer->TransData(lIndicesArray.data(), lIndexBuffSize);
 
-	gpuVertexBuffer.CopyBuffer(vertexBuffer->GetBuffer(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST);
-	gpuIndexBuffer.CopyBuffer(indexBuffer->GetBuffer(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_DEST);
+	gpuVertexBuffer.CopyBuffer(vertexBuffer->GetBuffer());
+	gpuIndexBuffer.CopyBuffer(indexBuffer->GetBuffer());
 
 
 

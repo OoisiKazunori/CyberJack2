@@ -5,7 +5,7 @@
 ComputeParticleAvoidSphere::ComputeParticleAvoidSphere()
 {
 	//パーティクル情報の判定
-	meshCircleArrayBufferHandle = computeHelper.CreateBuffer(
+	meshCircleArrayBufferHandle = m_computeHelper.CreateBuffer(
 		KazBufferHelper::SetOnlyReadStructuredBuffer(sizeof(MeshHitBoxData) * PARTICLE_MAX_NUM),
 		GRAPHICS_RANGE_TYPE_UAV_DESC,
 		GRAPHICS_PRAMTYPE_DATA,
@@ -26,10 +26,10 @@ ComputeParticleAvoidSphere::ComputeParticleAvoidSphere()
 	copyBuffer.CreateBuffer(lBufferData);
 	copyBuffer.TransData(&lNum, sizeof(UINT));
 
-	computeHelper.InitCounterBuffer(copyBuffer.GetBuffer());
+	m_computeHelper.InitCounterBuffer(copyBuffer.GetBuffer());
 
 	//座標のラープ処理
-	RESOURCE_HANDLE lHandle = computeHelper.CreateBuffer(
+	RESOURCE_HANDLE lHandle = m_computeHelper.CreateBuffer(
 		KazBufferHelper::SetOnlyReadStructuredBuffer(sizeof(DirectX::XMFLOAT3) * PARTICLE_MAX_NUM),
 		GRAPHICS_RANGE_TYPE_UAV_DESC,
 		GRAPHICS_PRAMTYPE_DATA4,
@@ -41,10 +41,10 @@ ComputeParticleAvoidSphere::ComputeParticleAvoidSphere()
 void ComputeParticleAvoidSphere::SetHitIDBuffer(const ResouceBufferHelper::BufferData &HIT_ID_BUFFER)
 {
 	//何処のメッシュ球と判定を取ったか
-	computeHelper.SetBuffer(HIT_ID_BUFFER, GRAPHICS_PRAMTYPE_DATA2);
+	m_computeHelper.SetBuffer(HIT_ID_BUFFER, GRAPHICS_PRAMTYPE_DATA2);
 
 	//座標とラープ情報を組み合わせたワールド行列
-	outputParticleBufferHandle = computeHelper.CreateBuffer(
+	outputParticleBufferHandle = m_computeHelper.CreateBuffer(
 		KazBufferHelper::SetOnlyReadStructuredBuffer(sizeof(InitOutputData) * PARTICLE_MAX_NUM),
 		GRAPHICS_RANGE_TYPE_UAV_DESC,
 		GRAPHICS_PRAMTYPE_DATA3,
@@ -56,7 +56,7 @@ void ComputeParticleAvoidSphere::SetHitIDBuffer(const ResouceBufferHelper::Buffe
 
 void ComputeParticleAvoidSphere::GenerateHitNum(UINT NUM)
 {
-	RESOURCE_HANDLE lHandle = computeHelper.CreateBuffer(
+	RESOURCE_HANDLE lHandle = m_computeHelper.CreateBuffer(
 		sizeof(UINT),
 		GRAPHICS_RANGE_TYPE_CBV_VIEW,
 		GRAPHICS_PRAMTYPE_DATA5,
@@ -64,21 +64,21 @@ void ComputeParticleAvoidSphere::GenerateHitNum(UINT NUM)
 		false);
 
 	UINT lNum = static_cast<UINT>(NUM);
-	computeHelper.TransData(lHandle, &lNum, sizeof(UINT));
+	m_computeHelper.TransData(lHandle, &lNum, sizeof(UINT));
 }
 
 void ComputeParticleAvoidSphere::Compute()
 {
-	computeHelper.InitCounterBuffer(copyBuffer.GetBuffer());
-	computeHelper.StackToCommandListAndCallDispatch(PIPELINE_COMPUTE_NAME_HITBOX_AVOID_PARTICLE, { 1000,1,1 });
+	m_computeHelper.InitCounterBuffer(copyBuffer.GetBuffer());
+	m_computeHelper.StackToCommandListAndCallDispatch(PIPELINE_COMPUTE_NAME_HITBOX_AVOID_PARTICLE, { 1000,1,1 });
 }
 
 const ResouceBufferHelper::BufferData &ComputeParticleAvoidSphere::GetStackParticleHitBoxBuffer()
 {
-	return computeHelper.GetBufferData(meshCircleArrayBufferHandle);
+	return m_computeHelper.GetBufferData(meshCircleArrayBufferHandle);
 }
 
 const ResouceBufferHelper::BufferData &ComputeParticleAvoidSphere::GetOutputParticleData()
 {
-	return computeHelper.GetBufferData(outputParticleBufferHandle);
+	return m_computeHelper.GetBufferData(outputParticleBufferHandle);
 }

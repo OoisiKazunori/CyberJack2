@@ -198,7 +198,7 @@ struct ParticeArgumentData
 };
 
 static const int PARTICLE_MAX_NUM = 1024;
-static const float SCALE = 1.5f;
+static const float SCALE = 10.5f;
 
 RWStructuredBuffer<ParticeArgumentData> ParticleDataBuffer : register(u0);
 RWStructuredBuffer<uint> RandomTableBuffer : register(u1);

@@ -129,10 +129,7 @@ RESOURCE_HANDLE TextureResourceMgr::LoadGraph(std::string RESOURCE)
 	);
 
 	bufferArray[elementNum].bufferWrapper->CopyBuffer(
-		cpuBufferArray[elementNum].bufferWrapper->GetBuffer(),
-		D3D12_RESOURCE_STATE_COMMON,
-		D3D12_RESOURCE_STATE_COPY_DEST
-	);
+		cpuBufferArray[elementNum].bufferWrapper->GetBuffer());
 
 
 	bufferArray[elementNum].rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
@@ -244,10 +241,7 @@ KazBufferHelper::BufferData TextureResourceMgr::LoadGraphBuffer(std::string RESO
 
 
 		bufferArray[elementNum].bufferWrapper->CopyBuffer(
-			cpuBufferArray[elementNum].bufferWrapper->GetBuffer(),
-			D3D12_RESOURCE_STATE_COMMON,
-			D3D12_RESOURCE_STATE_COPY_DEST
-		);
+			cpuBufferArray[elementNum].bufferWrapper->GetBuffer());
 	}
 
 

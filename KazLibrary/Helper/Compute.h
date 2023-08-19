@@ -16,6 +16,7 @@ public:
 	//パイプライン、ルートシグネチャー生成
 	ComputeShader();
 	void Generate(const ShaderOptionData& arg_shader, std::vector<KazBufferHelper::BufferData> arg_extraBuffer);
+	void Generate(const ShaderOptionData& arg_shader, const RootSignatureDataTest& arg_rootsignature);
 	void Compute(const DispatchData &arg_dispatch);
 
 

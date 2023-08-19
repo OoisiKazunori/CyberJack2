@@ -1,37 +1,21 @@
 #pragma once
 #include"../KazLibrary/Helper/ResouceBufferHelper.h"
-#include"../KazLibrary/Render/DrawExcuteIndirect.h"
 #include"../KazLibrary/Helper/KazBufferHelper.h"
 #include"../KazLibrary/Helper/ISinglton.h"
-#include"../KazLibrary/Render/GPUParticleRender.h"
-
-struct InitMeshParticleData
-{
-	ResouceBufferHelper::BufferData vertData;
-	ResouceBufferHelper::BufferData uvData;
-	RESOURCE_HANDLE textureHandle;
-	//x vertNum, y bias,z perTriangleNum,w faceCountNum
-	DirectX::XMUINT4 triagnleData;
-	const DirectX::XMMATRIX *motherMat;
-	KazMath::Vec4<float>color;
-	KazMath::Vec3<float>particleScale;
-	bool billboardFlag;
-	const float *alpha;
-
-	InitMeshParticleData() :textureHandle(-1), billboardFlag(false)
-	{
-	}
-};
+#include"../KazLibrary/Helper/Compute.h"
+#include"InstanceMeshParticleData.h"
+#include<vector>
 
 class InstanceMeshParticle
 {
 public:
-	InstanceMeshParticle(const GPUParticleRender *RENDER_PTR);
+	InstanceMeshParticle(const KazBufferHelper::BufferData &arg_outputMat);
 
 	void Init();
 	void AddMeshData(const InitMeshParticleData &DATA);
 	void Compute();
 
+	void InitCompute();
 
 	struct InitOutputData
 	{
@@ -40,21 +24,30 @@ public:
 		UINT id;
 	};
 
+	KazBufferHelper::ID3D12ResourceWrapper copyBuffer;
 private:
+	struct CameraMatData
+	{
+		DirectX::XMMATRIX viewProjMat;
+		DirectX::XMMATRIX billboard;
+	};
+	KazBufferHelper::BufferData cameraMatBuffer;
 
+	KazBufferHelper::BufferData m_outputMatrixBuffer;
 
-	ResouceBufferHelper computeInitMeshParticle;
-	RESOURCE_HANDLE vertHandle, uvHandle, meshDataAndColorHandle, colorHandle, meshParticleOutputHandle, meshParticleIDHandle;
-	RESOURCE_HANDLE motherMatrixHandle,particlePosHandle, particleColorHandle,particleMotherMatrixHandle, colorMotherMatrixHandle;
-	RESOURCE_HANDLE scaleRotateBillboardMatHandle;
+	bool isInitFlag;
+	ComputeShader computeInitMeshParticle;
+	KazBufferHelper::BufferData vertHandle, uvHandle, meshDataAndColorHandle, colorHandle, meshParticleOutputHandle, meshParticleIDHandle;
+	KazBufferHelper::BufferData motherMatrixHandle,particlePosHandle, particleColorHandle,particleMotherMatrixHandle, colorMotherMatrixHandle;
+	KazBufferHelper::BufferData scaleRotateBillboardMatHandle;
 
-	ResouceBufferHelper computeUpdateMeshParticle;
-	ResouceBufferHelper computeConvert;
+	ComputeShader computeUpdateMeshParticle;
+	ComputeShader computeConvert;
 
-	ResouceBufferHelper::BufferData commonAndColorBufferData;
-	std::vector<ResouceBufferHelper::BufferData> commonBufferData;
-	std::vector<ResouceBufferHelper::BufferData> commonColorBufferData;
-	ResouceBufferHelper::BufferData meshParticleBufferData;
+	KazBufferHelper::BufferData commonAndColorBufferData;
+	std::vector<KazBufferHelper::BufferData> commonBufferData;
+	std::vector<KazBufferHelper::BufferData> commonColorBufferData;
+	KazBufferHelper::BufferData meshParticleBufferData;
 	struct WorldMatData
 	{
 		DirectX::XMMATRIX scaleRotateBillboardMat;
@@ -71,6 +64,10 @@ private:
 		DirectX::XMUINT4 meshData;
 		UINT id;
 	};
+	struct MotherMatData
+	{
+		DirectX::XMMATRIX motherMat;
+	};
 
 	static const int PARTICLE_MAX_NUM = 2000000;
 	static const int VERT_BUFFER_SIZE = sizeof(DirectX::XMFLOAT3);
@@ -84,8 +81,9 @@ private:
 	{
 		const DirectX::XMMATRIX *motherMat;
 		const float *alpha;
-		MotherData(const DirectX::XMMATRIX *M_MAT, const float *ALPHA) :
-			motherMat(M_MAT), alpha(ALPHA)
+		const bool *curlNozieFlag;
+		MotherData(const DirectX::XMMATRIX *arg_motherMatPtr, const float *arg_alphaPtr,const bool *arg_curlNoizeFlagPtr) :
+			motherMat(arg_motherMatPtr), alpha(arg_alphaPtr), curlNozieFlag(arg_curlNoizeFlagPtr)
 		{
 		}
 	};
@@ -98,12 +96,13 @@ private:
 		INIT_POS_UV,
 		INIT_POS_UV_NORMAL,
 	};
-	void IsSetBuffer(const ResouceBufferHelper::BufferData &BUFFER_DATA)
+	void IsSetBuffer(const KazBufferHelper::BufferData &BUFFER_DATA,std::vector<KazBufferHelper::BufferData>& arg_bufferArray)
 	{
-		if (BUFFER_DATA.bufferWrapper.GetBuffer())
+		if (BUFFER_DATA.bufferWrapper->GetBuffer())
 		{
 			GraphicsRootParamType lType = static_cast<GraphicsRootParamType>(GRAPHICS_PRAMTYPE_DATA + setCountNum);
-			computeInitMeshParticle.SetBuffer(BUFFER_DATA, lType);
+			arg_bufferArray.emplace_back(BUFFER_DATA);
+			arg_bufferArray.back().rootParamType = lType;
 			++setCountNum;
 		}
 	};
@@ -114,10 +113,11 @@ private:
 
 	std::vector<InitMeshParticleData> initData;
 
-	KazBufferHelper::ID3D12ResourceWrapper copyBuffer;
 	KazBufferHelper::ID3D12ResourceWrapper motherMatrixBuffer;
 	KazBufferHelper::ID3D12ResourceWrapper colorBuffer;
 	KazBufferHelper::ID3D12ResourceWrapper scaleRotaBuffer;
+	KazBufferHelper::BufferData curlNoizeUploadBuffer;
+	KazBufferHelper::BufferData curlNoizeVRAMBuffer;
 
 	struct ScaleRotaBillData
 	{

@@ -1,5 +1,7 @@
 #include "ChildOfEdenStage.h"
 #include "../KazLibrary/Raytracing/Blas.h"
+#include"../KazLibrary/Buffer/ShaderRandomTable.h"
+
 
 ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 {
@@ -9,24 +11,12 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	//);
 	m_skydormTransform.scale = { m_skydormScale,m_skydormScale,m_skydormScale };
 
-	//パーティクル情報
 	m_drawTriangleParticle.extraBufferArray.emplace_back(KazBufferHelper::SetGPUBufferData(sizeof(ParticeArgumentData) * PARTICLE_MAX_NUM, "Particle"));
 	m_drawTriangleParticle.extraBufferArray[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_drawTriangleParticle.extraBufferArray[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-	//乱数テーブル生成
-	m_randomTable = KazBufferHelper::SetUploadBufferData(sizeof(UINT) * PARTICLE_MAX_NUM, "RandomTable-UAV-UploadBuffer");
-	std::array<UINT, PARTICLE_MAX_NUM>table;
-	for (int i = 0; i < PARTICLE_MAX_NUM; ++i)
-	{
-		table[i] = KazMath::Rand<UINT>(1000000, 0);
-	}
-	m_randomTable.bufferWrapper->TransData(table.data(), sizeof(UINT) * PARTICLE_MAX_NUM);
-
 	m_computeInitBuffer.emplace_back(m_drawTriangleParticle.extraBufferArray[0]);
-	m_computeInitBuffer.emplace_back(m_randomTable);
-	m_computeInitBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-	m_computeInitBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+	m_computeInitBuffer.emplace_back(ShaderRandomTable::Instance()->GetBuffer(GRAPHICS_PRAMTYPE_DATA2));
 	m_computeInit.Generate(
 		ShaderOptionData("Resource/ShaderFiles/ShaderFile/TriangleParticle.hlsl", "InitCSmain", "cs_6_4", SHADER_TYPE_COMPUTE),
 		m_computeInitBuffer
@@ -44,11 +34,11 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-	//頂点情報
+
 	m_particleVertexBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData((sizeof(VertexBufferData) * PARTICLE_MAX_NUM) * 4, "GPUParticle-VertexBuffer"));
 	m_particleVertexBuffer->structureSize = sizeof(VertexBufferData);
 	m_particleVertexBuffer->elementNum = PARTICLE_MAX_NUM * 4;
-	//インデックス情報
+
 	m_particleIndexBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData((sizeof(UINT) * PARTICLE_MAX_NUM) * 6, "GPUParticle-IndexBuffer"));
 	m_particleIndexBuffer->structureSize = sizeof(UINT);
 	m_particleIndexBuffer->elementNum = PARTICLE_MAX_NUM * 6;
