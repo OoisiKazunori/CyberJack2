@@ -409,7 +409,7 @@ void InGame::Update()
 
 	if (KazMath::ConvertSecondToFlame(CHANGE_GMAE_FLAME_SPEED_MAX_TIME) <= m_notMoveTimer)
 	{
-		m_gameSpeed = 60;
+		//m_gameSpeed = 60;
 	}
 	else
 	{
@@ -420,6 +420,11 @@ void InGame::Update()
 
 	m_gameFlame += m_gameSpeed;
 
+	//ƒQ[ƒ€ƒ‹[ƒv‚Ì‰Šú‰»
+	if (KazMath::ConvertSecondToFlame(15) <= m_gameFlame)
+	{
+		m_gameFlame = 0;
+	}
 
 }
 
