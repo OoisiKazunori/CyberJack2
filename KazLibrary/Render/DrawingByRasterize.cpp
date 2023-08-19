@@ -22,7 +22,6 @@ int int_cmpr(const DrawFuncData::DrawData* a, const DrawFuncData::DrawData* b)
 }
 //レンダーターゲット,深度,α,パイプラインの優先度でソートする予定
 
-
 DrawingByRasterize::DrawingByRasterize()
 {
 }

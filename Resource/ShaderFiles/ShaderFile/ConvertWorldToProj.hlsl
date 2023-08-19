@@ -88,7 +88,7 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     //GenerateIndexData(IndexBuffer,index);
 
     GPUParticleInput outputData;
-    inputData.worldMat = viewProjMat;
-    inputData.color = inputData.color;
+    outputData.worldMat = mul(viewProjMat,inputData.worldMat);
+    outputData.color = inputData.color;
     outputBuffer.Append(inputData);
 }

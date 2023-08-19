@@ -38,32 +38,31 @@ InstanceMeshParticle::InstanceMeshParticle() :
 	{
 		m_executeIndirect = DrawFuncData::SetExecuteIndirect(
 			DrawFuncData::GetBasicInstanceShader(),
-			m_particleViewProjRender.bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
-			PARTICLE_MAX_NUM,
-			PARTICLE_MAX_NUM * 6
+			m_particleRender.bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
+			PARTICLE_MAX_NUM
 		);
 
-		KazRenderHelper::DrawIndexInstanceCommandData command;
-		//topology
-		command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		//indexinstance
-		command.drawIndexInstancedData = { PARTICLE_MAX_NUM * 6,1,0,0,0 };
-		//view
-		command.vertexBufferDrawData.slot = 0;
-		command.vertexBufferDrawData.numViews = 1;
-		command.vertexBufferDrawData.vertexBufferView =
-			KazBufferHelper::SetVertexBufferView(
-				m_meshParticleVertexBuffer.bufferWrapper->GetGpuAddress(),
-				sizeof(VertexBufferData) * (PARTICLE_MAX_NUM * 4),
-				sizeof(VertexBufferData)
-			);
-		command.indexBufferView = KazBufferHelper::SetIndexBufferView(m_meshParticleIndexBuffer.bufferWrapper->GetGpuAddress(), sizeof(UINT) * (PARTICLE_MAX_NUM * 6));
+		//KazRenderHelper::DrawIndexInstanceCommandData command;
+		////topology
+		//command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		////indexinstance
+		//command.drawIndexInstancedData = { PARTICLE_MAX_NUM * 6,1,0,0,0 };
+		////view
+		//command.vertexBufferDrawData.slot = 0;
+		//command.vertexBufferDrawData.numViews = 1;
+		//command.vertexBufferDrawData.vertexBufferView =
+		//	KazBufferHelper::SetVertexBufferView(
+		//		m_meshParticleVertexBuffer.bufferWrapper->GetGpuAddress(),
+		//		sizeof(VertexBufferData) * (PARTICLE_MAX_NUM * 4),
+		//		sizeof(VertexBufferData)
+		//	);
+		//command.indexBufferView = KazBufferHelper::SetIndexBufferView(m_meshParticleIndexBuffer.bufferWrapper->GetGpuAddress(), sizeof(UINT) * (PARTICLE_MAX_NUM * 6));
 
 
-		command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		m_executeIndirect.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0] = command.drawIndexInstancedData;
-		m_executeIndirect.drawMultiMeshesIndexInstanceCommandData.vertexBufferDrawData[0] = command.vertexBufferDrawData;
-		m_executeIndirect.drawMultiMeshesIndexInstanceCommandData.indexBufferView[0] = command.indexBufferView;
+		//command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		//m_executeIndirect.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0] = command.drawIndexInstancedData;
+		//m_executeIndirect.drawMultiMeshesIndexInstanceCommandData.vertexBufferDrawData[0] = command.vertexBufferDrawData;
+		//m_executeIndirect.drawMultiMeshesIndexInstanceCommandData.indexBufferView[0] = command.indexBufferView;
 	}
 
 	m_executeIndirect.extraBufferArray.emplace_back(m_particleRender);
@@ -361,6 +360,9 @@ void InstanceMeshParticle::AddMeshData(const InitMeshParticleData& DATA)
 
 void InstanceMeshParticle::Compute(DrawingByRasterize& arg_rasterize)
 {
+	m_particleRender.counterWrapper->CopyBuffer(copyBuffer.GetBuffer());
+	m_particleViewProjRender.counterWrapper->CopyBuffer(copyBuffer.GetBuffer());
+
 	std::vector<MotherMatData>lMatArray(motherMatArray.size());
 	std::vector<float>lColorArray(motherMatArray.size());
 	std::vector<DirectX::XMMATRIX>lScaleMatArray(scaleRotaMatArray.size());
@@ -408,12 +410,11 @@ void InstanceMeshParticle::Compute(DrawingByRasterize& arg_rasterize)
 
 
 	//ï`âÊèàóù---------------------------------------
-	m_particleRender.counterWrapper->CopyBuffer(copyBuffer.GetBuffer());
-	m_particleViewProjRender.counterWrapper->CopyBuffer(copyBuffer.GetBuffer());
+	/*
 
 	DirectX::XMMATRIX viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
-	m_viewBuffer.bufferWrapper->TransData(&viewProjMat, sizeof(DirectX::XMMATRIX));
-	m_computeCuring.Compute({ DISPATCH_NUM,1,1 });
+	m_viewBuffer.bufferWrapper->TransData(&viewProjMat, sizeof(DirectX::XMMATRIX));*/
+	//m_computeCuring.Compute({ DISPATCH_NUM,1,1 });
 
 	arg_rasterize.ObjectRender(m_executeIndirect);
 	//ï`âÊèàóù---------------------------------------

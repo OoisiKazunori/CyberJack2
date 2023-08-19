@@ -248,7 +248,7 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     GenerateIndexData(indexBuffer,index);
 
     GPUParticleInput inputData;
-    inputData.worldMat = viewProjMat;
+    inputData.worldMat = mul(viewProjMat,worldMat);
     inputData.color = particleData.color;
     inputGPUParticleData.Append(inputData);
 }
