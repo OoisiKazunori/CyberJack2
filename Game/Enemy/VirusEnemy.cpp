@@ -7,6 +7,10 @@
 VirusEnemy::VirusEnemy()
 {
 	m_model = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/Enemy/Virus/", "Virus.gltf"));
+
+	m_alpha = 1.0f;
+	iEnemy_EnemyStatusData->fAlpha = &m_alpha;
+	InitMeshPartilce("Resource/Enemy/Virus/", "Virus.gltf", &m_motherMat);
 }
 
 void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)
@@ -27,6 +31,7 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 	m_status = APPEAR;
 
 	debugTimer = 0;
+	m_alpha;
 }
 
 void VirusEnemy::Finalize()
@@ -79,7 +84,7 @@ void VirusEnemy::Update()
 
 		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
 		SeaEffect::Instance()->m_isSeaEffect = true;
-		
+
 	}
 
 	switch (m_status)
@@ -160,8 +165,10 @@ void VirusEnemy::Update()
 		m_transform.pos.y -= 0.8f;
 		m_deadEffectVel -= m_deadEffectVel / 10.0f;
 		m_transform.rotation.x += 3.0f;
+
+		iEnemy_EnemyStatusData->curlNozieFlag = true;
 	}
-		break;
+	break;
 	default:
 		break;
 	}
@@ -173,12 +180,16 @@ void VirusEnemy::Update()
 
 	iEnemy_EnemyStatusData->hitBox.center = &m_transform.pos;
 	iEnemy_EnemyStatusData->hitBox.radius = 10.0f;
+
+	m_motherMat = m_transform.GetMat();
+
+
 }
 
 void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
 	DrawFunc::DrawModel(m_model, m_transform);
-	arg_rasterize.ObjectRender(m_model);
+	//arg_rasterize.ObjectRender(m_model);
 	for (auto& index : m_model.m_raytracingData.m_blas) {
 		arg_blasVec.Add(index, m_transform.GetMat());
 	}

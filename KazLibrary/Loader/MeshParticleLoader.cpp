@@ -13,10 +13,10 @@ const InitMeshParticleData &MeshParticleLoader::LoadMesh(const std::string& FIRL
 		{
 			meshParticleDataArray[i]->triagnleData =
 			{
-				FbxModelResourceMgr::Instance()->GetResourceData(i)->vertNum,
+				meshBuffer[i].GetBufferData(CreateMeshBuffer::DATA_VERT).elementNum,
 				MESH_PARTICLE_DATA.bias,
 				MESH_PARTICLE_DATA.perTriangleNum,
-				MESH_PARTICLE_DATA.faceCountNum
+				meshBuffer[i].GetBufferData(CreateMeshBuffer::DATA_VERT).elementNum / 3
 			};
 			meshParticleDataArray[i]->motherMat = MOTHER_MAT;
 			
@@ -50,7 +50,7 @@ const InitMeshParticleData &MeshParticleLoader::LoadMesh(const std::string& FIRL
 		static_cast<UINT>(lModelHandle.verticesArray.size()),
 		MESH_PARTICLE_DATA.bias,
 		MESH_PARTICLE_DATA.perTriangleNum,
-		MESH_PARTICLE_DATA.faceCountNum
+		meshBuffer[lNowHandle].GetBufferData(CreateMeshBuffer::DATA_VERT).elementNum / 3
 	};
 
 	/*VertexData lModelHandle = ModelLoader::Instance()->Load(FIRLE_DIR, MODEL_NAME)->modelData[0].materialData;

@@ -4,9 +4,105 @@
 
 int InstanceMeshParticle::MESH_PARTICLE_GENERATE_NUM = 0;
 
-InstanceMeshParticle::InstanceMeshParticle(const KazBufferHelper::BufferData& arg_outputMat) :
-	setCountNum(0), m_outputMatrixBuffer(arg_outputMat), isInitFlag(false)
+InstanceMeshParticle::InstanceMeshParticle() :
+	setCountNum(0), isInitFlag(false)
 {
+	struct OutputData
+	{
+		DirectX::XMMATRIX mat;
+		DirectX::XMFLOAT4 color;
+	};
+
+	m_particleRender = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * PARTICLE_MAX_NUM);
+	m_particleViewProjRender.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	m_particleViewProjRender.rootParamType = GRAPHICS_PRAMTYPE_DATA;
+	m_particleRender.structureSize = sizeof(OutputData);
+	m_particleRender.elementNum = PARTICLE_MAX_NUM;
+	m_particleRender.GenerateCounterBuffer();
+	m_particleRender.CreateUAVView();
+
+	m_particleViewProjRender = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * PARTICLE_MAX_NUM);
+	m_particleViewProjRender.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	m_particleViewProjRender.rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+	m_particleViewProjRender.structureSize = sizeof(OutputData);
+	m_particleViewProjRender.elementNum = PARTICLE_MAX_NUM;
+	m_particleViewProjRender.GenerateCounterBuffer();
+	m_particleViewProjRender.CreateUAVView();
+
+
+	m_outputMatrixBuffer = m_particleRender;
+
+	m_meshParticleVertexBuffer = KazBufferHelper::SetGPUBufferData(sizeof(VertexBufferData) * (PARTICLE_MAX_NUM * 4), "MeshParticle-Vertex");
+	m_meshParticleIndexBuffer = KazBufferHelper::SetGPUBufferData(sizeof(UINT) * (PARTICLE_MAX_NUM * 6), "MeshParticle-Index");
+	//メッシュパーティクルのExcuteIndirect生成
+	{
+		m_executeIndirect = DrawFuncData::SetExecuteIndirect(
+			DrawFuncData::GetBasicInstanceShader(),
+			m_particleViewProjRender.bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
+			PARTICLE_MAX_NUM,
+			PARTICLE_MAX_NUM * 6
+		);
+
+		KazRenderHelper::DrawIndexInstanceCommandData command;
+		//topology
+		command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		//indexinstance
+		command.drawIndexInstancedData = { PARTICLE_MAX_NUM * 6,1,0,0,0 };
+		//view
+		command.vertexBufferDrawData.slot = 0;
+		command.vertexBufferDrawData.numViews = 1;
+		command.vertexBufferDrawData.vertexBufferView =
+			KazBufferHelper::SetVertexBufferView(
+				m_meshParticleVertexBuffer.bufferWrapper->GetGpuAddress(),
+				sizeof(VertexBufferData) * (PARTICLE_MAX_NUM * 4),
+				sizeof(VertexBufferData)
+			);
+		command.indexBufferView = KazBufferHelper::SetIndexBufferView(m_meshParticleIndexBuffer.bufferWrapper->GetGpuAddress(), sizeof(UINT) * (PARTICLE_MAX_NUM * 6));
+
+
+		command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		m_executeIndirect.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0] = command.drawIndexInstancedData;
+		m_executeIndirect.drawMultiMeshesIndexInstanceCommandData.vertexBufferDrawData[0] = command.vertexBufferDrawData;
+		m_executeIndirect.drawMultiMeshesIndexInstanceCommandData.indexBufferView[0] = command.indexBufferView;
+	}
+
+	m_executeIndirect.extraBufferArray.emplace_back(m_particleRender);
+	m_executeIndirect.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	m_executeIndirect.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+	m_modelRender = DrawFuncData::SetDrawGLTFIndexMaterialData(*ModelLoader::Instance()->Load("Resource/Test/glTF/Box/", "BoxTextured.gltf"), DrawFuncData::GetModelShader());
+	m_viewBuffer = KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX));
+
+
+	std::vector<KazBufferHelper::BufferData>buffer;
+	buffer.emplace_back(m_particleRender);
+	buffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	buffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
+	buffer.emplace_back(m_particleViewProjRender);
+	buffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	buffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+
+	buffer.emplace_back(m_viewBuffer);
+	buffer.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+	buffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
+	buffer.emplace_back(m_meshParticleVertexBuffer);
+	buffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	buffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+
+	buffer.emplace_back(m_meshParticleIndexBuffer);
+	buffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	buffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
+	m_computeCuring.Generate(
+		ShaderOptionData("Resource/ShaderFiles/ShaderFile/ConvertWorldToProj.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE),
+		buffer
+	);
+
+
+
+
+
+
 	//メッシュパーティクルの初期化処理の出力情報
 	meshParticleBufferData = KazBufferHelper::SetGPUBufferData(sizeof(InitOutputData) * PARTICLE_MAX_NUM);
 	meshParticleBufferData.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
@@ -56,6 +152,8 @@ InstanceMeshParticle::InstanceMeshParticle(const KazBufferHelper::BufferData& ar
 	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA6));
 	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA7));
 	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA));
+	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA8));
+	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA9));
 	computeUpdateMeshParticle.Generate(ShaderOptionData("Resource/ShaderFiles/ComputeShader/UpdateMeshParticle.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), rootsignature);
 
 	cameraMatBuffer = KazBufferHelper::SetConstBufferData(sizeof(CameraMatData));
@@ -131,13 +229,42 @@ void InstanceMeshParticle::Init()
 
 
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(meshParticleBufferData);
+	computeUpdateMeshParticle.m_extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	computeUpdateMeshParticle.m_extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(particleMotherMatrixHandle);
+	computeUpdateMeshParticle.m_extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	computeUpdateMeshParticle.m_extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(scaleRotateBillboardMatHandle);
+	computeUpdateMeshParticle.m_extraBufferArray[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	computeUpdateMeshParticle.m_extraBufferArray[2].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(colorMotherMatrixHandle);
+	computeUpdateMeshParticle.m_extraBufferArray[3].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	computeUpdateMeshParticle.m_extraBufferArray[3].rootParamType = GRAPHICS_PRAMTYPE_DATA4;
+
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(m_outputMatrixBuffer);
+	computeUpdateMeshParticle.m_extraBufferArray[4].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	computeUpdateMeshParticle.m_extraBufferArray[4].rootParamType = GRAPHICS_PRAMTYPE_DATA5;
+
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(cameraMatBuffer);
+	computeUpdateMeshParticle.m_extraBufferArray[5].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+	computeUpdateMeshParticle.m_extraBufferArray[5].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(ShaderRandomTable::Instance()->GetBuffer(GRAPHICS_PRAMTYPE_DATA6));
-	computeUpdateMeshParticle.m_extraBufferArray.emplace_back();
+
+	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(curlNoizeVRAMBuffer);
+	computeUpdateMeshParticle.m_extraBufferArray[7].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	computeUpdateMeshParticle.m_extraBufferArray[7].rootParamType = GRAPHICS_PRAMTYPE_DATA7;
+
+	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(m_meshParticleVertexBuffer);
+	computeUpdateMeshParticle.m_extraBufferArray[8].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	computeUpdateMeshParticle.m_extraBufferArray[8].rootParamType = GRAPHICS_PRAMTYPE_DATA8;
+
+	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(m_meshParticleIndexBuffer);
+	computeUpdateMeshParticle.m_extraBufferArray[9].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	computeUpdateMeshParticle.m_extraBufferArray[9].rootParamType = GRAPHICS_PRAMTYPE_DATA9;
 
 }
 
@@ -232,7 +359,7 @@ void InstanceMeshParticle::AddMeshData(const InitMeshParticleData& DATA)
 	scaleRotaMatArray.emplace_back(ScaleRotaBillData(KazMath::CaluScaleMatrix(DATA.particleScale), DATA.billboardFlag));
 }
 
-void InstanceMeshParticle::Compute()
+void InstanceMeshParticle::Compute(DrawingByRasterize& arg_rasterize)
 {
 	std::vector<MotherMatData>lMatArray(motherMatArray.size());
 	std::vector<float>lColorArray(motherMatArray.size());
@@ -277,41 +404,24 @@ void InstanceMeshParticle::Compute()
 	camera.billboard = CameraMgr::Instance()->GetMatBillBoard();
 	cameraMatBuffer.bufferWrapper->TransData(&camera, sizeof(CameraMatData));
 
-	computeUpdateMeshParticle.m_extraBufferArray[0] = meshParticleBufferData;
-	computeUpdateMeshParticle.m_extraBufferArray[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-	computeUpdateMeshParticle.m_extraBufferArray[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+	computeUpdateMeshParticle.Compute({ DISPATCH_NUM,1,1 });
 
-	computeUpdateMeshParticle.m_extraBufferArray[1] = particleMotherMatrixHandle;
-	computeUpdateMeshParticle.m_extraBufferArray[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-	computeUpdateMeshParticle.m_extraBufferArray[1].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
-	computeUpdateMeshParticle.m_extraBufferArray[2] = scaleRotateBillboardMatHandle;
-	computeUpdateMeshParticle.m_extraBufferArray[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-	computeUpdateMeshParticle.m_extraBufferArray[2].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+	//描画処理---------------------------------------
+	m_particleRender.counterWrapper->CopyBuffer(copyBuffer.GetBuffer());
+	m_particleViewProjRender.counterWrapper->CopyBuffer(copyBuffer.GetBuffer());
 
-	computeUpdateMeshParticle.m_extraBufferArray[3] = colorMotherMatrixHandle;
-	computeUpdateMeshParticle.m_extraBufferArray[3].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-	computeUpdateMeshParticle.m_extraBufferArray[3].rootParamType = GRAPHICS_PRAMTYPE_DATA4;
+	DirectX::XMMATRIX viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
+	m_viewBuffer.bufferWrapper->TransData(&viewProjMat, sizeof(DirectX::XMMATRIX));
+	m_computeCuring.Compute({ DISPATCH_NUM,1,1 });
 
-	computeUpdateMeshParticle.m_extraBufferArray[4] = m_outputMatrixBuffer;
-	computeUpdateMeshParticle.m_extraBufferArray[4].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-	computeUpdateMeshParticle.m_extraBufferArray[4].rootParamType = GRAPHICS_PRAMTYPE_DATA5;
+	arg_rasterize.ObjectRender(m_executeIndirect);
+	//描画処理---------------------------------------
 
-	computeUpdateMeshParticle.m_extraBufferArray[5] = cameraMatBuffer;
-	computeUpdateMeshParticle.m_extraBufferArray[5].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-	computeUpdateMeshParticle.m_extraBufferArray[5].rootParamType = GRAPHICS_PRAMTYPE_DATA;
-
-	computeUpdateMeshParticle.m_extraBufferArray[6] = ShaderRandomTable::Instance()->GetBuffer(GRAPHICS_PRAMTYPE_DATA6);
-
-	computeUpdateMeshParticle.m_extraBufferArray[7] = curlNoizeVRAMBuffer;
-	computeUpdateMeshParticle.m_extraBufferArray[7].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-	computeUpdateMeshParticle.m_extraBufferArray[7].rootParamType = GRAPHICS_PRAMTYPE_DATA7;
-
-	computeUpdateMeshParticle.Compute({ 100,1,1 });
 }
 
 void InstanceMeshParticle::InitCompute()
 {
 	meshParticleBufferData.counterWrapper->CopyBuffer(copyBuffer.GetBuffer());
-	computeInitMeshParticle.Compute({ 100,1,1 });
+	computeInitMeshParticle.Compute({ DISPATCH_NUM,1,1 });
 }

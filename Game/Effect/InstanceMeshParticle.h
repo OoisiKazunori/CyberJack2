@@ -4,16 +4,17 @@
 #include"../KazLibrary/Helper/ISinglton.h"
 #include"../KazLibrary/Helper/Compute.h"
 #include"InstanceMeshParticleData.h"
+#include"../KazLibrary/Render/DrawingByRasterize.h"
 #include<vector>
 
 class InstanceMeshParticle
 {
 public:
-	InstanceMeshParticle(const KazBufferHelper::BufferData &arg_outputMat);
+	InstanceMeshParticle();
 
 	void Init();
-	void AddMeshData(const InitMeshParticleData &DATA);
-	void Compute();
+	void AddMeshData(const InitMeshParticleData& DATA);
+	void Compute(DrawingByRasterize& arg_rasterize);
 
 	void InitCompute();
 
@@ -38,7 +39,7 @@ private:
 	bool isInitFlag;
 	ComputeShader computeInitMeshParticle;
 	KazBufferHelper::BufferData vertHandle, uvHandle, meshDataAndColorHandle, colorHandle, meshParticleOutputHandle, meshParticleIDHandle;
-	KazBufferHelper::BufferData motherMatrixHandle,particlePosHandle, particleColorHandle,particleMotherMatrixHandle, colorMotherMatrixHandle;
+	KazBufferHelper::BufferData motherMatrixHandle, particlePosHandle, particleColorHandle, particleMotherMatrixHandle, colorMotherMatrixHandle;
 	KazBufferHelper::BufferData scaleRotateBillboardMatHandle;
 
 	ComputeShader computeUpdateMeshParticle;
@@ -69,7 +70,8 @@ private:
 		DirectX::XMMATRIX motherMat;
 	};
 
-	static const int PARTICLE_MAX_NUM = 2000000;
+	static const int DISPATCH_NUM = 5;
+	static const int PARTICLE_MAX_NUM = 1024 * DISPATCH_NUM;
 	static const int VERT_BUFFER_SIZE = sizeof(DirectX::XMFLOAT3);
 	static const int UV_BUFFER_SIZE = sizeof(DirectX::XMFLOAT2);
 	static const int COMMON_BUFFER_SIZE = sizeof(CommonWithColorData);
@@ -79,10 +81,10 @@ private:
 
 	struct MotherData
 	{
-		const DirectX::XMMATRIX *motherMat;
-		const float *alpha;
-		const bool *curlNozieFlag;
-		MotherData(const DirectX::XMMATRIX *arg_motherMatPtr, const float *arg_alphaPtr,const bool *arg_curlNoizeFlagPtr) :
+		const DirectX::XMMATRIX* motherMat;
+		const float* alpha;
+		const bool* curlNozieFlag;
+		MotherData(const DirectX::XMMATRIX* arg_motherMatPtr, const float* arg_alphaPtr, const bool* arg_curlNoizeFlagPtr) :
 			motherMat(arg_motherMatPtr), alpha(arg_alphaPtr), curlNozieFlag(arg_curlNoizeFlagPtr)
 		{
 		}
@@ -96,7 +98,7 @@ private:
 		INIT_POS_UV,
 		INIT_POS_UV_NORMAL,
 	};
-	void IsSetBuffer(const KazBufferHelper::BufferData &BUFFER_DATA,std::vector<KazBufferHelper::BufferData>& arg_bufferArray)
+	void IsSetBuffer(const KazBufferHelper::BufferData& BUFFER_DATA, std::vector<KazBufferHelper::BufferData>& arg_bufferArray)
 	{
 		if (BUFFER_DATA.bufferWrapper->GetBuffer())
 		{
@@ -123,10 +125,24 @@ private:
 	{
 		DirectX::XMMATRIX scaleRotaMata;
 		bool billboardFlag;
-		ScaleRotaBillData(const DirectX::XMMATRIX &MAT, bool BILLBOARD_FLAG) :
+		ScaleRotaBillData(const DirectX::XMMATRIX& MAT, bool BILLBOARD_FLAG) :
 			scaleRotaMata(MAT), billboardFlag(BILLBOARD_FLAG)
 		{};
 	};
 	std::vector<ScaleRotaBillData> scaleRotaMatArray;
+
+
+	//•`‰æ
+	KazBufferHelper::BufferData m_particleRender, m_particleViewProjRender, m_viewBuffer;
+	std::vector<DirectX::XMMATRIX> m_motherMat;
+	float m_alpha;
+	DrawFuncData::DrawCallData m_executeIndirect;
+
+	DrawFuncData::DrawCallData m_modelRender;
+
+	ComputeShader m_computeCuring;
+	bool curlNozieFlag;
+
+	KazBufferHelper::BufferData m_meshParticleVertexBuffer, m_meshParticleIndexBuffer;
 };
 

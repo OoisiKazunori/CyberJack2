@@ -243,3 +243,22 @@ void IEnemy::InitModel(const KazMath::Transform3D &TRANSFORM, const std::string 
 		break;
 	}
 }
+
+void IEnemy::InitMeshPartilce(std::string arg_fileDir, std::string arg_fileName, DirectX::XMMATRIX* arg_mat)
+{
+	iEnemy_EnemyStatusData->meshParticleFlag = true;
+	iEnemy_EnemyStatusData->meshParticleData.emplace_back(std::make_shared<MeshData>(MeshData(0, arg_mat)));
+
+	MeshParticleLoadData data;
+	data.bias = 70;
+	data.faceCountNum = 0;
+	data.perTriangleNum = 10;
+	iEnemy_EnemyStatusData->motherMat = arg_mat;
+	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData
+		= MeshParticleLoader::Instance()->LoadMesh(arg_fileDir, arg_fileName, iEnemy_EnemyStatusData->motherMat, data);
+	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData.alpha = iEnemy_EnemyStatusData->fAlpha;
+	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData.curlNoizeFlag = &iEnemy_EnemyStatusData->curlNozieFlag;
+
+	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData.particleScale = { 0.01f,0.01f,0.01f };
+	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData.billboardFlag = true;
+}

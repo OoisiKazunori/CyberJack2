@@ -7,8 +7,11 @@
 
 struct MeshParticleLoadData
 {
+	//パーティクルの偏り
 	UINT bias;
+	//三角形ごとのパーティクルの数
 	UINT perTriangleNum;
+	//三角面の数
 	UINT faceCountNum;
 };
 
