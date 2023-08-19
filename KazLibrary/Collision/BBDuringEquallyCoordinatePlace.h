@@ -24,10 +24,10 @@ public:
 	}
 	const ResouceBufferHelper::BufferData GetHitBoxPosData()
 	{
-		return computeHelper->GetBufferData(hitBoxDataHandle);
+		return m_computeHelper->GetBufferData(hitBoxDataHandle);
 	}
 
-	std::unique_ptr<ResouceBufferHelper> computeHelper;
+	std::unique_ptr<ResouceBufferHelper> m_computeHelper;
 	ResouceBufferHelper debugComputeHelper;
 
 	//デバック用に当たり判定を描画する用

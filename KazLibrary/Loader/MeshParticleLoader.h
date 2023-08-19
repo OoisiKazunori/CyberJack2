@@ -1,7 +1,9 @@
 #pragma once
 #include"../KazLibrary/Helper/ISinglton.h"
-#include"../Game/Effect/InstanceMeshParticle.h"
+#include"../Game/Effect/InstanceMeshParticleData.h"
 #include"../KazLibrary/Buffer/CreateMeshBuffer.h"
+#include "../KazLibrary/Loader/ModelLoader.h"
+#include<string>
 
 struct MeshParticleLoadData
 {
@@ -14,7 +16,7 @@ class MeshParticleLoader :public ISingleton<MeshParticleLoader>
 {
 public:
 	MeshParticleLoader();
-	const InitMeshParticleData &Load(const std::string &MODEL_NAME, bool REV_FLAG, const DirectX::XMMATRIX *MOTHER_MAT, const MeshParticleLoadData &MESH_PARTICLE_DATA, RESOURCE_HANDLE TEX_HANDLE = -1);
+	const InitMeshParticleData &LoadMesh(const std::string& FIRLE_DIR, const std::string& MODEL_NAME, const DirectX::XMMATRIX *MOTHER_MAT, const MeshParticleLoadData &MESH_PARTICLE_DATA, RESOURCE_HANDLE TEX_HANDLE = -1);
 
 private:
 	HandleMaker handle;

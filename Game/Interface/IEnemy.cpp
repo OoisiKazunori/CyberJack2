@@ -222,13 +222,13 @@ void IEnemy::InitModel(const KazMath::Transform3D &TRANSFORM, const std::string 
 		iEnemy_EnemyStatusData->meshParticleData.emplace_back(
 			std::make_shared<MeshData>(0, &iEnemy_FbxModelRender->motherMat)
 		);
-		iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData =
-			MeshParticleLoader::Instance()->Load(
+		/*iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData =
+			MeshParticleLoader::Instance()->LoadMesh(
 				MODEL_FILEPASS,
 				REV_UV_FLAG,
 				&iEnemy_FbxModelRender->motherMat,
 				lData
-			);
+			);*/
 
 		iEnemy_EnemyStatusData->deadParticleData.motherMat = iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData.motherMat;
 		iEnemy_EnemyStatusData->deadParticleData.startFlag = &iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag;

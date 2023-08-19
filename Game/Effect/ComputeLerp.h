@@ -11,6 +11,6 @@ public:
 	void Compute();
 
 private:
-	ResouceBufferHelper computeHelper;
+	ResouceBufferHelper m_computeHelper;
 };
 

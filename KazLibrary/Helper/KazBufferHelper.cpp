@@ -1,4 +1,6 @@
 #include "KazBufferHelper.h"
+#include"../KazLibrary/Buffer/UavViewHandleMgr.h"
+#include"../KazLibrary/Buffer/DescriptorHeapMgr.h"
 
 KazBufferHelper::BufferResourceData KazBufferHelper::SetConstBufferData(const unsigned int &BUFFER_SIZE, const std::string &BUFFER_NAME)
 {
@@ -247,6 +249,168 @@ D3D12_UNORDERED_ACCESS_VIEW_DESC KazBufferHelper::SetUnorderedAccess3DTextureVie
 	return uavDesc;
 }
 
+void KazBufferHelper::ID3D12ResourceWrapper::CreateBuffer(const BufferResourceData& BUFFER_OPTION)
+{
+	for (int i = 0; i < buffer.size(); ++i)
+	{
+		HRESULT lResult;
+		//バッファの生成
+		lResult = DirectX12Device::Instance()->dev->CreateCommittedResource(
+			&BUFFER_OPTION.heapProperties,
+			BUFFER_OPTION.heapFlags,
+			&BUFFER_OPTION.resourceDesc,
+			BUFFER_OPTION.resourceState,
+			BUFFER_OPTION.clearValue,
+			IID_PPV_ARGS(&buffer[i])
+		);
+
+		assert(lResult == S_OK);
+
+		const unsigned int BUFFER_SIZE = 256;
+		std::array<wchar_t, BUFFER_SIZE> string;
+		KazHelper::ConvertStringToWchar_t(BUFFER_OPTION.BufferName, string.data(), BUFFER_SIZE);
+		buffer[i]->SetName(string.data());
+		bufferName = BUFFER_OPTION.BufferName;
+
+		resourceState = BUFFER_OPTION.resourceState;
+
+		if (BUFFER_OPTION.heapProperties.Type != D3D12_HEAP_TYPE_DEFAULT &&
+			BUFFER_OPTION.heapProperties.Type != D3D12_HEAP_TYPE_CUSTOM)
+		{
+			auto result = buffer[i]->Map(0, nullptr, (void**)&bufferMapPtr[i]);
+			if (FAILED(result))
+			{
+				assert(0);
+			}
+			isVRAMBufferFlag = false;
+		}
+		else
+		{
+			isVRAMBufferFlag = true;
+			bufferMapPtr[i] = nullptr;
+		}
+	}
+
+}
+
+void KazBufferHelper::ID3D12ResourceWrapper::TransData(void* DATA, const unsigned int& DATA_SIZE)
+{
+	if (!isVRAMBufferFlag)
+	{
+		for (int i = 0; i < buffer.size(); ++i)
+		{
+			memcpy(bufferMapPtr[i], DATA, DATA_SIZE);
+		}
+	}
+	else
+	{
+		//VRAMのバッファはCPUから転送できません
+		assert(0);
+	}
+}
+
+void KazBufferHelper::ID3D12ResourceWrapper::TransData(void* DATA, unsigned int START_DATA_SIZE, unsigned int DATA_SIZE)
+{
+	void* dataMap = nullptr;
+	for (int i = 0; i < buffer.size(); ++i)
+	{
+		auto result = buffer[i]->Map(0, nullptr, (void**)&dataMap);
+
+		void* data = &dataMap + START_DATA_SIZE;
+		if (SUCCEEDED(result))
+		{
+			memcpy(data, DATA, DATA_SIZE);
+			buffer[i]->Unmap(0, nullptr);
+		}
+	}
+}
+
+void KazBufferHelper::ID3D12ResourceWrapper::Release()
+{
+	for (int i = 0; i < buffer.size(); ++i)
+	{
+		buffer[i]->Release();
+	}
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS KazBufferHelper::ID3D12ResourceWrapper::GetGpuAddress()
+{
+	return buffer[GetIndex()]->GetGPUVirtualAddress();
+}
+
+void* KazBufferHelper::ID3D12ResourceWrapper::GetMapAddres(int BB_INDEX)const
+{
+	void* dataMap = nullptr;
+	if (BB_INDEX == -1)
+	{
+		buffer[GetIndex()]->Map(0, nullptr, (void**)&dataMap);
+	}
+	else
+	{
+		buffer[BB_INDEX]->Map(0, nullptr, (void**)&dataMap);
+	}
+	return dataMap;
+}
+
+void KazBufferHelper::ID3D12ResourceWrapper::CopyBuffer(const Microsoft::WRL::ComPtr<ID3D12Resource>& SRC_BUFFER) const
+{
+	for (int i = 0; i < buffer.size(); ++i)
+	{
+		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(
+			1,
+			&CD3DX12_RESOURCE_BARRIER::Transition(buffer[i].Get(),
+				resourceState,
+				D3D12_RESOURCE_STATE_COPY_DEST
+			)
+		);
+
+		DirectX12CmdList::Instance()->cmdList->CopyResource(buffer[i].Get(), SRC_BUFFER.Get());
+
+		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(
+			1,
+			&CD3DX12_RESOURCE_BARRIER::Transition(buffer[i].Get(),
+				D3D12_RESOURCE_STATE_COPY_DEST,
+				resourceState
+			)
+		);
+	}
+}
+
+void KazBufferHelper::ID3D12ResourceWrapper::ChangeBarrier(D3D12_RESOURCE_STATES BEFORE_STATE, D3D12_RESOURCE_STATES AFTER_STATE)
+{
+	for (int i = 0; i < buffer.size(); ++i)
+	{
+		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(
+			1,
+			&CD3DX12_RESOURCE_BARRIER::Transition(buffer[i].Get(),
+				BEFORE_STATE,
+				AFTER_STATE
+			)
+		);
+	}
+	resourceState = AFTER_STATE;
+}
+
+const Microsoft::WRL::ComPtr<ID3D12Resource>& KazBufferHelper::ID3D12ResourceWrapper::GetBuffer(int INDEX) const
+{
+	if (INDEX == -1)
+	{
+		return buffer[GetIndex()];
+	}
+	else
+	{
+		return buffer[INDEX];
+	}
+}
+
+void KazBufferHelper::ID3D12ResourceWrapper::operator=(const ID3D12ResourceWrapper& rhs)
+{
+	for (int i = 0; i < buffer.size(); ++i)
+	{
+		rhs.buffer[i].CopyTo(&buffer[i]);
+	}
+};
+
 KazBufferHelper::BufferResourceData KazBufferHelper::SetGPUBufferData(BUFFER_SIZE BUFFER_SIZE, const std::string &BUFFER_NAME)
 {
 	D3D12_RESOURCE_DESC lDesc = CD3DX12_RESOURCE_DESC::Buffer(BUFFER_SIZE, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
@@ -277,3 +441,27 @@ KazBufferHelper::BufferResourceData KazBufferHelper::SetUploadBufferData(BUFFER_
 	);
 	return data;
 }
+
+void KazBufferHelper::BufferData::GenerateCounterBuffer()
+{
+	counterWrapper = std::make_shared<ID3D12ResourceWrapper>(KazBufferHelper::SetGPUBufferData(sizeof(UINT), "CopyCounterBuffer-VRAM"));
+	counterWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+}
+
+void KazBufferHelper::BufferData::CreateUAVView()
+{
+	RESOURCE_HANDLE handle = UavViewHandleMgr::Instance()->GetHandle();
+	D3D12_UNORDERED_ACCESS_VIEW_DESC desc = KazBufferHelper::SetUnorderedAccessView(structureSize, elementNum);
+	DescriptorHeapMgr::Instance()->CreateBufferView(handle, desc, bufferWrapper->GetBuffer().Get(), counterWrapper->GetBuffer().Get());
+	bufferWrapper->CreateViewHandle(handle);
+}
+
+void KazBufferHelper::BufferData::operator=(const KazBufferHelper::BufferData& rhs)
+{
+	rangeType = rhs.rangeType;
+	rootParamType = rhs.rootParamType;
+	structureSize = rhs.structureSize;
+	bufferWrapper = rhs.bufferWrapper;
+	counterWrapper = rhs.counterWrapper;
+	elementNum = rhs.elementNum;
+};

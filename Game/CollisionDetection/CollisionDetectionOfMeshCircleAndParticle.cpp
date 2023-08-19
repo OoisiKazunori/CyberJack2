@@ -15,7 +15,7 @@ CollisionDetectionOfMeshCircleAndCPUHitBox::CollisionDetectionOfMeshCircleAndCPU
 	);
 	lData.resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
-	cpuHitBoxBufferHandle = computeHelper.CreateBuffer(
+	cpuHitBoxBufferHandle = m_computeHelper.CreateBuffer(
 		lData,
 		GRAPHICS_RANGE_TYPE_UAV_DESC,
 		GRAPHICS_PRAMTYPE_DATA2,
@@ -35,7 +35,7 @@ CollisionDetectionOfMeshCircleAndCPUHitBox::CollisionDetectionOfMeshCircleAndCPU
 	);
 
 	//当たった情報判定
-	hitIdBufferHandle = computeHelper.CreateBuffer(
+	hitIdBufferHandle = m_computeHelper.CreateBuffer(
 		KazBufferHelper::SetOnlyReadStructuredBuffer(sizeof(MeshHitBoxData) * 10000),
 		GRAPHICS_RANGE_TYPE_UAV_DESC,
 		GRAPHICS_PRAMTYPE_DATA3,
@@ -44,7 +44,7 @@ CollisionDetectionOfMeshCircleAndCPUHitBox::CollisionDetectionOfMeshCircleAndCPU
 		true
 	);
 
-	commonDataHandle = computeHelper.CreateBuffer(sizeof(CommonData), GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA4, 1);
+	commonDataHandle = m_computeHelper.CreateBuffer(sizeof(CommonData), GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA4, 1);
 
 	UINT lNum = 0;
 	KazBufferHelper::BufferResourceData lBufferData
@@ -58,13 +58,13 @@ CollisionDetectionOfMeshCircleAndCPUHitBox::CollisionDetectionOfMeshCircleAndCPU
 	);
 	copyBuffer.CreateBuffer(lBufferData);
 	copyBuffer.TransData(&lNum, sizeof(UINT));
-	computeHelper.InitCounterBuffer(copyBuffer.GetBuffer());
+	m_computeHelper.InitCounterBuffer(copyBuffer.GetBuffer());
 
 	CommonData lCommonData;
 	lCommonData.cpuHitBoxNum = static_cast<UINT>(sphereHitBoxArray.size());
 	lCommonData.particleRadius = MESH_CIRCLE_RADIUS;
 	lCommonData.meshCircleNum = MESH_CIRCLE_NUM;
-	computeHelper.TransData(commonDataHandle, &lCommonData, sizeof(CommonData));
+	m_computeHelper.TransData(commonDataHandle, &lCommonData, sizeof(CommonData));
 }
 
 void CollisionDetectionOfMeshCircleAndCPUHitBox::Compute()
@@ -81,33 +81,33 @@ void CollisionDetectionOfMeshCircleAndCPUHitBox::Compute()
 
 	DirectX12CmdList::Instance()->cmdList->ResourceBarrier(
 		1,
-		&CD3DX12_RESOURCE_BARRIER::Transition(computeHelper.GetBufferData(cpuHitBoxBufferHandle).bufferWrapper.GetBuffer().Get(),
+		&CD3DX12_RESOURCE_BARRIER::Transition(m_computeHelper.GetBufferData(cpuHitBoxBufferHandle).bufferWrapper.GetBuffer().Get(),
 			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 			D3D12_RESOURCE_STATE_COPY_DEST
 		)
 	);
 
-	DirectX12CmdList::Instance()->cmdList->CopyResource(computeHelper.GetBufferData(cpuHitBoxBufferHandle).bufferWrapper.GetBuffer().Get(), motherMatrixBuffer.GetBuffer().Get());
+	DirectX12CmdList::Instance()->cmdList->CopyResource(m_computeHelper.GetBufferData(cpuHitBoxBufferHandle).bufferWrapper.GetBuffer().Get(), motherMatrixBuffer.GetBuffer().Get());
 
 	DirectX12CmdList::Instance()->cmdList->ResourceBarrier(
 		1,
-		&CD3DX12_RESOURCE_BARRIER::Transition(computeHelper.GetBufferData(cpuHitBoxBufferHandle).bufferWrapper.GetBuffer().Get(),
+		&CD3DX12_RESOURCE_BARRIER::Transition(m_computeHelper.GetBufferData(cpuHitBoxBufferHandle).bufferWrapper.GetBuffer().Get(),
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 		)
 	);
 	//CPU当たり判定の転送ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 
-	computeHelper.InitCounterBuffer(copyBuffer.GetBuffer());
-	computeHelper.StackToCommandListAndCallDispatch(PIPELINE_COMPUTE_NAME_HITBOX_MESHCIRCLE_PARTICLE, { 10,1,1 });
+	m_computeHelper.InitCounterBuffer(copyBuffer.GetBuffer());
+	m_computeHelper.StackToCommandListAndCallDispatch(PIPELINE_COMPUTE_NAME_HITBOX_MESHCIRCLE_PARTICLE, { 10,1,1 });
 }
 
 void CollisionDetectionOfMeshCircleAndCPUHitBox::SetStackMeshCircleBuffer(const ResouceBufferHelper::BufferData &BUFFER_DATA)
 {
-	computeHelper.SetBuffer(BUFFER_DATA, GRAPHICS_PRAMTYPE_DATA);
+	m_computeHelper.SetBuffer(BUFFER_DATA, GRAPHICS_PRAMTYPE_DATA);
 }
 
 const ResouceBufferHelper::BufferData &CollisionDetectionOfMeshCircleAndCPUHitBox::GetStackIDBuffer()
 {
-	return computeHelper.GetBufferData(hitIdBufferHandle);
+	return m_computeHelper.GetBufferData(hitIdBufferHandle);
 }

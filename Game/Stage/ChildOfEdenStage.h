@@ -51,8 +51,6 @@ public:
 
 	ComputeShader m_computeInit,m_computeUpdate;
 
-	KazBufferHelper::BufferData m_randomTable;
-
 	std::shared_ptr<KazBufferHelper::BufferData>m_particleVertexBuffer;
 	std::shared_ptr<KazBufferHelper::BufferData>m_particleIndexBuffer;
 

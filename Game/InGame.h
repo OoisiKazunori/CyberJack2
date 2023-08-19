@@ -54,6 +54,7 @@
 #include"../KazLibrary/Helper/ResourceFilePass.h"
 
 #include"../Game/Effect/InstanceMeshParticle.h"
+#include"../KazLibrary/Buffer/CreateMeshBuffer.h"
 
 class InGame
 {
@@ -150,10 +151,18 @@ private:
 	DebugCamera m_debugCamera;
 	//デバック処理---------------------------------------
 
-	//メッシュパーティクル
-	KazBufferHelper::BufferData m_particleRender;
-	std::optional<InstanceMeshParticle> m_meshParticleRender;
-
 	//ブルームテスト
 	DrawFuncData::DrawCallData m_bloomModelRender;
+
+	//メッシュパーティクル
+	KazBufferHelper::BufferData m_particleRender, m_particleViewProjRender, m_viewBuffer;
+	std::unique_ptr<InstanceMeshParticle> m_meshParticleRender;
+	std::vector<DirectX::XMMATRIX> m_motherMat;
+	float m_alpha;
+	DrawFuncData::DrawCallData m_executeIndirect;
+
+	DrawFuncData::DrawCallData m_modelRender;
+
+	ComputeShader m_computeCuring;
+	bool curlNozieFlag;
 };
