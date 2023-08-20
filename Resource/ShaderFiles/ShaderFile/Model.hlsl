@@ -141,8 +141,15 @@ float4 PSPosNormalUvLightmain(ModelWithLightOutputData input) : SV_TARGET
     float ambient = 0.5f;
     bright = clamp(bright,ambient,1.0f);
 
-	float4 texColor = AlbedoTex.Sample(smp,input.uv);
-    texColor *= colorB2;
+    float4 texColor = AlbedoTex.Sample(smp,input.uv);
+    if(IsAll0MaterialTex(texColor))
+    {
+        texColor = colorB2;
+    }
+    else
+    {
+        texColor *= colorB2;
+    }
 	return float4(texColor.rgb * bright, texColor.a);
 }
 

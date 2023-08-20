@@ -179,98 +179,28 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 		modelMaterialDataArray.emplace_back();
 
 		auto texID = material.metallicRoughness.baseColorTexture.textureId;
-		//テクスチャの取得
-		if (!texID.empty())
-		{
-			auto& texture = doc.textures.Get(texID);
-			auto& image = doc.images.Get(texture.imageId);
-			if (!image.uri.empty())
-			{
-				std::string textureFilePass(FileDir + image.uri);
-				//テクスチャ読み込み
-				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
-				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-			}
-			else
-			{
-				modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA));
-			}
-		}
-		else
-		{
-			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA));
-		}
+		//Albedoの取得
+		LoadMaterialTexture(&modelMaterialDataArray.back(), FileDir, texID, doc, GRAPHICS_PRAMTYPE_DATA);
 
 		//法線マップの取得
 		texID = material.normalTexture.textureId;
-		if (!texID.empty())
-		{
-			auto& texture = doc.textures.Get(texID);
-			auto& image = doc.images.Get(texture.imageId);
-			if (!image.uri.empty())
-			{
-				std::string textureFilePass(FileDir + image.uri);
-				//テクスチャ読み込み
-				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
-				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-			}
-			//何もない場合は透明なテクスチャを送る
-			else
-			{
-				modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA2));
-			}
-		}
-		else
-		{
-			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA2));
-		}
+		LoadMaterialTexture(&modelMaterialDataArray.back(), FileDir, texID, doc, GRAPHICS_PRAMTYPE_DATA2);
 
 		//メタルネスの取得
 		texID = material.metallicRoughness.metallicRoughnessTexture.textureId;
-		if (!texID.empty())
-		{
-			auto& texture = doc.textures.Get(texID);
-			auto& image = doc.images.Get(texture.imageId);
-			if (!image.uri.empty())
-			{
-				std::string textureFilePass(FileDir + image.uri);
-				//テクスチャ読み込み
-				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
-				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-			}
-			//何もない場合は透明なテクスチャを送る
-			else
-			{
-				modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA3));
-			}
-		}
-		else
-		{
-			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA3));
-		}
+		LoadMaterialTexture(&modelMaterialDataArray.back(), FileDir, texID, doc, GRAPHICS_PRAMTYPE_DATA3);
 
 		//エミッシブの取得
 		texID = material.emissiveTexture.textureId;
-		if (!texID.empty())
+		LoadMaterialTexture(&modelMaterialDataArray.back(), FileDir, texID, doc, GRAPHICS_PRAMTYPE_DATA4);
+	}
+	//マテリアルがない場合は代わりのものを差し込む
+	if (doc.materials.Elements().size() == 0)
+	{
+		modelMaterialDataArray.emplace_back();
+		for (int i = 0; i < MATERIAL_TEXTURE_MAX; ++i)
 		{
-			auto& texture = doc.textures.Get(texID);
-			auto& image = doc.images.Get(texture.imageId);
-			if (!image.uri.empty())
-			{
-				std::string textureFilePass(FileDir + image.uri);
-				//テクスチャ読み込み
-				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
-				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
-			}
-			//何もない場合は透明なテクスチャを送る
-			else
-			{
-				modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA4));
-			}
-		}
-		else
-		{
-			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA4));
+			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(static_cast<GraphicsRootParamType>(GRAPHICS_PRAMTYPE_DATA + i)));
 		}
 	}
 
@@ -382,7 +312,7 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 			}
 			else
 			{
-				bool debug = false;
+				meshData.back().materialData = modelMaterialDataArray[0];
 			}
 
 			//上で手に入れた情報を元に一つのメッシュ情報を追加---------------------------------------
@@ -585,6 +515,40 @@ void GLTFLoader::PrintInfo(const std::experimental::filesystem::path& path)
 
 	PrintDocumentInfo(document);
 	PrintResourceInfo(document, *resourceReader);
+}
+
+void GLTFLoader::LoadMaterialTexture(MaterialData* arg_material, std::string arg_fileDir, std::string arg_id, const Microsoft::glTF::Document& arg_doc, GraphicsRootParamType arg_rootParam)
+{
+	//テクスチャの取得
+	if (!arg_id.empty())
+	{
+		auto& texture = arg_doc.textures.Get(arg_id);
+		auto& image = arg_doc.images.Get(texture.imageId);
+		if (!image.uri.empty())
+		{
+			std::string textureFilePass(arg_fileDir + image.uri);
+			KazBufferHelper::BufferData textureBuffer(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
+			if (textureBuffer.bufferWrapper)
+			{
+
+				//テクスチャ読み込み
+				arg_material->textureBuffer.emplace_back(textureBuffer);
+				arg_material->textureBuffer.back().rootParamType = arg_rootParam;
+			}
+			else
+			{
+				arg_material->textureBuffer.emplace_back(LoadErrorTex(arg_rootParam));
+			}
+		}
+		else
+		{
+			arg_material->textureBuffer.emplace_back(LoadErrorTex(arg_rootParam));
+		}
+	}
+	else
+	{
+		arg_material->textureBuffer.emplace_back(LoadErrorTex(arg_rootParam));
+	}
 }
 
 ModelInfomation::ModelInfomation(const std::vector<ModelMeshData>& model, RESOURCE_HANDLE vertHandle) :modelData(model), modelVertDataHandle(vertHandle)

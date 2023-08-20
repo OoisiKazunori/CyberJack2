@@ -4,6 +4,7 @@
 		"version":"2.0"
 	},
 	"extensionsUsed":[
+		"KHR_materials_emissive_strength",
 		"KHR_materials_specular",
 		"KHR_materials_ior"
 	],
@@ -25,33 +26,40 @@
 	"materials":[
 		{
 			"doubleSided":true,
+			"emissiveFactor":[
+				1,
+				1,
+				1
+			],
+			"emissiveTexture":{
+				"index":0
+			},
 			"extensions":{
+				"KHR_materials_emissive_strength":{
+					"emissiveStrength":5.799999713897705
+				},
 				"KHR_materials_specular":{
 					"specularColorTexture":{
-						"index":0
-					},
-					"specularColorFactor":[
-						2.1016739647271825,
-						2.1016739647271825,
-						2.1016739647271825
-					]
+						"index":1
+					}
 				},
 				"KHR_materials_ior":{
 					"ior":1.4500000476837158
 				}
 			},
-			"name":"neko",
+			"name":"\u30de\u30c6\u30ea\u30a2\u30eb",
 			"normalTexture":{
-				"index":1
+				"index":2,
+				"scale":5
 			},
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
-					"index":2
-				},
-				"metallicRoughnessTexture":{
 					"index":3
 				},
-				"roughnessFactor":0.5
+				"metallicRoughnessTexture":{
+					"index":4
+				},
+				"roughnessFactor":0.12272727489471436
 			}
 		}
 	],
@@ -63,10 +71,9 @@
 					"attributes":{
 						"POSITION":0,
 						"NORMAL":1,
-						"TEXCOORD_0":2,
-						"TEXCOORD_1":3
+						"TEXCOORD_0":2
 					},
-					"indices":4,
+					"indices":3,
 					"material":0
 				}
 			]
@@ -88,9 +95,18 @@
 		{
 			"sampler":0,
 			"source":3
+		},
+		{
+			"sampler":0,
+			"source":4
 		}
 	],
 	"images":[
+		{
+			"mimeType":"image/png",
+			"name":"DefaultMaterial_Emissive",
+			"uri":"DefaultMaterial_Emissive.png"
+		},
 		{
 			"mimeType":"image/png",
 			"name":"Image",
@@ -98,91 +114,79 @@
 		},
 		{
 			"mimeType":"image/png",
-			"name":"cat_banp",
-			"uri":"cat_banp.png"
+			"name":"DefaultMaterial_Normal_OpenGL",
+			"uri":"DefaultMaterial_Normal_OpenGL.png"
 		},
 		{
 			"mimeType":"image/png",
-			"name":"catt",
-			"uri":"catt.png"
+			"name":"DefaultMaterial_Base_color",
+			"uri":"DefaultMaterial_Base_color.png"
 		},
 		{
 			"mimeType":"image/png",
-			"name":"suzu_metal",
-			"uri":"suzu_metal.png"
+			"name":"DefaultMaterial_Metallic",
+			"uri":"DefaultMaterial_Metallic.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":3596,
+			"count":1924,
 			"max":[
-				1.4214587211608887,
-				3.0408878326416016,
-				3.8332810401916504
+				9.013327598571777,
+				2.3698253631591797,
+				7.2385969161987305
 			],
 			"min":[
-				-1.4214587211608887,
-				-1.754911184310913,
-				-2.7003118991851807
+				-9.013327598571777,
+				-1.4709291458129883,
+				-7.3629889488220215
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":3596,
+			"count":1924,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":3596,
+			"count":1924,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
-			"componentType":5126,
-			"count":3596,
-			"type":"VEC2"
-		},
-		{
-			"bufferView":4,
 			"componentType":5123,
-			"count":19776,
+			"count":3216,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":43152,
+			"byteLength":23088,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":43152,
-			"byteOffset":43152,
+			"byteLength":23088,
+			"byteOffset":23088,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":28768,
-			"byteOffset":86304,
+			"byteLength":15392,
+			"byteOffset":46176,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":28768,
-			"byteOffset":115072,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":39552,
-			"byteOffset":143840,
+			"byteLength":6432,
+			"byteOffset":61568,
 			"target":34963
 		}
 	],
@@ -194,8 +198,8 @@
 	],
 	"buffers":[
 		{
-			"byteLength":183392,
-			"uri":"neko.bin"
+			"byteLength":68000,
+			"uri":"butterfly_cur.bin"
 		}
 	]
 }

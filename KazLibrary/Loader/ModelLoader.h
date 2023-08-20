@@ -163,8 +163,11 @@ private:
 		std::string errorFilePass("Resource/Error/MaterialErrorTex.png");
 		KazBufferHelper::BufferData buffer(TextureResourceMgr::Instance()->LoadGraphBuffer(errorFilePass));
 		buffer.rootParamType = arg_type;
+		buffer.rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
 		return buffer;
 	};
+
+	void LoadMaterialTexture(MaterialData* arg_material, std::string arg_fileDir, std::string arg_id, const Microsoft::glTF::Document& arg_doc, GraphicsRootParamType arg_rootParam);
 };
 
 

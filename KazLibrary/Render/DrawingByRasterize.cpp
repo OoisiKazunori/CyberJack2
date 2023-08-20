@@ -192,7 +192,7 @@ void DrawingByRasterize::Sort()
 			{
 				rootSignatureGenerateData.rangeArray.emplace_back
 				(
-					callData.materialBuffer[FIRST_MESH_INDEX][i].rangeType,
+					GRAPHICS_RANGE_TYPE_SRV_DESC,
 					callData.materialBuffer[FIRST_MESH_INDEX][i].rootParamType
 				);
 			}
