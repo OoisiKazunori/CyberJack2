@@ -154,8 +154,8 @@ void ModelTool::DrawGrid(DrawingByRasterize& render)
 		std::vector<KazMath::Vec3<float>>posArray;
 		posArray.emplace_back(startPos);
 		posArray.emplace_back(endPos);
-		DrawFunc::DrawLine(m_gridCallDataX[z], posArray, m_gridCallDataZ[z].m_modelVertDataHandle, lineColor);
-		render.ObjectRender(m_gridCallDataX[z]);
+		DrawFunc::DrawLine(m_gridCallDataZ[z], posArray, m_gridCallDataZ[z].m_modelVertDataHandle, lineColor);
+		render.ObjectRender(m_gridCallDataZ[z]);
 	}
 	//ècÇÃê¸Çï¿Ç◊ÇÈ
 	for (int x = 0; x < m_gridCallDataZ.size(); ++x)
@@ -166,7 +166,7 @@ void ModelTool::DrawGrid(DrawingByRasterize& render)
 		std::vector<KazMath::Vec3<float>>posArray;
 		posArray.emplace_back(startPos);
 		posArray.emplace_back(endPos);
-		DrawFunc::DrawLine(m_gridCallDataZ[x], posArray, m_gridCallDataZ[x].m_modelVertDataHandle, lineColor);
-		render.ObjectRender(m_gridCallDataZ[x]);
+		DrawFunc::DrawLine(m_gridCallDataX[x], posArray, m_gridCallDataX[x].m_modelVertDataHandle, lineColor);
+		render.ObjectRender(m_gridCallDataX[x]);
 	}
 }

@@ -105,9 +105,9 @@ float4 PSPosNormalUvLightMain(ModelWithLightOutputData input) : SV_TARGET
 	return float4(texColor.rgb * bright, texColor.a);
 }
 
-PosUvNormalOutput VSPosNormalUvLightmain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
+ModelWithLightOutputData VSPosNormalUvLightmain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
 {
-    PosUvNormalOutput op;
+    ModelWithLightOutputData op;
     op.svpos = mul(worldMat,pos);
     op.worldPos = op.svpos.xyz;
     op.svpos = mul(viewMat,op.svpos);
@@ -122,7 +122,7 @@ PosUvNormalOutput VSPosNormalUvLightmain(float4 pos : POSITION,float3 normal : N
     return op;
 }
 
-float4 PSPosNormalUvLightmain(PosUvNormalOutput input) : SV_TARGET
+float4 PSPosNormalUvLightmain(ModelWithLightOutputData input) : SV_TARGET
 {
     float4 normalColor = NormalTex.Sample(smp,input.uv);
 
