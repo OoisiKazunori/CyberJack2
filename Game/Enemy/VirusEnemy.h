@@ -17,6 +17,7 @@ private:
 
 	DrawFuncData::DrawCallData m_model;
 	KazMath::Vec3<float> m_prevPlayerPos;
+	KazMath::Vec3<float> m_initPos;
 
 	//ステータス
 	enum STATUS {
@@ -51,7 +52,7 @@ private:
 
 	//自動的に消えるまでのタイマー
 	int m_exitTimer;
-	const int EXIT_TIMER = 540;
+	const int EXIT_TIMER = 480;
 
 
 	int debugTimer = 0;

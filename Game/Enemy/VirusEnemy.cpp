@@ -36,6 +36,7 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 	m_status = APPEAR;
 
 	m_transform.pos = GENERATE_DATA.initPos;
+	m_initPos = GENERATE_DATA.initPos;
 
 	debugTimer = 0;
 	m_exitTimer = 0;
@@ -107,17 +108,20 @@ void VirusEnemy::Update()
 	{
 		//現在の位置を確定。
 		//m_transform.pos = centerPos + TransformVector3(Vec3<float>(0, 1, 0), playerQ) * AROUND_R;
+		m_moveTimer += 0.06f;
+		m_transform.pos.y = m_initPos.y + sinf(m_moveTimer) * 1.0f;
 
 		//出現のタイマーを更新。
-		m_appearEasingTimer = std::clamp(m_appearEasingTimer + 1.0f, 0.0f, APPEAR_EASING_TIMER);
+		//m_appearEasingTimer = std::clamp(m_appearEasingTimer + 1.0f, 0.0f, APPEAR_EASING_TIMER);
+		++m_appearEasingTimer;
 
 		//座標を補間する。
-		float easingValue = EasingMaker(EasingType::Out, EaseInType::Back, m_appearEasingTimer / APPEAR_EASING_TIMER);
+		float easingValue = EasingMaker(EasingType::Out, EaseInType::Back, std::clamp(m_appearEasingTimer + 1.0f, 0.0f, APPEAR_EASING_TIMER) / APPEAR_EASING_TIMER);
 		m_transform.scale = m_playerTransform->scale * easingValue;
 		m_transform.rotation = Vec3<float>(0, 0, 360) * easingValue;
 
 		//出現が終わったら待機状態へ
-		if (APPEAR_EASING_TIMER <= m_appearEasingTimer) {
+		if (APPEAR_EASING_TIMER + 10.0f <= m_appearEasingTimer) {
 			m_status = STAY;
 		}
 
@@ -125,47 +129,55 @@ void VirusEnemy::Update()
 	break;
 	case VirusEnemy::STAY:
 	{
+
+		//サイン波で良い感じに動かす用のタイマー。名前は以前使ってた処理のママ。
+		m_stopTimer += 0.1f;
+		m_moveTimer += 0.06f;
+
+		m_transform.rotation.z = 360.0f + sinf(m_stopTimer) * 35.0f;
+		m_transform.pos.y = m_initPos.y + sinf(m_moveTimer) * 1.0f;
+
 		//現在の位置を確定。
 		//m_transform.pos = centerPos + TransformVector3(Vec3<float>(0, 1, 0), playerQ) * AROUND_R;
 
-		//動いている状態だったら
-		if (m_isMove) {
+		////動いている状態だったら
+		//if (m_isMove) {
 
-			//移動のタイマーを進める。
-			m_moveTimer = std::clamp(m_moveTimer + 1.0f, 0.0f, MOVE_TIMER);
+		//	//移動のタイマーを進める。
+		//	m_moveTimer = std::clamp(m_moveTimer + 1.0f, 0.0f, MOVE_TIMER);
 
-			//座標を補間する。
-			float easingValue = EasingMaker(EasingType::Out, EaseInType::Back, m_moveTimer / MOVE_TIMER);
-			m_transform.rotation.z = MOVE_ROTATE - MOVE_ROTATE * easingValue;
-			easingValue = EasingMaker(EasingType::Out, EaseInType::Exp, m_moveTimer / MOVE_TIMER);
-			m_aroundAngle = m_fromAroundAngle + ADD_AROUND_ANGLE * easingValue;
-			m_transform.scale += (m_playerTransform->scale - m_transform.scale) / 10.0;
+		//	//座標を補間する。
+		//	float easingValue = EasingMaker(EasingType::Out, EaseInType::Back, m_moveTimer / MOVE_TIMER);
+		//	m_transform.rotation.z = MOVE_ROTATE - MOVE_ROTATE * easingValue;
+		//	easingValue = EasingMaker(EasingType::Out, EaseInType::Exp, m_moveTimer / MOVE_TIMER);
+		//	m_aroundAngle = m_fromAroundAngle + ADD_AROUND_ANGLE * easingValue;
+		//	m_transform.scale += (m_playerTransform->scale - m_transform.scale) / 10.0;
 
-			//出現が終わったらSTOP状態へ
-			if (MOVE_TIMER <= m_moveTimer) {
-				m_isMove = false;
-				m_stopTimer = 0;
-			}
+		//	//出現が終わったらSTOP状態へ
+		//	if (MOVE_TIMER <= m_moveTimer) {
+		//		m_isMove = false;
+		//		m_stopTimer = 0;
+		//	}
 
-		}
-		//動いていない状態だったら
-		else {
+		//}
+		////動いていない状態だったら
+		//else {
 
-			//移動のタイマーを進める。
-			m_stopTimer = std::clamp(m_stopTimer + 1.0f, 0.0f, STOP_TIMER);
+		//	//移動のタイマーを進める。
+		//	m_stopTimer = std::clamp(m_stopTimer + 1.0f, 0.0f, STOP_TIMER);
 
-			//座標を補間する。
-			float easingValue = EasingMaker(EasingType::Out, EaseInType::Sine, m_stopTimer / STOP_TIMER);
-			m_transform.scale = m_playerTransform->scale + easingValue * 30.0f;
-			m_transform.rotation.z = MOVE_ROTATE * easingValue;
+		//	//座標を補間する。
+		//	float easingValue = EasingMaker(EasingType::Out, EaseInType::Sine, m_stopTimer / STOP_TIMER);
+		//	m_transform.scale = m_playerTransform->scale + easingValue * 30.0f;
+		//	m_transform.rotation.z = MOVE_ROTATE * easingValue;
 
-			//出現が終わったらMOVE状態へ
-			if (STOP_TIMER <= m_stopTimer) {
-				m_isMove = true;
-				m_moveTimer = 0;
-				m_fromAroundAngle = m_aroundAngle;
-			}
-		}
+		//	//出現が終わったらMOVE状態へ
+		//	if (STOP_TIMER <= m_stopTimer) {
+		//		m_isMove = true;
+		//		m_moveTimer = 0;
+		//		m_fromAroundAngle = m_aroundAngle;
+		//	}
+		//}
 	}
 	break;
 	case VirusEnemy::EXIT:
