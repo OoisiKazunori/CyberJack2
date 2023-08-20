@@ -422,7 +422,8 @@ void InGame::Update()
 	m_gameFlame += m_gameSpeed;
 
 	//ƒQ[ƒ€ƒ‹[ƒv‚Ì‰Šú‰»
-	if (KazMath::ConvertSecondToFlame(15) <= m_gameFlame)
+	//if (KazMath::ConvertSecondToFlame(15) <= m_gameFlame)
+	if (600 <= m_gameFlame)
 	{
 		m_gameFlame = 0;
 	}

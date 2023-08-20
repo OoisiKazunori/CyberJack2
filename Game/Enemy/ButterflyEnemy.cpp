@@ -24,12 +24,15 @@ void ButterflyEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const
 	m_angleYEasingTimer = 0;
 	m_angleXEasingTimer = 0;
 
+	m_transform.scale = KazMath::Vec3<float>(0, 0, 0);
+
 	m_postureQ = DirectX::XMQuaternionIdentity();
 
 	m_status = APPEAR;
 	m_isDead = false;
 
 	debugTimer = 0;
+	m_exitTimer = 0;
 }
 
 void ButterflyEnemy::Finalize()
@@ -120,6 +123,12 @@ void ButterflyEnemy::Update()
 	m_angleXEasingTimer = std::clamp(m_angleXEasingTimer + 1, 0.0f, ANGLEX_EASING_TIMER);
 	float easingXAmount = EasingMaker(EasingType::In, EaseInType::Cubic, m_angleXEasingTimer / ANGLEX_EASING_TIMER);
 
+	//Exitするまでのタイマーを更新する。
+	++m_exitTimer;
+	if (EXIT_TIMER < m_exitTimer) {
+		m_status = EXIT;
+	}
+
 	switch (m_status)
 	{
 	case ButterflyEnemy::APPEAR:
@@ -138,6 +147,8 @@ void ButterflyEnemy::Update()
 		m_postureQ = DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3({ 1,0,0 }, m_moveQ)), m_angleX - m_angleX * easingXAmount);
 		m_postureQ = DirectX::XMQuaternionMultiply(m_postureQ, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3({ 0,1,0 }, m_postureQ)), easingAmount * (DirectX::XM_2PI * 2.0f)));
 		m_transform.quaternion = m_postureQ;
+
+		m_transform.scale += (m_playerTransform->scale - m_transform.scale) / 20.0f;
 
 		//位置に関する処理
 		m_aroundAngle -= m_addAroundAngle;
@@ -182,7 +193,8 @@ void ButterflyEnemy::Update()
 	break;
 	case ButterflyEnemy::EXIT:
 	{
-
+		m_isDead = true;
+		iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 	}
 	break;
 	case ButterflyEnemy::DEAD:
@@ -204,7 +216,6 @@ void ButterflyEnemy::Update()
 		break;
 	}
 
-	m_transform.scale = m_playerTransform->scale;
 
 	DrawFunc::DrawModelInRaytracing(m_model, m_transform, DrawFunc::NONE);
 

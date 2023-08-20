@@ -22,6 +22,7 @@ private:
 	enum STATUS {
 		APPEAR,
 		STAY,
+		EXIT,
 		DEAD,
 	}m_status;
 
@@ -47,6 +48,10 @@ private:
 	//死亡演出用
 	KazMath::Vec3<float> m_deadEffectVel;
 	KazMath::Vec3<float> m_deadEffectVelStorage;
+
+	//自動的に消えるまでのタイマー
+	int m_exitTimer;
+	const int EXIT_TIMER = 540;
 
 
 	int debugTimer = 0;

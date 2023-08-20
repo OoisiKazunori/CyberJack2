@@ -35,7 +35,10 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 
 	m_status = APPEAR;
 
+	m_transform.pos = GENERATE_DATA.initPos;
+
 	debugTimer = 0;
+	m_exitTimer = 0;
 	m_alpha;
 }
 
@@ -92,12 +95,18 @@ void VirusEnemy::Update()
 
 	}
 
+	//自動的に消えるまでのタイマーを更新。
+	++m_exitTimer;
+	if (EXIT_TIMER <= m_exitTimer) {
+		m_status = EXIT;
+	}
+
 	switch (m_status)
 	{
 	case VirusEnemy::APPEAR:
 	{
 		//現在の位置を確定。
-		m_transform.pos = centerPos + TransformVector3(Vec3<float>(0, 1, 0), playerQ) * AROUND_R;
+		//m_transform.pos = centerPos + TransformVector3(Vec3<float>(0, 1, 0), playerQ) * AROUND_R;
 
 		//出現のタイマーを更新。
 		m_appearEasingTimer = std::clamp(m_appearEasingTimer + 1.0f, 0.0f, APPEAR_EASING_TIMER);
@@ -117,7 +126,7 @@ void VirusEnemy::Update()
 	case VirusEnemy::STAY:
 	{
 		//現在の位置を確定。
-		m_transform.pos = centerPos + TransformVector3(Vec3<float>(0, 1, 0), playerQ) * AROUND_R;
+		//m_transform.pos = centerPos + TransformVector3(Vec3<float>(0, 1, 0), playerQ) * AROUND_R;
 
 		//動いている状態だったら
 		if (m_isMove) {
@@ -157,6 +166,27 @@ void VirusEnemy::Update()
 				m_fromAroundAngle = m_aroundAngle;
 			}
 		}
+	}
+	break;
+	case VirusEnemy::EXIT:
+	{
+
+		//小さくして消す。
+		m_transform.scale.x = std::clamp(m_transform.scale.x - 2.0f, 0.0f, 100.0f);
+		m_transform.scale.y = std::clamp(m_transform.scale.y - 2.0f, 0.0f, 100.0f);
+		m_transform.scale.z = std::clamp(m_transform.scale.z - 2.0f, 0.0f, 100.0f);
+
+		//回す
+		m_transform.rotation.z += 10.0f;
+
+		//小さくなったら殺す。
+		if (m_transform.scale.x <= 0) {
+
+			m_isDead = true;
+			iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
+
+		}
+
 	}
 	break;
 	case VirusEnemy::DEAD:

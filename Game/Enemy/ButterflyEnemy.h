@@ -62,9 +62,13 @@ private:
 
 	int debugTimer = 0;
 
+	//自動的に消えるまでのタイマー
+	int m_exitTimer;
+	const int EXIT_TIMER = 540;
+
 
 	//プレイヤーを中心とした半径どのくらいの位置に敵を出すか。
-	const float SPAWN_R = 15.0f;
+	const float SPAWN_R = 10.0f;
 
 };
 
