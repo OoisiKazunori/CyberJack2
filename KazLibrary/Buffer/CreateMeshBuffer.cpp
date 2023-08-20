@@ -72,6 +72,8 @@ void CreateMeshBuffer::GenerateBuffer(MeshBufferView TYPE, GraphicsRootParamType
 	m_uploadBufferHandleDataArray[TYPE].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_uploadBufferHandleDataArray[TYPE].rootParamType = ROOT_TYPE;
 	m_uploadBufferHandleDataArray[TYPE].bufferWrapper->TransData(ADDRESS, KazBufferHelper::GetBufferSize<int>(SIZE, STRUCTER_SIZE));
+	m_uploadBufferHandleDataArray[TYPE].structureSize = static_cast<UINT>(STRUCTER_SIZE);
+	m_uploadBufferHandleDataArray[TYPE].elementNum = static_cast<UINT>(SIZE);
 
 	m_VRAMBufferHandleDataArray[TYPE] = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<int>(SIZE, STRUCTER_SIZE), BUFFER_NAME + std::string("-VRAM"));
 	m_VRAMBufferHandleDataArray[TYPE].elementNum = static_cast<UINT>(SIZE);

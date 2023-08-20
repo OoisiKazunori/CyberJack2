@@ -14,60 +14,8 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 
 	m_bloomModelRender = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingBloomData(*ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf"), DrawFuncData::GetModelBloomShader());
 
-	struct OutputData
-	{
-		DirectX::XMMATRIX mat;
-		DirectX::XMFLOAT4 color;
-	};
+	m_meshParticleRender = std::make_unique<InstanceMeshParticle>();
 
-	UINT MAXNUM = 1024 * 3000;
-	m_particleRender = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * MAXNUM);
-	m_particleViewProjRender.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-	m_particleViewProjRender.rootParamType = GRAPHICS_PRAMTYPE_DATA;
-	m_particleRender.structureSize = sizeof(OutputData);
-	m_particleRender.elementNum = MAXNUM;
-	m_particleRender.GenerateCounterBuffer();
-	m_particleRender.CreateUAVView();
-
-	m_particleViewProjRender = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * MAXNUM);
-	m_particleViewProjRender.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-	m_particleViewProjRender.rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-	m_particleViewProjRender.structureSize = sizeof(OutputData);
-	m_particleViewProjRender.elementNum = MAXNUM;
-	m_particleViewProjRender.GenerateCounterBuffer();
-	m_particleViewProjRender.CreateUAVView();
-
-	m_meshParticleRender = std::make_unique<InstanceMeshParticle>(m_particleRender);
-
-	m_executeIndirect = DrawFuncData::SetExecuteIndirect(
-		DrawFuncData::GetBasicShader(),
-		m_particleViewProjRender.bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
-		3000000
-	);
-
-	m_executeIndirect.extraBufferArray.emplace_back(m_particleRender);
-	m_executeIndirect.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-	m_executeIndirect.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-	m_modelRender = DrawFuncData::SetDrawGLTFIndexMaterialData(*ModelLoader::Instance()->Load("Resource/Test/glTF/Box/", "BoxTextured.gltf"), DrawFuncData::GetModelShader());
-
-
-	m_viewBuffer = KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX));
-	std::vector<KazBufferHelper::BufferData>buffer;
-	buffer.emplace_back(m_particleRender);
-	buffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-	buffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-
-	buffer.emplace_back(m_particleViewProjRender);
-	buffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-	buffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-
-	buffer.emplace_back(m_viewBuffer);
-	buffer.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-	buffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-	m_computeCuring.Generate(
-		ShaderOptionData("Resource/ShaderFiles/ShaderFile/ConvertWorldToProj.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE),
-		buffer
-	);
 }
 
 void InGame::Init(bool SKIP_FLAG)
@@ -82,28 +30,23 @@ void InGame::Init(bool SKIP_FLAG)
 	m_sceneNum = -1;
 	m_cursor.Init();
 
-	m_motherMat.emplace_back(KazMath::Transform3D({ 0.0f,0.0f,0.0f }, { 5.0f,5.0f,5.0f }, { 0.0f,0.0f,0.0f }).GetMat());
-	m_motherMat.emplace_back(KazMath::Transform3D({ 20.0f,0.0f,0.0f }, { 5.0f,5.0f,5.0f }, { 0.0f,0.0f,0.0f }).GetMat());
-	curlNozieFlag = false;
+	for (int enemyType = 0; enemyType < m_enemies.size(); ++enemyType)
 	{
-		InitMeshParticleData initMeshParticleData(MeshParticleLoader::Instance()->LoadMesh("Resource/Test/glTF/Box/", "BoxTextured.gltf", &m_motherMat[0], {70,100,12}, -1));
-		initMeshParticleData.alpha = &m_alpha;
-		float scale = 0.01f;
-		initMeshParticleData.particleScale = { scale,scale,scale };
-		initMeshParticleData.curlNoizeFlag = &curlNozieFlag;
-		m_alpha = 1.0f;
-		m_meshParticleRender->AddMeshData(initMeshParticleData);
+		for (int enemyCount = 0; enemyCount < m_enemies[enemyType].size(); ++enemyCount)
+		{
+			bool enableToUseDataFlag = m_enemies[enemyType][enemyCount] != nullptr;
+			if (enableToUseDataFlag)
+			{
+				EnemyData* data = m_enemies[enemyType][enemyCount]->GetData().get();
+				if (!data->meshParticleFlag)
+				{
+					continue;
+				}
+				//モデルの読み込み開始
+				m_meshParticleRender->AddMeshData(data->meshParticleData[0]->meshParticleData);
+			}
+		}
 	}
-	{
-		InitMeshParticleData initMeshParticleData(MeshParticleLoader::Instance()->LoadMesh("Resource/Test/glTF/Box/", "BoxTextured.gltf", &m_motherMat[1], {70,100,12}, -1));
-		initMeshParticleData.alpha = &m_alpha;
-		float scale = 0.01f;
-		initMeshParticleData.particleScale = { scale,scale,scale };
-		initMeshParticleData.curlNoizeFlag = &curlNozieFlag;
-		m_alpha = 1.0f;
-		m_meshParticleRender->AddMeshData(initMeshParticleData);
-	}
-
 	m_meshParticleRender->Init();
 }
 
@@ -120,23 +63,11 @@ void InGame::Input()
 	{
 		Init(false);
 	}
-	if (input->InputTrigger(DIK_0))
-	{
-		curlNozieFlag = !curlNozieFlag;
-	}
 
 	if (KeyBoradInputManager::Instance()->MouseInputTrigger(MOUSE_INPUT_MIDDLE))
 	{
 		m_meshParticleRender->InitCompute();
 	}
-	m_particleRender.counterWrapper->CopyBuffer(m_meshParticleRender->copyBuffer.GetBuffer());
-	m_particleViewProjRender.counterWrapper->CopyBuffer(m_meshParticleRender->copyBuffer.GetBuffer());
-
-	m_meshParticleRender->Compute();
-
-	DirectX::XMMATRIX viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
-	m_viewBuffer.bufferWrapper->TransData(&viewProjMat, sizeof(DirectX::XMMATRIX));
-	m_computeCuring.Compute({ 3000,1,1 });
 
 
 	m_player.Input();
@@ -240,7 +171,7 @@ void InGame::Update()
 				{
 
 					m_cursor.Hit(enemyData->hitBox.center);
-					
+
 					PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount]);
 
 					//stringLog.WriteLog(enemies[enemyType][enemyCount]->GetData()->oprationObjData->name, LOG_FONT_SIZE);
@@ -415,12 +346,13 @@ void InGame::Update()
 					m_enemies[enemyType][enemyCount]->SetLight(m_cursor.hitBox.dir, m_enemies[enemyType][enemyCount]->GetData()->objFlag);
 				}
 				if (m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->rockOnNum <= 0 &&
-					m_cursor.Release() && 
+					m_cursor.Release() &&
 					!m_enemies[enemyType][enemyCount]->m_isBeingShot)
 				{
-
 					PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount]);
 					m_enemies[enemyType][enemyCount]->m_isBeingShot = true;
+
+					m_enemies[enemyType][enemyCount]->GetData()->meshParticleData;
 
 					//m_enemies[enemyType][enemyCount]->Dead();
 					//m_meshParticleRender->AddMeshData(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData[0]->meshParticleData);
@@ -477,7 +409,7 @@ void InGame::Update()
 
 	if (KazMath::ConvertSecondToFlame(CHANGE_GMAE_FLAME_SPEED_MAX_TIME) <= m_notMoveTimer)
 	{
-		m_gameSpeed = 60;
+		//m_gameSpeed = 60;
 	}
 	else
 	{
@@ -488,6 +420,11 @@ void InGame::Update()
 
 	m_gameFlame += m_gameSpeed;
 
+	//ゲームループの初期化
+	if (KazMath::ConvertSecondToFlame(15) <= m_gameFlame)
+	{
+		m_gameFlame = 0;
+	}
 
 }
 
@@ -502,17 +439,11 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	{
 		for (int enemyCount = 0; enemyCount < m_enemies[enemyType].size(); ++enemyCount)
 		{
-			bool enableToUseDataFlag = m_enemies[enemyType][enemyCount] != nullptr ;
+			bool enableToUseDataFlag = m_enemies[enemyType][enemyCount] != nullptr;
 			if (enableToUseDataFlag)
 			{
 				m_enemies[enemyType][enemyCount]->Draw(arg_rasterize, arg_blasVec);
 			}
-#ifdef _DEBUG
-			if (enableToUseDataFlag && m_enemies[enemyType][enemyCount]->iOperationData.enableToHitFlag)
-			{
-				//enemyHitBox[enemyType][enemyCount].Draw();
-			}
-#endif
 		}
 	}
 	PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
@@ -538,6 +469,10 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 		arg_blasVec.Add(obj, transform.GetMat());
 	}
 	arg_rasterize.ObjectRender(m_bloomModelRender);
+
+
+	m_meshParticleRender->Compute(arg_rasterize);
+
 
 	ImGui::Begin("Game");
 	ImGui::Checkbox("Debug", &m_debugFlag);

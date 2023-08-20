@@ -293,6 +293,10 @@ void SceneManager::Draw()
 			m_rayPipeline->TraceRay(m_tlas);
 		}
 	}
+	else
+	{
+		//GBufferMgr::Instance()->DebugDraw();
+	}
 
 	//デバッグメニューの大本
 	ImGui::Begin("DebugMenu");
@@ -302,7 +306,7 @@ void SceneManager::Draw()
 	ImGui::Checkbox("TimeZone", &m_isDebugTimeZone);
 	ImGui::Checkbox("VolumeFog", &m_isDebugVolumeFog);
 	ImGui::Checkbox("Sea", &m_isDebugSea);
-
+	ImGui::Checkbox("DrawRaytracing", &m_raytracingFlag);
 	ImGui::End();
 
 	//カメラのデバッグメニュー

@@ -130,6 +130,66 @@ float3 CurlNoise3D(float3 arg_st, float3 arg_pos)
 
 }
 
+struct VertexBufferData
+{
+    float3 svpos;
+    float3 normal;
+    float2 uv;
+    float3 tangent;
+    float3 binormal;
+};
+
+float3 GetNormal(RWStructuredBuffer<VertexBufferData> vertex,uint index,uint2 offset)
+{
+    return cross(normalize(vertex[index + offset.x].svpos - vertex[index].svpos),normalize(vertex[index + offset.y].svpos - vertex[index].svpos));
+}
+
+void GenerateVertexData(inout RWStructuredBuffer<VertexBufferData> bufferData,int index,matrix worldMat)
+{
+    uint vertexIndex = index * 4;
+
+    bufferData[index].svpos = float4(-0.5f, 0.5f, 0.0f, 1.0f);
+    bufferData[index + 1].svpos = float4(-0.5f, -0.5f, 0.0f, 1.0f);
+    bufferData[index + 2].svpos = float4(0.5f, 0.5f, 0.0f, 1.0f);
+    bufferData[index + 3].svpos = float4(0.5f, -0.5f, 0.0f, 1.0f);
+
+    bufferData[index].svpos =     mul(worldMat, float4(bufferData[index].svpos    , 1.0f));
+    bufferData[index + 1].svpos = mul(worldMat, float4(bufferData[index + 1].svpos, 1.0f));
+    bufferData[index + 2].svpos = mul(worldMat, float4(bufferData[index + 2].svpos, 1.0f));
+    bufferData[index + 3].svpos = mul(worldMat, float4(bufferData[index + 3].svpos, 1.0f));
+
+    bufferData[index].normal =     GetNormal(bufferData,index,uint2(1,2));
+    bufferData[index + 1].normal = GetNormal(bufferData,index,uint2(1,2));
+    bufferData[index + 2].normal = GetNormal(bufferData,index,uint2(1,2));
+    bufferData[index + 3].normal = GetNormal(bufferData,index,uint2(1,2));
+}
+
+void GenerateIndexData(inout RWStructuredBuffer<uint> bufferData,int index)
+{
+    uint indeciesIndex = index * 6;
+    if(index == 0)
+    {
+        bufferData[indeciesIndex] = indeciesIndex;
+	    bufferData[indeciesIndex + 1] = indeciesIndex + 1;
+	    bufferData[indeciesIndex + 2] = indeciesIndex + 2;
+	    bufferData[indeciesIndex + 3] = indeciesIndex + 2;
+	    bufferData[indeciesIndex + 4] = indeciesIndex + 1;
+	    bufferData[indeciesIndex + 5] = indeciesIndex + 3;
+    }
+    else
+    {
+        uint offsetIndex = index * 4;
+        bufferData[indeciesIndex] = offsetIndex;
+	    bufferData[indeciesIndex + 1] = offsetIndex + 1;
+	    bufferData[indeciesIndex + 2] = offsetIndex + 2;
+	    bufferData[indeciesIndex + 3] = offsetIndex + 2;
+	    bufferData[indeciesIndex + 4] = offsetIndex + 1;
+	    bufferData[indeciesIndex + 5] = offsetIndex + 3;
+    }
+}
+
+
+
 struct MotherMatData
 {
 	matrix motherMat;
@@ -145,6 +205,9 @@ AppendStructuredBuffer<GPUParticleInput> inputGPUParticleData : register(u4);
 
 RWStructuredBuffer<uint> randomTable : register(u5);
 RWStructuredBuffer<uint> curlNoizeBuffer : register(u6);
+
+RWStructuredBuffer<VertexBufferData> vertexBuffer : register(u7);
+RWStructuredBuffer<uint> indexBuffer : register(u8);
 
 cbuffer Camera :register(b0)
 {
@@ -181,8 +244,11 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     worldMat[2][3] = particleData.pos.z;
     worldMat = mul(motherMatData[particleData.id].motherMat,worldMat);
 
+	GenerateVertexData(vertexBuffer,index,worldMat);
+    GenerateIndexData(indexBuffer,index);
+
     GPUParticleInput inputData;
-    inputData.worldMat = worldMat;
+    inputData.worldMat = mul(viewProjMat,worldMat);
     inputData.color = particleData.color;
     inputGPUParticleData.Append(inputData);
 }

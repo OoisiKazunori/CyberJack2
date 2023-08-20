@@ -152,7 +152,8 @@ struct EnemyData
 		outOfStageFlag(false),
 		radius(0.0f),
 		startFlag(false), objFlag(false),
-		meshParticleFlag(false)
+		meshParticleFlag(false),
+		curlNozieFlag(false)
 	{
 	};
 
@@ -168,6 +169,7 @@ struct EnemyData
 	float *fAlpha;
 
 	bool meshParticleFlag;
+	bool curlNozieFlag;
 	const DirectX::XMMATRIX *motherMat;
 	std::vector<std::shared_ptr<MeshData>> meshParticleData;
 

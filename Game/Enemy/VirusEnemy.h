@@ -55,5 +55,8 @@ private:
 	//プレイヤーを中心とした半径どのくらいの位置に敵を出すか。
 	const float SPAWN_R = 50.0f;
 
+
+	DirectX::XMMATRIX m_motherMat;
+	float m_alpha;
 };
 
