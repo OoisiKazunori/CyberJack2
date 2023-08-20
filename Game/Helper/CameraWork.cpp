@@ -133,21 +133,22 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 		DirectX::XMVECTOR cameraUpQ = DirectX::XMQuaternionRotationAxis(rightVec, -std::clamp(CURSOR_VALUE.y, -CURCOR_CLAMP, CURCOR_CLAMP) * MAX_CURSOR_MOVE_UP);
 
 		//回転を適応させる。
-		playerQ = DirectX::XMQuaternionMultiply(DirectX::XMQuaternionMultiply(playerQ, cameraUpQ), cameraRightQ);
+		//playerQ = DirectX::XMQuaternionMultiply(DirectX::XMQuaternionMultiply(playerQ, cameraUpQ), cameraRightQ);
 
 		//視点方向に座標を動かす。
 		DirectX::XMVECTOR targetVector = DirectX::XMVector3Transform(DirectX::XMVectorSet(0, 0, 1, 0), DirectX::XMMatrixRotationQuaternion(playerQ));
 		KazMath::Vec3<float> targetVec = KazMath::Vec3<float>(targetVector.m128_f32[0], targetVector.m128_f32[1], targetVector.m128_f32[2]);
 
 		//targetPos = baseTargetPos;
-		targetPos = eyePos + targetVec * 10.0f;
+		//targetPos = eyePos + targetVec * 10.0f;
+		targetPos = eyePos + KazMath::Vec3<float>(0,0,1) * 10.0f;
 
 		//プレイヤーを画面の下部に持ってくる。
 		KazMath::Vec3<float> upVec3 = KazMath::Vec3<float>(upVec.m128_f32[0], upVec.m128_f32[1], upVec.m128_f32[2]);
 		const float PLAYER_OFFSET = 3.0f;
-		eyePos += upVec3 * PLAYER_OFFSET;
-		eyePos += ShakeMgr::Instance()->GetShakeVec3();
-		targetPos += upVec3 * PLAYER_OFFSET;
+		//eyePos += upVec3 * PLAYER_OFFSET;
+		//eyePos += ShakeMgr::Instance()->GetShakeVec3();
+		//targetPos += upVec3 * PLAYER_OFFSET;
 
 		//カーソルの値によってプレイヤーをある程度傾ける。
 		const float MAX_PLAYER_MOVE_RIGHT = 2.0f;
@@ -157,7 +158,7 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 		defaultPlayerQ = DirectX::XMQuaternionMultiply(DirectX::XMQuaternionMultiply(defaultPlayerQ, playerRightQ), playerUpQ);
 		DirectX::XMVECTOR rotate, scale, position;
 		DirectX::XMMatrixDecompose(&scale, &rotate, &position, DirectX::XMMatrixRotationQuaternion(defaultPlayerQ));
-		PLAYER_ROTATE = KazMath::Vec3<float>(DirectX::XMConvertToDegrees(rotate.m128_f32[0]), DirectX::XMConvertToDegrees(rotate.m128_f32[1]), DirectX::XMConvertToDegrees(rotate.m128_f32[2]));
+		//PLAYER_ROTATE = KazMath::Vec3<float>(DirectX::XMConvertToDegrees(rotate.m128_f32[0]), DirectX::XMConvertToDegrees(rotate.m128_f32[1]), DirectX::XMConvertToDegrees(rotate.m128_f32[2]));
 
 
 #pragma endregion

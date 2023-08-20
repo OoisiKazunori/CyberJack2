@@ -24,7 +24,7 @@ void SplineRail::Update()
 		assert(0);
 	}
 
-	++m_timer;
+	//++m_timer;
 	if (m_maxTimer <= m_timer)
 	{
 		m_timer = 0;

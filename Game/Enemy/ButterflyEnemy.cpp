@@ -44,26 +44,26 @@ void ButterflyEnemy::Update()
 	KazMath::Vec3<float> movedVec = m_playerTransform->pos - m_prevPlayerPos;
 	//動いていたら姿勢を更新。動いていなかったらやばい値になるため。
 	DirectX::XMVECTOR playerQ = DirectX::XMQuaternionIdentity();
-	if (0 < movedVec.Length()) {
+	//if (0 < movedVec.Length()) {
 
-		KazMath::Vec3<float> movedVecNormal = movedVec.GetNormal();
+	//	KazMath::Vec3<float> movedVecNormal = movedVec.GetNormal();
 
-		//デフォルトの回転軸と移動した方向のベクトルが同じ値だったらデフォルトの回転軸の方向に移動しているってこと！
-		if (movedVecNormal.Dot(KazMath::Vec3<float>(0, 0, 1)) < 0.999f) {
+	//	//デフォルトの回転軸と移動した方向のベクトルが同じ値だったらデフォルトの回転軸の方向に移動しているってこと！
+	//	if (movedVecNormal.Dot(KazMath::Vec3<float>(0, 0, 1)) < 0.999f) {
 
-			KazMath::Vec3<float> cameraAxisZ = movedVecNormal;
-			KazMath::Vec3<float> cameraAxisY = KazMath::Vec3<float>(0, 1, 0);
-			KazMath::Vec3<float> cameraAxisX = cameraAxisY.Cross(cameraAxisZ);
-			cameraAxisY = cameraAxisZ.Cross(cameraAxisX);
-			DirectX::XMMATRIX cameraMatWorld = DirectX::XMMatrixIdentity();
-			cameraMatWorld.r[0] = { cameraAxisX.x, cameraAxisX.y, cameraAxisX.z, 0.0f };
-			cameraMatWorld.r[1] = { cameraAxisY.x, cameraAxisY.y, cameraAxisY.z, 0.0f };
-			cameraMatWorld.r[2] = { cameraAxisZ.x, cameraAxisZ.y, cameraAxisZ.z, 0.0f };
-			playerQ = DirectX::XMQuaternionRotationMatrix(cameraMatWorld);
+	//		KazMath::Vec3<float> cameraAxisZ = movedVecNormal;
+	//		KazMath::Vec3<float> cameraAxisY = KazMath::Vec3<float>(0, 1, 0);
+	//		KazMath::Vec3<float> cameraAxisX = cameraAxisY.Cross(cameraAxisZ);
+	//		cameraAxisY = cameraAxisZ.Cross(cameraAxisX);
+	//		DirectX::XMMATRIX cameraMatWorld = DirectX::XMMatrixIdentity();
+	//		cameraMatWorld.r[0] = { cameraAxisX.x, cameraAxisX.y, cameraAxisX.z, 0.0f };
+	//		cameraMatWorld.r[1] = { cameraAxisY.x, cameraAxisY.y, cameraAxisY.z, 0.0f };
+	//		cameraMatWorld.r[2] = { cameraAxisZ.x, cameraAxisZ.y, cameraAxisZ.z, 0.0f };
+	//		playerQ = DirectX::XMQuaternionRotationMatrix(cameraMatWorld);
 
-		}
+	//	}
 
-	}
+	//}
 
 	//現在の角度によって姿勢を動かす。
 	auto nowPosutreQ = DirectX::XMQuaternionMultiply(playerQ, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3(Vec3<float>(0, 1, 0), playerQ)), m_aroundAngle));

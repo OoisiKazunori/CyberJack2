@@ -384,7 +384,8 @@ void InGame::Update()
 	m_stageArray[m_gameStageLevel]->Update();
 
 	m_player.Update();
-	m_player.pos = m_rail.GetPosition();
+	//m_player.pos = m_rail.GetPosition();
+	m_player.pos = KazMath::Vec3<float>(0,20,0);
 	m_cursor.Update();
 	m_camera.Update(m_cursor.GetValue(), &m_player.pos, m_player.m_transform.rotation, false);
 

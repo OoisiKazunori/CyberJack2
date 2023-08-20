@@ -7,15 +7,15 @@
 VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 {
 	m_model = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/Enemy/Virus/", "Virus.gltf"));
-<<<<<<< HEAD
+
 
 	m_alpha = 1.0f;
 	iEnemy_EnemyStatusData->fAlpha = &m_alpha;
 	InitMeshPartilce("Resource/Enemy/Virus/", "Virus.gltf", &m_motherMat);
-=======
+
 	moveID = arg_moveID;
 	moveIDparam = arg_moveIDparam;
->>>>>>> origin/dev_GameScene
+
 }
 
 void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)
@@ -51,29 +51,29 @@ void VirusEnemy::Update()
 	KazMath::Vec3<float> movedVec = m_playerTransform->pos - m_prevPlayerPos;
 	//動いていたら姿勢を更新。動いていなかったらやばい値になるため。
 	DirectX::XMVECTOR playerQ = DirectX::XMQuaternionIdentity();
-	if (0 < movedVec.Length()) {
+	//if (0 < movedVec.Length()) {
 
-		KazMath::Vec3<float> movedVecNormal = movedVec.GetNormal();
+	//	KazMath::Vec3<float> movedVecNormal = movedVec.GetNormal();
 
-		//デフォルトの回転軸と移動した方向のベクトルが同じ値だったらデフォルトの回転軸の方向に移動しているってこと！
-		if (movedVecNormal.Dot(KazMath::Vec3<float>(0, 0, 1)) < 0.999f) {
+	//	//デフォルトの回転軸と移動した方向のベクトルが同じ値だったらデフォルトの回転軸の方向に移動しているってこと！
+	//	if (movedVecNormal.Dot(KazMath::Vec3<float>(0, 0, 1)) < 0.999f) {
 
-			KazMath::Vec3<float> cameraAxisZ = movedVecNormal;
-			KazMath::Vec3<float> cameraAxisY = KazMath::Vec3<float>(0, 1, 0);
-			KazMath::Vec3<float> cameraAxisX = cameraAxisY.Cross(cameraAxisZ);
-			cameraAxisY = cameraAxisZ.Cross(cameraAxisX);
-			DirectX::XMMATRIX cameraMatWorld = DirectX::XMMatrixIdentity();
-			cameraMatWorld.r[0] = { cameraAxisX.x, cameraAxisX.y, cameraAxisX.z, 0.0f };
-			cameraMatWorld.r[1] = { cameraAxisY.x, cameraAxisY.y, cameraAxisY.z, 0.0f };
-			cameraMatWorld.r[2] = { cameraAxisZ.x, cameraAxisZ.y, cameraAxisZ.z, 0.0f };
-			playerQ = DirectX::XMQuaternionRotationMatrix(cameraMatWorld);
+	//		KazMath::Vec3<float> cameraAxisZ = movedVecNormal;
+	//		KazMath::Vec3<float> cameraAxisY = KazMath::Vec3<float>(0, 1, 0);
+	//		KazMath::Vec3<float> cameraAxisX = cameraAxisY.Cross(cameraAxisZ);
+	//		cameraAxisY = cameraAxisZ.Cross(cameraAxisX);
+	//		DirectX::XMMATRIX cameraMatWorld = DirectX::XMMatrixIdentity();
+	//		cameraMatWorld.r[0] = { cameraAxisX.x, cameraAxisX.y, cameraAxisX.z, 0.0f };
+	//		cameraMatWorld.r[1] = { cameraAxisY.x, cameraAxisY.y, cameraAxisY.z, 0.0f };
+	//		cameraMatWorld.r[2] = { cameraAxisZ.x, cameraAxisZ.y, cameraAxisZ.z, 0.0f };
+	//		playerQ = DirectX::XMQuaternionRotationMatrix(cameraMatWorld);
 
-		}
+	//	}
 
-	}
+	//}
 
 	//出現位置の中心点を決定。
-	Vec3<float> centerPos = m_playerTransform->pos + TransformVector3(Vec3<float>(0, 0, 1), playerQ) * SPAWN_R;
+	Vec3<float> centerPos = m_playerTransform->pos + Vec3<float>(0, 0, 1) * SPAWN_R;
 	//現在の角度によって姿勢を動かす。
 	playerQ = DirectX::XMQuaternionMultiply(playerQ, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3(Vec3<float>(0, 0, 1), playerQ)), m_aroundAngle));
 
