@@ -360,6 +360,19 @@ void DrawingByRasterize::MultiMeshedDrawIndexInstanceCommand(const KazRenderHelp
 			SetBufferOnCmdList(MATERIAL_BUFFER[i], ROOT_PARAM);
 		}
 
+		if (DATA.drawIndexInstancedData[i].indexCountPerInstance == 0)
+		{
+			DirectX12CmdList::Instance()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+			DirectX12CmdList::Instance()->cmdList->IASetVertexBuffers(DATA.vertexBufferDrawData[i].slot, DATA.vertexBufferDrawData[i].numViews, &DATA.vertexBufferDrawData[i].vertexBufferView);
+			DirectX12CmdList::Instance()->cmdList->DrawInstanced(
+				2,
+				DATA.drawIndexInstancedData[i].instanceCount,
+				0,
+				0
+			);
+			continue;
+		}
+
 		DirectX12CmdList::Instance()->cmdList->IASetPrimitiveTopology(DATA.topology);
 		DirectX12CmdList::Instance()->cmdList->IASetVertexBuffers(DATA.vertexBufferDrawData[i].slot, DATA.vertexBufferDrawData[i].numViews, &DATA.vertexBufferDrawData[i].vertexBufferView);
 		DirectX12CmdList::Instance()->cmdList->IASetIndexBuffer(&DATA.indexBufferView[i]);

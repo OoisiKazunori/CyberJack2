@@ -4,6 +4,20 @@
 
 namespace DrawFunc
 {
+	static CoordinateSpaceMatData GetMatrixBufferData(const KazMath::Transform3D& arg_transform)
+	{
+		CoordinateSpaceMatData transData(arg_transform.GetMat(), CameraMgr::Instance()->GetViewMatrix(), CameraMgr::Instance()->GetPerspectiveMatProjection());
+		transData.m_world = arg_transform.GetMat();
+		transData.m_projective = CameraMgr::Instance()->GetPerspectiveMatProjection();
+		transData.m_view = CameraMgr::Instance()->GetViewMatrix();
+
+		DirectX::XMVECTOR pos, scale, rotaQ;
+		DirectX::XMMatrixDecompose(&pos, &scale, &rotaQ, arg_transform.GetMat());
+		DirectX::XMMATRIX rotaMat = DirectX::XMMatrixRotationQuaternion(rotaQ);
+		transData.m_rotaion = rotaMat;
+		return transData;
+	}
+
 	enum RayTracingType
 	{
 		NONE,		//‰½‚à‚µ‚È‚¢
@@ -157,5 +171,23 @@ namespace DrawFunc
 		DirectX::XMMATRIX mat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
 		arg_callData.extraBufferArray[0].bufferWrapper->TransData(&mat, sizeof(DirectX::XMMATRIX));
 		arg_callData.extraBufferArray[1].bufferWrapper->TransData(&arg_color.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+	}
+
+	static void DrawModelLight(DrawFuncData::DrawCallData& arg_callData, const KazMath::Transform3D& arg_transform,KazMath::Vec3<float> &lightDir, const KazMath::Color& arg_color)
+	{
+		//s—ñî•ñ
+		static CoordinateSpaceMatData transData(arg_transform.GetMat(), CameraMgr::Instance()->GetViewMatrix(), CameraMgr::Instance()->GetPerspectiveMatProjection());
+		transData.m_world = arg_transform.GetMat();
+		transData.m_projective = CameraMgr::Instance()->GetPerspectiveMatProjection();
+		transData.m_view = CameraMgr::Instance()->GetViewMatrix();
+
+		DirectX::XMVECTOR pos, scale, rotaQ;
+		DirectX::XMMatrixDecompose(&pos, &scale, &rotaQ, arg_transform.GetMat());
+		DirectX::XMMATRIX rotaMat = DirectX::XMMatrixRotationQuaternion(rotaQ);
+		transData.m_rotaion = rotaMat;
+
+		arg_callData.extraBufferArray[0].bufferWrapper->TransData(&transData, sizeof(CoordinateSpaceMatData));
+		arg_callData.extraBufferArray[1].bufferWrapper->TransData(&lightDir, sizeof(DirectX::XMFLOAT3));
+		arg_callData.extraBufferArray[2].bufferWrapper->TransData(&arg_color.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
 	}
 }

@@ -670,321 +670,372 @@ namespace DrawFuncData
 	//単色のポリゴン表示(インデックスなし)
 	static DrawCallData SetDrawPolygonData(const KazRenderHelper::DrawInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
-		DrawCallData lDrawCallData;
+		DrawCallData drawCallData;
 		//頂点情報
-		lDrawCallData.drawInstanceCommandData = VERTEX_DATA;
-		lDrawCallData.drawCommandType = VERT_TYPE::INSTANCE;
+		drawCallData.drawInstanceCommandData = VERTEX_DATA;
+		drawCallData.drawCommandType = VERT_TYPE::INSTANCE;
 
 		//行列情報
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 		//色情報
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
 		//パイプライン情報のセット
-		lDrawCallData.pipelineData = PIPELINE_DATA;
+		drawCallData.pipelineData = PIPELINE_DATA;
 
-		return lDrawCallData;
+		return drawCallData;
 	};
 
 	//単色のポリゴン表示(インデックスあり)
 	static DrawCallData SetDrawPolygonIndexData(const KazRenderHelper::DrawIndexInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA, std::source_location location = std::source_location::current())
 	{
-		DrawCallData lDrawCallData;
+		DrawCallData drawCallData;
 		//頂点情報
-		lDrawCallData.drawIndexInstanceCommandData = VERTEX_DATA;
-		lDrawCallData.drawCommandType = VERT_TYPE::INDEX;
+		drawCallData.drawIndexInstanceCommandData = VERTEX_DATA;
+		drawCallData.drawCommandType = VERT_TYPE::INDEX;
 
 		//行列情報
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 		//色情報
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
 		//パイプライン情報のセット
-		lDrawCallData.pipelineData = PIPELINE_DATA;
+		drawCallData.pipelineData = PIPELINE_DATA;
 
-		lDrawCallData.callLocation = location;
+		drawCallData.callLocation = location;
 
-		return lDrawCallData;
+		return drawCallData;
 	};
 
 	//OBJモデルのポリゴン表示(インデックスあり)
 	static DrawCallData SetDrawOBJIndexData(const KazRenderHelper::MultipleMeshesDrawIndexInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
-		DrawCallData lDrawCallData;
+		DrawCallData drawCallData;
 		//頂点情報
-		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VERTEX_DATA;
-		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
+		drawCallData.drawMultiMeshesIndexInstanceCommandData = VERTEX_DATA;
+		drawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
 
 		//行列情報
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 		//マテリアル情報
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(MaterialBufferData))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
 		//パイプライン情報のセット
-		lDrawCallData.pipelineData = PIPELINE_DATA;
+		drawCallData.pipelineData = PIPELINE_DATA;
 
-		return lDrawCallData;
+		return drawCallData;
 	};
 
 	//モデルのポリゴン表示(インデックスあり、マテリアルあり)
 	static DrawCallData SetDrawGLTFIndexMaterialData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
-		DrawCallData lDrawCallData;
+		DrawCallData drawCallData;
 
-		lDrawCallData.pipelineData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+		drawCallData.pipelineData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
 
 		//頂点情報
-		lDrawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
-		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(MODEL_DATA.modelVertDataHandle).index;
-		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
+		drawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
+		drawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(MODEL_DATA.modelVertDataHandle).index;
+		drawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
 		for (auto& obj : MODEL_DATA.modelData)
 		{
-			lDrawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
+			drawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
 		}
 
 		//行列情報
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(CoordinateSpaceMatData))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		lDrawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
 
 		//色乗算
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-		lDrawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
 		KazMath::Color init(255, 255, 255, 255);
-		lDrawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+		drawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
 
 
 
-		lDrawCallData.pipelineData = PIPELINE_DATA;
-		lDrawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+		drawCallData.pipelineData = PIPELINE_DATA;
+		drawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 
-		return lDrawCallData;
+		return drawCallData;
+	};
+
+
+	//モデルのポリゴン表示(インデックスあり、マテリアルあり)
+	static DrawCallData SetDrawGLTFIndexMaterialLightData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA)
+	{
+		DrawCallData drawCallData;
+
+		drawCallData.pipelineData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+
+		//頂点情報
+		drawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
+		drawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(MODEL_DATA.modelVertDataHandle).index;
+		drawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
+		for (auto& obj : MODEL_DATA.modelData)
+		{
+			drawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
+		}
+
+		//行列情報
+		drawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(CoordinateSpaceMatData))
+		);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
+
+		//ライト情報
+		drawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT3))
+		);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT3);
+
+		//色乗算
+		drawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
+		);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
+		KazMath::Color init(255, 255, 255, 255);
+		drawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+
+
+
+		drawCallData.pipelineData = PIPELINE_DATA;
+		drawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+
+		return drawCallData;
 	};
 
 	//レイトレでのモデルのポリゴン表示(インデックスあり、マテリアルあり)
 	static DrawCallData SetDrawGLTFIndexMaterialInRayTracingData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
-		DrawCallData lDrawCallData;
+		DrawCallData drawCallData;
 
-		lDrawCallData.pipelineData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+		drawCallData.pipelineData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
 
 		//頂点情報
-		lDrawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
-		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(MODEL_DATA.modelVertDataHandle).index;
-		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
+		drawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
+		drawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(MODEL_DATA.modelVertDataHandle).index;
+		drawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
 		for (auto& obj : MODEL_DATA.modelData)
 		{
-			lDrawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
+			drawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
 		}
 
 		//行列情報
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(CoordinateSpaceMatData))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		lDrawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
 
 		//レイトレ側での判断
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(UINT))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-		lDrawCallData.extraBufferArray.back().structureSize = sizeof(UINT);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(UINT);
 
 		//色乗算
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-		lDrawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
 		KazMath::Color init(255, 255, 255, 255);
-		lDrawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+		drawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
 
 
 
-		lDrawCallData.pipelineData = PIPELINE_DATA;
-		lDrawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+		drawCallData.pipelineData = PIPELINE_DATA;
+		drawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 
-		return lDrawCallData;
+		return drawCallData;
 	};
 
 	//レイトレでのモデルのポリゴン表示(インデックスあり、マテリアルあり、ブルームの加減設定あり)
 	static DrawCallData SetDrawGLTFIndexMaterialInRayTracingBloomData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
-		DrawCallData lDrawCallData;
+		DrawCallData drawCallData;
 
-		lDrawCallData.pipelineData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+		drawCallData.pipelineData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
 
 		//頂点情報
-		lDrawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
-		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(MODEL_DATA.modelVertDataHandle).index;
-		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
+		drawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
+		drawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(MODEL_DATA.modelVertDataHandle).index;
+		drawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
 		for (auto& obj : MODEL_DATA.modelData)
 		{
-			lDrawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
+			drawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
 		}
 
 		//行列情報
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(CoordinateSpaceMatData))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		lDrawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
 
 		//レイトレ側での判断
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(UINT))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-		lDrawCallData.extraBufferArray.back().structureSize = sizeof(UINT);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(UINT);
 
 		//色乗算
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-		lDrawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
 		KazMath::Color init(255, 255, 255, 255);
-		lDrawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+		drawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
 
 		//エミッシブ..xyz色,a強さ
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
-		lDrawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
 
-		lDrawCallData.pipelineData = PIPELINE_DATA;
-		lDrawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+		drawCallData.pipelineData = PIPELINE_DATA;
+		drawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 
-		lDrawCallData.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+		drawCallData.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
 
-		lDrawCallData.SetupRaytracing(true);
+		drawCallData.SetupRaytracing(true);
 
-		return lDrawCallData;
+		return drawCallData;
 	};
 
 
 	//行列情報のみ
 	static DrawCallData SetTransformData(const KazRenderHelper::DrawIndexInstanceCommandData& VERTEX_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
-		DrawCallData lDrawCallData;
+		DrawCallData drawCallData;
 		//頂点情報
-		lDrawCallData.drawIndexInstanceCommandData = VERTEX_DATA;
-		lDrawCallData.drawCommandType = VERT_TYPE::INDEX;
+		drawCallData.drawIndexInstanceCommandData = VERTEX_DATA;
+		drawCallData.drawCommandType = VERT_TYPE::INDEX;
 
 		//行列情報
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-		lDrawCallData.pipelineData = PIPELINE_DATA;
+		drawCallData.pipelineData = PIPELINE_DATA;
 
-		return lDrawCallData;
+		return drawCallData;
 	};
 
 	//行列情報とテクスチャ
 	static DrawCallData SetTexPlaneData(const PipelineGenerateData& PIPELINE_DATA)
 	{
-		DrawCallData lDrawCallData;
+		DrawCallData drawCallData;
 
 		RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GeneratePlaneBuffer();
 		//頂点情報
-		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(handle).index;
-		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
+		drawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(handle).index;
+		drawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
 
 		//行列情報
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 		//テクスチャ情報
-		lDrawCallData.extraBufferArray.emplace_back();
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.emplace_back();
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-		lDrawCallData.pipelineData = PIPELINE_DATA;
+		drawCallData.pipelineData = PIPELINE_DATA;
 
-		return lDrawCallData;
+		return drawCallData;
 	};
 
 
 	static DrawCallData SetSpriteAlphaData(const PipelineGenerateData& PIPELINE_DATA)
 	{
-		DrawCallData lDrawCallData;
+		DrawCallData drawCallData;
 
 		RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GeneratePlaneBuffer();
 		//頂点情報
-		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(handle).index;
-		lDrawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
+		drawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(handle).index;
+		drawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
 
 		//行列情報
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 		//乗算
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
 		//テクスチャ情報
-		lDrawCallData.extraBufferArray.emplace_back();
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.emplace_back();
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-		lDrawCallData.pipelineData = PIPELINE_DATA;
+		drawCallData.pipelineData = PIPELINE_DATA;
 
-		return lDrawCallData;
+		return drawCallData;
 	};
 
 	static DrawCallData SetDefferdRenderingModel(std::shared_ptr<ModelInfomation>arg_model)
@@ -1019,45 +1070,46 @@ namespace DrawFuncData
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "DrawLine.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
 		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 
-		DrawCallData lDrawCallData;
+		DrawCallData drawCallData;
 		//頂点情報
-		lDrawCallData.drawInstanceCommandData = VertexBufferMgr::Instance()->GetVertexBuffer(arg_vertexHandle).instanceData;
-		lDrawCallData.drawCommandType = VERT_TYPE::INSTANCE;
+		drawCallData.drawInstanceCommandData = VertexBufferMgr::Instance()->GetVertexBuffer(arg_vertexHandle).instanceData;
+		drawCallData.drawCommandType = VERT_TYPE::INSTANCE;
+		drawCallData.m_modelVertDataHandle = arg_vertexHandle;
 
 		//行列情報
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-		lDrawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMMATRIX);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMMATRIX);
 		//色情報
-		lDrawCallData.extraBufferArray.emplace_back(
+		drawCallData.extraBufferArray.emplace_back(
 			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
 		);
-		lDrawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		lDrawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-		lDrawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
 
-		lDrawCallData.pipelineData = lData;
-		lDrawCallData.drawInstanceCommandData.topology = D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+		drawCallData.pipelineData = lData;
+		drawCallData.drawInstanceCommandData.topology = D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
 
-		return lDrawCallData;
+		return drawCallData;
 	}
 
 	static DrawCallData SetExecuteIndirect(const PipelineGenerateData& PIPELINE_DATA, const D3D12_GPU_VIRTUAL_ADDRESS& arg_address, UINT arg_maxCountNum, UINT arg_indexNum = -1)
 	{
-		DrawCallData lDrawCallData;
+		DrawCallData drawCallData;
 
 		RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GeneratePlaneBuffer();
 		//頂点情報
-		lDrawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(handle).index;
-		lDrawCallData.drawCommandType = VERT_TYPE::EXECUTEINDIRECT_INDEX;
+		drawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(handle).index;
+		drawCallData.drawCommandType = VERT_TYPE::EXECUTEINDIRECT_INDEX;
 
-		lDrawCallData.pipelineData = PIPELINE_DATA;
+		drawCallData.pipelineData = PIPELINE_DATA;
 
 		//ExecuteIndirect発行
-		lDrawCallData.m_executeIndirectGenerateData.m_maxCommandCount = arg_maxCountNum;
+		drawCallData.m_executeIndirectGenerateData.m_maxCommandCount = arg_maxCountNum;
 
 		std::vector<D3D12_INDIRECT_ARGUMENT_DESC> args;
 		args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
@@ -1065,52 +1117,52 @@ namespace DrawFuncData
 		args[0].UnorderedAccessView.RootParameterIndex = 0;
 		args.emplace_back(D3D12_INDIRECT_ARGUMENT_DESC());
 		args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
-		lDrawCallData.m_executeIndirectGenerateData.m_desc = args;
+		drawCallData.m_executeIndirectGenerateData.m_desc = args;
 
-		lDrawCallData.m_executeIndirectGenerateData.m_argumentCommandData.m_view = arg_address;
-		lDrawCallData.m_executeIndirectGenerateData.m_argumentCommandData.m_drawArguments =
+		drawCallData.m_executeIndirectGenerateData.m_argumentCommandData.m_view = arg_address;
+		drawCallData.m_executeIndirectGenerateData.m_argumentCommandData.m_drawArguments =
 		{
-			lDrawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].indexCountPerInstance,
+			drawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].indexCountPerInstance,
 			arg_maxCountNum,
-			lDrawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].startIndexLocation,
-			(int)lDrawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].baseVertexLocation,
-			lDrawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].startInstanceLocation
+			drawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].startIndexLocation,
+			(int)drawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].baseVertexLocation,
+			drawCallData.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0].startInstanceLocation
 		};
 
 		if (arg_indexNum != -1)
 		{
-			lDrawCallData.m_executeIndirectGenerateData.m_argumentCommandData.m_drawArguments.IndexCountPerInstance = arg_indexNum;
+			drawCallData.m_executeIndirectGenerateData.m_argumentCommandData.m_drawArguments.IndexCountPerInstance = arg_indexNum;
 		}
 
-		lDrawCallData.m_executeIndirectGenerateData.m_uploadArgumentBuffer = KazBufferHelper::SetUploadBufferData(sizeof(ExecuteIndirectData::DrawIndexedIndirectCommand));
-		lDrawCallData.m_executeIndirectGenerateData.m_uploadArgumentBuffer.bufferWrapper->TransData(&lDrawCallData.m_executeIndirectGenerateData.m_argumentCommandData, sizeof(ExecuteIndirectData::DrawIndexedIndirectCommand));
+		drawCallData.m_executeIndirectGenerateData.m_uploadArgumentBuffer = KazBufferHelper::SetUploadBufferData(sizeof(ExecuteIndirectData::DrawIndexedIndirectCommand));
+		drawCallData.m_executeIndirectGenerateData.m_uploadArgumentBuffer.bufferWrapper->TransData(&drawCallData.m_executeIndirectGenerateData.m_argumentCommandData, sizeof(ExecuteIndirectData::DrawIndexedIndirectCommand));
 
-		lDrawCallData.m_executeIndirectGenerateData.m_uavArgumentBuffer = KazBufferHelper::SetGPUBufferData(sizeof(ExecuteIndirectData::DrawIndexedIndirectCommand));
+		drawCallData.m_executeIndirectGenerateData.m_uavArgumentBuffer = KazBufferHelper::SetGPUBufferData(sizeof(ExecuteIndirectData::DrawIndexedIndirectCommand));
 
-		lDrawCallData.m_executeIndirectGenerateData.m_uavArgumentBuffer.bufferWrapper->CopyBuffer(
-			lDrawCallData.m_executeIndirectGenerateData.m_uploadArgumentBuffer.bufferWrapper->GetBuffer());
+		drawCallData.m_executeIndirectGenerateData.m_uavArgumentBuffer.bufferWrapper->CopyBuffer(
+			drawCallData.m_executeIndirectGenerateData.m_uploadArgumentBuffer.bufferWrapper->GetBuffer());
 
-		lDrawCallData.m_executeIndirectGenerateData.m_uavArgumentBuffer.bufferWrapper->ChangeBarrier(
+		drawCallData.m_executeIndirectGenerateData.m_uavArgumentBuffer.bufferWrapper->ChangeBarrier(
 			D3D12_RESOURCE_STATE_COMMON,
 			D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 		);
 
-		lDrawCallData.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+		drawCallData.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
 
-		return lDrawCallData;
+		return drawCallData;
 	};
 
 	static DrawCallData SetParticleInRaytracing(const std::shared_ptr<KazBufferHelper::BufferData>& arg_buffer, const std::shared_ptr<KazBufferHelper::BufferData>& arg_indexBuffer)
 	{
-		DrawCallData lDrawCallData;
+		DrawCallData drawCallData;
 		RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GeneratePlaneBuffer();
-		lDrawCallData.m_modelVertDataHandle = VertexBufferMgr::Instance()->StackVertexBuffer(arg_buffer, arg_indexBuffer);
-		lDrawCallData.materialBuffer.emplace_back();
-		lDrawCallData.materialBuffer.back().emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::TestPath + "Test.png"));
-		lDrawCallData.materialBuffer.back().back().rootParamType = GRAPHICS_PRAMTYPE_TEX;
-		lDrawCallData.SetupRaytracing(true);
+		drawCallData.m_modelVertDataHandle = VertexBufferMgr::Instance()->StackVertexBuffer(arg_buffer, arg_indexBuffer);
+		drawCallData.materialBuffer.emplace_back();
+		drawCallData.materialBuffer.back().emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::TestPath + "Test.png"));
+		drawCallData.materialBuffer.back().back().rootParamType = GRAPHICS_PRAMTYPE_TEX;
+		drawCallData.SetupRaytracing(true);
 
-		return lDrawCallData;
+		return drawCallData;
 	};
 
 

@@ -15,7 +15,7 @@ static const int WIN_X = 1280;
 static const int WIN_Y = 720;
 
 static const DirectX::XMFLOAT3 BG_COLOR_WHITE = { 255.0f,255.0f,255.0f };
-static const DirectX::XMFLOAT3 BG_COLOR = { 29.0f, 19.0f, 72.0f };
+static const DirectX::XMFLOAT3 BG_COLOR = { 0.0f, 7.0f, 0.0f };
 //static const DirectX::XMFLOAT3 BG_COLOR = { 22,38,37 };
 
 struct Vertex
