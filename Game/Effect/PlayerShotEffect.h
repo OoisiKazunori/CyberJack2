@@ -12,8 +12,8 @@ private:
 
 	const KazMath::Vec3<float>* m_refPlayerPos;
 	KazMath::Vec3<float> m_controlPointVec;
-	const float CONTROL_POINT_R = 10.0f;
-	static const int POINT_COUNT = 10;
+	const float CONTROL_POINT_R = 25.0f;
+	static const int POINT_COUNT = 15;
 	std::array<KazMath::Vec3<float>, POINT_COUNT> m_points;
 	shared_ptr<IEnemy> m_refEnemy;
 	int m_frame;

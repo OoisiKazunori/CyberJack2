@@ -63,6 +63,7 @@ void PlayerShotEffect::Update()
 		m_splineRailPosArray[index] = EvaluateBezierCurve(controlPoints, time);
 
 	}
+	m_splineRailPosArray.back() = controlPoints[3];
 
 	//Œ»İ‚ÌŠÔ‚ğ01‚Å‹‚ß‚éB
 	float nowTime = static_cast<float>(m_frame) / static_cast<float>(EFFECT_FRAME);
