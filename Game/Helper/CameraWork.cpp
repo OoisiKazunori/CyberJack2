@@ -213,7 +213,7 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 
 }
 
-const KazMath::Vec3<float> CameraWork::GetEyePos()
+KazMath::Vec3<float>& CameraWork::GetEyePos()
 {
 	return eyePos;
 }

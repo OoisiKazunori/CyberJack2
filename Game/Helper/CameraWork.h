@@ -12,7 +12,7 @@ public:
 
 	void ForceCamera(KazEnemyHelper::CameraDir DIR);
 
-	const KazMath::Vec3<float> GetEyePos();
+	KazMath::Vec3<float>& GetEyePos();
 	const KazMath::Vec3<float> GetTargetPos();
 
 private:

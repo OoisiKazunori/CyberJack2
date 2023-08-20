@@ -280,11 +280,11 @@ void Player::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 		hpUi.Draw(arg_rasterize);
 	}
 	m_transform.scale = { 50.0f,50.0f,50.0f };
-	DrawFunc::DrawModel(m_playerModel, m_transform);
-	arg_rasterize.ObjectRender(m_playerModel);
-	for (auto& index : m_playerModel.m_raytracingData.m_blas) {
-		arg_blasVec.Add(index, m_transform.GetMat());
-	}
+	//DrawFunc::DrawModel(m_playerModel, m_transform);
+	//arg_rasterize.ObjectRender(m_playerModel);
+	//for (auto& index : m_playerModel.m_raytracingData.m_blas) {
+	//	arg_blasVec.Add(index, m_transform.GetMat());
+	//}
 }
 
 void Player::Hit()

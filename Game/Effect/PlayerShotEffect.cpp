@@ -47,7 +47,7 @@ void PlayerShotEffect::Update()
 
 	//始点と終点の値を決める。
 	std::array<KazMath::Vec3<float>, 4> controlPoints;
-	controlPoints.front() = *m_refPlayerPos;
+	controlPoints.front() = *m_refPlayerPos - KazMath::Vec3<float>(0,0,10.0f);
 	controlPoints.back() = m_refEnemy->m_transform.pos;
 
 	//制御点の場所を決める。

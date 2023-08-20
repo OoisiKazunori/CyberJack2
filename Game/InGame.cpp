@@ -484,7 +484,7 @@ void InGame::Update()
 		m_gameSpeed = 1;
 	}
 
-	PlayerShotEffectMgr::Instance()->Update(&m_player.pos);
+	PlayerShotEffectMgr::Instance()->Update(&m_camera.GetEyePos());
 
 	m_gameFlame += m_gameSpeed;
 
