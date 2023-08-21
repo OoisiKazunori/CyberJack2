@@ -73,9 +73,10 @@ private:
 		int m_debugReflection;
 		int m_debugShadow;
 		float m_sliderRate;
-		float m_pad;
+		float m_skyFacter;
 	}m_debugRaytracingParam;
 	KazBufferHelper::BufferData m_debugRaytracingParamData;
+	bool m_isSkyEffect;
 
 	//海デバッグ用
 	struct DebugSeaParam

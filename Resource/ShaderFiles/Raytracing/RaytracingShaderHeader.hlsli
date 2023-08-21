@@ -84,7 +84,7 @@ struct DebugRaytracingParam
     int m_debugReflection;
     int m_debugShadow;
     float m_sliderRate;
-    float m_pad;
+    float m_skyFacter;
 };
 
 //OnOffデバッグ

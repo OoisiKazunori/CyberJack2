@@ -112,10 +112,12 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_isDebugSea = false;
 	m_isPause = false;
 	m_isMoveOnly1F = false;
+	m_isSkyEffect = false;
 	SeaEffect::Instance()->m_isSeaEffect = false;
 	m_seaID = SEA_ID::CALM;
 
 	m_debugTimeZone = 0;
+	m_debugRaytracingParam.m_skyFacter = 1.0f;
 
 	//OnOffデバッグ用のパラメーターを用意。
 	m_rayPipeline->SetDebugOnOffConstData(&m_debugRaytracingParamData);
@@ -362,6 +364,7 @@ void SceneManager::Draw()
 
 		ImGui::RadioButton("Noon", &m_debugTimeZone, 0);
 		ImGui::RadioButton("Evening", &m_debugTimeZone, 1);
+		ImGui::Checkbox("SkyEffect", &m_isSkyEffect);
 
 		ImGui::End();
 
@@ -373,6 +376,13 @@ void SceneManager::Draw()
 			GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir += (KazMath::Vec3<float>(0.0f, -0.683f, -0.73f) - GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir) / 10.0f;
 		}
 		GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
+
+		if (m_isSkyEffect) {
+			m_debugRaytracingParam.m_skyFacter += (0.25f - m_debugRaytracingParam.m_skyFacter) / 5.0f;
+		}
+		else {
+			m_debugRaytracingParam.m_skyFacter += (1.0f - m_debugRaytracingParam.m_skyFacter) / 5.0f;
+		}
 
 	}
 

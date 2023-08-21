@@ -379,7 +379,7 @@ void mainRayGen()
         float3 sea = GetSeaColor(position, n, lightData.m_dirLight.m_dir, dir, dist);
         
         float t = pow(smoothstep(0.0f, -0.05f, dir.y), 0.3f);
-        float3 color = lerp(sky, sea, t);
+        float3 color = lerp(sky * debugRaytracingData.m_skyFacter, sea, t);
         //float3 color = sea;
         
         albedoColor.xyz = color;
@@ -439,7 +439,7 @@ void mainRayGen()
         
         //final.xyz = GetSkyColor(dir);
         float3 mieColor = float3(0, 0, 0);
-        final.xyz = AtmosphericScattering(dir * 15000.0f, mieColor);
+        final.xyz = AtmosphericScattering(dir * 15000.0f, mieColor) * debugRaytracingData.m_skyFacter;
         lensFlareTexture[launchIndex.xy].xyz += mieColor * 0.1f;
         
         //下方向を向いていたら海を描画
@@ -451,12 +451,12 @@ void mainRayGen()
     }
     
     //合成の結果を入れる。
-    finalColor[launchIndex.xy] = float4(normalColor.xyz, 1.0f);
+    //finalColor[launchIndex.xy] = float4(normalColor.xyz, 1.0f);
     //debugColor = ValueNoise(launchIndex.xy / 50.0f, 0.0f);
     //finalColor[launchIndex.xy] = float4(debugColor, debugColor, debugColor, 1.0f);
     //finalColor[launchIndex.xy] = float4(worldColor.xyz / 200.0f, 1.0f);
     finalColor[launchIndex.xy] = final;
-    //emissiveTexture[launchIndex.xy] = emissiveColor;
+    emissiveTexture[launchIndex.xy] = emissiveColor;
   
 }
 
