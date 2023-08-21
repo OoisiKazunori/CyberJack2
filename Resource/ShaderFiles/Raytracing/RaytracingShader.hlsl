@@ -197,7 +197,7 @@ float SeaOctave(float2 arg_uv, float arg_choppy)
 }
 
 //海のハイトマップの計算の際にレイマーチングしている位置のノイズを計算する。
-float MappingHeightNoise(float3 arg_position)
+float MappingHeightNoise(float3 arg_position, int arg_samplingCount)
 {
     //定数 いずれ定数バッファにする。
     float freq = debugSeaData.m_freq;
@@ -211,7 +211,7 @@ float MappingHeightNoise(float3 arg_position)
     float d, h = 0.0f;
     
     //ここで「フラクタルブラウン運動」によるノイズの計算を行っている
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < arg_samplingCount; ++i)
     {
         
         float seaTimer = (1.0f + cameraEyePos.m_timer * seaSpeed);
@@ -228,6 +228,7 @@ float MappingHeightNoise(float3 arg_position)
         //これは回転行列・・・？
         //uv値を回転させている風。これをなくすと平坦な海になる
         uv *= octave_m;
+        //uv = mul(uv, octave_m);
 
         //fbm関数として、振幅を0.2倍、周波数を2.0倍して次の計算を行う
         freq *= 2.0f;
@@ -250,7 +251,7 @@ float HeightMapRayMarching(float3 arg_origin, float3 arg_direction, out float3 a
     float tx = 10000.0f;
 
     //一旦遠くの位置のサンプリングを行い、結果の高さが0以上だったらレイが海に当たらないということなのでReturnする。
-    float hx = MappingHeightNoise(arg_origin + arg_direction * tx);
+    float hx = MappingHeightNoise(arg_origin + arg_direction * tx, 8);
     if (0.0f < hx)
     {
         arg_position = float3(0.0f, 0.0f, 0.0f);
@@ -258,7 +259,7 @@ float HeightMapRayMarching(float3 arg_origin, float3 arg_direction, out float3 a
     }
 
     //ここからが本格的なレイマーチング。
-    float hm = MappingHeightNoise(arg_origin + arg_direction * tm); //開始地点でのハイトマップの値。
+    float hm = MappingHeightNoise(arg_origin + arg_direction * tm, 8); //開始地点でのハイトマップの値。
     float tmid = 0.0f;
     for (int i = 0; i < 8; ++i)
     {
@@ -269,7 +270,7 @@ float HeightMapRayMarching(float3 arg_origin, float3 arg_direction, out float3 a
         arg_position = arg_origin + arg_direction * tmid;
 
         //次なる位置のハイトマップを取得する。
-        float hmid = MappingHeightNoise(arg_position);
+        float hmid = MappingHeightNoise(arg_position, 8);
 
         //サンプリング位置の高さがマイナス距離の場合は`hx`, `tx`を更新する
         if (hmid < 0.0f)
@@ -290,43 +291,12 @@ float HeightMapRayMarching(float3 arg_origin, float3 arg_direction, out float3 a
 
 float3 GetNormal(float3 arg_position, float arg_eps)
 {
-    
-    //現在のレイのインデックス。左上基準のスクリーン座標として使える。
-    uint2 launchIndex = DispatchRaysIndex().xy + uint2(1,0);
-    
-    //カメラから見たレイの方向を計算。
-    float2 dims = float2(DispatchRaysDimensions().xy);
-    float2 d = (launchIndex.xy + 0.5f) / dims.xy * 2.0f - 1.0f;
-    float aspect = dims.x / dims.y;
-    float4 target = mul(cameraEyePos.m_projMat, float4(d.x, -d.y, 1, 1));
-    float3 dir = mul(cameraEyePos.m_viewMat, float4(target.xyz, 0)).xyz;
-    
-    float3 xpos = float3(0, 0, 0);
-    HeightMapRayMarching(cameraEyePos.m_eye, dir, xpos);
-    
-    //現在のレイのインデックス。左上基準のスクリーン座標として使える。
-    launchIndex = DispatchRaysIndex().xy + uint2(0, -1);
-    
-    //カメラから見たレイの方向を計算。
-    dims = float2(DispatchRaysDimensions().xy);
-    d = (launchIndex.xy + 0.5f) / dims.xy * 2.0f - 1.0f;
-    aspect = dims.x / dims.y;
-    target = mul(cameraEyePos.m_projMat, float4(d.x, -d.y, 1, 1));
-    dir = mul(cameraEyePos.m_viewMat, float4(target.xyz, 0)).xyz;
-    
-    float3 ypos = float3(0, 0, 0);
-    HeightMapRayMarching(cameraEyePos.m_eye, dir, ypos);
-    
-    float3 dirX = normalize(xpos - arg_position);
-    float3 dirY = normalize(ypos - arg_position);
-    return normalize(cross(dirY, dirX));
-    
-    //float3 n;
-    //n.y = MappingHeightNoise(arg_position);
-    //n.x = MappingHeightNoise(float3(arg_position.x + arg_eps, arg_position.y, arg_position.z)) - n.y;
-    //n.z = MappingHeightNoise(float3(arg_position.x, arg_position.y, arg_position.z + arg_eps)) - n.y;
-    //n.y = arg_eps;
-    //return normalize(n);
+    float3 n;
+    n.y = MappingHeightNoise(arg_position, 5);
+    n.x = MappingHeightNoise(float3(arg_position.x + arg_eps, arg_position.y, arg_position.z), 5) - n.y;
+    n.z = MappingHeightNoise(float3(arg_position.x, arg_position.y, arg_position.z + arg_eps), 5) - n.y;
+    n.y = arg_eps;
+    return normalize(n);
 }
 
 //RayGenerationシェーダー
@@ -376,7 +346,7 @@ void mainRayGen()
         HeightMapRayMarching(origin, dir, position);
 
         float3 dist = position - origin;
-        float3 n = GetNormal(position, dot(dist, dist) * (0.01f / 1280.0f));
+        float3 n = GetNormal(position, dot(dist, dist) * (0.1f / dims.x));
         
         float3 mieColor = float3(0, 0, 0);
         float3 sky = float3(0, 0, 0);
@@ -470,9 +440,9 @@ void mainRayGen()
     }
     
     //合成の結果を入れる。
-    finalColor[launchIndex.xy] = float4(worldColor.xyz / 100.0f, 1.0f);
-    //finalColor[launchIndex.xy] = final;
-    emissiveTexture[launchIndex.xy] = emissiveColor;
+    finalColor[launchIndex.xy] = float4(normalColor.xyz, 1.0f);
+    finalColor[launchIndex.xy] = final;
+    //emissiveTexture[launchIndex.xy] = emissiveColor;
   
 }
 
