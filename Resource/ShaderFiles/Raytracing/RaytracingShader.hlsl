@@ -190,8 +190,6 @@ float3 AtmosphericScattering(float3 pos, inout float3 mieColor)
 float SeaOctave(float2 arg_uv, float arg_choppy, float3 arg_position)
 {
     
-    //return FBM(arg_uv);
-    
     float noise = ValueNoise(arg_uv, 0.0f) * 2.0f;
     arg_uv += float2(noise, noise * 1.0f);
     float2 wv = 1.0f - abs(sin(arg_uv));
@@ -361,22 +359,28 @@ void mainRayGen()
         isFar = REFLECTION_DEADLINE < length(cameraEyePos.m_eye - position);
         if (isDebug)
         {
-            sky = GetSkyColor(dir);
+            sky = GetSkyColor(normalize(reflect(dir, n)));
         }
         else
         {
-            sky = AtmosphericScattering(reflect(dir, n) * 15000.0f, mieColor);
+            float3 sampleVec = normalize(reflect(dir, n));
+            //ベクトルが下方向を向いている場合、海の色にする。
+            if (sampleVec.y < 0.0f)
+            {
+                sky = GetSeaColor(position, n, lightData.m_dirLight.m_dir, dir, dist);
+            }
+            else
+            {
+                sky = AtmosphericScattering(sampleVec * 15000.0f, mieColor);
+            }
         }
-        if (length(saturate(sky)) < 0.1f)
-        {
-            sky = float3(1, 1, 1);
-
-        }
+        
+        //海の色を求める。
         float3 sea = GetSeaColor(position, n, lightData.m_dirLight.m_dir, dir, dist);
         
         float t = pow(smoothstep(0.0f, -0.05f, dir.y), 0.3f);
         float3 color = lerp(sky, sea, t);
-        //float3 color = float3(0,0,0);
+        //float3 color = sea;
         
         albedoColor.xyz = color;
         worldColor.xyz = position;
@@ -451,7 +455,7 @@ void mainRayGen()
     //debugColor = ValueNoise(launchIndex.xy / 50.0f, 0.0f);
     //finalColor[launchIndex.xy] = float4(debugColor, debugColor, debugColor, 1.0f);
     //finalColor[launchIndex.xy] = float4(worldColor.xyz / 200.0f, 1.0f);
-    //finalColor[launchIndex.xy] = final;
+    finalColor[launchIndex.xy] = final;
     //emissiveTexture[launchIndex.xy] = emissiveColor;
   
 }

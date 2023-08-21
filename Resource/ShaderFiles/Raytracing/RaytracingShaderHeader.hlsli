@@ -274,7 +274,7 @@ float3 GetSeaColor(float3 arg_position, float3 arg_normal, float3 arg_light, flo
     color += SEA_WATER_COLOR * (arg_position.y - SEA_HEIGHT) * 0.18f * atten; //波の高さによって色を変えてる？ここを調整すれば白くできるかも？
 
     //スペキュラを求めて光沢を出す！
-    color += float3(float3(1.0f, 1.0f, 1.0f) * Specular(arg_normal, arg_light, arg_rayDir, 60.0f));
+    color += float3(float3(1.0f, 1.0f, 1.0f) * Specular(arg_normal, arg_light, arg_rayDir, 5.0f));
 
     return color;
 }

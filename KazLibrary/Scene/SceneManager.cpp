@@ -408,6 +408,7 @@ void SceneManager::Draw()
 
 	const float STORMY_SEA_AMP = 2.8f;
 	const float STORMY_SEA_FREQ = 0.16f;
+	const float STORMY_SEA_SPEED = 10.0f;
 
 	const float EFFECT_FREQ = 0.01f;
 
@@ -428,6 +429,7 @@ void SceneManager::Draw()
 	else if (m_seaID == SEA_ID::STORMY) {
 		baseAmp = STORMY_SEA_AMP;
 		baseFreq = STORMY_SEA_FREQ;
+		baseSeaSpeed = STORMY_SEA_SPEED;
 	}
 
 	if (!SeaEffect::Instance()->m_isOldSeaEffect && SeaEffect::Instance()->m_isSeaEffect) {
