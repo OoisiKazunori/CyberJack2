@@ -187,9 +187,13 @@ float3 AtmosphericScattering(float3 pos, inout float3 mieColor)
 }
 
 //波を計算。
-float SeaOctave(float2 arg_uv, float arg_choppy)
+float SeaOctave(float2 arg_uv, float arg_choppy, float3 arg_position)
 {
-    arg_uv += ValueNoise(arg_uv);
+    
+    //return FBM(arg_uv);
+    
+    float noise = ValueNoise(arg_uv, 0.0f) * 2.0f;
+    arg_uv += float2(noise, noise * 1.0f);
     float2 wv = 1.0f - abs(sin(arg_uv));
     float2 swv = abs(cos(arg_uv));
     wv = lerp(wv, swv, wv);
@@ -219,8 +223,8 @@ float MappingHeightNoise(float3 arg_position, int arg_samplingCount)
         //単純に、iTime（時間経過）によってUV値を微妙にずらしてアニメーションさせている
         //iTimeのみを指定してもほぼ同じアニメーションになる
         //SEA_TIMEのプラス分とマイナス分を足して振幅を大きくしている・・・？
-        d = SeaOctave((uv + seaTimer) * freq, choppy);
-        d += SeaOctave((uv - seaTimer) * freq, choppy);
+        d = SeaOctave((uv + seaTimer) * freq, choppy, arg_position);
+        d += SeaOctave((uv - seaTimer) * freq, choppy, arg_position);
 
         h += d * amp;
 
@@ -275,12 +279,14 @@ float HeightMapRayMarching(float3 arg_origin, float3 arg_direction, out float3 a
         //サンプリング位置の高さがマイナス距離の場合は`hx`, `tx`を更新する
         if (hmid < 0.0f)
         {
+            //遠くの位置
             tx = tmid;
             hx = hmid;
         }
         //そうでない場合は、`hm`, `tm`を更新する
         else
         {
+            //近くの位置
             tm = tmid;
             hm = hmid;
         }
@@ -330,6 +336,7 @@ void mainRayGen()
     isSea |= cameraEyePos.m_eye.y < 0 && 0 < (cameraEyePos.m_eye + dir * 10000.0f).y && length(normalColor.xyz) < 0.1f;
     isSea |= cameraEyePos.m_eye.y < 0 && 0 < worldColor.y;
     isSea |= 0 < cameraEyePos.m_eye.y && worldColor.y < 0;
+    float debugColor = 0;
     if (isSea)
     {
         
@@ -343,7 +350,7 @@ void mainRayGen()
         }
         
         float3 position;
-        HeightMapRayMarching(origin, dir, position);
+        debugColor = HeightMapRayMarching(origin, dir, position);
 
         float3 dist = position - origin;
         float3 n = GetNormal(position, dot(dist, dist) * (0.1f / dims.x));
@@ -441,7 +448,10 @@ void mainRayGen()
     
     //合成の結果を入れる。
     finalColor[launchIndex.xy] = float4(normalColor.xyz, 1.0f);
-    finalColor[launchIndex.xy] = final;
+    //debugColor = ValueNoise(launchIndex.xy / 50.0f, 0.0f);
+    //finalColor[launchIndex.xy] = float4(debugColor, debugColor, debugColor, 1.0f);
+    //finalColor[launchIndex.xy] = float4(worldColor.xyz / 200.0f, 1.0f);
+    //finalColor[launchIndex.xy] = final;
     //emissiveTexture[launchIndex.xy] = emissiveColor;
   
 }

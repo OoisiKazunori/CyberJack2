@@ -12,7 +12,7 @@ float GradientNoise(float3 arg_st)
     float3 f = frac(arg_st);
 
     //八つの隣接点の座標を求める
-    float3 u = f * f * (3.0 - 2.0 * f);
+    float3 u = f * f * (3.0f - 2.0f * f);
 
     float a = dot(Random3D(i), f - float3(0, 0, 0));
     float b = dot(Random3D(i + float3(1, 0, 0)), f - float3(1, 0, 0));
@@ -137,13 +137,18 @@ float Hash(float2 arg_point)
 }
 
 //バリューノイズ
-float ValueNoise(float2 arg_point)
+float ValueNoise(float2 arg_point, float arg_st)
 {
+    
+    return GradientNoise(float3(arg_point, arg_st));
+    
     float2 i = floor(arg_point);
     float2 f = frac(arg_point);
 
     //u = -2.0f^3 + 3.0f^2
-    float2 u = f * f * (3.0f - 2.0f * f);
+    float2 uid = f * float2(-2.0f, -2.0f);
+    uid += float2(3.0f, 3.0f);
+    float2 u = f * f * uid;
 
     //グリッド上に乱数を求めて補間する。
     // +---+---+
@@ -151,10 +156,11 @@ float ValueNoise(float2 arg_point)
     // +---+---+
     // | c | d |
     // +---+---+
+    float dim = 1.0f;
     float a = Hash(i + float2(0.0f, 0.0f));
-    float b = Hash(i + float2(1.0f, 0.0f));
-    float c = Hash(i + float2(0.0f, 1.0f));
-    float d = Hash(i + float2(1.0f, 1.0f));
+    float b = Hash(i + float2(dim, 0.0f));
+    float c = Hash(i + float2(0.0f, dim));
+    float d = Hash(i + float2(dim, dim));
     float result = lerp(lerp(a, b, u.x),
                         lerp(c, d, u.x), u.y);
     return (2.0f * result) - 1.0f;
