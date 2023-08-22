@@ -11,8 +11,19 @@ RWTexture2D<float4> OutputImg : register(u5);
 [numthreads(16, 16, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
-    
-    float4 finalColor = InputImg0[DTid.xy] + InputImg1[DTid.xy] + InputImg2[DTid.xy] + InputImg3[DTid.xy] + InputImg4[DTid.xy];
+    float power[5] = { 0, 0, 0, 0, 0 };
+    float powerFacter = 0.6f;
+    for (int index = 4; 0 <= index; --index)
+    {
+        power[index] = powerFacter;
+        powerFacter /= 2.0f;
+
+    }
+    float4 finalColor = InputImg0[DTid.xy] * power[0] + 
+    InputImg1[DTid.xy] * power[1] + 
+    InputImg2[DTid.xy] * power[2] + 
+    InputImg3[DTid.xy] * power[3] + 
+    InputImg4[DTid.xy] * power[4];
     
     OutputImg[DTid.xy] = finalColor;
     
