@@ -63,6 +63,12 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_computeUpdateBuffer.emplace_back(*m_particleIndexBuffer);
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
+
+	matrixBuffer = KazBufferHelper::SetUploadBufferData(sizeof(DirectX::XMMATRIX) * PARTICLE_MAX_NUM, "Particle-Matrix");
+	m_computeUpdateBuffer.emplace_back(matrixBuffer);
+	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA5;
+	
 	m_computeUpdate.Generate(
 		ShaderOptionData("Resource/ShaderFiles/ShaderFile/TriangleParticle.hlsl", "UpdateCSmain", "cs_6_4", SHADER_TYPE_COMPUTE),
 		m_computeUpdateBuffer
