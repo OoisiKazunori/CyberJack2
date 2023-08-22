@@ -8,7 +8,7 @@
 #include "../Buffer/VertexBufferMgr.h"
 #include <memory>
 
-Raytracing::Blas::Blas(bool IsOpaque, RESOURCE_HANDLE arg_vertexDataHandle, int arg_meshNumber, RESOURCE_HANDLE arg_textureHandle)
+Raytracing::Blas::Blas(bool IsOpaque, RESOURCE_HANDLE arg_vertexDataHandle, int arg_meshNumber, RESOURCE_HANDLE arg_textureHandle, int arg_hitGroupIndex)
 {
 
 	/*===== コンストラクタ =====*/
@@ -17,6 +17,7 @@ Raytracing::Blas::Blas(bool IsOpaque, RESOURCE_HANDLE arg_vertexDataHandle, int 
 	m_vertexDataHandle = arg_vertexDataHandle;
 	m_meshNumber = arg_meshNumber;
 	m_textureHandle = arg_textureHandle;
+	m_hitGroupIndex = arg_hitGroupIndex;
 	m_geomDesc = GetGeometryDesc(IsOpaque);
 
 	//Blasを構築。
@@ -240,4 +241,9 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Raytracing::Blas::CreateBuffer(size_t arg
 	}
 	return resource;
 
+}
+
+int Raytracing::Blas::GetHitGroupIndex()
+{
+	return m_hitGroupIndex;
 }

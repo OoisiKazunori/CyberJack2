@@ -20,8 +20,12 @@ namespace Raytracing
 		/*===== Tlasに登録するために配列に追加する =====*/
 
 		//参照を追加して。
+		int hitGroupSize = static_cast<int>(m_refBlas.size());
 		if (arg_isAddBlas) {
 			m_refBlas.emplace_back(arg_refBlas);
+		}
+		else {
+			--hitGroupSize;
 		}
 
 
@@ -35,9 +39,9 @@ namespace Raytracing
 		//インスタンスの詳細を設定。
 		instanceDesc.InstanceID = arg_instanceIndex;			//レイトレで行う処理のフラグをここで設定する。マテリアル側で設定してもよい。
 		instanceDesc.InstanceMask = 0xFF;
-		instanceDesc.InstanceContributionToHitGroupIndex = static_cast<int>(m_instanceDesc.size());
+		instanceDesc.InstanceContributionToHitGroupIndex = hitGroupSize;
 		instanceDesc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
-		instanceDesc.AccelerationStructure = arg_refBlas.lock()->GetBlasBuffer()->GetGPUVirtualAddress();
+		instanceDesc.AccelerationStructure = m_refBlas.back().lock()->GetBlasBuffer()->GetGPUVirtualAddress();
 
 		//インスタンスを追加。
 		m_instanceDesc.emplace_back(instanceDesc);

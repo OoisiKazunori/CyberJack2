@@ -24,7 +24,7 @@ std::vector<std::shared_ptr<Raytracing::Blas>> Raytracing::BlasDataContainer::Se
     BlasMesh mesh;
     mesh.m_mesh.resize(BLAS_COUNT);
     for (int counter = 0; counter < BLAS_COUNT; ++counter) {
-        mesh.m_mesh[counter] = std::make_shared<Raytracing::Blas>(arg_isOpaque, arg_vertexHandle, counter, arg_materialBuffer[counter][0].bufferWrapper->GetViewHandle());
+        mesh.m_mesh[counter] = std::make_shared<Raytracing::Blas>(arg_isOpaque, arg_vertexHandle, counter, arg_materialBuffer[counter][0].bufferWrapper->GetViewHandle(), static_cast<int>(m_meshDatas.size()));
     }
     mesh.m_isOpaque = arg_isOpaque;
     mesh.m_vertexHandle = arg_vertexHandle;
