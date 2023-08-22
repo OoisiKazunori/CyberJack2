@@ -161,7 +161,7 @@ struct OutputData
 
 RWStructuredBuffer<VertexBufferData> VertexBuffer : register(u0);
 RWStructuredBuffer<VertexBufferData> OutputVertex : register(u1);
-AppendStructuredBuffer<OutputData> ParticleBuffer : register(u2);
+RWStructuredBuffer<OutputData> ParticleBuffer : register(u2);
 
 cbuffer BoneBuffer : register(b0)
 {
@@ -231,5 +231,5 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     result.world = CalucurateWorldMat(worldPos.xyz,float3(0.1f,0.1f,0.1f),float3(0.0f,0.0f,0.0f));
     result.world = mul(viewProj,result.world);
     result.color = float4(0.0f,1.0f,0.0f,1.0f);
-    ParticleBuffer.Append(result);
+    ParticleBuffer[index] = result;
 }

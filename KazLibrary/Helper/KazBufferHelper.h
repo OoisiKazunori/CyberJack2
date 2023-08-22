@@ -5,7 +5,6 @@
 #include"../KazLibrary/Pipeline/GraphicsRootSignature.h"
 
 //class DescriptorHeapMgr;
-//class UavViewHandleMgr;
 
 struct BufferMemorySize
 {
@@ -207,7 +206,7 @@ namespace KazBufferHelper
 			return resourceState;
 		}
 	private:
-		static const int BACK_BUFFER_NUM = 1;
+		static const int BACK_BUFFER_NUM = 2;
 		std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, BACK_BUFFER_NUM>buffer;
 		std::array<void*, BACK_BUFFER_NUM>bufferMapPtr;
 		std::vector<RESOURCE_HANDLE> viewHandle;

@@ -5,7 +5,7 @@ AnimationInRaytracing::AnimationInRaytracing()
 	RootSignatureDataTest test;
 	test.rangeArray.emplace_back(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA);
 	test.rangeArray.emplace_back(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA2);
-	test.rangeArray.emplace_back(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA3);
+	test.rangeArray.emplace_back(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA3);
 	test.rangeArray.emplace_back(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA);
 	test.rangeArray.emplace_back(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA2);
 	m_compute.Generate(ShaderOptionData("Resource/ShaderFiles/ShaderFile/Animation.hlsl", "CSmain", "cs_6_5", SHADER_TYPE_COMPUTE), test);
@@ -27,7 +27,7 @@ void AnimationInRaytracing::Compute(const KazBufferHelper::BufferData& arg_verte
 	m_compute.m_extraBufferArray[1].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 
 	m_compute.m_extraBufferArray[2] = arg_indexBuffer;
-	m_compute.m_extraBufferArray[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	m_compute.m_extraBufferArray[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_compute.m_extraBufferArray[2].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 
 	m_compute.m_extraBufferArray[3] = arg_boneBuffer;

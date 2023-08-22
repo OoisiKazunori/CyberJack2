@@ -28,13 +28,16 @@ ModelTool::ModelTool(std::string arg_fileDir) :m_fileDir(arg_fileDir)
 		DirectX::XMFLOAT4 color;
 	};
 	m_meshParticle = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * 10000);
+	m_particle = KazBufferHelper::SetUploadBufferData(sizeof(OutputData) * 10000);
 	m_meshParticle.structureSize = sizeof(OutputData);
 	m_meshParticle.elementNum = 10000;
+	m_particle.structureSize = sizeof(OutputData);
+	m_particle.elementNum = 10000;
 
 	m_particleRender =
 		DrawFuncData::SetExecuteIndirect(
 			DrawFuncData::GetBasicInstanceShader2(),
-			m_meshParticle.bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
+			m_particle.bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
 			10000
 		);
 	m_particleRender.extraBufferArray.emplace_back();
@@ -42,8 +45,8 @@ ModelTool::ModelTool(std::string arg_fileDir) :m_fileDir(arg_fileDir)
 	m_particleRender.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 	m_particleRender.renderTargetHandle = -1;
 
-	m_meshParticle.GenerateCounterBuffer();
-	m_meshParticle.CreateUAVView();
+	//m_meshParticle.GenerateCounterBuffer();
+	//m_meshParticle.CreateUAVView();
 
 	m_counterBuffer = KazBufferHelper::SetUploadBufferData(sizeof(UINT));
 	UINT num = 0;
@@ -156,7 +159,7 @@ void ModelTool::Update()
 
 void ModelTool::Draw(DrawingByRasterize& render)
 {
-	m_meshParticle.counterWrapper->CopyBuffer(m_counterBuffer.bufferWrapper->GetBuffer());
+	//m_meshParticle.counterWrapper->CopyBuffer(m_counterBuffer.bufferWrapper->GetBuffer());
 
 	ImGui::Begin("ModelTool");
 	if (ImGui::Button("Load Model"))
@@ -199,7 +202,7 @@ void ModelTool::Draw(DrawingByRasterize& render)
 		m_modelAnimationInRaytracing[m_selectNum]->Compute(
 			*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_modelInfomationArray[m_selectNum].m_modelInfomation->modelVertDataHandle).vertBuffer[0],
 			m_modelAnimation[m_selectNum]->GetBoneMatBuff(),
-			m_meshParticle,
+			m_particle,
 			m_modelInfomationArray[m_selectNum].m_transform.GetMat()
 		);
 	}
@@ -217,6 +220,16 @@ void ModelTool::Draw(DrawingByRasterize& render)
 	}
 	DrawGrid(render);
 	render.ObjectRender(m_modelInfomationArray[m_selectNum].m_drawCall);
+
+	struct OutputData
+	{
+		DirectX::XMMATRIX worldMat;
+		DirectX::XMFLOAT4 color;
+	};
+
+	std::vector<OutputData>vec(10000);
+	memcpy(vec.data(), m_particle.bufferWrapper->GetMapAddres(), sizeof(OutputData) * 10000);
+	//memcpy(vec.data(), m_meshParticle.bufferWrapper->GetMapAddres(), 10000);
 
 	render.ObjectRender(m_particleRender);
 }
