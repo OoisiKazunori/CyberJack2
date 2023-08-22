@@ -211,6 +211,8 @@
     <ClCompile Include="Game\UI\LockOnBoxEffect.cpp" />
     <ClCompile Include="Game\UI\PlayerHpUi.cpp" />
     <ClCompile Include="Game\UI\StringWindow.cpp" />
+    <ClCompile Include="KazLibrary\Animation\AnimationData.cpp" />
+    <ClCompile Include="KazLibrary\Animation\AnimationInRaytracing.cpp" />
     <ClCompile Include="KazLibrary\Buffer\BufferDuplicateBlocking.cpp" />
     <ClCompile Include="KazLibrary\Buffer\CreateGpuBuffer.cpp" />
     <ClCompile Include="KazLibrary\Buffer\CreateMeshBuffer.cpp" />
@@ -419,6 +421,8 @@
     <ClInclude Include="Game\UI\LockOnBoxEffect.h" />
     <ClInclude Include="Game\UI\PlayerHpUi.h" />
     <ClInclude Include="Game\UI\StringWindow.h" />
+    <ClInclude Include="KazLibrary\Animation\AnimationData.h" />
+    <ClInclude Include="KazLibrary\Animation\AnimationInRaytracing.h" />
     <ClInclude Include="KazLibrary\Buffer\BufferDuplicateBlocking.h" />
     <ClInclude Include="KazLibrary\Buffer\CreateGpuBuffer.h" />
     <ClInclude Include="KazLibrary\Buffer\CreateMeshBuffer.h" />

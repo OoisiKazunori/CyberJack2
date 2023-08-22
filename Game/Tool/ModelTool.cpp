@@ -36,6 +36,38 @@ void ModelTool::Load()
 		m_modelInfomationArray.emplace_back(
 			ModelData(fileNameArray[i], ModelLoader::Instance()->Load(m_fileDir + fileDirArray[i], fileNameArray[i]))
 		);
+		m_modelAnimation.emplace_back();
+		m_modelAnimationInRaytracing.emplace_back();
+		if (m_modelInfomationArray.back().m_modelInfomation->skelton->animations.size())
+		{
+			m_modelAnimation.back() = std::make_shared<ModelAnimator>(m_modelInfomationArray.back().m_modelInfomation);
+			m_modelAnimation.back()->Play("繧｢繝ｼ繝槭メ繝･繧｢Action", true, false);
+
+			m_modelAnimationInRaytracing.back() = std::make_shared<AnimationInRaytracing>();
+
+			//生成
+			m_modelAnimationInRaytracing.back()->m_vertexBuffer =
+				KazBufferHelper::SetGPUBufferData(
+					sizeof(VertexBufferAnimationData) * static_cast<int>(m_modelInfomationArray.back().m_modelInfomation->modelData[0].vertexData.verticesArray.size())
+				);
+			m_modelAnimationInRaytracing.back()->m_indexBuffer =
+				KazBufferHelper::SetGPUBufferData(
+					sizeof(UINT) * static_cast<int>(m_modelInfomationArray.back().m_modelInfomation->modelData[0].vertexData.indexArray.size())
+				);
+			m_modelAnimationInRaytracing.back()->m_indexBuffer.elementNum = static_cast<int>(m_modelInfomationArray.back().m_modelInfomation->modelData[0].vertexData.indexArray.size());
+			m_modelAnimationInRaytracing.back()->m_indexBuffer.structureSize = sizeof(UINT);
+
+			m_modelAnimationInRaytracing.back()->m_vertexBuffer.elementNum = static_cast<int>(m_modelInfomationArray.back().m_modelInfomation->modelData[0].vertexData.verticesArray.size());
+			m_modelAnimationInRaytracing.back()->m_vertexBuffer.structureSize = sizeof(VertexBufferAnimationData);
+
+			//既存の頂点情報のコピー
+			m_modelAnimationInRaytracing.back()->m_vertexBuffer.bufferWrapper->CopyBuffer(
+				VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_modelInfomationArray.back().m_modelInfomation->modelVertDataHandle).vertBuffer[0]->bufferWrapper->GetBuffer()
+			);
+			m_modelAnimationInRaytracing.back()->m_indexBuffer.bufferWrapper->CopyBuffer(
+				VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_modelInfomationArray.back().m_modelInfomation->modelVertDataHandle).indexBuffer[0]->bufferWrapper->GetBuffer()
+			);
+		}
 	}
 }
 
@@ -131,11 +163,27 @@ void ModelTool::Draw(DrawingByRasterize& render)
 	{
 		ImGui::Text("You didn't Load Anything. Please press Load Model button or check inside a file");
 	}
-	KazImGuiHelper::InputVec3("DirectionalLight", &m_directionalLight);
+	if (m_modelAnimation[m_selectNum])
+	{
+		m_modelAnimation[m_selectNum]->Update(1.0f);
+		m_modelAnimationInRaytracing[m_selectNum]->Compute(
+			*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_modelInfomationArray[m_selectNum].m_modelInfomation->modelVertDataHandle).vertBuffer[0],
+			m_modelAnimation[m_selectNum]->GetBoneMatBuff(),
+			*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_modelInfomationArray[m_selectNum].m_modelInfomation->modelVertDataHandle).indexBuffer[0]
+		);
+	}
+	//KazImGuiHelper::InputVec3("DirectionalLight", &m_directionalLight);
 	ImGui::End();
 
 	//モデル描画
-	DrawFunc::DrawModelLight(m_modelInfomationArray[m_selectNum].m_drawCall, m_modelInfomationArray[m_selectNum].m_transform, m_directionalLight, KazMath::Color(255, 255, 255, 255));
+	if (m_modelAnimation[m_selectNum])
+	{
+		DrawFunc::DrawModel(m_modelInfomationArray[m_selectNum].m_drawCall, m_modelInfomationArray[m_selectNum].m_transform, m_modelAnimation[m_selectNum]->GetBoneMatBuff(), KazMath::Color(255, 255, 255, 255));
+	}
+	else
+	{
+		DrawFunc::DrawModelLight(m_modelInfomationArray[m_selectNum].m_drawCall, m_modelInfomationArray[m_selectNum].m_transform, m_directionalLight, KazMath::Color(255, 255, 255, 255));
+	}
 	DrawGrid(render);
 	render.ObjectRender(m_modelInfomationArray[m_selectNum].m_drawCall);
 }

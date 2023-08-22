@@ -493,6 +493,114 @@ namespace DrawFuncPipelineData
 	}
 
 
+	static D3D12_GRAPHICS_PIPELINE_STATE_DESC SetPosUvNormalTangentBinormalBoneNoWeight()
+	{
+		//パイプラインの設定
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC gPipeline{};
+
+		static D3D12_INPUT_ELEMENT_DESC input3DLayOut[7];
+
+		input3DLayOut[0] =
+		{
+			"POSITION",
+			0,
+			DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		};
+		input3DLayOut[1] =
+		{
+			"NORMAL",
+			0,
+			DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		};
+		input3DLayOut[2] =
+		{
+			"TEXCOORD",
+			0,
+			DXGI_FORMAT_R32G32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		};
+		input3DLayOut[3] =
+		{
+			"TANGENT",
+			0,
+			DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		};
+		input3DLayOut[4] =
+		{
+			"BINORMAL",
+			0,
+			DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		};
+		input3DLayOut[5] =
+		{
+			"BONE_NO",
+			0,
+			DXGI_FORMAT_R32G32B32A32_SINT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		};
+		input3DLayOut[6] =
+		{
+			"WEIGHT",
+			0,
+			DXGI_FORMAT_R32G32B32A32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		};
+
+		gPipeline.InputLayout.pInputElementDescs = input3DLayOut;
+		gPipeline.InputLayout.NumElements = 7;
+
+		//サンプルマスク
+		gPipeline.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+		//ラスタライザ
+		//背面カリング、塗りつぶし、深度クリッピング有効
+		CD3DX12_RASTERIZER_DESC rasterrize(D3D12_DEFAULT);
+		rasterrize.CullMode = D3D12_CULL_MODE_NONE;
+		gPipeline.RasterizerState = rasterrize;
+		//ブレンドモード
+		gPipeline.BlendState.RenderTarget[0] = SetAlphaBlend();
+
+		//図形の形状
+		gPipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+		//その他設定
+		gPipeline.NumRenderTargets = 1;
+		gPipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		gPipeline.SampleDesc.Count = 1;
+
+		//デプスステンシルステートの設定
+		gPipeline.DepthStencilState.DepthEnable = true;							//深度テストを行う
+		gPipeline.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;//書き込み許可
+		gPipeline.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;		//小さければOK
+		gPipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;							//深度値フォーマット
+
+		return gPipeline;
+	}
+
 	static D3D12_GRAPHICS_PIPELINE_STATE_DESC SetPosLine()
 	{
 		//パイプラインの設定
@@ -1057,6 +1165,29 @@ namespace DrawFuncData
 
 		drawCall = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*arg_model, lData);
 		drawCall.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+		drawCall.SetupRaytracing(true);
+
+		return drawCall;
+	};
+
+	static DrawCallData SetDefferdRenderingModelAnimation(std::shared_ptr<ModelInfomation>arg_model)
+	{
+		DrawCallData drawCall;
+
+		DrawFuncData::PipelineGenerateData lData;
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdAnimationMain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdAnimationMain", "ps_6_4", SHADER_TYPE_PIXEL);
+
+		drawCall = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*arg_model, lData);
+		drawCall.pipelineData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormalBoneNoWeight();
+
+
+		//drawCall.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+
+		drawCall.extraBufferArray.emplace_back();
+		drawCall.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCall.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
+
 		drawCall.SetupRaytracing(true);
 
 		return drawCall;

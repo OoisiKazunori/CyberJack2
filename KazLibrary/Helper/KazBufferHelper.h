@@ -4,7 +4,6 @@
 #include"../KazLibrary/DirectXCommon/DirectX12Device.h"
 #include"../KazLibrary/Pipeline/GraphicsRootSignature.h"
 
-
 //class DescriptorHeapMgr;
 //class UavViewHandleMgr;
 

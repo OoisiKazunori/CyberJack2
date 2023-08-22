@@ -201,6 +201,11 @@
     <ClCompile Include="Game\Effect\PlayerShotEffectMgr.cpp" />
     <ClCompile Include="Game\Effect\PlayerShotEffect.cpp" />
     <ClCompile Include="Game\Effect\InstanceMeshParticleData.cpp" />
+    <ClCompile Include="Game\Tool\ModelTool.cpp" />
+    <ClCompile Include="KazLibrary\Animation\AnimationData.cpp" />
+    <ClCompile Include="KazLibrary\Buffer\ShaderRandomTable.cpp" />
+    <ClCompile Include="KazLibrary\Scene\ModelToolScene.cpp" />
+    <ClCompile Include="KazLibrary\Animation\AnimationInRaytracing.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -423,6 +428,11 @@
     <ClInclude Include="Game\Effect\PlayerShotEffectMgr.h" />
     <ClInclude Include="Game\Effect\PlayerShotEffect.h" />
     <ClInclude Include="Game\Effect\InstanceMeshParticleData.h" />
+    <ClInclude Include="Game\Tool\ModelTool.h" />
+    <ClInclude Include="KazLibrary\Animation\AnimationData.h" />
+    <ClInclude Include="KazLibrary\Buffer\ShaderRandomTable.h" />
+    <ClInclude Include="KazLibrary\Scene\ModelToolScene.h" />
+    <ClInclude Include="KazLibrary\Animation\AnimationInRaytracing.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

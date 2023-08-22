@@ -95,6 +95,12 @@ void DrawingByRasterize::Sort()
 
 		result.m_executeIndirectGenerateData.m_uavArgumentBuffer = callData.m_executeIndirectGenerateData.m_uavArgumentBuffer;
 
+
+		if (result.drawCommandType == DrawFuncData::VERT_TYPE::MULTI_MESHED)
+		{
+			bool debug = false;
+		}
+
 		//ExecuteIndirectÇÃî≠çs
 		if (callData.drawCommandType == DrawFuncData::VERT_TYPE::EXECUTEINDIRECT_INDEX ||
 			callData.drawCommandType == DrawFuncData::VERT_TYPE::EXECUTEINDIRECT_INSTANCE)
