@@ -300,13 +300,13 @@ void Player::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	//		test = false;
 	//	}
 	//}
-	m_transform.pos = { 0.0f,10.0f,50.0f };
-	m_transform.pos.x += KazMath::Rand(-300.0f, 300.0f);
-	m_transform.scale = { 50.0f,50.0f,50.0f };
-	m_transform.rotation = { 0.0f,0.0f,0.0f };
-	for (auto& blas : m_playerModel.back().m_raytracingData.m_blas) {
-		arg_blasVec.AddTest(blas, m_transform.GetMat(), 100000);
-	}
+	//m_transform.pos = { 0.0f,10.0f,50.0f };
+	//m_transform.pos.x += KazMath::Rand(-300.0f, 300.0f);
+	//m_transform.scale = { 50.0f,50.0f,50.0f };
+	//m_transform.rotation = { 0.0f,0.0f,0.0f };
+	//for (auto& blas : m_playerModel.back().m_raytracingData.m_blas) {
+	//	arg_blasVec.AddTest(blas, m_transform.GetMat(), 100000);
+	//}
 }
 
 void Player::Hit()
