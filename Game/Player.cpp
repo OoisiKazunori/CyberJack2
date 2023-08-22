@@ -285,20 +285,27 @@ void Player::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 		hpUi.Draw(arg_rasterize);
 	}
 
-	bool test = true;
-	for (auto& index : m_playerModel) {
-		//DrawFunc::DrawModel(index, m_transform);
-		//arg_rasterize.ObjectRender(index);
-		m_transform.pos = { 0.0f,10.0f,50.0f };
-		m_transform.pos.x += KazMath::Rand(-30000.0f, 30000.0f);
-		m_transform.scale = { 50.0f,50.0f,50.0f };
-		m_transform.rotation = { 0.0f,0.0f,0.0f };
-		for (auto& blas : index.m_raytracingData.m_blas) {
-			arg_blasVec.Add(blas, m_transform.GetMat(), 0, test);
-		}
-		if (test) {
-			test = false;
-		}
+	//bool test = true;
+	//for (auto& index : m_playerModel) {
+	//	//DrawFunc::DrawModel(index, m_transform);
+	//	//arg_rasterize.ObjectRender(index);
+	//	m_transform.pos = { 0.0f,10.0f,50.0f };
+	//	m_transform.pos.x += KazMath::Rand(-30000.0f, 30000.0f);
+	//	m_transform.scale = { 50.0f,50.0f,50.0f };
+	//	m_transform.rotation = { 0.0f,0.0f,0.0f };
+	//	for (auto& blas : index.m_raytracingData.m_blas) {
+	//		arg_blasVec.Add(blas, m_transform.GetMat(), 0, test);
+	//	}
+	//	if (test) {
+	//		test = false;
+	//	}
+	//}
+	m_transform.pos = { 0.0f,10.0f,50.0f };
+	m_transform.pos.x += KazMath::Rand(-300.0f, 300.0f);
+	m_transform.scale = { 50.0f,50.0f,50.0f };
+	m_transform.rotation = { 0.0f,0.0f,0.0f };
+	for (auto& blas : m_playerModel.back().m_raytracingData.m_blas) {
+		arg_blasVec.AddTest(blas, m_transform.GetMat(), 100000);
 	}
 }
 
