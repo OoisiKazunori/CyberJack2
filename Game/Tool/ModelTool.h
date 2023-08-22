@@ -59,5 +59,9 @@ private:
 
 	std::vector<std::shared_ptr<ModelAnimator>>m_modelAnimation;
 	std::vector<std::shared_ptr<AnimationInRaytracing>>m_modelAnimationInRaytracing;
+
+	KazBufferHelper::BufferData m_meshParticle;
+	KazBufferHelper::BufferData m_counterBuffer;
+	DrawFuncData::DrawCallData m_particleRender;
 };
 

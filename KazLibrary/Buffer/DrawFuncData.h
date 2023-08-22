@@ -1361,6 +1361,19 @@ namespace DrawFuncData
 		return lData;
 	};
 
+	static DrawFuncData::PipelineGenerateData GetBasicInstanceShader2()
+	{
+		DrawFuncData::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "BasicInstance.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "BasicInstance.hlsl", "PS", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+
+		//ÇªÇÃëºê›íË
+		lData.desc.NumRenderTargets = 1;
+		return lData;
+	};
+
 	static DrawFuncData::PipelineGenerateData GetBasicShader()
 	{
 		DrawFuncData::PipelineGenerateData lData;

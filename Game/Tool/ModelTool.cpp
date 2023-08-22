@@ -20,6 +20,34 @@ ModelTool::ModelTool(std::string arg_fileDir) :m_fileDir(arg_fileDir)
 		VertexGenerateData bufferData(posArray.data(), sizeof(DirectX::XMFLOAT3), posArray.size(), sizeof(DirectX::XMFLOAT3));
 		m_gridCallDataZ[y] = DrawFuncData::SetLine(VertexBufferMgr::Instance()->GenerateBuffer(bufferData, false));
 	}
+
+
+	struct OutputData
+	{
+		DirectX::XMMATRIX worldMat;
+		DirectX::XMFLOAT4 color;
+	};
+	m_meshParticle = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * 10000);
+	m_meshParticle.structureSize = sizeof(OutputData);
+	m_meshParticle.elementNum = 10000;
+
+	m_particleRender =
+		DrawFuncData::SetExecuteIndirect(
+			DrawFuncData::GetBasicInstanceShader2(),
+			m_meshParticle.bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
+			10000
+		);
+	m_particleRender.extraBufferArray.emplace_back();
+	m_particleRender.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	m_particleRender.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+	m_particleRender.renderTargetHandle = -1;
+
+	m_meshParticle.GenerateCounterBuffer();
+	m_meshParticle.CreateUAVView();
+
+	m_counterBuffer = KazBufferHelper::SetUploadBufferData(sizeof(UINT));
+	UINT num = 0;
+	m_counterBuffer.bufferWrapper->TransData(&num, sizeof(UINT));
 }
 
 void ModelTool::Load()
@@ -128,6 +156,8 @@ void ModelTool::Update()
 
 void ModelTool::Draw(DrawingByRasterize& render)
 {
+	m_meshParticle.counterWrapper->CopyBuffer(m_counterBuffer.bufferWrapper->GetBuffer());
+
 	ImGui::Begin("ModelTool");
 	if (ImGui::Button("Load Model"))
 	{
@@ -169,7 +199,8 @@ void ModelTool::Draw(DrawingByRasterize& render)
 		m_modelAnimationInRaytracing[m_selectNum]->Compute(
 			*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_modelInfomationArray[m_selectNum].m_modelInfomation->modelVertDataHandle).vertBuffer[0],
 			m_modelAnimation[m_selectNum]->GetBoneMatBuff(),
-			*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_modelInfomationArray[m_selectNum].m_modelInfomation->modelVertDataHandle).indexBuffer[0]
+			m_meshParticle,
+			m_modelInfomationArray[m_selectNum].m_transform.GetMat()
 		);
 	}
 	//KazImGuiHelper::InputVec3("DirectionalLight", &m_directionalLight);
@@ -186,6 +217,8 @@ void ModelTool::Draw(DrawingByRasterize& render)
 	}
 	DrawGrid(render);
 	render.ObjectRender(m_modelInfomationArray[m_selectNum].m_drawCall);
+
+	render.ObjectRender(m_particleRender);
 }
 
 void ModelTool::DrawGrid(DrawingByRasterize& render)

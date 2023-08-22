@@ -7,14 +7,21 @@ public:
 	AnimationInRaytracing();
 
 	void Compute(
-	const KazBufferHelper::BufferData& arg_vertexBuffer,
-	const KazBufferHelper::BufferData& arg_boneBuffer,
-	const KazBufferHelper::BufferData& arg_indexBuffer
+		const KazBufferHelper::BufferData& arg_vertexBuffer,
+		const KazBufferHelper::BufferData& arg_boneBuffer,
+		const KazBufferHelper::BufferData& arg_indexBuffer,
+		const DirectX::XMMATRIX& arg_worldMat
 	);
 
 	KazBufferHelper::BufferData m_vertexBuffer;
 	KazBufferHelper::BufferData m_indexBuffer;
 private:
 	ComputeShader m_compute;
+	struct CommonData
+	{
+		DirectX::XMMATRIX m_worldMat;
+		DirectX::XMMATRIX m_viewProj;
+		UINT vertNum;
+	};
 };
 
