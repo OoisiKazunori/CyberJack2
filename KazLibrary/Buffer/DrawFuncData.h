@@ -1106,7 +1106,7 @@ namespace DrawFuncData
 		RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GeneratePlaneBuffer();
 		lDrawCallData.m_modelVertDataHandle = VertexBufferMgr::Instance()->StackVertexBuffer(arg_buffer, arg_indexBuffer);
 		lDrawCallData.materialBuffer.emplace_back();
-		lDrawCallData.materialBuffer.back().emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::TestPath + "Test.png"));
+		lDrawCallData.materialBuffer.back().emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(KazFilePathName::TestPath + "white1x1.png"));
 		lDrawCallData.materialBuffer.back().back().rootParamType = GRAPHICS_PRAMTYPE_TEX;
 		lDrawCallData.SetupRaytracing(true);
 

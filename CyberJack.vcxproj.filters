@@ -201,6 +201,8 @@
     <ClCompile Include="Game\Effect\PlayerShotEffectMgr.cpp" />
     <ClCompile Include="Game\Effect\PlayerShotEffect.cpp" />
     <ClCompile Include="Game\Effect\InstanceMeshParticleData.cpp" />
+    <ClCompile Include="KazLibrary\Buffer\ShaderRandomTable.cpp" />
+    <ClCompile Include="KazLibrary\Raytracing\BlasDataContainer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -423,6 +425,8 @@
     <ClInclude Include="Game\Effect\PlayerShotEffectMgr.h" />
     <ClInclude Include="Game\Effect\PlayerShotEffect.h" />
     <ClInclude Include="Game\Effect\InstanceMeshParticleData.h" />
+    <ClInclude Include="KazLibrary\Buffer\ShaderRandomTable.h" />
+    <ClInclude Include="KazLibrary\Raytracing\BlasDataContainer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
