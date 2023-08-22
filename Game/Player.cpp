@@ -305,7 +305,7 @@ void Player::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	m_transform.scale = { 50.0f,50.0f,50.0f };
 	m_transform.rotation = { 0.0f,0.0f,0.0f };
 	for (auto& blas : m_playerModel.back().m_raytracingData.m_blas) {
-		arg_blasVec.AddTest(blas, m_transform.GetMat(), 100000);
+		//arg_blasVec.AddTest(blas, m_transform.GetMat(), 100000);
 	}
 }
 

@@ -7,7 +7,7 @@ ShaderRandomTable::ShaderRandomTable()
 	std::array<UINT, RANDOM_TABLE_NUM>table;
 	for (int i = 0; i < RANDOM_TABLE_NUM; ++i)
 	{
-		table[i] = KazMath::Rand<UINT>(50, 0);
+		table[i] = KazMath::Rand<UINT>(100000, 0);
 	}
 	m_shaderRandomTableBuffer.bufferWrapper->TransData(table.data(), sizeof(UINT) * RANDOM_TABLE_NUM);
 	m_shaderRandomTableBuffer.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
