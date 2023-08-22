@@ -40,11 +40,11 @@ Player::Player()
 	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvLightMain", "ps_6_4", SHADER_TYPE_PIXEL);
 	lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 	//m_playerModel = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*ModelLoader::Instance()->Load("Resource/Test/glTF/Avocado/", "Avocado.gltf"), lData);
-	auto playerModel = *ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf");
-	auto pipeline = DrawFuncData::GetModelBloomShader();
-	for (auto& index : m_playerModel) {
-		index = DrawFuncData::SetRaytracingData(playerModel, pipeline);
-	}
+	//auto playerModel = *ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf");
+	//auto pipeline = DrawFuncData::GetModelBloomShader();
+	//for (auto& index : m_playerModel) {
+	//	index = DrawFuncData::SetRaytracingData(playerModel, pipeline);
+	//}
 }
 
 void Player::Init(const KazMath::Vec3<float>& POS, bool DRAW_UI_FLAG, bool APPEAR_FLAG)

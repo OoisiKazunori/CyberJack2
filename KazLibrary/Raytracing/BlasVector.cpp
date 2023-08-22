@@ -48,7 +48,7 @@ namespace Raytracing
 
 	}
 
-	void BlasVector::AddTest(std::weak_ptr<Blas> arg_refBlas, const DirectX::XMMATRIX& arg_worldMat, int arg_count)
+	void BlasVector::AddTest(std::weak_ptr<Blas> arg_refBlas, std::vector<DirectX::XMMATRIX> arg_worldMat)
 	{
 
 		/*===== Tlasに登録するために配列に追加する =====*/
@@ -59,9 +59,9 @@ namespace Raytracing
 
 		int instanceCount = static_cast<int>(m_instanceDesc.size());
 
-		m_instanceDesc.resize(instanceCount + arg_count);
+		m_instanceDesc.resize(instanceCount + static_cast<int>(arg_worldMat.size()));
 
-		for (int index = 0; index < arg_count; ++index) {
+		for (int index = 0; index < static_cast<int>(arg_worldMat.size()); ++index) {
 
 			D3D12_RAYTRACING_INSTANCE_DESC instanceDesc;
 
@@ -74,9 +74,7 @@ namespace Raytracing
 			//行列を設定。
 			XMStoreFloat3x4(
 				reinterpret_cast<DirectX::XMFLOAT3X4*>(&instanceDesc.Transform),
-				arg_worldMat);
-
-			instanceDesc.Transform[0][3] += index;
+				arg_worldMat[index]);
 
 			//インスタンスの詳細を設定。
 			instanceDesc.InstanceID = 0;			//レイトレで行う処理のフラグをここで設定する。マテリアル側で設定してもよい。

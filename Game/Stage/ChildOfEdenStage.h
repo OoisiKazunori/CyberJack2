@@ -58,5 +58,9 @@ public:
 
 
 	KazBufferHelper::BufferData matrixBuffer;
+	std::vector<DirectX::XMMATRIX> m_particleMatrix;
+
+
+	std::array<DrawFuncData::DrawCallData, PARTICLE_MAX_NUM> m_playerModel;
 };
 

@@ -65,10 +65,11 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
 
 	matrixBuffer = KazBufferHelper::SetUploadBufferData(sizeof(DirectX::XMMATRIX) * PARTICLE_MAX_NUM, "Particle-Matrix");
+	m_particleMatrix.resize(PARTICLE_MAX_NUM);
 	m_computeUpdateBuffer.emplace_back(matrixBuffer);
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA5;
-	
+
 	m_computeUpdate.Generate(
 		ShaderOptionData("Resource/ShaderFiles/ShaderFile/TriangleParticle.hlsl", "UpdateCSmain", "cs_6_4", SHADER_TYPE_COMPUTE),
 		m_computeUpdateBuffer
@@ -109,12 +110,18 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 		);
 	command.indexBufferView = KazBufferHelper::SetIndexBufferView(m_particleIndexBuffer->bufferWrapper->GetGpuAddress(), sizeof(UINT) * (PARTICLE_MAX_NUM * 6));
 
-	
+
 	command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0] = command.drawIndexInstancedData;
 	m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.vertexBufferDrawData[0] = command.vertexBufferDrawData;
 	m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.indexBufferView[0] = command.indexBufferView;
 	m_drawCall = DrawFuncData::SetDrawPolygonIndexData(command, DrawFuncData::GetBasicShader());
+
+	auto playerModel = *ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf");
+	auto pipeline = DrawFuncData::GetModelBloomShader();
+	for (auto& index : m_playerModel) {
+		index = DrawFuncData::SetRaytracingData(playerModel, pipeline);
+	}
 }
 
 void ChildOfEdenStage::Update()
@@ -126,6 +133,12 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 {
 	//DrawFunc::DrawModel(m_drawSkydorm, m_skydormTransform);
 	//arg_rasterize.ObjectRender(m_drawSkydorm);
+
+	memcpy(m_particleMatrix.data(), matrixBuffer.bufferWrapper->GetMapAddres(), sizeof(DirectX::XMMATRIX) * PARTICLE_MAX_NUM);
+
+	for (auto& blas : m_playerModel.back().m_raytracingData.m_blas) {
+		arg_blasVec.AddTest(blas, m_particleMatrix);
+	}
 
 	arg_rasterize.ObjectRender(m_drawTriangleParticle);
 
