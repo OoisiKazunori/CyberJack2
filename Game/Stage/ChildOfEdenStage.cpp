@@ -43,10 +43,10 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_particleIndexBuffer->structureSize = sizeof(UINT);
 	m_particleIndexBuffer->elementNum = PARTICLE_MAX_NUM * 6;
 
-	m_drawTriangleParticleInRaytracing = DrawFuncData::SetParticleInRaytracing(
-		m_particleVertexBuffer,
-		m_particleIndexBuffer
-	);
+	//m_drawTriangleParticleInRaytracing = DrawFuncData::SetParticleInRaytracing(
+	//	m_particleVertexBuffer,
+	//	m_particleIndexBuffer
+	//);
 	m_particleVertexBuffer->bufferWrapper->ChangeBarrier(
 		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
@@ -115,10 +115,11 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0] = command.drawIndexInstancedData;
 	m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.vertexBufferDrawData[0] = command.vertexBufferDrawData;
 	m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.indexBufferView[0] = command.indexBufferView;
-	m_drawCall = DrawFuncData::SetDrawPolygonIndexData(command, DrawFuncData::GetBasicShader());
+	//m_drawCall = DrawFuncData::SetDrawPolygonIndexData(command, DrawFuncData::GetBasicShader());
 
 	auto playerModel = *ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf");
 	auto pipeline = DrawFuncData::GetModelBloomShader();
+	//m_playerModel.resize(PARTICLE_MAX_NUM);
 	for (auto& index : m_playerModel) {
 		index = DrawFuncData::SetRaytracingData(playerModel, pipeline);
 	}
@@ -126,7 +127,7 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 
 void ChildOfEdenStage::Update()
 {
-	m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas[0]->Update();
+	//m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas[0]->Update();
 }
 
 void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
@@ -142,10 +143,10 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 
 	arg_rasterize.ObjectRender(m_drawTriangleParticle);
 
-	for (auto& index : m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas)
-	{
-		arg_blasVec.Add(index, DirectX::XMMatrixIdentity(), 1);
-	}
+	//for (auto& index : m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas)
+	//{
+	//	arg_blasVec.Add(index, DirectX::XMMatrixIdentity(), 1);
+	//}
 
 	CameraBufferData cameraMat;
 	cameraMat.m_billboardMat = CameraMgr::Instance()->GetMatBillBoard();

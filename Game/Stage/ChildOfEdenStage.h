@@ -22,9 +22,9 @@ public:
 	//ステージ内に漂う三角パーティクル
 	DrawFuncData::DrawCallData m_drawTriangleParticle;
 	//上記のパーティクルをレイトレで描画する
-	DrawFuncData::DrawCallData m_drawTriangleParticleInRaytracing;
+	//DrawFuncData::DrawCallData m_drawTriangleParticleInRaytracing;
 
-	static const int DISPATCH_MAX_NUM = 1;
+	static const int DISPATCH_MAX_NUM = 10;
 	static const int PARTICLE_MAX_NUM = 1024 * DISPATCH_MAX_NUM;
 	struct ParticeArgumentData
 	{
@@ -54,7 +54,7 @@ public:
 	std::shared_ptr<KazBufferHelper::BufferData>m_particleVertexBuffer;
 	std::shared_ptr<KazBufferHelper::BufferData>m_particleIndexBuffer;
 
-	DrawFuncData::DrawCallData m_drawCall;
+	//DrawFuncData::DrawCallData m_drawCall;
 
 
 	KazBufferHelper::BufferData matrixBuffer;

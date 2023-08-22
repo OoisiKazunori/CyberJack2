@@ -69,29 +69,29 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 26,
+            "count" : 30,
             "max" : [
-                0.011927339248359203,
-                0.027166316285729408,
-                0.023914050310850143
+                1.33623468875885,
+                3.0434763431549072,
+                2.6791210174560547
             ],
             "min" : [
-                -0.011927339248359203,
-                -0.027166316285729408,
-                -0.023914050310850143
+                -1.33623468875885,
+                -3.0434763431549072,
+                -2.6791210174560547
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 26,
+            "count" : 30,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 26,
+            "count" : 30,
             "type" : "VEC2"
         },
         {
@@ -104,28 +104,28 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 312,
+            "byteLength" : 360,
             "byteOffset" : 0
         },
         {
             "buffer" : 0,
-            "byteLength" : 312,
-            "byteOffset" : 312
+            "byteLength" : 360,
+            "byteOffset" : 360
         },
         {
             "buffer" : 0,
-            "byteLength" : 208,
-            "byteOffset" : 624
+            "byteLength" : 240,
+            "byteOffset" : 720
         },
         {
             "buffer" : 0,
             "byteLength" : 72,
-            "byteOffset" : 832
+            "byteOffset" : 960
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 904,
+            "byteLength" : 1032,
             "uri" : "Player.bin"
         }
     ]
