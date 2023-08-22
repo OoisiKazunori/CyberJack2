@@ -251,15 +251,15 @@ void Player::Update()
 	//前フレームの座標を保存。移動した方向を求めて姿勢制御に使用する。
 	prevPos = pos;
 
-	for (auto& index : m_playerModel) {
-		//DrawFunc::Test(index, m_transform, DrawFunc::NONE);
+	//for (auto& index : m_playerModel) {
+	//	//DrawFunc::Test(index, m_transform, DrawFunc::NONE);
 
-		m_emissive.x = 0.0f;
-		m_emissive.y = 0.0f;
-		m_emissive.z = 0.0f;
-		m_emissive.a = 1;
-		//index.extraBufferArray.back().bufferWrapper->TransData(&m_emissive, sizeof(DirectX::XMFLOAT4));
-	}
+	//	m_emissive.x = 0.0f;
+	//	m_emissive.y = 0.0f;
+	//	m_emissive.z = 0.0f;
+	//	m_emissive.a = 1;
+	//	//index.extraBufferArray.back().bufferWrapper->TransData(&m_emissive, sizeof(DirectX::XMFLOAT4));
+	//}
 
 }
 
@@ -285,18 +285,20 @@ void Player::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 		hpUi.Draw(arg_rasterize);
 	}
 
-
+	bool test = true;
 	for (auto& index : m_playerModel) {
 		//DrawFunc::DrawModel(index, m_transform);
 		//arg_rasterize.ObjectRender(index);
-	m_transform.pos = { 0.0f,10.0f,50.0f };
-	m_transform.pos.x += KazMath::Rand(-30000.0f, 30000.0f);
-	m_transform.scale = { 50.0f,50.0f,50.0f };
-	m_transform.rotation = { 0.0f,0.0f,0.0f };
+		m_transform.pos = { 0.0f,10.0f,50.0f };
+		m_transform.pos.x += KazMath::Rand(-30000.0f, 30000.0f);
+		m_transform.scale = { 50.0f,50.0f,50.0f };
+		m_transform.rotation = { 0.0f,0.0f,0.0f };
 		for (auto& blas : index.m_raytracingData.m_blas) {
-			arg_blasVec.Add(blas, m_transform.GetMat());
+			arg_blasVec.Add(blas, m_transform.GetMat(), 0, test);
 		}
-		//break;
+		if (test) {
+			test = false;
+		}
 	}
 }
 

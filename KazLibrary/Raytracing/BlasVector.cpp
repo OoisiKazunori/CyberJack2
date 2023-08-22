@@ -14,13 +14,16 @@ namespace Raytracing
 		m_instanceDesc.resize(0);
 	}
 
-	void BlasVector::Add(std::weak_ptr<Blas> arg_refBlas, const DirectX::XMMATRIX& arg_worldMat, int arg_instanceIndex)
+	void BlasVector::Add(std::weak_ptr<Blas> arg_refBlas, const DirectX::XMMATRIX& arg_worldMat, int arg_instanceIndex, bool arg_isAddBlas)
 	{
 
 		/*===== TlasÇ…ìoò^Ç∑ÇÈÇΩÇﬂÇ…îzóÒÇ…í«â¡Ç∑ÇÈ =====*/
 
 		//éQè∆Çí«â¡ÇµÇƒÅB
-		m_refBlas.emplace_back(arg_refBlas);
+		if (arg_isAddBlas) {
+			m_refBlas.emplace_back(arg_refBlas);
+		}
+
 
 		D3D12_RAYTRACING_INSTANCE_DESC instanceDesc;
 
@@ -44,6 +47,11 @@ namespace Raytracing
 	int BlasVector::GetBlasRefCount()
 	{
 		return static_cast<int>(m_refBlas.size());
+	}
+
+	int BlasVector::GetInstanceCount()
+	{
+		return static_cast<int>(m_instanceDesc.size());
 	}
 
 	uint8_t* BlasVector::WriteShaderRecord(uint8_t* arg_dest, UINT arg_recordSize, Microsoft::WRL::ComPtr<ID3D12StateObject>& arg_stateObject, LPCWSTR arg_hitGroup)

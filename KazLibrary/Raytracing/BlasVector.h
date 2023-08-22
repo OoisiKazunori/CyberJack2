@@ -41,12 +41,13 @@ namespace Raytracing
 		/// </summary>
 		/// <param name="arg_refBlas"></param>
 		/// <param name="arg_worldMat"></param>
-		void Add(std::weak_ptr<Blas> arg_refBlas, const DirectX::XMMATRIX& arg_worldMat, int arg_instanceIndex = 0);
+		void Add(std::weak_ptr<Blas> arg_refBlas, const DirectX::XMMATRIX& arg_worldMat, int arg_instanceIndex = 0, bool arg_isAddBlas = true);
 
 		/// <summary>
 		/// 保存されている参照の数。
 		/// </summary>
 		int GetBlasRefCount();
+		int GetInstanceCount();
 
 		/// <summary> 
 		/// 参照元のシェーダーレコードにアクセスして書き込む。

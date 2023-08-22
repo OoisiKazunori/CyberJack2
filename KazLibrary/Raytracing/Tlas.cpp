@@ -26,7 +26,7 @@ namespace Raytracing {
 		//if (0 < a) return;
 
 		//Œ»Ý‚ÌTlas‚É‘g‚Ýž‚ÞInstance‚Ì”B
-		int nowInstanceCount = arg_blasVector.GetBlasRefCount();
+		int nowInstanceCount = arg_blasVector.GetInstanceCount();
 
 		//‰½‚àTlas‚É“o˜^‚³‚ê‚Ä‚¢‚È‚©‚Á‚½‚çˆ—‚ð”ò‚Î‚·B
 		if (nowInstanceCount <= 0) return;
