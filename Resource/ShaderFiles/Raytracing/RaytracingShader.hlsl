@@ -397,6 +397,10 @@ void mainRayGen()
         bright = length(emissiveColor.xyz);
 
     }
+    else if (0 < materialInfo.y)
+    {
+        bright = 1.0f;
+    }
     else
     {
         LightingPass(bright, worldColor, normalColor, lightData, launchIndex, debugRaytracingData, gRtScene, isFar);
