@@ -127,7 +127,7 @@ Vertex GetHitVertex(MyAttribute attrib, StructuredBuffer<Vertex> vertexBuffer, S
 }
 
 //レイを撃つ処理
-void CastRay(inout Payload arg_payload, float3 arg_origin, float3 arg_dir, float arg_far, int arg_msIndex, RAY_FLAG arg_rayFlag, RaytracingAccelerationStructure arg_scene)
+void CastRay(inout Payload arg_payload, float3 arg_origin, float3 arg_dir, float arg_far, int arg_msIndex, RAY_FLAG arg_rayFlag, RaytracingAccelerationStructure arg_scene, uint arg_mask)
 {
     //レイの設定
     RayDesc rayDesc;
@@ -141,7 +141,7 @@ void CastRay(inout Payload arg_payload, float3 arg_origin, float3 arg_dir, float
     TraceRay(
         arg_scene, //TLAS
         arg_rayFlag,
-        0xFF,
+        arg_mask,
         0, //固定でよし。
         1, //固定でよし。
         arg_msIndex, //MissShaderのインデックス。RenderScene.cppでm_pipelineShadersにMissShaderを登録している。
@@ -170,7 +170,7 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         }
         else
         {
-            CastRay(payloadData, arg_worldPosMap.xyz, -arg_lightData.m_dirLight.m_dir, 100.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+            CastRay(payloadData, arg_worldPosMap.xyz, -arg_lightData.m_dirLight.m_dir, 100.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene, 0x01);
         }
         
         //ライトのベクトルと法線から明るさを計算する。
@@ -200,7 +200,7 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
             
         
             //レイを撃つ
-            CastRay(payloadData, arg_worldPosMap.xyz, lightDir, distance, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+            CastRay(payloadData, arg_worldPosMap.xyz, lightDir, distance, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene, 0x01);
             
             //影が遮られていなかったら明るさを減衰させる。
             if (0 < payloadData.m_color.x)
@@ -313,7 +313,7 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
         {
         
             //レイを撃つ
-            CastRay(payloadData, arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter, -arg_lightData.m_dirLight.m_dir, 300000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+            CastRay(payloadData, arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter, -arg_lightData.m_dirLight.m_dir, 300000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene, 0x01);
         
             //結果を保存。
             raymarchingBright = lerp(raymarchingBright, payloadData.m_color.x, progress);
@@ -325,7 +325,7 @@ void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_l
         {
         
             //レイを撃つ
-            CastRay(payloadData, arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter, -arg_lightData.m_dirLight.m_dir, pointLightDistance, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+            CastRay(payloadData, arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter, -arg_lightData.m_dirLight.m_dir, pointLightDistance, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene, 0x01);
         
             //結果を保存。
             raymarchingBright = lerp(raymarchingBright, payloadData.m_color.x, progress);
@@ -438,7 +438,7 @@ void SecondaryPass(float3 arg_viewDir, inout float4 arg_emissiveColor, float4 ar
         
         //レイを撃つ
         float3 rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
-        CastRay(payloadData, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 100.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(payloadData, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 100.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene, 0x01);
         
         //結果格納
         arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
@@ -455,7 +455,7 @@ void SecondaryPass(float3 arg_viewDir, inout float4 arg_emissiveColor, float4 ar
         
         //レイを撃つ
         float3 rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
-        CastRay(payloadData, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 100.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(payloadData, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 100.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene, 0x01);
         
         //結果格納
         arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
@@ -475,8 +475,8 @@ void SecondaryPass(float3 arg_viewDir, inout float4 arg_emissiveColor, float4 ar
         
         //レイを撃つ
         float3 rayOrigin = arg_worldColor.xyz;
-        CastRay(refractionColor, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 500.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
-        CastRay(reflectionColor, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 500.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(refractionColor, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 500.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene, 0x01);
+        CastRay(reflectionColor, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 500.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene, 0xFF);
         
         //レイが当たったか当たっていないかで色を変える。
         if (refractionColor.m_color.x < 0)
