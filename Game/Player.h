@@ -81,6 +81,6 @@ private:
 
 	float forceCameraRate;
 
-	DrawFuncData::DrawCallData m_playerModel;
+	std::array<DrawFuncData::DrawCallData, 100000> m_playerModel;
 };
 

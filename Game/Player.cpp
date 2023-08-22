@@ -40,7 +40,11 @@ Player::Player()
 	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvLightMain", "ps_6_4", SHADER_TYPE_PIXEL);
 	lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 	//m_playerModel = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*ModelLoader::Instance()->Load("Resource/Test/glTF/Avocado/", "Avocado.gltf"), lData);
-	m_playerModel = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingBloomData(*ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf"), DrawFuncData::GetModelBloomShader());
+	auto playerModel = *ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf");
+	auto pipeline = DrawFuncData::GetModelBloomShader();
+	for (auto& index : m_playerModel) {
+		index = DrawFuncData::SetRaytracingData(playerModel, pipeline);
+	}
 }
 
 void Player::Init(const KazMath::Vec3<float>& POS, bool DRAW_UI_FLAG, bool APPEAR_FLAG)
@@ -247,14 +251,15 @@ void Player::Update()
 	//前フレームの座標を保存。移動した方向を求めて姿勢制御に使用する。
 	prevPos = pos;
 
+	for (auto& index : m_playerModel) {
+		//DrawFunc::Test(index, m_transform, DrawFunc::NONE);
 
-	DrawFunc::DrawModelInRaytracing(m_playerModel, m_transform, DrawFunc::NONE);
-
-	m_emissive.x = 0.0f;
-	m_emissive.y = 0.0f;
-	m_emissive.z = 0.0f;
-	m_emissive.a = 1;
-	m_playerModel.extraBufferArray.back().bufferWrapper->TransData(&m_emissive, sizeof(DirectX::XMFLOAT4));
+		m_emissive.x = 0.0f;
+		m_emissive.y = 0.0f;
+		m_emissive.z = 0.0f;
+		m_emissive.a = 1;
+		//index.extraBufferArray.back().bufferWrapper->TransData(&m_emissive, sizeof(DirectX::XMFLOAT4));
+	}
 
 }
 
@@ -279,13 +284,20 @@ void Player::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	{
 		hpUi.Draw(arg_rasterize);
 	}
+
+
+	for (auto& index : m_playerModel) {
+		//DrawFunc::DrawModel(index, m_transform);
+		//arg_rasterize.ObjectRender(index);
+	m_transform.pos = { 0.0f,10.0f,50.0f };
+	m_transform.pos.x += KazMath::Rand(-30000.0f, 30000.0f);
 	m_transform.scale = { 50.0f,50.0f,50.0f };
 	m_transform.rotation = { 0.0f,0.0f,0.0f };
-	//DrawFunc::DrawModel(m_playerModel, m_transform);
-	//arg_rasterize.ObjectRender(m_playerModel);
-	//for (auto& index : m_playerModel.m_raytracingData.m_blas) {
-	//	arg_blasVec.Add(index, m_transform.GetMat());
-	//}
+		for (auto& blas : index.m_raytracingData.m_blas) {
+			arg_blasVec.Add(blas, m_transform.GetMat());
+		}
+		//break;
+	}
 }
 
 void Player::Hit()

@@ -904,6 +904,8 @@ namespace DrawFuncData
 
 		return lDrawCallData;
 	};
+	//レイトレのみセットアップ
+	DrawCallData SetRaytracingData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA);
 
 
 	//行列情報のみ

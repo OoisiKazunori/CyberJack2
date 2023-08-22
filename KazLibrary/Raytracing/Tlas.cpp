@@ -21,6 +21,10 @@ namespace Raytracing {
 
 		/*===== Tlas‚ğ\’z =====*/
 
+		static int a = 0;
+
+		//if (0 < a) return;
+
 		//Œ»İ‚ÌTlas‚É‘g‚İ‚ŞInstance‚Ì”B
 		int nowInstanceCount = arg_blasVector.GetBlasRefCount();
 
@@ -43,6 +47,8 @@ namespace Raytracing {
 			UpdateTlas(arg_blasVector);
 
 		}
+
+		++a;
 
 	}
 
