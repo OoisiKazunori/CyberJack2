@@ -55,5 +55,8 @@ public:
 	std::shared_ptr<KazBufferHelper::BufferData>m_particleIndexBuffer;
 
 	DrawFuncData::DrawCallData m_drawCall;
+
+
+	KazBufferHelper::BufferData matrixBuffer;
 };
 

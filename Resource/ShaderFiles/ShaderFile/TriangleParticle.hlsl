@@ -259,6 +259,7 @@ float3 GetNormal(RWStructuredBuffer<VertexBufferData> vertex,uint index,uint2 of
 RWStructuredBuffer<OutputData> WorldDataBuffer : register(u1);
 RWStructuredBuffer<VertexBufferData> VertexBuffer : register(u2);
 RWStructuredBuffer<uint> IndexBuffer : register(u3);
+RWStructuredBuffer<matrix> WorldMatBuffer : register(u4);
 [numthreads(1024, 1, 1)]
 void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, uint3 groupThreadID : SV_GroupThreadID)
 {
@@ -279,6 +280,8 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
         ParticleDataBuffer[index].scale,
         ParticleDataBuffer[index].rotation
     );
+
+    WorldMatBuffer[index] = WorldDataBuffer[index].mat;
 
     uint vertexIndex = index * 4;
     float vertScale = 1.0f;
