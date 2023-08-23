@@ -252,6 +252,6 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
 
     GPUParticleInput inputData;
     inputData.worldMat = mul(viewProjMat,worldMat);
-    inputData.color = particleData.color;
+    inputData.color = particleData.color * float4(1.0f,1.0f,1.0f,alphaData[particleData.id]);
     inputGPUParticleData.Append(inputData);
 }
