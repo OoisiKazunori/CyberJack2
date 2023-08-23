@@ -379,7 +379,7 @@ void InGame::Update()
 				}
 				if (m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->rockOnNum <= 0 &&
 					m_cursor.Release() &&
-					!m_enemies[enemyType][enemyCount]->m_isBeingShot||
+					!m_enemies[enemyType][enemyCount]->m_isBeingShot ||
 					KeyBoradInputManager::Instance()->InputTrigger(DIK_SPACE))
 				{
 					PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount]);
@@ -387,7 +387,7 @@ void InGame::Update()
 
 
 
-					m_enemies[enemyType][enemyCount]->Dead();
+					//m_enemies[enemyType][enemyCount]->Dead();
 					if (0 < static_cast<int>(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData.size()))
 					{
 						//m_meshParticleRender->AddMeshData(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData[0]->meshParticleData);
@@ -440,6 +440,7 @@ void InGame::Update()
 
 	if (m_isEnemyNotMoveFlag)
 	{
+
 		++m_notMoveTimer;
 	}
 	else
@@ -447,9 +448,25 @@ void InGame::Update()
 		m_notMoveTimer = 0;
 	}
 
-	if (KazMath::ConvertSecondToFlame(CHANGE_GMAE_FLAME_SPEED_MAX_TIME) <= m_notMoveTimer)
+	if (120 == m_notMoveTimer)
 	{
-		//m_gameSpeed = 60;
+		m_meshParticleRender->InitParticle();
+
+		for (int enemyType = 0; enemyType < m_responeData.size(); ++enemyType)
+		{
+			for (int enemyCount = 0; enemyCount < m_responeData[enemyType].size(); ++enemyCount)
+			{
+				if (!m_enemies[enemyType][enemyCount]) continue;
+
+				m_enemies[enemyType][enemyCount]->OnInit(m_responeData[enemyType][enemyCount].generateData.useMeshPaticleFlag);
+				m_enemies[enemyType][enemyCount]->Init(&(m_player.m_transform), m_responeData[enemyType][enemyCount].generateData, false);
+
+				if (m_enemies[enemyType][enemyCount]->GetData()->meshParticleFlag)
+				{
+					continue;
+				}
+			}
+		}
 	}
 	else
 	{
