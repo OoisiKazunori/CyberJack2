@@ -2,6 +2,7 @@
 #include"../KazLibrary/Render/KazRender.h"
 #include"../Game/Interface/IEnemy.h"
 #include"../Game/Effect/RocketEffect.h"
+#include"../KazLibrary/Animation/AnimationInRaytracing.h"
 
 class VirusEnemy:public IEnemy
 {
@@ -67,5 +68,9 @@ private:
 
 	DirectX::XMMATRIX m_motherMat;
 	float m_alpha;
+
+	AnimationInRaytracing m_computeAnimation;
+	std::shared_ptr<ModelAnimator> m_animation;
+	std::shared_ptr<ModelInfomation>m_modelData;
 };
 

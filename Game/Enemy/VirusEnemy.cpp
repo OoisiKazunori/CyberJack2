@@ -6,19 +6,20 @@
 
 VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 {
-	m_model = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/Enemy/Virus/", "Virus.gltf"));
-
-
+	m_modelData = ModelLoader::Instance()->Load("Resource/Enemy/Virus/", "virus_cur.gltf");
+	m_model = DrawFuncData::SetDefferdRenderingModelAnimation(m_modelData);
 	m_alpha = 1.0f;
 	iEnemy_EnemyStatusData->fAlpha = &m_alpha;
-	InitMeshPartilce("Resource/Enemy/Virus/", "Virus.gltf", &m_motherMat);
+	InitMeshPartilce("Resource/Enemy/Virus/", "virus_cur.gltf", &m_motherMat);
 
 	moveID = arg_moveID;
 	moveIDparam = arg_moveIDparam;
 
+	//アニメーション対応
+	m_animation = std::make_shared<ModelAnimator>(m_modelData);
+	m_computeAnimation.GenerateBuffer(*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0]);
 	m_spawnTimer = 0;
 	m_canSpawn = false;
-
 }
 
 void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)
@@ -45,11 +46,12 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 	debugTimer = 0;
 	m_exitTimer = 0;
 	m_alpha;
+
+	m_animation->Play("繧｢繝ｼ繝槭メ繝･繧｢Action", true, false);
 	m_gravity = 0;
 
 	m_hp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
 	m_prevhp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
-
 	m_spawnTimer = 0;
 	m_canSpawn = false;
 }
@@ -157,7 +159,7 @@ void VirusEnemy::Update()
 
 		//座標を補間する。
 		float easingValue = EasingMaker(EasingType::Out, EaseInType::Back, std::clamp(m_appearEasingTimer + 1.0f, 0.0f, APPEAR_EASING_TIMER) / APPEAR_EASING_TIMER);
-		m_transform.scale = m_playerTransform->scale * easingValue;
+		m_transform.scale = KazMath::Vec3<float>(1.0f, 1.0f, 1.0f) * easingValue;
 		m_transform.rotation = Vec3<float>(0, 0, 360) * easingValue;
 
 		//出現が終わったら待機状態へ
@@ -174,7 +176,7 @@ void VirusEnemy::Update()
 		m_stopTimer += 0.1f;
 		m_moveTimer += 0.06f;
 
-		m_transform.rotation.z = 360.0f + sinf(m_stopTimer) * 35.0f;
+		//m_transform.rotation.z = 360.0f + sinf(m_stopTimer) * 35.0f;
 		m_transform.pos.y = m_initPos.y + sinf(m_moveTimer) * 1.0f;
 
 		m_transform.scale += (m_playerTransform->scale - m_transform.scale) / 5.0f;
@@ -270,14 +272,20 @@ void VirusEnemy::Update()
 
 	m_motherMat = m_transform.GetMat();
 
-
+	m_animation->Update(1.0f);
+	/*m_computeAnimation.Compute(
+		*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0],
+		m_animation->GetBoneMatBuff(),
+		m_transform.GetMat()
+	);*/
 }
 
 void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
-	DrawFunc::DrawModel(m_model, m_transform);
-	arg_rasterize.ObjectRender(m_model);
-	for (auto& index : m_model.m_raytracingData.m_blas) {
+	DrawFunc::DrawModel(m_model, m_transform, m_animation->GetBoneMatBuff());
+	//arg_rasterize.ObjectRender(m_model);
+	for (auto& index : m_model.m_raytracingData.m_blas)
+	{
 		arg_blasVec.Add(index, m_transform.GetMat());
 	}
 }

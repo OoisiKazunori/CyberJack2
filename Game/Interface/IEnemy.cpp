@@ -259,6 +259,6 @@ void IEnemy::InitMeshPartilce(std::string arg_fileDir, std::string arg_fileName,
 	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData.alpha = iEnemy_EnemyStatusData->fAlpha;
 	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData.curlNoizeFlag = &iEnemy_EnemyStatusData->curlNozieFlag;
 
-	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData.particleScale = { 0.01f,0.01f,0.01f };
+	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData.particleScale = { 0.1f,0.1f,0.1f };
 	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData.billboardFlag = true;
 }

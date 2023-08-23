@@ -380,8 +380,8 @@ void InGame::Update()
 
 					m_enemies[enemyType][enemyCount]->GetData()->meshParticleData;
 
-					//m_enemies[enemyType][enemyCount]->Dead();
-					//m_meshParticleRender->AddMeshData(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData[0]->meshParticleData);
+					m_enemies[enemyType][enemyCount]->Dead();
+					m_meshParticleRender->AddMeshData(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData[0]->meshParticleData);
 				}
 			}
 			if (m_enemies[enemyType][enemyCount]) {
