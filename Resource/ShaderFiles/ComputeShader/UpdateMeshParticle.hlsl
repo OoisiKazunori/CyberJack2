@@ -74,7 +74,7 @@ float PerlinNoise(float3 arg_st, int arg_octaves, float arg_persistence, float a
 	float amplitude = 1.0;
 
 	//プレイヤーのワールド座標に基づくノイズ生成
-	float3 worldSpaceCoords = arg_st + arg_pos * 0.3f;
+	float3 worldSpaceCoords = arg_st + arg_pos * 0.1f;
 
 	float noiseValue = 0;
 
@@ -129,7 +129,7 @@ float3 CurlNoise3D(float3 arg_st, float3 arg_pos)
 	vel.y = dNoiseZ - dNoiseX;
 	vel.z = dNoiseX - dNoiseY;
 	
-    return vel * 1.0f;
+    return vel * 10.0f;
 
 }
 
