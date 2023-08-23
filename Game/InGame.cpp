@@ -442,7 +442,7 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 			bool enableToUseDataFlag = m_enemies[enemyType][enemyCount] != nullptr;
 			if (enableToUseDataFlag)
 			{
-				//m_enemies[enemyType][enemyCount]->Draw(arg_rasterize, arg_blasVec);
+				m_enemies[enemyType][enemyCount]->Draw(arg_rasterize, arg_blasVec);
 			}
 		}
 	}
