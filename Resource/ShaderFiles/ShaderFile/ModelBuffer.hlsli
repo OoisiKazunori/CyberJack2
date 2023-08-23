@@ -50,24 +50,3 @@ bool IsEnableToUseMaterialTex(float4 texColor)
 {
     return texColor.a <= 0.0f;
 };
-
-bool IsAll0MaterialTex(float4 texColor)
-{
-    if(0.0f < texColor.r)
-    {
-        return false;
-    }
-    if(0.0f < texColor.g)
-    {
-        return false;
-    }
-    if(0.0f < texColor.b)
-    {
-        return false;
-    }
-    if(0.0f < texColor.a)
-    {
-        return false;
-    }
-    return true;
-};

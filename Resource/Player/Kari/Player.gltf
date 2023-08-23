@@ -15,7 +15,7 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "\u5e73\u9762"
+            "name" : "\u7acb\u65b9\u4f53"
         }
     ],
     "materials" : [
@@ -26,7 +26,7 @@
                 0,
                 0
             ],
-            "name" : "\u30de\u30c6\u30ea\u30a2\u30eb.001",
+            "name" : "\u30de\u30c6\u30ea\u30a2\u30eb",
             "pbrMetallicRoughness" : {
                 "baseColorTexture" : {
                     "index" : 0,
@@ -39,7 +39,7 @@
     ],
     "meshes" : [
         {
-            "name" : "\u5e73\u9762",
+            "name" : "\u7acb\u65b9\u4f53",
             "primitives" : [
                 {
                     "attributes" : {
@@ -61,71 +61,71 @@
     "images" : [
         {
             "mimeType" : "image/png",
-            "name" : "white",
-            "uri" : "white.png"
+            "name" : "red",
+            "uri" : "red.png"
         }
     ],
     "accessors" : [
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 4,
+            "count" : 30,
             "max" : [
-                0.2743520736694336,
-                0,
-                0.2743520736694336
+                1.33623468875885,
+                3.0434763431549072,
+                2.6791210174560547
             ],
             "min" : [
-                -0.2743520736694336,
-                0,
-                -0.2743520736694336
+                -1.33623468875885,
+                -3.0434763431549072,
+                -2.6791210174560547
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 4,
+            "count" : 30,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 4,
+            "count" : 30,
             "type" : "VEC2"
         },
         {
             "bufferView" : 3,
             "componentType" : 5123,
-            "count" : 6,
+            "count" : 36,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 48,
+            "byteLength" : 360,
             "byteOffset" : 0
         },
         {
             "buffer" : 0,
-            "byteLength" : 48,
-            "byteOffset" : 48
+            "byteLength" : 360,
+            "byteOffset" : 360
         },
         {
             "buffer" : 0,
-            "byteLength" : 32,
-            "byteOffset" : 96
+            "byteLength" : 240,
+            "byteOffset" : 720
         },
         {
             "buffer" : 0,
-            "byteLength" : 12,
-            "byteOffset" : 128
+            "byteLength" : 72,
+            "byteOffset" : 960
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 140,
+            "byteLength" : 1032,
             "uri" : "Player.bin"
         }
     ]

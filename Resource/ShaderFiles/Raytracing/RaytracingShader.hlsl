@@ -325,14 +325,6 @@ void mainRayGen()
     float4 worldColor = worldMap[launchIndex];
     float4 emissiveColor = emissiveMap[launchIndex];
     
-    //法線が-1,-1,-1だったらパーティクルなので処理を飛ばす。
-    if (normalColor.r <= -0.9f && normalColor.g <= -0.9f && normalColor.b <= -0.9f)
-    {
-        finalColor[launchIndex.xy] = albedoColor;
-        emissiveTexture[launchIndex.xy] = emissiveColor;
-        return;
-    }
-    
     //遠さを見る。
     const float REFLECTION_DEADLINE = 10000.0f;
     bool isFar = REFLECTION_DEADLINE < length(cameraEyePos.m_eye - worldColor.xyz);
