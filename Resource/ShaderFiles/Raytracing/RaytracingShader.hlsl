@@ -328,9 +328,11 @@ void mainRayGen()
     //法線が-1,-1,-1だったらパーティクルなので処理を飛ばす。
     if (normalColor.r <= -0.9f && normalColor.g <= -0.9f && normalColor.b <= -0.9f)
     {
+
         finalColor[launchIndex.xy] = albedoColor;
         emissiveTexture[launchIndex.xy] = emissiveColor;
         return;
+        
     }
     
     //遠さを見る。

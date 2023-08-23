@@ -86,7 +86,7 @@ void VirusEnemy::Update()
 
 		//攻撃を食らったときのリアクション用
 		const float DEAD_EFFECT_SCALE = 1.0f;
-		//m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
+		m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
 
 	}
 
@@ -117,7 +117,7 @@ void VirusEnemy::Update()
 	//}
 
 	//出現位置の中心点を決定。
-	Vec3<float> centerPos = m_playerTransform->pos + Vec3<float>(0, 0, 1) * SPAWN_R;
+	//Vec3<float> centerPos = m_playerTransform->pos + Vec3<float>(0, 0, 1) * SPAWN_R;
 	//現在の角度によって姿勢を動かす。
 	playerQ = DirectX::XMQuaternionMultiply(playerQ, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3(Vec3<float>(0, 0, 1), playerQ)), m_aroundAngle));
 
@@ -130,7 +130,7 @@ void VirusEnemy::Update()
 
 		//攻撃を食らったときのリアクション用
 		const float DEAD_EFFECT_SCALE = 1.0f;
-		//m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
+		m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
 
 		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
 		SeaEffect::Instance()->m_isSeaEffect = true;
@@ -155,7 +155,7 @@ void VirusEnemy::Update()
 		m_transform.pos.y = m_initPos.y + sinf(m_moveTimer) * 1.0f;
 
 		//出現のタイマーを更新。
-		//m_appearEasingTimer = std::clamp(m_appearEasingTimer + 1.0f, 0.0f, APPEAR_EASING_TIMER);
+		m_appearEasingTimer = std::clamp(m_appearEasingTimer + 10.0f, 0.0f, APPEAR_EASING_TIMER);
 		++m_appearEasingTimer;
 
 		//座標を補間する。
@@ -177,8 +177,8 @@ void VirusEnemy::Update()
 		m_stopTimer += 0.1f;
 		m_moveTimer += 0.06f;
 
-		//m_transform.rotation.z = 360.0f + sinf(m_stopTimer) * 35.0f;
-		//m_transform.pos.y = m_initPos.y + sinf(m_moveTimer) * 1.0f;
+		m_transform.rotation.z = 360.0f + sinf(m_stopTimer) * 35.0f;
+		m_transform.pos.y = m_initPos.y + sinf(m_moveTimer) * 1.0f;
 
 		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
 
@@ -251,10 +251,10 @@ void VirusEnemy::Update()
 	case VirusEnemy::DEAD:
 	{
 
-		/*m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
+		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
 		m_gravity += 0.06f;
 		m_transform.pos.y -= m_gravity;
-		m_transform.rotation.x += 3.0f;*/
+		m_transform.rotation.x += 3.0f;
 
 		iEnemy_EnemyStatusData->curlNozieFlag = true;
 	}
