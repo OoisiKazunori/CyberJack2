@@ -386,9 +386,10 @@ void InGame::Update()
 
 
 
-					//m_enemies[enemyType][enemyCount]->Dead();
-					if (0 < static_cast<int>(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData.size())) {
-						m_meshParticleRender->AddMeshData(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData[0]->meshParticleData);
+					m_enemies[enemyType][enemyCount]->Dead();
+					if (0 < static_cast<int>(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData.size()))
+					{
+						//m_meshParticleRender->AddMeshData(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData[0]->meshParticleData);
 					}
 				}
 			}

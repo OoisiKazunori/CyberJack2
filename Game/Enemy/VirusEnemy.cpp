@@ -54,6 +54,7 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 	m_prevhp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
 	m_spawnTimer = 0;
 	m_canSpawn = false;
+	m_isBeingShot = false;
 }
 
 void VirusEnemy::Finalize()
@@ -279,12 +280,26 @@ void VirusEnemy::Update()
 		m_animation->GetBoneMatBuff(),
 		m_transform.GetMat()
 	);*/
+
+	if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
+	{
+		m_alpha = 0.0f;
+		iEnemy_EnemyStatusData->curlNozieFlag = false;
+	}
+	else
+	{
+		m_alpha = 1.0f;
+		iEnemy_EnemyStatusData->curlNozieFlag = true;
+	}
 }
 
 void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
 	DrawFunc::DrawModel(m_model, m_transform, m_animation->GetBoneMatBuff());
-	arg_rasterize.ObjectRender(m_model);
+	if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
+	{
+		arg_rasterize.ObjectRender(m_model);
+	}
 	for (auto& index : m_model.m_raytracingData.m_blas)
 	{
 		arg_blasVec.Add(index, m_transform.GetMat());
