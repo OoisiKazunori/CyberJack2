@@ -427,7 +427,6 @@ void InGame::Update()
 	{
 		m_gameFlame = 0;
 	}
-
 }
 
 void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)

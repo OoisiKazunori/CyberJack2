@@ -195,6 +195,7 @@
     <ClCompile Include="Game\Stage\WindowForAd.cpp" />
     <ClCompile Include="Game\Tool\MapChipPlacementTool.cpp" />
     <ClCompile Include="Game\Tool\SplineRail.cpp" />
+    <ClCompile Include="Game\Tool\ModelTool.cpp" />
     <ClCompile Include="Game\Tutorial.cpp" />
     <ClCompile Include="Game\Tutorial\DirectX12MoviePlayer.cpp" />
     <ClCompile Include="Game\Tutorial\DirectXMoive.cpp" />
@@ -210,6 +211,8 @@
     <ClCompile Include="Game\UI\LockOnBoxEffect.cpp" />
     <ClCompile Include="Game\UI\PlayerHpUi.cpp" />
     <ClCompile Include="Game\UI\StringWindow.cpp" />
+    <ClCompile Include="KazLibrary\Animation\AnimationData.cpp" />
+    <ClCompile Include="KazLibrary\Animation\AnimationInRaytracing.cpp" />
     <ClCompile Include="KazLibrary\Buffer\BufferDuplicateBlocking.cpp" />
     <ClCompile Include="KazLibrary\Buffer\CreateGpuBuffer.cpp" />
     <ClCompile Include="KazLibrary\Buffer\CreateMeshBuffer.cpp" />
@@ -304,6 +307,7 @@
     <ClCompile Include="KazLibrary\Scene\GameOverScene.cpp" />
     <ClCompile Include="KazLibrary\Scene\GameScene.cpp" />
     <ClCompile Include="KazLibrary\Scene\main.cpp" />
+    <ClCompile Include="KazLibrary\Scene\ModelToolScene.cpp" />
     <ClCompile Include="KazLibrary\Scene\PortalScene.cpp" />
     <ClCompile Include="KazLibrary\Scene\RayTracingScene.cpp" />
     <ClCompile Include="KazLibrary\Scene\RenderScene.cpp" />
@@ -402,6 +406,7 @@
     <ClInclude Include="Game\Stage\WindowForAd.h" />
     <ClInclude Include="Game\Tool\MapChipPlacementTool.h" />
     <ClInclude Include="Game\Tool\SplineRail.h" />
+    <ClInclude Include="Game\Tool\ModelTool.h" />
     <ClInclude Include="Game\Tutorial.h" />
     <ClInclude Include="Game\Tutorial\DirectX12MoviePlayer.h" />
     <ClInclude Include="Game\Tutorial\DirectXMoive.h" />
@@ -417,6 +422,8 @@
     <ClInclude Include="Game\UI\LockOnBoxEffect.h" />
     <ClInclude Include="Game\UI\PlayerHpUi.h" />
     <ClInclude Include="Game\UI\StringWindow.h" />
+    <ClInclude Include="KazLibrary\Animation\AnimationData.h" />
+    <ClInclude Include="KazLibrary\Animation\AnimationInRaytracing.h" />
     <ClInclude Include="KazLibrary\Buffer\BufferDuplicateBlocking.h" />
     <ClInclude Include="KazLibrary\Buffer\CreateGpuBuffer.h" />
     <ClInclude Include="KazLibrary\Buffer\CreateMeshBuffer.h" />
@@ -522,6 +529,7 @@
     <ClInclude Include="KazLibrary\Scene\GameClearScene.h" />
     <ClInclude Include="KazLibrary\Scene\GameOverScene.h" />
     <ClInclude Include="KazLibrary\Scene\GameScene.h" />
+    <ClInclude Include="KazLibrary\Scene\ModelToolScene.h" />
     <ClInclude Include="KazLibrary\Scene\PortalScene.h" />
     <ClInclude Include="KazLibrary\Scene\RayTracingScene.h" />
     <ClInclude Include="KazLibrary\Scene\RenderScene.h" />

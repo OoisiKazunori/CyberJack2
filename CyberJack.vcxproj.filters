@@ -203,6 +203,11 @@
     <ClCompile Include="Game\Effect\InstanceMeshParticleData.cpp" />
     <ClCompile Include="KazLibrary\Buffer\ShaderRandomTable.cpp" />
     <ClCompile Include="KazLibrary\Raytracing\BlasDataContainer.cpp" />
+    <ClCompile Include="Game\Tool\ModelTool.cpp" />
+    <ClCompile Include="KazLibrary\Animation\AnimationData.cpp" />
+    <ClCompile Include="KazLibrary\Buffer\ShaderRandomTable.cpp" />
+    <ClCompile Include="KazLibrary\Scene\ModelToolScene.cpp" />
+    <ClCompile Include="KazLibrary\Animation\AnimationInRaytracing.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -427,6 +432,11 @@
     <ClInclude Include="Game\Effect\InstanceMeshParticleData.h" />
     <ClInclude Include="KazLibrary\Buffer\ShaderRandomTable.h" />
     <ClInclude Include="KazLibrary\Raytracing\BlasDataContainer.h" />
+    <ClInclude Include="Game\Tool\ModelTool.h" />
+    <ClInclude Include="KazLibrary\Animation\AnimationData.h" />
+    <ClInclude Include="KazLibrary\Buffer\ShaderRandomTable.h" />
+    <ClInclude Include="KazLibrary\Scene\ModelToolScene.h" />
+    <ClInclude Include="KazLibrary\Animation\AnimationInRaytracing.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

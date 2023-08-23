@@ -46,6 +46,9 @@
 #endif
 
 #include <experimental/filesystem>
+#include<map>
+
+#include"Animation/AnimationData.h"
 
 struct CoordinateSpaceMatData
 {
@@ -59,18 +62,6 @@ struct CoordinateSpaceMatData
 	{};
 };
 
-
-//バッファ生成用の構造体
-struct MaterialBufferData
-{
-	DirectX::XMFLOAT3 ambient;//アンビエント
-	float pad;
-	DirectX::XMFLOAT3 diffuse;//ディフューズ
-	float pad2;
-	DirectX::XMFLOAT3 specular;//スペキュラー
-	float alpha;
-};
-
 struct VertexBufferData
 {
 	DirectX::XMFLOAT3 pos;
@@ -80,25 +71,15 @@ struct VertexBufferData
 	DirectX::XMFLOAT3 binormal;
 };
 
-struct VertexData
+struct VertexBufferAnimationData
 {
-	std::string name;
-	std::vector<KazMath::Vec3<float>> verticesArray;
-	std::vector<KazMath::Vec2<float>> uvArray;
-	std::vector<KazMath::Vec3<float>> normalArray;
-	std::vector<KazMath::Vec3<float>> tangentArray;
-	std::vector<KazMath::Vec3<float>> binormalArray;
-	std::vector<UINT>indexArray;
-};
-
-struct MaterialData
-{
-	KazMath::Vec3<float> ambient;//アンビエント
-	KazMath::Vec3<float> diffuse;//ディフューズ
-	KazMath::Vec3<float> specular;//スペキュラー
-	std::vector<KazBufferHelper::BufferData> textureBuffer;
-
-	MaterialBufferData GetMaterialData();
+	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT3 normal;
+	DirectX::XMFLOAT2 uv;
+	DirectX::XMFLOAT3 tangent;
+	DirectX::XMFLOAT3 binormal;
+	DirectX::XMINT4 boneNo;
+	DirectX::XMFLOAT4 weight;
 };
 
 struct AnimationData
@@ -106,14 +87,6 @@ struct AnimationData
 	//骨
 	std::vector<DirectX::XMMATRIX> boneArray;
 	//アニメーション時間
-};
-
-struct ModelMeshData
-{
-	//頂点情報
-	VertexData vertexData;
-	//マテリアル情報
-	MaterialData materialData;
 };
 
 enum MaterialEnum
@@ -126,19 +99,10 @@ enum MaterialEnum
 	MATERIAL_TEXTURE_MAX,
 };
 
-struct ModelInfomation
-{
-	std::vector<ModelMeshData> modelData;
-	RESOURCE_HANDLE modelVertDataHandle;
-
-	ModelInfomation(const std::vector<ModelMeshData>& model, RESOURCE_HANDLE vertHandle);
-};
-
-
 class GLTFLoader
 {
 public:
-	std::vector<ModelMeshData> Load(std::string fileName, std::string fileDir);
+	std::vector<ModelMeshData> Load(std::string fileName, std::string fileDir, Skeleton* skelton);
 
 
 private:
@@ -160,11 +124,14 @@ private:
 
 	KazBufferHelper::BufferData LoadErrorTex(GraphicsRootParamType arg_type)
 	{
-		std::string errorFilePass("Resource/Test/MaterialErrorTex.png");
+		std::string errorFilePass("Resource/Error/MaterialErrorTex.png");
 		KazBufferHelper::BufferData buffer(TextureResourceMgr::Instance()->LoadGraphBuffer(errorFilePass));
 		buffer.rootParamType = arg_type;
+		buffer.rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
 		return buffer;
 	};
+
+	void LoadMaterialTexture(MaterialData* arg_material, std::string arg_fileDir, std::string arg_id, const Microsoft::glTF::Document& arg_doc, GraphicsRootParamType arg_rootParam);
 };
 
 
@@ -188,6 +155,7 @@ public:
 	std::shared_ptr<ModelInfomation> Load(std::string arg_fileDir, std::string arg_fileName);
 	std::vector<VertexBufferData>GetVertexDataArray(const VertexData& data);
 	std::vector<VertexBufferData>GetVertexDataArray(const VertexData& data, const std::vector<UINT>& indexArray);
+	std::vector<VertexBufferAnimationData>GetVertexAnimationDataArray(const VertexData& data, const std::vector<UINT>& indexArray);
 
 
 private:
@@ -198,6 +166,7 @@ private:
 	struct MeshVertex
 	{
 		std::vector<std::vector<VertexBufferData>>m_vertexDataArray;
+		std::vector<std::vector<VertexBufferAnimationData>>m_vertexAnimationDataArray;
 	};
 	std::vector<MeshVertex>m_modelVertexDataArray;
 	std::vector<std::string> m_modelNameArray;

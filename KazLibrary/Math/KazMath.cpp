@@ -1,7 +1,8 @@
 #include "../Math/KazMath.h"
+#include"Easing/easing.h"
 #include<cmath>
 
-void KazMath::CheckIsnan(KazMath::Vec3<float> *VEC)
+void KazMath::CheckIsnan(KazMath::Vec3<float>* VEC)
 {
 	if (std::isnan(VEC->x))
 	{
@@ -61,7 +62,7 @@ DirectX::XMVECTOR KazMath::CalculateScreenToWorld(DirectX::XMVECTOR pout, Direct
 	return pout;
 }
 
-KazMath::Vec2<float> KazMath::CaluAngle(const KazMath::Vec2<float> &POS, float Angle, const KazMath::Vec2<float> &CPos)
+KazMath::Vec2<float> KazMath::CaluAngle(const KazMath::Vec2<float>& POS, float Angle, const KazMath::Vec2<float>& CPos)
 {
 	KazMath::Vec2<float> V, oldV;
 	KazMath::Vec2<float> calu;
@@ -84,7 +85,7 @@ KazMath::Vec2<float> KazMath::CaluAngle(const KazMath::Vec2<float> &POS, float A
 }
 
 template<typename T>
-inline KazMath::Vec3<T> CaluAngle3D(const KazMath::Vec3<T> &POS, float ANGLE, const KazMath::Vec3<T> &CENTRAL_POS)
+inline KazMath::Vec3<T> CaluAngle3D(const KazMath::Vec3<T>& POS, float ANGLE, const KazMath::Vec3<T>& CENTRAL_POS)
 {
 	KazMath::Vec3<T> V, oldV;
 	KazMath::Vec3<T> calu;
@@ -109,7 +110,7 @@ inline KazMath::Vec3<T> CaluAngle3D(const KazMath::Vec3<T> &POS, float ANGLE, co
 	return result;
 }
 
-void KazMath::ConvertMatrixFromFbx(DirectX::XMMATRIX *DST, const FbxAMatrix &SRC)
+void KazMath::ConvertMatrixFromFbx(DirectX::XMMATRIX* DST, const FbxAMatrix& SRC)
 {
 	for (int i = 0; i < 4; i++)
 	{
@@ -126,14 +127,14 @@ int KazMath::ConvertSecondToFlame(int SECOND)
 }
 
 template <typename T>
-inline KazMath::Vec3<T> KazMath::CaluAPointToBPointVel(const KazMath::Vec3<T> &A_POINT, const KazMath::Vec3<T> &B_POINT, int FLAME, int MAX_FLAME)
+inline KazMath::Vec3<T> KazMath::CaluAPointToBPointVel(const KazMath::Vec3<T>& A_POINT, const KazMath::Vec3<T>& B_POINT, int FLAME, int MAX_FLAME)
 {
 	Vec3<T> distance = A_POINT - B_POINT;
 	Vec3<T> mul = static_cast<float>(FLAME) / static_cast<float>(MAX_FLAME);
 	return distance * mul;
 }
 
-KazMath::Vec3<float> KazMath::ConvertScreenPosToWorldPos(const KazMath::Vec3<float> &SCREEN_POS, DirectX::XMMATRIX VIEW_MAT, DirectX::XMMATRIX PROJECTION_MAT)
+KazMath::Vec3<float> KazMath::ConvertScreenPosToWorldPos(const KazMath::Vec3<float>& SCREEN_POS, DirectX::XMMATRIX VIEW_MAT, DirectX::XMMATRIX PROJECTION_MAT)
 {
 	//各行列の逆行列を算出
 	DirectX::XMMATRIX InvView, InvPrj, InvViewport;
@@ -157,7 +158,7 @@ KazMath::Vec3<float> KazMath::ConvertScreenPosToWorldPos(const KazMath::Vec3<flo
 	return KazMath::CastXMVECTOR<float>(result);
 }
 
-DirectX::XMMATRIX KazMath::CaluRotaMatrix(const Vec3<float> &ROTATION)
+DirectX::XMMATRIX KazMath::CaluRotaMatrix(const Vec3<float>& ROTATION)
 {
 	DirectX::XMMATRIX matRot = DirectX::XMMatrixIdentity();
 	matRot *= DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(ROTATION.z));
@@ -167,14 +168,14 @@ DirectX::XMMATRIX KazMath::CaluRotaMatrix(const Vec3<float> &ROTATION)
 	return matRot;
 }
 
-DirectX::XMMATRIX KazMath::CaluScaleMatrix(const Vec3<float> &SCALE)
+DirectX::XMMATRIX KazMath::CaluScaleMatrix(const Vec3<float>& SCALE)
 {
 	DirectX::XMMATRIX matScale = DirectX::XMMatrixIdentity();
 	matScale = DirectX::XMMatrixScaling(SCALE.x, SCALE.y, SCALE.z);
 	return matScale;
 }
 
-DirectX::XMMATRIX KazMath::CaluTransMatrix(const Vec3<float> &POS)
+DirectX::XMMATRIX KazMath::CaluTransMatrix(const Vec3<float>& POS)
 {
 	DirectX::XMMATRIX matTrans;
 	matTrans = DirectX::XMMatrixTranslation(POS.x, POS.y, POS.z);
@@ -189,7 +190,7 @@ std::vector<float> KazMath::GetGaussianWeights(size_t count, float s)
 	float x = 0.0f;
 	float total = 0.0f;
 
-	for (auto &wgt : weights) {
+	for (auto& wgt : weights) {
 		wgt = expf(-(x * x) / (2 * s * s));
 		total += wgt;
 		x += 1.0f;
@@ -197,7 +198,7 @@ std::vector<float> KazMath::GetGaussianWeights(size_t count, float s)
 
 	total = total * 2.0f - 1;
 
-	for (auto &wgt : weights) {
+	for (auto& wgt : weights) {
 		wgt /= total;
 	}
 
@@ -209,7 +210,7 @@ unsigned int KazMath::AligmentedValue(unsigned int size, unsigned int alignment)
 	return (size + alignment - (size % alignment));
 }
 
-void KazMath::CalcWeightsTableFromGaussian(float *weightsTbl, int sizeOfWeightsTbl, float sigma)
+void KazMath::CalcWeightsTableFromGaussian(float* weightsTbl, int sizeOfWeightsTbl, float sigma)
 {
 	// 重みの合計を記録する変数を定義する
 	float total = 0;
@@ -229,7 +230,7 @@ void KazMath::CalcWeightsTableFromGaussian(float *weightsTbl, int sizeOfWeightsT
 	}
 }
 
-KazMath::Vec3<float> KazMath::CaluEyePosForDebug(const Vec3<float> &EYE_POS, const Vec3<float> &MOVE, const Vec2<float> &ANGLE, float SPEED)
+KazMath::Vec3<float> KazMath::CaluEyePosForDebug(const Vec3<float>& EYE_POS, const Vec3<float>& MOVE, const Vec2<float>& ANGLE, float SPEED)
 {
 	Vec3<float> resultPos = EYE_POS;
 
@@ -267,7 +268,7 @@ KazMath::Vec3<float> KazMath::CaluEyePosForDebug(const Vec3<float> &EYE_POS, con
 	return resultPos;
 }
 
-KazMath::Vec3<float> KazMath::CaluTargetPosForDebug(const Vec3<float> &EYE_POS, float ANGLE)
+KazMath::Vec3<float> KazMath::CaluTargetPosForDebug(const Vec3<float>& EYE_POS, float ANGLE)
 {
 	float rad = ANGLE * 3.14f / 180.0f;
 
@@ -279,7 +280,7 @@ KazMath::Vec3<float> KazMath::CaluTargetPosForDebug(const Vec3<float> &EYE_POS, 
 	return target;
 }
 
-bool KazMath::MatrixEqualOrNot(const DirectX::XMMATRIX &MAT_1, const DirectX::XMMATRIX &MAT_2)
+bool KazMath::MatrixEqualOrNot(const DirectX::XMMATRIX& MAT_1, const DirectX::XMMATRIX& MAT_2)
 {
 	bool tupleDirtyFlag = false;
 
@@ -297,7 +298,7 @@ bool KazMath::MatrixEqualOrNot(const DirectX::XMMATRIX &MAT_1, const DirectX::XM
 	return tupleDirtyFlag;
 }
 
-DirectX::XMMATRIX KazMath::CaluSlopeMatrix(const Vec3<float> &Y, const Vec3<float> &Z)
+DirectX::XMMATRIX KazMath::CaluSlopeMatrix(const Vec3<float>& Y, const Vec3<float>& Z)
 {
 	DirectX::XMMATRIX matSlope;
 	/*
@@ -354,7 +355,7 @@ DirectX::XMMATRIX KazMath::CaluSlopeMatrix(const Vec3<float> &Y, const Vec3<floa
 	return matSlope;
 }
 
-DirectX::XMMATRIX KazMath::CaluFrontMatrix(const Vec3<float> &Y, const Vec3<float> &Z)
+DirectX::XMMATRIX KazMath::CaluFrontMatrix(const Vec3<float>& Y, const Vec3<float>& Z)
 {
 	DirectX::XMMATRIX matSlope;
 	/*
@@ -433,7 +434,7 @@ float KazMath::AngleToRadian(float ANGLE)
 	return radian;
 }
 
-DirectX::XMMATRIX KazMath::CaluMat(const KazMath::Transform3D &TRANSFORM, const DirectX::XMMATRIX &VIEW_MAT, const DirectX::XMMATRIX &PROJECT_MAT, const Vec3<float> &Y_VEC, const Vec3<float> &Z_VEC)
+DirectX::XMMATRIX KazMath::CaluMat(const KazMath::Transform3D& TRANSFORM, const DirectX::XMMATRIX& VIEW_MAT, const DirectX::XMMATRIX& PROJECT_MAT, const Vec3<float>& Y_VEC, const Vec3<float>& Z_VEC)
 {
 	BaseMatWorldData baseMatWorldData;
 	baseMatWorldData.matWorld = DirectX::XMMatrixIdentity();
@@ -461,7 +462,7 @@ DirectX::XMMATRIX KazMath::CaluMat(const KazMath::Transform3D &TRANSFORM, const 
 	return baseMatWorldData.matWorld * VIEW_MAT * PROJECT_MAT;
 }
 
-DirectX::XMMATRIX KazMath::CaluWorld(const KazMath::Transform3D &TRANSFORM, const Vec3<float> &Y_VEC, const Vec3<float> &Z_VEC)
+DirectX::XMMATRIX KazMath::CaluWorld(const KazMath::Transform3D& TRANSFORM, const Vec3<float>& Y_VEC, const Vec3<float>& Z_VEC)
 {
 	BaseMatWorldData baseMatWorldData;
 	baseMatWorldData.matWorld = DirectX::XMMatrixIdentity();
@@ -496,7 +497,7 @@ DirectX::XMMATRIX KazMath::CaluWorld(const KazMath::Transform3D &TRANSFORM, cons
 	return baseMatWorldData.matWorld;
 }
 
-DirectX::XMMATRIX KazMath::CaluWorld(const KazMath::Transform2D &TRANSFORM)
+DirectX::XMMATRIX KazMath::CaluWorld(const KazMath::Transform2D& TRANSFORM)
 {
 	BaseMatWorldData baseMatWorldData;
 	baseMatWorldData.matWorld = DirectX::XMMatrixIdentity();
@@ -506,26 +507,35 @@ DirectX::XMMATRIX KazMath::CaluWorld(const KazMath::Transform2D &TRANSFORM)
 	return baseMatWorldData.matWorld;
 }
 
-void KazMath::Larp(float BASE_TRANSFORM, float *TRANSFORM, float MUL)
+void KazMath::Larp(float BASE_TRANSFORM, float* TRANSFORM, float MUL)
 {
 	float distance = BASE_TRANSFORM - *TRANSFORM;
 	*TRANSFORM += distance * MUL;
 }
 
-void KazMath::Larp(const Vec2<float> BASE_TRANSFORM, Vec2<float> *TRANSFORM, float MUL)
+void KazMath::Larp(const Vec2<float> BASE_TRANSFORM, Vec2<float>* TRANSFORM, float MUL)
 {
 	Vec2<float> distance = BASE_TRANSFORM - *TRANSFORM;
 	*TRANSFORM += distance * MUL;
 }
 
-void KazMath::Larp(const Vec3<float> BASE_TRANSFORM, Vec3<float> *TRANSFORM, float MUL)
+void KazMath::Larp(const Vec3<float> BASE_TRANSFORM, Vec3<float>* TRANSFORM, float MUL)
 {
 	Vec3<float> distance = BASE_TRANSFORM - *TRANSFORM;
 	distance *= MUL;
 	*TRANSFORM += distance;
 }
 
-KazMath::Vec3<float> KazMath::SplinePosition(const std::vector<Vec3<float>> &points, size_t startIndex, float t, bool Loop)
+KazMath::Vec3<float> KazMath::Larp(const Vec3<float> BASE_TRANSFORM, Vec3<float> TRANSFORM, float MUL)
+{
+	Vec3<float> distance = BASE_TRANSFORM - TRANSFORM;
+	distance *= MUL;
+	KazMath::Vec3<float>t = TRANSFORM;
+	t += distance;
+	return t;
+}
+
+KazMath::Vec3<float> KazMath::SplinePosition(const std::vector<Vec3<float>>& points, size_t startIndex, float t, bool Loop)
 {
 	if (startIndex < 1)
 	{
@@ -558,17 +568,17 @@ KazMath::Vec3<float> KazMath::SplinePosition(const std::vector<Vec3<float>> &poi
 		p3 = points[startIndex + 2].ConvertXMVECTOR();
 	}
 	using namespace DirectX;
-	DirectX::XMVECTOR anser2 = 
-		0.5 * ((2 * p1  + (-p0 + p2) * t) +
-		(2 * p0 - 5 * p1 + 4 * p2 - p3) * (t * t) +
-		(-p0 + 3 * p1 - 3 * p2 + p3) * (t * t * t));
+	DirectX::XMVECTOR anser2 =
+		0.5 * ((2 * p1 + (-p0 + p2) * t) +
+			(2 * p0 - 5 * p1 + 4 * p2 - p3) * (t * t) +
+			(-p0 + 3 * p1 - 3 * p2 + p3) * (t * t * t));
 
 
 	Vec3<float>result = { anser2.m128_f32[0],anser2.m128_f32[1],anser2.m128_f32[2] };
 	return result;
 };
 
-KazMath::Vec3<float> KazMath::ConvertWorldPosToScreenPos(const KazMath::Vec3<float> &WORLD_POS, DirectX::XMMATRIX VIEW_MAT, DirectX::XMMATRIX PROJECTION_MAT)
+KazMath::Vec3<float> KazMath::ConvertWorldPosToScreenPos(const KazMath::Vec3<float>& WORLD_POS, DirectX::XMMATRIX VIEW_MAT, DirectX::XMMATRIX PROJECTION_MAT)
 {
 	DirectX::XMMATRIX View = VIEW_MAT, Prj = PROJECTION_MAT, InvViewport, matWorld;
 
@@ -600,7 +610,7 @@ KazMath::Vec3<float> KazMath::ConvertWorldPosToScreenPos(const KazMath::Vec3<flo
 	return KazMath::CastXMVECTOR<float>(result);
 }
 
-void KazMath::ConvertMatrixToAngles(const DirectX::XMMATRIX &MAT, Vec3<float> *ANGLE)
+void KazMath::ConvertMatrixToAngles(const DirectX::XMMATRIX& MAT, Vec3<float>* ANGLE)
 {
 	double threshold = 0.001;
 

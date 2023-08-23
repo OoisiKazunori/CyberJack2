@@ -17,14 +17,12 @@
 #include"../Game/Effect/SeaEffect.h"
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
 #include"../Game/Effect/ShakeMgr.h"
+#include"../Scene/ModelToolScene.h"
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
-	scene.emplace_back(std::make_unique<GameScene>());
-	scene.emplace_back(std::make_unique<TitleScene>());
-	scene.emplace_back(std::make_unique<GameClearScene>());
-	scene.emplace_back(std::make_unique<GameOverScene>());
-
+	scene.emplace_back(std::make_unique<ModelToolScene>());
+	
 	nowScene = 0;
 	nextScene = 0;
 	itisInArrayFlag = true;

@@ -18,8 +18,9 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string arg_fileDir, std:
 	}
 
 
+	std::shared_ptr<Skeleton> skelton = std::make_shared<Skeleton>();
 	std::vector<ModelMeshData> modelData;
-	modelData = glTFLoad.Load(arg_fileName, arg_fileDir);
+	modelData = glTFLoad.Load(arg_fileName, arg_fileDir, skelton.get());
 
 	//生成されているか確認
 	if (modelData.back().vertexData.verticesArray.size() <= 0 || modelData.back().vertexData.indexArray.size() <= 0)
@@ -36,23 +37,39 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string arg_fileDir, std:
 	std::vector<VertexAndIndexGenerateData> vertArray;
 	m_modelVertexDataArray.emplace_back();
 	int dex = 0;
-	for (const auto &meshData : modelData)
+	bool vramFlag = true;
+	for (const auto& meshData : modelData)
 	{
-		std::vector<VertexBufferData>vertexData = GetVertexDataArray(meshData.vertexData, meshData.vertexData.indexArray);
-		m_modelVertexDataArray.back().m_vertexDataArray.emplace_back(vertexData);
-		//頂点バッファ生成用の情報をスタックする。
-		VertexAndIndexGenerateData vertData(m_modelVertexDataArray.back().m_vertexDataArray[dex].data(), sizeof(VertexBufferData), vertexData.size(), sizeof(vertexData[0]), meshData.vertexData.indexArray);
-		vertArray.emplace_back(vertData);
-		++dex;
+		//アニメーションなし
+		if (skelton->animations.size() == 0)
+		{
+			std::vector<VertexBufferData>vertexData = GetVertexDataArray(meshData.vertexData, meshData.vertexData.indexArray);
+			m_modelVertexDataArray.back().m_vertexDataArray.emplace_back(vertexData);
+			//頂点バッファ生成用の情報をスタックする。
+			VertexAndIndexGenerateData vertData(m_modelVertexDataArray.back().m_vertexDataArray[dex].data(), sizeof(VertexBufferData), vertexData.size(), sizeof(vertexData[0]), meshData.vertexData.indexArray);
+			vertArray.emplace_back(vertData);
+			++dex;
+		}
+		//アニメーションあり
+		else
+		{
+			std::vector<VertexBufferAnimationData>vertexData = GetVertexAnimationDataArray(meshData.vertexData, meshData.vertexData.indexArray);
+			m_modelVertexDataArray.back().m_vertexAnimationDataArray.emplace_back(vertexData);
+			//頂点バッファ生成用の情報をスタックする。
+			VertexAndIndexGenerateData vertData(m_modelVertexDataArray.back().m_vertexAnimationDataArray[dex].data(), sizeof(VertexBufferAnimationData), vertexData.size(), sizeof(vertexData[0]), meshData.vertexData.indexArray);
+			vertArray.emplace_back(vertData);
+			++dex;
+			vramFlag = true;
+		}
 	}
 	//頂点バッファ生成
-	RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GenerateBuffer(vertArray);
-	m_modelArray.emplace_back(std::make_shared<ModelInfomation>(modelData, handle));
+	RESOURCE_HANDLE handle = VertexBufferMgr::Instance()->GenerateBuffer(vertArray, vramFlag);
+	m_modelArray.emplace_back(std::make_shared<ModelInfomation>(modelData, handle, skelton));
 
 	return m_modelArray.back();
 }
 
-std::vector<VertexBufferData> ModelLoader::GetVertexDataArray(const VertexData &data)
+std::vector<VertexBufferData> ModelLoader::GetVertexDataArray(const VertexData& data)
 {
 	std::vector<VertexBufferData>result(data.indexArray.size());
 
@@ -67,7 +84,7 @@ std::vector<VertexBufferData> ModelLoader::GetVertexDataArray(const VertexData &
 	return result;
 }
 
-std::vector<VertexBufferData> ModelLoader::GetVertexDataArray(const VertexData &data, const std::vector<UINT> &indexArray)
+std::vector<VertexBufferData> ModelLoader::GetVertexDataArray(const VertexData& data, const std::vector<UINT>& indexArray)
 {
 	std::vector<VertexBufferData>result(data.verticesArray.size());
 
@@ -92,7 +109,34 @@ std::vector<VertexBufferData> ModelLoader::GetVertexDataArray(const VertexData &
 	return result;
 }
 
-std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fileDir)
+std::vector<VertexBufferAnimationData> ModelLoader::GetVertexAnimationDataArray(const VertexData& data, const std::vector<UINT>& indexArray)
+{
+	std::vector<VertexBufferAnimationData>result(data.verticesArray.size());
+
+	bool skipFlag = 0 < data.tangentArray.size();
+
+	for (int i = 0; i < data.verticesArray.size(); ++i)
+	{
+		result[i].pos = data.verticesArray[i].ConvertXMFLOAT3();
+		result[i].uv = data.uvArray[i].ConvertXMFLOAT2();
+		result[i].normal = data.normalArray[i].ConvertXMFLOAT3();
+		if (skipFlag)
+		{
+			result[i].tangent = data.tangentArray[i].ConvertXMFLOAT3();
+			result[i].binormal = data.binormalArray[i].ConvertXMFLOAT3();
+		}
+		else
+		{
+			result[i].tangent = {};
+			result[i].binormal = {};
+		}
+		result[i].boneNo = { data.boneIdx[i].x,data.boneIdx[i].y,data.boneIdx[i].z,data.boneIdx[i].a };
+		result[i].weight = data.boneWeight[i].ConvertXMFLOAT4();
+	}
+	return result;
+}
+
+std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fileDir, Skeleton* skelton)
 {
 	//std::string filepass("Resource/Test/Plane/plane.glb");
 	//std::string Ext(".glb");
@@ -115,7 +159,7 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 
 	std::string manifest;
 
-	auto MakePathExt = [](const std::string &ext)
+	auto MakePathExt = [](const std::string& ext)
 	{
 		return "." + ext;
 	};
@@ -150,7 +194,7 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 	{
 		doc = Microsoft::glTF::Deserialize(manifest);
 	}
-	catch (const Microsoft::glTF::GLTFException &ex)
+	catch (const Microsoft::glTF::GLTFException& ex)
 	{
 		std::stringstream ss;
 		ss << "Microsoft::glTF::Deserialize failed: ";
@@ -158,137 +202,224 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 		throw std::runtime_error(ss.str());
 	}
 
-	PrintDocumentInfo(doc);
-	PrintResourceInfo(doc, *resourceReader);
+	//PrintDocumentInfo(doc);
+	//PrintResourceInfo(doc, *resourceReader);
 
 	//https://github.com/microsoft/glTF-SDK/blob/master/GLTFSDK.Samples/Deserialize/Source/main.cpp
 	//GLTFSDKから引用---------------------------------------
 
 
 	std::vector<Microsoft::glTF::Node>node;
+	std::vector<DirectX::XMMATRIX> worldMat;
 	//ノードの読み込み
-	for (const auto &gltfNode : doc.nodes.Elements())
+	for (const auto& gltfNode : doc.nodes.Elements())
 	{
-		gltfNode.rotation;
-		gltfNode.scale;
-		gltfNode.translation;
+		//ローカル行列計算
+		DirectX::XMVECTOR rotation = { gltfNode.rotation.x,gltfNode.rotation.y,gltfNode.rotation.z,gltfNode.rotation.w };
+		DirectX::XMVECTOR scaling = { gltfNode.scale.x,gltfNode.scale.y,gltfNode.scale.z,1.0f };
+		DirectX::XMVECTOR translation = { gltfNode.translation.x,gltfNode.translation.y,gltfNode.translation.z, 1.0f };
+
+		DirectX::XMMATRIX matScaling, matRotaion, matTranslation;
+		matScaling = DirectX::XMMatrixScalingFromVector(scaling);
+		matRotaion = DirectX::XMMatrixRotationQuaternion(rotation);
+		matTranslation = DirectX::XMMatrixTranslationFromVector(translation);
+
+		auto nodeTransform = DirectX::XMMatrixIdentity();
+		nodeTransform *= matScaling * matRotaion * matTranslation;
+
+		//スキン情報
+		if (!gltfNode.skinId.empty())
+		{
+			node.emplace_back(gltfNode);
+			continue;
+		}
+
+		if (!node.empty())break;
+
+		skelton->bones.emplace_back();
+		auto& bone = skelton->bones.back();
+		bone.name = gltfNode.name;
+		for (auto& child : gltfNode.children)
+		{
+			auto childIdx = doc.nodes.GetIndex(child);
+			skelton->bones[childIdx].parent = static_cast<char>(skelton->bones.size() - 1);
+		}
+
+		bone.invBindMat = XMMatrixInverse(nullptr, nodeTransform);
 	}
+
+	//スキン読み込み
+	for (const auto& gltfSkin : doc.skins.Elements())
+	{
+		auto invMatAcc = doc.accessors.Get(gltfSkin.inverseBindMatricesAccessorId);
+
+		auto data = resourceReader->ReadFloatData(doc, invMatAcc);
+		for (int matIdx = 0; matIdx < invMatAcc.count; ++matIdx)
+		{
+			int offset = matIdx * 16;
+			DirectX::XMMATRIX invBindMat = DirectX::XMMatrixSet(
+				data[offset], data[offset + 1], data[offset + 2], data[offset + 3],
+				data[offset + 4], data[offset + 5], data[offset + 6], data[offset + 7],
+				data[offset + 8], data[offset + 9], data[offset + 10], data[offset + 11],
+				data[offset + 12], data[offset + 13], data[offset + 14], data[offset + 15]);
+
+			int boneIdx = std::atoi(gltfSkin.jointIds[matIdx].c_str());
+			skelton->bones[boneIdx].invBindMat = invBindMat;
+		}
+	}
+
+	//アニメーション
+	for (const auto& gltfAnimNode : doc.animations.Elements())
+	{
+		std::string animName = gltfAnimNode.name;
+		auto& modelAnim = skelton->animations[animName];
+
+		//アニメーションの詳細な情報を持つサンプラー（キーフレーム時刻リスト、補間形式、キーフレームに対応するアニメーションデータ）
+		auto animSamplers = gltfAnimNode.samplers.Elements();
+
+		//全てのボーンアニメーション終了時間
+		int animEndFrame = 0;
+
+		//ボーン、サンプラー、パス（translation,rotation,scale）が割り当てられている
+		for (const auto& animChannel : gltfAnimNode.channels.Elements())
+		{
+			const auto& sampler = animSamplers[gltfAnimNode.samplers.GetIndex(animChannel.samplerId)];
+			//対応するボーンノード取得
+			const auto& boneNode = doc.nodes.Get(animChannel.target.nodeId);
+			//ボーン単位のアニメーション
+			auto& boneAnim = modelAnim.boneAnim[boneNode.name];
+
+			//アニメーション情報のターゲット（POS、ROTATE、SCALE）
+			auto& path = animChannel.target.path;
+
+			//補間方法（現状、LINERにしか対応しないので特に情報を格納しない）
+			auto interpolation = sampler.interpolation;
+
+			//開始 / 終了フレーム
+			const auto& input = doc.accessors.Get(sampler.inputAccessorId);
+			const int startFrame = static_cast<int>(input.min[0] * 60);	//単位が秒なので 60f / 1sec としてフレームに変換
+			const int endFrame = static_cast<int>(input.max[0] * 60);	//単位が秒なので 60f / 1sec としてフレームに変換
+			if (animEndFrame < endFrame)animEndFrame = endFrame;
+
+			//キーフレーム情報
+			auto keyFrames = resourceReader->ReadBinaryData<float>(doc, input);
+			for (auto& keyFrame : keyFrames)keyFrame *= 60;	//単位が秒なので 60f / 1sec としてフレームに変換
+
+			//具体的な値
+			const auto& output = doc.accessors.Get(sampler.outputAccessorId);
+			auto values = resourceReader->ReadBinaryData<float>(doc, output);
+
+			//ErrorMessage("LoadGLTFModel()",
+			//	path == Microsoft::glTF::TARGET_WEIGHTS || path == Microsoft::glTF::TARGET_UNKNOWN, "このアニメーションのターゲットはサポートされてないよ。");
+
+			//Rotation(Quaternion)
+			if (path == Microsoft::glTF::TARGET_ROTATION)
+			{
+				boneAnim.rotateAnim.startFrame = startFrame;
+				boneAnim.rotateAnim.endFrame = endFrame;
+
+				for (int keyFrameIdx = 0; keyFrameIdx < keyFrames.size(); ++keyFrameIdx)
+				{
+					boneAnim.rotateAnim.keyFrames.emplace_back();
+					auto& keyFrame = boneAnim.rotateAnim.keyFrames.back();
+					keyFrame.frame = static_cast<int>(keyFrames[keyFrameIdx]);
+					int offset = keyFrameIdx * 4;	//インデックスのオフセット
+					//keyFrame.value = XMVectorSet(values[offset], -values[offset + 1], -values[offset + 2], values[offset + 3]);
+					keyFrame.value = DirectX::XMVectorSet(values[offset], values[offset + 1], values[offset + 2], values[offset + 3]);
+				}
+			}
+			//Translation
+			else if (path == Microsoft::glTF::TARGET_TRANSLATION)
+			{
+				boneAnim.posAnim.startFrame = startFrame;
+				boneAnim.posAnim.endFrame = endFrame;
+
+				for (int keyFrameIdx = 0; keyFrameIdx < keyFrames.size(); ++keyFrameIdx)
+				{
+					boneAnim.posAnim.keyFrames.emplace_back();
+					auto& keyFrame = boneAnim.posAnim.keyFrames.back();
+					keyFrame.frame = static_cast<int>(keyFrames[keyFrameIdx]);
+					int offset = keyFrameIdx * 3;	//インデックスのオフセット
+					keyFrame.value = { values[offset], values[offset + 1], values[offset + 2] };
+				}
+			}
+			//Scale
+			else
+			{
+				boneAnim.scaleAnim.startFrame = startFrame;
+				boneAnim.scaleAnim.endFrame = endFrame;
+
+				for (int keyFrameIdx = 0; keyFrameIdx < keyFrames.size(); ++keyFrameIdx)
+				{
+					boneAnim.scaleAnim.keyFrames.emplace_back();
+					auto& keyFrame = boneAnim.scaleAnim.keyFrames.back();
+					keyFrame.frame = static_cast<int>(keyFrames[keyFrameIdx]);
+					int offset = keyFrameIdx * 3;	//インデックスのオフセット
+					keyFrame.value = { values[offset], values[offset + 1], values[offset + 2] };
+				}
+			}
+		}
+
+		//全てのボーンのアニメーション終了時間記録
+		modelAnim.finishTime = animEndFrame;
+	}
+
+	skelton->CreateBoneTree(DirectX::XMMatrixScaling(-1.0f, 1.0f, 1.0f));
 
 	std::vector<MaterialData> modelMaterialDataArray;
 	//マテリアル情報の読み込み
-	for (const auto &material : doc.materials.Elements())
+	for (const auto& material : doc.materials.Elements())
 	{
 		modelMaterialDataArray.emplace_back();
 
 		auto texID = material.metallicRoughness.baseColorTexture.textureId;
-		//テクスチャの取得
-		if (!texID.empty())
-		{
-			auto &texture = doc.textures.Get(texID);
-			auto &image = doc.images.Get(texture.imageId);
-			if (!image.uri.empty())
-			{
-				std::string textureFilePass(FileDir + image.uri);
-				//テクスチャ読み込み
-				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
-				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-			}
-			else
-			{
-				modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA));
-			}
-		}
-		else
-		{
-			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA));
-		}
+		//Albedoの取得
+		LoadMaterialTexture(&modelMaterialDataArray.back(), FileDir, texID, doc, GRAPHICS_PRAMTYPE_DATA);
 
 		//法線マップの取得
 		texID = material.normalTexture.textureId;
-		if (!texID.empty())
-		{
-			auto &texture = doc.textures.Get(texID);
-			auto &image = doc.images.Get(texture.imageId);
-			if (!image.uri.empty())
-			{
-				std::string textureFilePass(FileDir + image.uri);
-				//テクスチャ読み込み
-				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
-				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-			}
-			//何もない場合は透明なテクスチャを送る
-			else
-			{
-				modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA2));
-			}
-		}
-		else
-		{
-			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA2));
-		}
+		LoadMaterialTexture(&modelMaterialDataArray.back(), FileDir, texID, doc, GRAPHICS_PRAMTYPE_DATA2);
 
 		//メタルネスの取得
 		texID = material.metallicRoughness.metallicRoughnessTexture.textureId;
-		if (!texID.empty())
-		{
-			auto &texture = doc.textures.Get(texID);
-			auto &image = doc.images.Get(texture.imageId);
-			if (!image.uri.empty())
-			{
-				std::string textureFilePass(FileDir + image.uri);
-				//テクスチャ読み込み
-				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
-				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-			}
-			//何もない場合は透明なテクスチャを送る
-			else
-			{
-				modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA3));
-			}
-		}
-		else
-		{
-			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA3));
-		}
+		LoadMaterialTexture(&modelMaterialDataArray.back(), FileDir, texID, doc, GRAPHICS_PRAMTYPE_DATA3);
 
 		//エミッシブの取得
 		texID = material.emissiveTexture.textureId;
-		if (!texID.empty())
+		LoadMaterialTexture(&modelMaterialDataArray.back(), FileDir, texID, doc, GRAPHICS_PRAMTYPE_DATA4);
+	}
+	//マテリアルがない場合は代わりのものを差し込む
+	if (doc.materials.Elements().size() == 0)
+	{
+		modelMaterialDataArray.emplace_back();
+		for (int i = 0; i < MATERIAL_TEXTURE_MAX; ++i)
 		{
-			auto& texture = doc.textures.Get(texID);
-			auto& image = doc.images.Get(texture.imageId);
-			if (!image.uri.empty())
-			{
-				std::string textureFilePass(FileDir + image.uri);
-				//テクスチャ読み込み
-				modelMaterialDataArray.back().textureBuffer.emplace_back(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
-				modelMaterialDataArray.back().textureBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
-			}
-			//何もない場合は透明なテクスチャを送る
-			else
-			{
-				modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA4));
-			}
-		}
-		else
-		{
-			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(GRAPHICS_PRAMTYPE_DATA4));
+			modelMaterialDataArray.back().textureBuffer.emplace_back(LoadErrorTex(static_cast<GraphicsRootParamType>(GRAPHICS_PRAMTYPE_DATA + i)));
 		}
 	}
 
 	//モデル一つ分のメッシュの塊
 	std::vector<ModelMeshData> meshData;
 	//メッシュの読み込み
-	for (const auto &meshes : doc.meshes.Elements())
+	for (const auto& meshes : doc.meshes.Elements())
 	{
 		//メッシュの名前を保存
 		const auto meshName = meshes.name;
+
+		//メッシュIDを比較して対応するスキンノードを取得
+		const Microsoft::glTF::Skin* gltfSkin = nullptr;
+		const auto& meshId = meshes.id;
+		const auto& skinNode = std::find_if(node.begin(), node.end(), [meshId](Microsoft::glTF::Node& node)
+			{
+				return node.meshId == meshId;
+			});
+		if (skinNode != node.end())gltfSkin = &doc.skins.Get(skinNode->skinId);
 
 		//アクセサーの情報を保存(アクセサーはbufferViewがどのような振る舞いをするか定義されたもの、バイナリーの情報を読み取る為に必要)
 		Microsoft::glTF::IndexedContainer<const Microsoft::glTF::Accessor> accsessor(doc.accessors);
 
 		//プリミティブにはmeshのレンダリングに必要なジオメトリ情報を持つ
-		for (const auto &primitive : meshes.primitives)
+		for (const auto& primitive : meshes.primitives)
 		{
 			//メッシュ一個分の情報
 			VertexData vertexInfo;
@@ -300,22 +431,39 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 			アクセサーでbufferviewとその奥の階層にあるbufferの振る舞いを見る事が出来るので、バイナリー内の指定の情報を探索する事が出来る。
 			*/
 			//頂点情報の入手---------------------------------------
-			auto &idPos = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_POSITION);
-			auto &accPos = accsessor.Get(idPos);
-			auto &vertPos = resourceReader->ReadBinaryData<float>(doc, accPos);
+			auto& idPos = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_POSITION);
+			auto& accPos = accsessor.Get(idPos);
+			auto& vertPos = resourceReader->ReadBinaryData<float>(doc, accPos);
 			//頂点情報の入手---------------------------------------
 
 			//法線情報の入手---------------------------------------
-			auto &idNormal = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_NORMAL);
-			auto &accNormal = accsessor.Get(idNormal);
-			auto &normal = resourceReader->ReadBinaryData<float>(doc, accNormal);
+			auto& idNormal = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_NORMAL);
+			auto& accNormal = accsessor.Get(idNormal);
+			auto& normal = resourceReader->ReadBinaryData<float>(doc, accNormal);
 			//法線情報の入手---------------------------------------
 
 			//UV座標情報の入手---------------------------------------
-			auto &idUV = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_TEXCOORD_0);
-			auto &accUV = accsessor.Get(idUV);
-			auto &uv = resourceReader->ReadBinaryData<float>(doc, accUV);
+			auto& idUV = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_TEXCOORD_0);
+			auto& accUV = accsessor.Get(idUV);
+			auto& uv = resourceReader->ReadBinaryData<float>(doc, accUV);
 			//UV座標情報の入手---------------------------------------
+
+
+			std::vector<uint8_t>vertJoint;
+			if (primitive.HasAttribute(Microsoft::glTF::ACCESSOR_JOINTS_0))
+			{
+				auto& idJoint = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_JOINTS_0);
+				auto& accJoint = doc.accessors.Get(idJoint);
+				vertJoint = resourceReader->ReadBinaryData<uint8_t>(doc, accJoint);
+			}
+
+			std::vector<float>vertWeight;
+			if (primitive.HasAttribute(Microsoft::glTF::ACCESSOR_WEIGHTS_0))
+			{
+				auto& idWeight = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_WEIGHTS_0);
+				auto& accWeight = doc.accessors.Get(idWeight);
+				vertWeight = resourceReader->ReadBinaryData<float>(doc, accWeight);
+			}
 
 
 			//上で手に入れた情報を元に一つのメッシュ情報を追加---------------------------------------
@@ -325,6 +473,7 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 			{
 				const int TRIANGLE_VERT_NUM = 3;
 				const int UV_VERT_NUM = 2;
+				int jid0 = 4 * vertCount, jid1 = 4 * vertCount + 1, jid2 = 4 * vertCount + 2, jid3 = 4 * vertCount + 3;
 
 				//三角面になるようにインデックスを決める
 				KazMath::Vec3<int>vertIndex(GetVertIndex(vertCount, TRIANGLE_VERT_NUM));
@@ -333,6 +482,25 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 				vertexInfo.verticesArray.emplace_back(KazMath::Vec3<float>(vertPos[vertIndex.x], vertPos[vertIndex.y], vertPos[vertIndex.z]));
 				vertexInfo.normalArray.emplace_back(KazMath::Vec3<float>(normal[vertIndex.x], normal[vertIndex.y], normal[vertIndex.z]));
 				vertexInfo.uvArray.emplace_back(KazMath::Vec2<float>(uv[uvIndex.x], uv[uvIndex.y]));
+
+				if (!vertWeight.empty())
+				{
+					vertexInfo.boneWeight.emplace_back(KazMath::Vec4<float>(vertWeight[jid0], vertWeight[jid1], vertWeight[jid2], vertWeight[jid3]));
+				}
+				if (!vertJoint.empty())
+				{
+					//ボーン割当がない場合 -1 のままにする必要がある
+					auto joint0 = atoi(gltfSkin->jointIds[vertJoint[jid0]].c_str());
+					auto joint1 = atoi(gltfSkin->jointIds[vertJoint[jid1]].c_str());
+					auto joint2 = atoi(gltfSkin->jointIds[vertJoint[jid2]].c_str());
+					auto joint3 = atoi(gltfSkin->jointIds[vertJoint[jid3]].c_str());
+
+					vertexInfo.boneIdx.emplace_back();
+					if (vertexInfo.boneWeight.back().x)vertexInfo.boneIdx.back().x = static_cast<int>(joint0);
+					if (vertexInfo.boneWeight.back().y)vertexInfo.boneIdx.back().y = static_cast<int>(joint1);
+					if (vertexInfo.boneWeight.back().z)vertexInfo.boneIdx.back().z = static_cast<int>(joint2);
+					if (vertexInfo.boneWeight.back().a)vertexInfo.boneIdx.back().a = static_cast<int>(joint3);
+				}
 			}
 
 
@@ -340,9 +508,9 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 			//(参考サイト)https://coposuke.hateblo.jp/entry/2020/12/21/144327)
 			if (primitive.HasAttribute(Microsoft::glTF::ACCESSOR_TANGENT))
 			{
-				auto &tangentID = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_TANGENT);
-				auto &accTangent = accsessor.Get(tangentID);
-				auto &vertTangent = resourceReader->ReadBinaryData<float>(doc, accTangent);
+				auto& tangentID = primitive.GetAttributeAccessorId(Microsoft::glTF::ACCESSOR_TANGENT);
+				auto& accTangent = accsessor.Get(tangentID);
+				auto& vertTangent = resourceReader->ReadBinaryData<float>(doc, accTangent);
 
 				for (int i = 0; i < vertexInfo.verticesArray.size(); ++i)
 				{
@@ -384,7 +552,7 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 			}
 			else
 			{
-				bool debug = false;
+				meshData.back().materialData = modelMaterialDataArray[0];
 			}
 
 			//上で手に入れた情報を元に一つのメッシュ情報を追加---------------------------------------
@@ -394,7 +562,7 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 	return meshData;
 }
 
-void GLTFLoader::PrintDocumentInfo(const Microsoft::glTF::Document &document)
+void GLTFLoader::PrintDocumentInfo(const Microsoft::glTF::Document& document)
 {
 	// Asset Info
 	std::cout << "Asset Version:    " << document.asset.version << "\n";
@@ -436,7 +604,7 @@ void GLTFLoader::PrintDocumentInfo(const Microsoft::glTF::Document &document)
 	// Animation Info
 	std::cout << "Animation Count: " << document.animations.Size() << "\n\n";
 
-	for (const auto &extension : document.extensionsUsed)
+	for (const auto& extension : document.extensionsUsed)
 	{
 		std::cout << "Extension Used: " << extension << "\n";
 	}
@@ -446,7 +614,7 @@ void GLTFLoader::PrintDocumentInfo(const Microsoft::glTF::Document &document)
 		std::cout << "\n";
 	}
 
-	for (const auto &extension : document.extensionsRequired)
+	for (const auto& extension : document.extensionsRequired)
 	{
 		std::cout << "Extension Required: " << extension << "\n";
 	}
@@ -457,20 +625,20 @@ void GLTFLoader::PrintDocumentInfo(const Microsoft::glTF::Document &document)
 	}
 }
 
-void GLTFLoader::PrintResourceInfo(const Microsoft::glTF::Document &document, const Microsoft::glTF::GLTFResourceReader &resourceReader)
+void GLTFLoader::PrintResourceInfo(const Microsoft::glTF::Document& document, const Microsoft::glTF::GLTFResourceReader& resourceReader)
 {
 	// Use the resource reader to get each mesh primitive's position data
-	for (const auto &mesh : document.meshes.Elements())
+	for (const auto& mesh : document.meshes.Elements())
 	{
 		std::cout << "Mesh: " << mesh.id << "\n";
 
-		for (const auto &meshPrimitive : mesh.primitives)
+		for (const auto& meshPrimitive : mesh.primitives)
 		{
 			std::string accessorId;
 
 			if (meshPrimitive.TryGetAttributeAccessorId(Microsoft::glTF::ACCESSOR_POSITION, accessorId))
 			{
-				const Microsoft::glTF::Accessor &accessor = document.accessors.Get(accessorId);
+				const Microsoft::glTF::Accessor& accessor = document.accessors.Get(accessorId);
 
 				const auto data = resourceReader.ReadBinaryData<float>(document, accessor);
 				const auto dataByteLength = data.size() * sizeof(float);
@@ -483,7 +651,7 @@ void GLTFLoader::PrintResourceInfo(const Microsoft::glTF::Document &document, co
 	}
 
 	// Use the resource reader to get each image's data
-	for (const auto &image : document.images.Elements())
+	for (const auto& image : document.images.Elements())
 	{
 		std::string filename;
 
@@ -491,8 +659,8 @@ void GLTFLoader::PrintResourceInfo(const Microsoft::glTF::Document &document, co
 		{
 			assert(!image.bufferViewId.empty());
 
-			auto &bufferView = document.bufferViews.Get(image.bufferViewId);
-			auto &buffer = document.buffers.Get(bufferView.bufferId);
+			auto& bufferView = document.bufferViews.Get(image.bufferViewId);
+			auto& buffer = document.buffers.Get(bufferView.bufferId);
 
 			filename += buffer.uri; //NOTE: buffer uri is empty if image is stored in GLB binary chunk
 		}
@@ -517,7 +685,7 @@ void GLTFLoader::PrintResourceInfo(const Microsoft::glTF::Document &document, co
 	}
 }
 
-void GLTFLoader::PrintInfo(const std::experimental::filesystem::path &path)
+void GLTFLoader::PrintInfo(const std::experimental::filesystem::path& path)
 {
 	// Pass the absolute path, without the filename, to the stream reader
 	auto streamReader = std::make_unique<StreamReader>(path.parent_path());
@@ -527,7 +695,7 @@ void GLTFLoader::PrintInfo(const std::experimental::filesystem::path &path)
 
 	std::string manifest;
 
-	auto MakePathExt = [](const std::string &ext)
+	auto MakePathExt = [](const std::string& ext)
 	{
 		return "." + ext;
 	};
@@ -573,7 +741,7 @@ void GLTFLoader::PrintInfo(const std::experimental::filesystem::path &path)
 	{
 		document = Microsoft::glTF::Deserialize(manifest);
 	}
-	catch (const Microsoft::glTF::GLTFException &ex)
+	catch (const Microsoft::glTF::GLTFException& ex)
 	{
 		std::stringstream ss;
 
@@ -589,7 +757,42 @@ void GLTFLoader::PrintInfo(const std::experimental::filesystem::path &path)
 	PrintResourceInfo(document, *resourceReader);
 }
 
-ModelInfomation::ModelInfomation(const std::vector<ModelMeshData> &model,RESOURCE_HANDLE vertHandle) :modelData(model), modelVertDataHandle(vertHandle)
+void GLTFLoader::LoadMaterialTexture(MaterialData* arg_material, std::string arg_fileDir, std::string arg_id, const Microsoft::glTF::Document& arg_doc, GraphicsRootParamType arg_rootParam)
+{
+	//テクスチャの取得
+	if (!arg_id.empty())
+	{
+		auto& texture = arg_doc.textures.Get(arg_id);
+		auto& image = arg_doc.images.Get(texture.imageId);
+		if (!image.uri.empty())
+		{
+			std::string textureFilePass(arg_fileDir + image.uri);
+			KazBufferHelper::BufferData textureBuffer(TextureResourceMgr::Instance()->LoadGraphBuffer(textureFilePass));
+			if (textureBuffer.bufferWrapper)
+			{
+
+				//テクスチャ読み込み
+				arg_material->textureBuffer.emplace_back(textureBuffer);
+				arg_material->textureBuffer.back().rootParamType = arg_rootParam;
+			}
+			else
+			{
+				arg_material->textureBuffer.emplace_back(LoadErrorTex(arg_rootParam));
+			}
+		}
+		else
+		{
+			arg_material->textureBuffer.emplace_back(LoadErrorTex(arg_rootParam));
+		}
+	}
+	else
+	{
+		arg_material->textureBuffer.emplace_back(LoadErrorTex(arg_rootParam));
+	}
+}
+
+ModelInfomation::ModelInfomation(const std::vector<ModelMeshData>& model, RESOURCE_HANDLE vertHandle, const std::shared_ptr<Skeleton>& skel) :
+	modelData(model), modelVertDataHandle(vertHandle), skelton(skel)
 {
 }
 

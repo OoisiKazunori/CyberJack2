@@ -53,3 +53,14 @@ GBufferOutput PSmain(VSOutput input) : SV_TARGET
     output.emissive = output.albedo / 2.0f;
     return output;
 }
+
+float4 PS(VSOutput input) : SV_TARGET
+{
+    GBufferOutput output;
+    output.albedo = input.color;
+    output.normal = float4(input.normal,1.0f);
+    output.metalnessRoughness = float4(0,1,0,1);
+    output.world = float4(input.worldpos,1.0f);
+    output.emissive = float4(1.0f,0.0f,0.0f, 0.0f);
+    return input.color;
+}

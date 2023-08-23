@@ -95,6 +95,12 @@ void DrawingByRasterize::Sort()
 
 		result.m_executeIndirectGenerateData.m_uavArgumentBuffer = callData.m_executeIndirectGenerateData.m_uavArgumentBuffer;
 
+
+		if (result.drawCommandType == DrawFuncData::VERT_TYPE::MULTI_MESHED)
+		{
+			bool debug = false;
+		}
+
 		//ExecuteIndirect‚Ì”­s
 		if (callData.drawCommandType == DrawFuncData::VERT_TYPE::EXECUTEINDIRECT_INDEX ||
 			callData.drawCommandType == DrawFuncData::VERT_TYPE::EXECUTEINDIRECT_INSTANCE)
@@ -192,7 +198,7 @@ void DrawingByRasterize::Sort()
 			{
 				rootSignatureGenerateData.rangeArray.emplace_back
 				(
-					callData.materialBuffer[FIRST_MESH_INDEX][i].rangeType,
+					GRAPHICS_RANGE_TYPE_SRV_DESC,
 					callData.materialBuffer[FIRST_MESH_INDEX][i].rootParamType
 				);
 			}
@@ -227,7 +233,7 @@ void DrawingByRasterize::Render()
 {
 	RenderTargetStatus::Instance()->SetDoubleBufferFlame();
 	//RenderTargetStatus::Instance()->ClearDoubuleBuffer(BG_COLOR);
-	RenderTargetStatus::Instance()->ClearDoubuleBuffer(DirectX::XMFLOAT3(255,0,0));
+	RenderTargetStatus::Instance()->ClearDoubuleBuffer(BG_COLOR);
 
 
 	RESOURCE_HANDLE preRenderTargetHandle = -1;
@@ -358,6 +364,19 @@ void DrawingByRasterize::MultiMeshedDrawIndexInstanceCommand(const KazRenderHelp
 		if (MATERIAL_BUFFER.size() != 0)
 		{
 			SetBufferOnCmdList(MATERIAL_BUFFER[i], ROOT_PARAM);
+		}
+
+		if (DATA.drawIndexInstancedData[i].indexCountPerInstance == 0)
+		{
+			DirectX12CmdList::Instance()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+			DirectX12CmdList::Instance()->cmdList->IASetVertexBuffers(DATA.vertexBufferDrawData[i].slot, DATA.vertexBufferDrawData[i].numViews, &DATA.vertexBufferDrawData[i].vertexBufferView);
+			DirectX12CmdList::Instance()->cmdList->DrawInstanced(
+				2,
+				DATA.drawIndexInstancedData[i].instanceCount,
+				0,
+				0
+			);
+			continue;
 		}
 
 		DirectX12CmdList::Instance()->cmdList->IASetPrimitiveTopology(DATA.topology);

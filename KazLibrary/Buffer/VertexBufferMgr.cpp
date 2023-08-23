@@ -1,7 +1,7 @@
 #include "VertexBufferMgr.h"
 #include"DescriptorHeapMgr.h"
 
-RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexAndIndexGenerateData>& vertexData)
+RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexAndIndexGenerateData>& vertexData, bool arg_generateInVRAMFlag)
 {
 	std::vector<KazRenderHelper::IASetVertexBuffersData> setVertDataArray;
 	std::vector<D3D12_INDEX_BUFFER_VIEW> indexBufferViewArray;
@@ -17,13 +17,23 @@ RESOURCE_HANDLE VertexBufferMgr::GenerateBuffer(const std::vector<VertexAndIndex
 		pushBackFlag = true;
 	}
 
+	int idx = 0;
 	for (const auto& meshData : vertexData)
 	{
 		m_polygonIndexBufferArray[outputHandle].emplace_back();
 		m_polygonIndexBufferArray[outputHandle].back().emplace_back(PolygonGenerateData(meshData.verticesPos, meshData.structureSize, meshData.arraySize));
 		m_polygonIndexBufferArray[outputHandle].back().emplace_back(PolygonGenerateData((void*)meshData.indices.data(), sizeof(UINT), meshData.indices.size()));
 
-		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer(m_polygonIndexBufferArray[outputHandle].back()[0].m_gpuBuffer.m_buffer);
+		std::shared_ptr<KazBufferHelper::BufferData>vertexBuffer;
+		if (arg_generateInVRAMFlag)
+		{
+			vertexBuffer = m_polygonIndexBufferArray[outputHandle].back()[idx].m_gpuBuffer.m_buffer;
+		}
+		else
+		{
+			vertexBuffer = m_polygonIndexBufferArray[outputHandle].back()[idx].m_cpuBuffer.m_buffer;
+		}
+		++idx;
 		std::shared_ptr<KazBufferHelper::BufferData>indexBuffer(m_polygonIndexBufferArray[outputHandle].back()[1].m_gpuBuffer.m_buffer);
 
 		vertexBuffer->structureSize = meshData.structureSize;
