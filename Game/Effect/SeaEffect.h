@@ -11,6 +11,7 @@ public:
 
 	bool m_isOldSeaEffect;
 	bool m_isSeaEffect;
+	int m_seaID;
 
 };
 

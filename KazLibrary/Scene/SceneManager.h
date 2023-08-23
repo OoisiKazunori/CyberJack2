@@ -89,7 +89,6 @@ private:
 	enum SEA_ID {
 		CALM, NORMAL, STORMY
 	};
-	int m_seaID;
 
 	//デバッグ用のOnOff切り替えライン
 	DrawFuncData::DrawCallData m_debugOnOffLineRender;
