@@ -113,7 +113,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_isMoveOnly1F = false;
 	TimeZone::Instance()->m_isSkyEffect = false;
 	SeaEffect::Instance()->m_isSeaEffect = false;
-	m_seaID = SEA_ID::CALM;
+	SeaEffect::Instance()->m_seaID = SEA_ID::CALM;
 
 	TimeZone::Instance()->m_timeZone = 0;
 	m_debugRaytracingParam.m_skyFacter = 1.0f;
@@ -401,11 +401,11 @@ void SceneManager::Draw()
 
 		ImGui::Begin("Sea");
 
-		ImGui::RadioButton("Calm", &m_seaID, 0);
+		ImGui::RadioButton("Calm", &SeaEffect::Instance()->m_seaID, 0);
 		ImGui::SameLine();
-		ImGui::RadioButton("Normal", &m_seaID, 1);
+		ImGui::RadioButton("Normal", &SeaEffect::Instance()->m_seaID, 1);
 		ImGui::SameLine();
-		ImGui::RadioButton("Stormy", &m_seaID, 2);
+		ImGui::RadioButton("Stormy", &SeaEffect::Instance()->m_seaID, 2);
 
 		ImGui::End();
 
@@ -429,15 +429,15 @@ void SceneManager::Draw()
 	float baseAmp = 0.0f;
 	float baseFreq = 0.0f;
 	float baseSeaSpeed = SEA_SPEED;
-	if (m_seaID == SEA_ID::CALM) {
+	if (SeaEffect::Instance()->m_seaID == SEA_ID::CALM) {
 		baseAmp = CALM_SEA_AMP;
 		baseFreq = CALM_SEA_FREQ;
 	}
-	else if (m_seaID == SEA_ID::NORMAL) {
+	else if (SeaEffect::Instance()->m_seaID == SEA_ID::NORMAL) {
 		baseAmp = NORMAL_SEA_AMP;
 		baseFreq = NORMAL_SEA_FREQ;
 	}
-	else if (m_seaID == SEA_ID::STORMY) {
+	else if (SeaEffect::Instance()->m_seaID == SEA_ID::STORMY) {
 		baseAmp = STORMY_SEA_AMP;
 		baseFreq = STORMY_SEA_FREQ;
 		baseSeaSpeed = STORMY_SEA_SPEED;

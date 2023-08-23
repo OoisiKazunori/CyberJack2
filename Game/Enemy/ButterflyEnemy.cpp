@@ -4,6 +4,7 @@
 #include"../Effect/SeaEffect.h"
 #include"../Game/Effect/ShakeMgr.h"
 #include"../Effect/TimeZone.h"
+#include"../Effect/SeaEffect.h"
 
 ButterflyEnemy::ButterflyEnemy(int arg_moveID, float arg_moveIDparam)
 {
@@ -74,6 +75,7 @@ void ButterflyEnemy::Update()
 			m_spawnTimer = 0;
 			m_canSpawn = true;
 			TimeZone::Instance()->m_timeZone = 1;
+			SeaEffect::Instance()->m_seaID = 2;
 		}
 
 	}
@@ -155,8 +157,8 @@ void ButterflyEnemy::Update()
 		m_isDead = true;
 		iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
-		SeaEffect::Instance()->m_isSeaEffect = true;
 		m_deadMoveSpeedZ = DEAD_MOVE_SPEED_Z;
+		SeaEffect::Instance()->m_seaID = 0;
 
 		TimeZone::Instance()->KillButterfly();
 
@@ -238,6 +240,7 @@ void ButterflyEnemy::Update()
 		if (m_aroundAngle < STAY_FINISH_ANGLE * 3.0f) {
 			m_status = DEAD;
 			TimeZone::Instance()->m_timeZone = 0;
+			SeaEffect::Instance()->m_seaID = 0;
 		}
 
 		m_canLockOn = true;
