@@ -522,6 +522,16 @@ void checkHitRayMS(inout Payload payload)
     {
         payload.m_emissive = payload.m_color;
     }
+    else
+    {
+        //反射先のライティングを行う。
+        float bright = 0;
+        const float REFLECTION_DEADLINE = 10000.0f;
+        bool isFar = REFLECTION_DEADLINE < length(cameraEyePos.m_eye - vtx.pos.xyz);
+        LightingPass(bright, float4(WorldRayOrigin(), 1.0f), float4(vtx.normal, 1.0f), lightData, DispatchRaysIndex(), debugRaytracingData, gRtScene, isFar);
+        payload.m_color *= clamp(bright, 0.3f, 1.0f);
+
+    }
            
 }
 
