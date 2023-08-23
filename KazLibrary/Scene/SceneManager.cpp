@@ -21,7 +21,7 @@
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
-	scene.emplace_back(std::make_unique<ModelToolScene>());
+	scene.emplace_back(std::make_unique<GameScene>());
 	
 	nowScene = 0;
 	nextScene = 0;

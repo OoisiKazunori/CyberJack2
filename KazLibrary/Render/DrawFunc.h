@@ -110,7 +110,8 @@ namespace DrawFunc
 		UINT num = static_cast<UINT>(arg_type);
 		arg_callData.extraBufferArray[1].bufferWrapper->TransData(&num, sizeof(UINT));
 	}
-	static void Test(DrawFuncData::DrawCallData& arg_callData, const KazMath::Transform3D& arg_transform, RayTracingType arg_type)
+
+	static void Test(DrawFuncData::DrawCallData& arg_callData, KazMath::Transform3D& arg_transform, RayTracingType arg_type)
 	{
 		//s—ñî•ñ
 		static CoordinateSpaceMatData transData(arg_transform.GetMat(), CameraMgr::Instance()->GetViewMatrix(), CameraMgr::Instance()->GetPerspectiveMatProjection());
