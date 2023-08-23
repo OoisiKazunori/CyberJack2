@@ -202,7 +202,6 @@ void ModelTool::Draw(DrawingByRasterize& render)
 		m_modelAnimationInRaytracing[m_selectNum]->Compute(
 			*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_modelInfomationArray[m_selectNum].m_modelInfomation->modelVertDataHandle).vertBuffer[0],
 			m_modelAnimation[m_selectNum]->GetBoneMatBuff(),
-			m_particle,
 			m_modelInfomationArray[m_selectNum].m_transform.GetMat()
 		);
 	}

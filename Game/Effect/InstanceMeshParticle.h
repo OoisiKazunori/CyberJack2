@@ -6,6 +6,7 @@
 #include"InstanceMeshParticleData.h"
 #include"../KazLibrary/Render/DrawingByRasterize.h"
 #include<vector>
+#include"../KazLibrary/Helper/ISinglton.h"
 
 class InstanceMeshParticle
 {
@@ -70,7 +71,7 @@ private:
 		DirectX::XMMATRIX motherMat;
 	};
 
-	static const int DISPATCH_NUM = 5;
+	static const int DISPATCH_NUM = 50;
 	static const int PARTICLE_MAX_NUM = 1024 * DISPATCH_NUM;
 	static const int VERT_BUFFER_SIZE = sizeof(DirectX::XMFLOAT3);
 	static const int UV_BUFFER_SIZE = sizeof(DirectX::XMFLOAT2);

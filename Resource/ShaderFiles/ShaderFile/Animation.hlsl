@@ -161,7 +161,6 @@ struct OutputData
 
 RWStructuredBuffer<VertexBufferData> VertexBuffer : register(u0);
 RWStructuredBuffer<VertexBufferData> OutputVertex : register(u1);
-RWStructuredBuffer<OutputData> ParticleBuffer : register(u2);
 
 cbuffer BoneBuffer : register(b0)
 {
@@ -224,12 +223,4 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
 
     OutputVertex[indecies] = input;
     OutputVertex[indecies].pos = resultPos.xyz;
-
-    float4 worldPos = mul(resultPos,worldMat);
-
-    OutputData result;
-    result.world = CalucurateWorldMat(worldPos.xyz,float3(0.1f,0.1f,0.1f),float3(0.0f,0.0f,0.0f));
-    result.world = mul(viewProj,result.world);
-    result.color = float4(0.0f,1.0f,0.0f,1.0f);
-    ParticleBuffer[index] = result;
 }

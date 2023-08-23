@@ -26,8 +26,8 @@ private:
 			{
 				DrawFuncData::PipelineGenerateData pipelineData;
 				pipelineData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
-				pipelineData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSPosNormalUvLightmain", "vs_6_4", SHADER_TYPE_VERTEX);
-				pipelineData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvLightmain", "ps_6_4", SHADER_TYPE_PIXEL);
+				pipelineData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSPosNormalUvLightMain", "vs_6_4", SHADER_TYPE_VERTEX);
+				pipelineData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvLightMain", "ps_6_4", SHADER_TYPE_PIXEL);
 				pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 				m_drawCall = DrawFuncData::SetDrawGLTFIndexMaterialLightData(*arg_modelInfomation, pipelineData);
 			}

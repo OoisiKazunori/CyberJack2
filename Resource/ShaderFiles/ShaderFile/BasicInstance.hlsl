@@ -53,3 +53,8 @@ GBufferOutput PSmain(VSOutput input) : SV_TARGET
     output.emissive = float4(1.0f,0.0f,0.0f, 0.0f);
     return output;
 }
+
+float4 PS(VSOutput input) : SV_TARGET
+{
+    return input.color;
+}

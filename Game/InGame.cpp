@@ -354,8 +354,8 @@ void InGame::Update()
 
 					m_enemies[enemyType][enemyCount]->GetData()->meshParticleData;
 
-					//m_enemies[enemyType][enemyCount]->Dead();
-					//m_meshParticleRender->AddMeshData(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData[0]->meshParticleData);
+					m_enemies[enemyType][enemyCount]->Dead();
+					m_meshParticleRender->AddMeshData(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData[0]->meshParticleData);
 				}
 				m_enemies[enemyType][enemyCount]->Update();
 			}
@@ -442,7 +442,7 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 			bool enableToUseDataFlag = m_enemies[enemyType][enemyCount] != nullptr;
 			if (enableToUseDataFlag)
 			{
-				//m_enemies[enemyType][enemyCount]->Draw(arg_rasterize, arg_blasVec);
+				m_enemies[enemyType][enemyCount]->Draw(arg_rasterize, arg_blasVec);
 			}
 		}
 	}
