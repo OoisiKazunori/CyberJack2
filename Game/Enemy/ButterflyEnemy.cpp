@@ -30,9 +30,13 @@ void ButterflyEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const
 
 	m_status = APPEAR;
 	m_isDead = false;
+	m_canLockOn = false;
 
 	debugTimer = 0;
 	m_exitTimer = 0;
+
+	m_hp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
+	m_prevhp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
 }
 
 void ButterflyEnemy::Finalize()
@@ -42,6 +46,19 @@ void ButterflyEnemy::Finalize()
 void ButterflyEnemy::Update()
 {
 	using namespace KazMath;
+
+	//HPを保存。
+	m_prevhp = m_hp;
+	m_hp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
+
+	//HPが減った瞬間だったらスケールを変える。
+	if (m_hp != m_prevhp) {
+
+		//攻撃を食らったときのリアクション用
+		const float DEAD_EFFECT_SCALE = 20.0f;
+		m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
+
+	}
 
 	//移動した方向をもとにプレイヤーの姿勢を求める。
 	KazMath::Vec3<float> movedVec = m_playerTransform->pos - m_prevPlayerPos;
@@ -104,14 +121,14 @@ void ButterflyEnemy::Update()
 
 	if (!iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag && !m_isDead) {
 		m_status = DEAD;
-		//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。
-		m_deadEffectVel = m_playerTransform->pos - m_prevPlayerPos;
-		m_deadEffectVelStorage = m_playerTransform->pos - m_prevPlayerPos;
-		m_deadEffectVelStorage *= 0.05f;
 		m_isDead = true;
 		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
 		SeaEffect::Instance()->m_isSeaEffect = true;
+
+		//攻撃を食らったときのリアクション用
+		const float DEAD_EFFECT_SCALE = 50.0f;
+		m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
 	}
 
 	//角度が変わる前に保存。
@@ -129,6 +146,7 @@ void ButterflyEnemy::Update()
 		m_status = EXIT;
 	}
 
+	m_canLockOn = false;
 	switch (m_status)
 	{
 	case ButterflyEnemy::APPEAR:
@@ -173,6 +191,8 @@ void ButterflyEnemy::Update()
 
 		m_transform.pos.y += sinf(moveAngleRate * DirectX::XM_PI - DirectX::XM_PI) * 2.0f;
 
+		m_transform.scale += (KazMath::Vec3<float>(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE) - m_transform.scale) / 5.0f;
+
 		//回転に関する処理
 		m_postureQ = DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3({ 1,0,0 }, m_moveQ)), m_angleX - m_angleX * easingXAmount);
 		m_postureQ = DirectX::XMQuaternionMultiply(m_postureQ, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3({ 0,1,0 }, m_postureQ)), easingAmount * (DirectX::XM_2PI * 2.0f)));
@@ -183,11 +203,9 @@ void ButterflyEnemy::Update()
 		m_addAroundAngle += (STAY_AROUND_ANGLE - m_addAroundAngle) / 10.0f;
 		if (m_aroundAngle < STAY_FINISH_ANGLE * 3.0f) {
 			m_status = DEAD;
-			//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。
-			m_deadEffectVel = m_playerTransform->pos - m_prevPlayerPos;
-			m_deadEffectVelStorage = m_playerTransform->pos - m_prevPlayerPos;
-			m_deadEffectVelStorage *= 0.05f;
 		}
+
+		m_canLockOn = true;
 
 	}
 	break;
@@ -195,19 +213,17 @@ void ButterflyEnemy::Update()
 	{
 		m_isDead = true;
 		iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
+
+		m_transform.scale += (KazMath::Vec3<float>(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE) - m_transform.scale) / 5.0f;
 	}
 	break;
 	case ButterflyEnemy::DEAD:
 	{
 
-		//死亡演出用の移動量がまだ残っていたら
-		m_deadEffectVelStorage -= m_deadEffectVelStorage / 15.0f;
-		m_deadEffectVel += m_deadEffectVelStorage;
+		m_transform.scale += (KazMath::Vec3<float>(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE) - m_transform.scale) / 5.0f;
 
-		m_transform.pos += m_deadEffectVel;
 		m_transform.pos.y -= 0.6f;
 		m_transform.pos.x -= 0.2f;
-		m_deadEffectVel -= m_deadEffectVel / 10.0f;
 		m_transform.quaternion = DirectX::XMQuaternionMultiply(m_transform.quaternion, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3({ 1,0,0 }, m_transform.quaternion)), 0.1f));
 		m_transform.quaternion = DirectX::XMQuaternionMultiply(m_transform.quaternion, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3({ 0,0,1 }, m_transform.quaternion)), 0.1f));
 	}
