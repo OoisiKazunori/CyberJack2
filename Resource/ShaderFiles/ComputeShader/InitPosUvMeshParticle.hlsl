@@ -158,6 +158,7 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
             output.id = motherMatIndex;
             output.timer = RandVec3(startPos.y * 10.0f + outputIndex + 10000,120,0).x;
             output.maxTimer = output.timer;
+            output.vertIndex = uint3(firstVertIndex,secondVertIndex,thirdVertIndex);
             outputData.Append(output);
             //???W????UV?????------------------------------------------------------------------------------------------------
         }

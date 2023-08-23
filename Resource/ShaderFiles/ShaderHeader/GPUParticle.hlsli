@@ -5,7 +5,8 @@ struct ParticleData
     float4 color;
     uint id;
     float timer;
-    float maxTimer;
+    float maxTimer;    
+    uint3 vertIndex;
 };
 
 struct ParticleHitData
