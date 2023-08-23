@@ -102,6 +102,9 @@ float PerlinNoise(float3 arg_st, int arg_octaves, float arg_persistence, float a
 float3 CurlNoise3D(float3 arg_st, float3 arg_pos)
 {
 	const float epsilon = 0.001f;
+	
+	//乱数の範囲を-1024 ~ 1024にする。
+    arg_st = (arg_st * 2.0f) - float3(1024, 1024, 1024);
 
 	int octaves = 4; //オクターブ数
 	float persistence = 0.5; //持続度
@@ -126,7 +129,7 @@ float3 CurlNoise3D(float3 arg_st, float3 arg_pos)
 	vel.y = dNoiseZ - dNoiseX;
 	vel.z = dNoiseX - dNoiseY;
 	
-    return vel * 0.2f;
+    return vel * 1.0f;
 
 }
 
@@ -225,11 +228,12 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
 
 	if(curlNoizeBuffer[particleData.id])
 	{
-    	updateParticleData[index].pos += CurlNoise3D(float3(randomTable[index],randomTable[index],randomTable[index]),updateParticleData[index].pos);
     	updateParticleData[index].color.a = (float)updateParticleData[index].timer / (float)updateParticleData[index].maxTimer;
+        float timerRate = 1.0f - updateParticleData[index].color.a;
+    	updateParticleData[index].pos += CurlNoise3D(float3(randomTable[index],randomTable[index],randomTable[index]),updateParticleData[index].pos) * clamp(timerRate, 0.3f, 1.0f);
     	if(0 < updateParticleData[index].timer)
     	{
-    	    updateParticleData[index].timer -= 0.5f;
+    	    --updateParticleData[index].timer;
     	}
     	else
     	{
