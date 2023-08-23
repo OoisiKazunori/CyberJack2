@@ -137,7 +137,7 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 	memcpy(m_particleMatrix.data(), matrixBuffer.bufferWrapper->GetMapAddres(), sizeof(DirectX::XMMATRIX) * PARTICLE_MAX_NUM);
 
 	for (auto& blas : m_playerModel.back().m_raytracingData.m_blas) {
-		arg_blasVec.AddTest(blas, m_particleMatrix);
+		arg_blasVec.AddVector(blas, m_particleMatrix, 1);
 	}
 
 	arg_rasterize.ObjectRender(m_drawTriangleParticle);

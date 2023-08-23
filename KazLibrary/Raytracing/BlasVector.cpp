@@ -14,19 +14,14 @@ namespace Raytracing
 		m_instanceDesc.resize(0);
 	}
 
-	void BlasVector::Add(std::weak_ptr<Blas> arg_refBlas, const DirectX::XMMATRIX& arg_worldMat, int arg_instanceIndex, bool arg_isAddBlas)
+	void BlasVector::Add(std::weak_ptr<Blas> arg_refBlas, const DirectX::XMMATRIX& arg_worldMat, int arg_instanceIndex)
 	{
 
 		/*===== Tlasに登録するために配列に追加する =====*/
 
 		//参照を追加して。
 		int hitGroupSize = static_cast<int>(m_refBlas.size());
-		if (arg_isAddBlas) {
-			m_refBlas.emplace_back(arg_refBlas);
-		}
-		else {
-			--hitGroupSize;
-		}
+		m_refBlas.emplace_back(arg_refBlas);
 
 
 		D3D12_RAYTRACING_INSTANCE_DESC instanceDesc;
@@ -48,7 +43,7 @@ namespace Raytracing
 
 	}
 
-	void BlasVector::AddTest(std::weak_ptr<Blas> arg_refBlas, std::vector<DirectX::XMMATRIX> arg_worldMat)
+	void BlasVector::AddVector(std::weak_ptr<Blas> arg_refBlas, std::vector<DirectX::XMMATRIX> arg_worldMat, int arg_instanceIndex)
 	{
 
 		/*===== Tlasに登録するために配列に追加する =====*/
@@ -65,19 +60,13 @@ namespace Raytracing
 
 			D3D12_RAYTRACING_INSTANCE_DESC instanceDesc;
 
-			//KazMath::Transform3D transform;
-			//transform.pos = { 0.0f,10.0f,50.0f };
-			//transform.pos.x += KazMath::Rand(-30000.0f, 30000.0f);
-			//transform.scale = { 50.0f,50.0f,50.0f };
-			//transform.rotation = { 0.0f,0.0f,0.0f };
-
 			//行列を設定。
 			XMStoreFloat3x4(
 				reinterpret_cast<DirectX::XMFLOAT3X4*>(&instanceDesc.Transform),
 				arg_worldMat[index]);
 
 			//インスタンスの詳細を設定。
-			instanceDesc.InstanceID = 0;			//レイトレで行う処理のフラグをここで設定する。マテリアル側で設定してもよい。
+			instanceDesc.InstanceID = arg_instanceIndex;			//レイトレで行う処理のフラグをここで設定する。マテリアル側で設定してもよい。
 			instanceDesc.InstanceMask = 0xFF;
 			instanceDesc.InstanceContributionToHitGroupIndex = hitGroupSize;
 			instanceDesc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;

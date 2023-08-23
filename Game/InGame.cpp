@@ -432,7 +432,6 @@ void InGame::Update()
 
 void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
-	m_player.Draw(arg_rasterize, arg_blasVec);
 
 	PlayerShotEffectMgr::Instance()->Draw(arg_rasterize, arg_blasVec);
 
@@ -444,11 +443,12 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 			bool enableToUseDataFlag = m_enemies[enemyType][enemyCount] != nullptr;
 			if (enableToUseDataFlag)
 			{
-				m_enemies[enemyType][enemyCount]->Draw(arg_rasterize, arg_blasVec);
+				//m_enemies[enemyType][enemyCount]->Draw(arg_rasterize, arg_blasVec);
 			}
 		}
 	}
 	PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
+	m_player.Draw(arg_rasterize, arg_blasVec);
 
 	if (!m_debugFlag)
 	{

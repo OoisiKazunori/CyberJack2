@@ -41,8 +41,8 @@ namespace Raytracing
 		/// </summary>
 		/// <param name="arg_refBlas"></param>
 		/// <param name="arg_worldMat"></param>
-		void Add(std::weak_ptr<Blas> arg_refBlas, const DirectX::XMMATRIX& arg_worldMat, int arg_instanceIndex = 0, bool arg_isAddBlas = true);
-		void AddTest(std::weak_ptr<Blas> arg_refBlas, std::vector<DirectX::XMMATRIX> arg_worldMat);
+		void Add(std::weak_ptr<Blas> arg_refBlas, const DirectX::XMMATRIX& arg_worldMat, int arg_instanceIndex = 0);
+		void AddVector(std::weak_ptr<Blas> arg_refBlas, std::vector<DirectX::XMMATRIX> arg_worldMat, int arg_instanceIndex = 0);
 
 		/// <summary>
 		/// •Û‘¶‚³‚ê‚Ä‚¢‚éQÆ‚Ì”B

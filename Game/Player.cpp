@@ -285,6 +285,9 @@ void Player::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 		hpUi.Draw(arg_rasterize);
 	}
 
+	m_transform.scale = { 50.0f,50.0f,50.0f };
+	m_transform.pos = { 0.0f,10.0f,50.0f };
+	m_transform.rotation = { 0.0f,0.0f,0.0f };
 	//bool test = true;
 	//for (auto& index : m_playerModel) {
 	//	//DrawFunc::DrawModel(index, m_transform);
