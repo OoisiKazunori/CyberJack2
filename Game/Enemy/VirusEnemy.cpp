@@ -20,6 +20,10 @@ VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 	m_computeAnimation.GenerateBuffer(*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0]);
 	m_spawnTimer = 0;
 	m_canSpawn = false;
+
+	//ƒ‚ƒfƒ‹Žó‚¯“n‚µ
+	iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData.modelVertexBuffer = *VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0];
+	iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData.modelVertexBuffer.elementNum = VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0]->elementNum;
 }
 
 void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)
@@ -54,6 +58,7 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 	m_prevhp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
 	m_spawnTimer = 0;
 	m_canSpawn = false;
+
 }
 
 void VirusEnemy::Finalize()

@@ -149,5 +149,10 @@ private:
 
 
 	KazBufferHelper::BufferData m_initParticleBuffer;
+
+	//’¸“_î•ñ‚Ì‹L˜^
+	KazBufferHelper::BufferData m_inputVertexBuffer;
+	std::vector<KazBufferHelper::BufferData> m_idBuffer;
+	ComputeShader m_computeStackVertex;
 };
 

@@ -142,20 +142,41 @@ InstanceMeshParticle::InstanceMeshParticle() :
 
 	MESH_PARTICLE_GENERATE_NUM = 0;
 
-	RootSignatureDataTest rootsignature;
-	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA));
-	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA2));
-	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
-	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA4));
-	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA5));
-	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA6));
-	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA7));
-	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA));
-	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA8));
-	rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA9));
-	computeUpdateMeshParticle.Generate(ShaderOptionData("Resource/ShaderFiles/ComputeShader/UpdateMeshParticle.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), rootsignature);
-
+	{
+		RootSignatureDataTest rootsignature;
+		rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA));
+		rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA2));
+		rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA3));
+		rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA4));
+		rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA5));
+		rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA6));
+		rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA7));
+		rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA));
+		rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA8));
+		rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA9));
+		computeUpdateMeshParticle.Generate(ShaderOptionData("Resource/ShaderFiles/ComputeShader/UpdateMeshParticle.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), rootsignature);
+	}
 	cameraMatBuffer = KazBufferHelper::SetConstBufferData(sizeof(CameraMatData));
+
+	{
+		RootSignatureDataTest rootsignature;
+		rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_VIEW, GRAPHICS_PRAMTYPE_DATA));
+		rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_UAV_DESC, GRAPHICS_PRAMTYPE_DATA2));
+		rootsignature.rangeArray.emplace_back(BufferRootsignature(GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA));
+		m_computeStackVertex.Generate(ShaderOptionData("Resource/ShaderFiles/ShaderFile/InputVertex.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), rootsignature);
+		m_computeStackVertex.m_extraBufferArray.resize(3);
+	}
+	struct Input
+	{
+		DirectX::XMFLOAT3 pos;
+		UINT id;
+	};
+	const int VERT_MAX_NUM = 100000;
+	m_inputVertexBuffer = KazBufferHelper::SetGPUBufferData(sizeof(Input) * VERT_MAX_NUM, "VertexBufferArray");
+	m_inputVertexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	m_inputVertexBuffer.GenerateCounterBuffer();
+	m_inputVertexBuffer.CreateUAVView();
+	m_inputVertexBuffer.counterWrapper->CopyBuffer(copyBuffer.GetBuffer());
 }
 
 void InstanceMeshParticle::Init()
@@ -266,7 +287,7 @@ void InstanceMeshParticle::Init()
 	computeUpdateMeshParticle.m_extraBufferArray[9].rootParamType = GRAPHICS_PRAMTYPE_DATA9;
 
 
-	m_initParticleBuffer = KazBufferHelper::SetGPUBufferData(sizeof(InitOutputData) * PARTICLE_MAX_NUM,"Init - MeshParticle");
+	m_initParticleBuffer = KazBufferHelper::SetGPUBufferData(sizeof(InitOutputData) * PARTICLE_MAX_NUM, "Init - MeshParticle");
 	m_initParticleBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
@@ -359,11 +380,39 @@ void InstanceMeshParticle::AddMeshData(const InitMeshParticleData& DATA)
 	}
 	computeInitMeshParticle.Compute({ MOTHER_MAT_MAX,1,1 });
 
-	++MESH_PARTICLE_GENERATE_NUM;
+
 #pragma endregion
 
 
 	scaleRotaMatArray.emplace_back(ScaleRotaBillData(KazMath::CaluScaleMatrix(DATA.particleScale), DATA.billboardFlag));
+
+	//頂点バッファのスタック
+
+	struct CommonData
+	{
+		UINT id;
+		UINT vertNum;
+	};
+	m_idBuffer.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(CommonData)));
+	CommonData data;
+	data.id = MESH_PARTICLE_GENERATE_NUM;
+	data.vertNum = DATA.modelVertexBuffer.elementNum;
+	m_idBuffer.back().bufferWrapper->TransData(&data, sizeof(CommonData));
+	//頂点情報
+	m_computeStackVertex.m_extraBufferArray[0] = DATA.modelVertexBuffer;
+	m_computeStackVertex.m_extraBufferArray[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	m_computeStackVertex.m_extraBufferArray[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+	//入力
+	m_computeStackVertex.m_extraBufferArray[1] = m_inputVertexBuffer;
+	m_computeStackVertex.m_extraBufferArray[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	m_computeStackVertex.m_extraBufferArray[1].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+
+	m_computeStackVertex.m_extraBufferArray[2] = m_idBuffer.back();
+	m_computeStackVertex.m_extraBufferArray[2].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+	m_computeStackVertex.m_extraBufferArray[2].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+	m_computeStackVertex.Compute({ 5,1,1 });
+
+	++MESH_PARTICLE_GENERATE_NUM;
 }
 
 void InstanceMeshParticle::Compute(DrawingByRasterize& arg_rasterize)
