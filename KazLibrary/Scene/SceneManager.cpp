@@ -440,10 +440,10 @@ void SceneManager::Draw()
 	else if (SeaEffect::Instance()->m_seaID == SEA_ID::STORMY) {
 		baseAmp = STORMY_SEA_AMP;
 		baseFreq = STORMY_SEA_FREQ;
-		baseSeaSpeed = STORMY_SEA_SPEED;
+		//baseSeaSpeed = STORMY_SEA_SPEED;
 	}
 
-	if (!SeaEffect::Instance()->m_isOldSeaEffect && SeaEffect::Instance()->m_isSeaEffect) {
+	if (!SeaEffect::Instance()->m_isOldSeaEffect && SeaEffect::Instance()->m_isSeaEffect && SeaEffect::Instance()->m_seaID == SEA_ID::CALM) {
 		m_debugSeaParam.m_amp += 0.4f;
 		m_debugSeaParam.m_freq += EFFECT_FREQ;
 		m_debugSeaParam.m_seaSpeed += 10.0f;

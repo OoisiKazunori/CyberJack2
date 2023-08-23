@@ -283,7 +283,7 @@ void VirusEnemy::Update()
 void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
 	DrawFunc::DrawModel(m_model, m_transform, m_animation->GetBoneMatBuff());
-	//arg_rasterize.ObjectRender(m_model);
+	arg_rasterize.ObjectRender(m_model);
 	for (auto& index : m_model.m_raytracingData.m_blas)
 	{
 		arg_blasVec.Add(index, m_transform.GetMat());
