@@ -57,15 +57,15 @@ float Noise(float3 arg_st)
 	float rightTopFront = dot(Random3D(intValue + float3(1, 1, 1)),(floatValue - float3(1, 1, 1)));
 
 	//ノイズ値を補間する。
-	float x1 = Lerp(center, right, u.x);
-	float x2 = Lerp(top, rightTop, u.x);
-	float y1 = Lerp(frontV, rightFront, u.x);
-	float y2 = Lerp(topFront, rightTopFront, u.x);
+	float x1 = lerp(center, right, u.x);
+    float x2 = lerp(top, rightTop, u.x);
+    float y1 = lerp(frontV, rightFront, u.x);
+    float y2 = lerp(topFront, rightTopFront, u.x);
 
-	float xy1 = Lerp(x1, x2, u.y);
-	float xy2 = Lerp(y1, y2, u.y);
+    float xy1 = lerp(x1, x2, u.y);
+    float xy2 = lerp(y1, y2, u.y);
 
-	return Lerp(xy1, xy2, u.z);
+    return lerp(xy1, xy2, u.z);
 }
 
 float PerlinNoise(float3 arg_st, int arg_octaves, float arg_persistence, float arg_lacunarity, float3 arg_pos)
@@ -74,11 +74,11 @@ float PerlinNoise(float3 arg_st, int arg_octaves, float arg_persistence, float a
 	float amplitude = 1.0;
 
 	//プレイヤーのワールド座標に基づくノイズ生成
-	float3 worldSpaceCoords = arg_st + arg_pos / 100.0f;
+	float3 worldSpaceCoords = arg_st + arg_pos * 0.3f;
 
 	float noiseValue = 0;
 
-	float frequency = 2.0f;
+	float frequency = 1.0f;
 	float localAmplitude = amplitude;
 	float sum = 0.0;
 	float maxValue = 0.0;
@@ -101,7 +101,7 @@ float PerlinNoise(float3 arg_st, int arg_octaves, float arg_persistence, float a
 
 float3 CurlNoise3D(float3 arg_st, float3 arg_pos)
 {
-	const float epsilon = 0.01f;
+	const float epsilon = 0.001f;
 
 	int octaves = 4; //オクターブ数
 	float persistence = 0.5; //持続度
@@ -125,8 +125,8 @@ float3 CurlNoise3D(float3 arg_st, float3 arg_pos)
 	vel.x = dNoiseY - dNoiseZ;
 	vel.y = dNoiseZ - dNoiseX;
 	vel.z = dNoiseX - dNoiseY;
-
-	return vel;
+	
+    return vel * 0.2f;
 
 }
 
@@ -229,7 +229,7 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     	updateParticleData[index].color.a = (float)updateParticleData[index].timer / (float)updateParticleData[index].maxTimer;
     	if(0 < updateParticleData[index].timer)
     	{
-    	    --updateParticleData[index].timer;
+    	    updateParticleData[index].timer -= 0.5f;
     	}
     	else
     	{
