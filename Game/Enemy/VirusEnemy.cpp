@@ -156,8 +156,7 @@ void VirusEnemy::Update()
 		m_transform.pos.y = m_initPos.y + sinf(m_moveTimer) * 1.0f;
 
 		//出現のタイマーを更新。
-		m_appearEasingTimer = std::clamp(m_appearEasingTimer + 10.0f, 0.0f, APPEAR_EASING_TIMER);
-		++m_appearEasingTimer;
+		m_appearEasingTimer = std::clamp(m_appearEasingTimer + 1.0f, 0.0f, APPEAR_EASING_TIMER * 10.0f);
 
 		//座標を補間する。
 		float easingValue = EasingMaker(EasingType::Out, EaseInType::Back, std::clamp(m_appearEasingTimer + 1.0f, 0.0f, APPEAR_EASING_TIMER) / APPEAR_EASING_TIMER);
