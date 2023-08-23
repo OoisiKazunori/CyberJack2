@@ -211,5 +211,7 @@ private:
 public:
 
 	bool m_canLockOn;
+	int m_spawnTimer;
+	bool m_canSpawn;
 
 };

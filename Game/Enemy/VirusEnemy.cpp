@@ -16,6 +16,9 @@ VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 	moveID = arg_moveID;
 	moveIDparam = arg_moveIDparam;
 
+	m_spawnTimer = 0;
+	m_canSpawn = false;
+
 }
 
 void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)
@@ -46,6 +49,9 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 
 	m_hp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
 	m_prevhp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
+
+	m_spawnTimer = 0;
+	m_canSpawn = false;
 }
 
 void VirusEnemy::Finalize()
@@ -55,6 +61,19 @@ void VirusEnemy::Finalize()
 void VirusEnemy::Update()
 {
 	using namespace KazMath;
+
+	//死んでいたらリスポーンするまでのタイマーを更新
+	m_canSpawn = false;
+	if (!iEnemy_EnemyStatusData->oprationObjData->initFlag) {
+
+		const int RESPAWN_TIMER = 120;
+		++m_spawnTimer;
+		if (RESPAWN_TIMER < m_spawnTimer) {
+			m_spawnTimer = 0;
+			m_canSpawn = true;
+		}
+
+	}
 
 	//HPを保存。
 	m_prevhp = m_hp;
@@ -105,7 +124,7 @@ void VirusEnemy::Update()
 		m_status = DEAD;
 
 		m_isDead = true;
-		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
+		iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 
 		//攻撃を食らったときのリアクション用
 		const float DEAD_EFFECT_SCALE = 50.0f;
@@ -116,11 +135,11 @@ void VirusEnemy::Update()
 
 	}
 
-	//自動的に消えるまでのタイマーを更新。
-	++m_exitTimer;
-	if (EXIT_TIMER <= m_exitTimer) {
-		m_status = EXIT;
-	}
+	////自動的に消えるまでのタイマーを更新。
+	//++m_exitTimer;
+	//if (EXIT_TIMER <= m_exitTimer) {
+	//	m_status = EXIT;
+	//}
 
 	m_canLockOn = false;
 	switch (m_status)

@@ -48,6 +48,25 @@ void InGame::Init(bool SKIP_FLAG)
 		}
 	}
 	m_meshParticleRender->Init();
+
+	m_butterflyEnemyRespawnDelay = 0;
+
+	//ìGÇëSïîê∂ê¨ÇµÇøÇ·Ç§ÅB
+	for (int enemyType = 0; enemyType < m_responeData.size(); ++enemyType)
+	{
+		for (int enemyCount = 0; enemyCount < m_responeData[enemyType].size(); ++enemyCount)
+		{
+			if (!m_enemies[enemyType][enemyCount]) continue;
+
+			m_enemies[enemyType][enemyCount]->OnInit(m_responeData[enemyType][enemyCount].generateData.useMeshPaticleFlag);
+			m_enemies[enemyType][enemyCount]->Init(&(m_player.m_transform), m_responeData[enemyType][enemyCount].generateData, false);
+
+			if (m_enemies[enemyType][enemyCount]->GetData()->meshParticleFlag)
+			{
+				continue;
+			}
+		}
+	}
 }
 
 void InGame::Finalize()
@@ -132,12 +151,16 @@ void InGame::Update()
 	{
 		for (int enemyCount = 0; enemyCount < m_responeData[enemyType].size(); ++enemyCount)
 		{
+			if (!m_enemies[enemyType][enemyCount]) continue;
+
 			bool enableToUseThisDataFlag = m_responeData[enemyType][enemyCount].layerLevel != -1;
-			bool readyToStartFlag = m_responeData[enemyType][enemyCount].flame <= m_gameFlame &&
-				m_responeData[enemyType][enemyCount].layerLevel == m_gameStageLevel;
+			//bool readyToStartFlag = m_responeData[enemyType][enemyCount].flame == m_gameFlame &&
+			//	m_responeData[enemyType][enemyCount].layerLevel == m_gameStageLevel;
+			bool readyToStartFlag = m_enemies[enemyType][enemyCount]->m_canSpawn;
 
 			if (enableToUseThisDataFlag && readyToStartFlag && m_enemies[enemyType][enemyCount] != nullptr && !m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->initFlag)
 			{
+
 				m_enemies[enemyType][enemyCount]->OnInit(m_responeData[enemyType][enemyCount].generateData.useMeshPaticleFlag);
 				m_enemies[enemyType][enemyCount]->Init(&(m_player.m_transform), m_responeData[enemyType][enemyCount].generateData, false);
 
@@ -360,6 +383,8 @@ void InGame::Update()
 					//m_enemies[enemyType][enemyCount]->Dead();
 					//m_meshParticleRender->AddMeshData(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData[0]->meshParticleData);
 				}
+			}
+			if (m_enemies[enemyType][enemyCount]) {
 				m_enemies[enemyType][enemyCount]->Update();
 			}
 
@@ -388,7 +413,7 @@ void InGame::Update()
 
 	m_player.Update();
 	//m_player.pos = m_rail.GetPosition();
-	m_player.pos = KazMath::Vec3<float>(0,20,0);
+	m_player.pos = KazMath::Vec3<float>(0, 20, 0);
 	m_cursor.Update();
 	m_camera.Update(m_cursor.GetValue(), &m_player.pos, m_player.m_transform.rotation, false);
 

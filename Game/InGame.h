@@ -128,6 +128,10 @@ private:
 	std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>m_stageArray;
 	CameraWork m_camera;
 
+	//蝶の敵を数回に一回出現させるようにするための変数
+	int m_butterflyEnemyRespawnDelay;
+	const int BUTTERFLY_ENEMY_RESPAWN_DELAY = 3;
+
 	//敵----------------------------------------------------------------
 	std::array<unique_ptr<IEnemy>, 2>enemy;																					//敵(サンプル)
 	std::array<std::array<shared_ptr<IEnemy>, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> m_enemies;	//1ステージに生成する敵の総数
