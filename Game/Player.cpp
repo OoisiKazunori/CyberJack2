@@ -280,10 +280,10 @@ void Player::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 
 	*/
 
-	if (drawHpFlag)
-	{
-		hpUi.Draw(arg_rasterize);
-	}
+	//if (drawHpFlag)
+	//{
+	//	hpUi.Draw(arg_rasterize);
+	//}
 
 	m_transform.scale = { 50.0f,50.0f,50.0f };
 	//m_transform.pos = { 0.0f,10.0f,50.0f };
