@@ -129,7 +129,7 @@ float3 CurlNoise3D(float3 arg_st, float3 arg_pos)
 	vel.y = dNoiseZ - dNoiseX;
 	vel.z = dNoiseX - dNoiseY;
 	
-    return vel * 1.0f;
+    return vel * 5.0f;
 
 }
 

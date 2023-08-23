@@ -362,6 +362,7 @@ void InGame::Update()
 		m_meshParticleRender->InitParticle();
 	}
 
+	m_isEnemyNotMoveFlag = true;
 	for (int enemyType = 0; enemyType < m_enemies.size(); ++enemyType)
 	{
 		for (int enemyCount = 0; enemyCount < m_enemies[enemyType].size(); ++enemyCount)
@@ -393,7 +394,8 @@ void InGame::Update()
 					}
 				}
 			}
-			if (m_enemies[enemyType][enemyCount]) {
+			if (m_enemies[enemyType][enemyCount])
+			{
 				m_enemies[enemyType][enemyCount]->Update();
 			}
 
