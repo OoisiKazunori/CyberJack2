@@ -18,6 +18,7 @@ public:
 	void Compute(DrawingByRasterize& arg_rasterize);
 
 	void InitCompute();
+	void InitParticle();
 
 	struct InitOutputData
 	{
@@ -145,5 +146,8 @@ private:
 	bool curlNozieFlag;
 
 	KazBufferHelper::BufferData m_meshParticleVertexBuffer, m_meshParticleIndexBuffer;
+
+
+	KazBufferHelper::BufferData m_initParticleBuffer;
 };
 

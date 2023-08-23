@@ -221,7 +221,6 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     uint index = groupThreadID.x;
     index += 1024 * groupId.x;
 
-
     ParticleData particleData = updateParticleData[index];
 
 	if(curlNoizeBuffer[particleData.id])

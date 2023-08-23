@@ -86,7 +86,7 @@ void VirusEnemy::Update()
 
 		//攻撃を食らったときのリアクション用
 		const float DEAD_EFFECT_SCALE = 1.0f;
-		m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
+		//m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
 
 	}
 
@@ -130,7 +130,7 @@ void VirusEnemy::Update()
 
 		//攻撃を食らったときのリアクション用
 		const float DEAD_EFFECT_SCALE = 1.0f;
-		m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
+		//m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
 
 		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
 		SeaEffect::Instance()->m_isSeaEffect = true;
@@ -144,6 +144,7 @@ void VirusEnemy::Update()
 	//}
 
 	m_canLockOn = false;
+	iEnemy_EnemyStatusData->curlNozieFlag = false;
 	switch (m_status)
 	{
 	case VirusEnemy::APPEAR:
@@ -177,7 +178,7 @@ void VirusEnemy::Update()
 		m_moveTimer += 0.06f;
 
 		//m_transform.rotation.z = 360.0f + sinf(m_stopTimer) * 35.0f;
-		m_transform.pos.y = m_initPos.y + sinf(m_moveTimer) * 1.0f;
+		//m_transform.pos.y = m_initPos.y + sinf(m_moveTimer) * 1.0f;
 
 		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
 
@@ -229,31 +230,31 @@ void VirusEnemy::Update()
 	case VirusEnemy::EXIT:
 	{
 
-		//小さくして消す。
-		m_transform.scale.x = std::clamp(m_transform.scale.x - 2.0f, 0.0f, 100.0f);
-		m_transform.scale.y = std::clamp(m_transform.scale.y - 2.0f, 0.0f, 100.0f);
-		m_transform.scale.z = std::clamp(m_transform.scale.z - 2.0f, 0.0f, 100.0f);
+		////小さくして消す。
+		//m_transform.scale.x = std::clamp(m_transform.scale.x - 2.0f, 0.0f, 100.0f);
+		//m_transform.scale.y = std::clamp(m_transform.scale.y - 2.0f, 0.0f, 100.0f);
+		//m_transform.scale.z = std::clamp(m_transform.scale.z - 2.0f, 0.0f, 100.0f);
 
-		//回す
-		m_transform.rotation.z += 10.0f;
+		////回す
+		//m_transform.rotation.z += 10.0f;
 
-		//小さくなったら殺す。
-		if (m_transform.scale.x <= 0) {
+		////小さくなったら殺す。
+		//if (m_transform.scale.x <= 0) {
 
-			m_isDead = true;
-			iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
+		//	m_isDead = true;
+		//	iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 
-		}
+		//}
 
 	}
 	break;
 	case VirusEnemy::DEAD:
 	{
 
-		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
+		/*m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
 		m_gravity += 0.06f;
 		m_transform.pos.y -= m_gravity;
-		m_transform.rotation.x += 3.0f;
+		m_transform.rotation.x += 3.0f;*/
 
 		iEnemy_EnemyStatusData->curlNozieFlag = true;
 	}
@@ -262,7 +263,7 @@ void VirusEnemy::Update()
 		break;
 	}
 
-	DrawFunc::DrawModelInRaytracing(m_model, m_transform, DrawFunc::NONE);
+	//DrawFunc::DrawModelInRaytracing(m_model, m_transform, DrawFunc::NONE);
 
 	//プレイヤーの座標を保存。
 	m_prevPlayerPos = m_playerTransform->pos;

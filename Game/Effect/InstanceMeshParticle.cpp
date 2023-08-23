@@ -13,7 +13,7 @@ InstanceMeshParticle::InstanceMeshParticle() :
 		DirectX::XMFLOAT4 color;
 	};
 
-	m_particleRender = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * PARTICLE_MAX_NUM);
+	m_particleRender = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * PARTICLE_MAX_NUM, "Particle-world-Output");
 	m_particleViewProjRender.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 	m_particleViewProjRender.rootParamType = GRAPHICS_PRAMTYPE_DATA;
 	m_particleRender.structureSize = sizeof(OutputData);
@@ -21,7 +21,7 @@ InstanceMeshParticle::InstanceMeshParticle() :
 	m_particleRender.GenerateCounterBuffer();
 	m_particleRender.CreateUAVView();
 
-	m_particleViewProjRender = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * PARTICLE_MAX_NUM);
+	m_particleViewProjRender = KazBufferHelper::SetGPUBufferData(sizeof(OutputData) * PARTICLE_MAX_NUM, "Particle-worldViewProj-Output");
 	m_particleViewProjRender.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 	m_particleViewProjRender.rootParamType = GRAPHICS_PRAMTYPE_DATA2;
 	m_particleViewProjRender.structureSize = sizeof(OutputData);
@@ -103,7 +103,7 @@ InstanceMeshParticle::InstanceMeshParticle() :
 
 
 	//メッシュパーティクルの初期化処理の出力情報
-	meshParticleBufferData = KazBufferHelper::SetGPUBufferData(sizeof(InitOutputData) * PARTICLE_MAX_NUM);
+	meshParticleBufferData = KazBufferHelper::SetGPUBufferData(sizeof(InitOutputData) * PARTICLE_MAX_NUM, "Stack-Meshparticle");
 	meshParticleBufferData.rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 	meshParticleBufferData.rootParamType = GRAPHICS_PRAMTYPE_DATA;
 	meshParticleBufferData.structureSize = sizeof(InitOutputData);
@@ -164,19 +164,19 @@ void InstanceMeshParticle::Init()
 		KazBufferHelper::BufferResourceData(
 			CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
-			CD3DX12_RESOURCE_DESC::Buffer(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(motherMatArray.size(), sizeof(MotherMatData))),
+			CD3DX12_RESOURCE_DESC::Buffer(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(MOTHER_MAT_MAX, sizeof(MotherMatData))),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			"RAMmatData")
 	);
 
-	curlNoizeUploadBuffer = KazBufferHelper::SetUploadBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(motherMatArray.size(), sizeof(UINT)));
+	curlNoizeUploadBuffer = KazBufferHelper::SetUploadBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(MOTHER_MAT_MAX, sizeof(UINT)));
 
 	colorBuffer.CreateBuffer(
 		KazBufferHelper::BufferResourceData(
 			CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
-			CD3DX12_RESOURCE_DESC::Buffer(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(motherMatArray.size(), sizeof(float))),
+			CD3DX12_RESOURCE_DESC::Buffer(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(MOTHER_MAT_MAX, sizeof(float))),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			"RAMColorData")
@@ -184,34 +184,34 @@ void InstanceMeshParticle::Init()
 
 	{
 		//親行列
-		particleMotherMatrixHandle = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(motherMatArray.size(), sizeof(MotherMatData)), "VRAMmatData");
+		particleMotherMatrixHandle = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(MOTHER_MAT_MAX, sizeof(MotherMatData)), "VRAMmatData");
 		particleMotherMatrixHandle.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 		particleMotherMatrixHandle.rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-		particleMotherMatrixHandle.elementNum = static_cast<UINT>(motherMatArray.size());
+		particleMotherMatrixHandle.elementNum = static_cast<UINT>(MOTHER_MAT_MAX);
 		particleMotherMatrixHandle.structureSize = sizeof(MotherMatData);
 	}
 
 	{
 		//色
-		colorMotherMatrixHandle = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(motherMatArray.size(), sizeof(float)), "VRAMColorData");
+		colorMotherMatrixHandle = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(MOTHER_MAT_MAX, sizeof(float)), "VRAMColorData");
 		colorMotherMatrixHandle.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 		colorMotherMatrixHandle.rootParamType = GRAPHICS_PRAMTYPE_DATA4;
-		colorMotherMatrixHandle.elementNum = static_cast<UINT>(motherMatArray.size());
+		colorMotherMatrixHandle.elementNum = static_cast<UINT>(MOTHER_MAT_MAX);
 		colorMotherMatrixHandle.structureSize = sizeof(float);
 	}
 
-	curlNoizeVRAMBuffer = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(motherMatArray.size(), sizeof(UINT)));
+	curlNoizeVRAMBuffer = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(MOTHER_MAT_MAX, sizeof(UINT)), "CurlNoize-VRAM");
 	curlNoizeVRAMBuffer.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	curlNoizeVRAMBuffer.rootParamType = GRAPHICS_PRAMTYPE_DATA6;
-	curlNoizeVRAMBuffer.elementNum = static_cast<UINT>(motherMatArray.size());
+	curlNoizeVRAMBuffer.elementNum = static_cast<UINT>(MOTHER_MAT_MAX);
 	curlNoizeVRAMBuffer.structureSize = sizeof(UINT);
 
 	//ScaleRotaMat
 	{
-		scaleRotateBillboardMatHandle = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(scaleRotaMatArray.size(), sizeof(DirectX::XMMATRIX)), "VRAMScaleRotaBillData");
+		scaleRotateBillboardMatHandle = KazBufferHelper::SetGPUBufferData(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(MOTHER_MAT_MAX, sizeof(DirectX::XMMATRIX)), "VRAMScaleRotaBillData");
 		scaleRotateBillboardMatHandle.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 		scaleRotateBillboardMatHandle.rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-		scaleRotateBillboardMatHandle.elementNum = static_cast<UINT>(scaleRotaMatArray.size());
+		scaleRotateBillboardMatHandle.elementNum = static_cast<UINT>(MOTHER_MAT_MAX);
 		scaleRotateBillboardMatHandle.structureSize = sizeof(DirectX::XMMATRIX);
 	}
 
@@ -219,7 +219,7 @@ void InstanceMeshParticle::Init()
 		KazBufferHelper::BufferResourceData(
 			CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
-			CD3DX12_RESOURCE_DESC::Buffer(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(scaleRotaMatArray.size(), sizeof(DirectX::XMMATRIX))),
+			CD3DX12_RESOURCE_DESC::Buffer(KazBufferHelper::GetBufferSize<BUFFER_SIZE>(MOTHER_MAT_MAX, sizeof(DirectX::XMMATRIX))),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			"RAMScaleRotaBillData")
@@ -251,7 +251,7 @@ void InstanceMeshParticle::Init()
 	computeUpdateMeshParticle.m_extraBufferArray[5].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 	computeUpdateMeshParticle.m_extraBufferArray[5].rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(ShaderRandomTable::Instance()->GetBuffer(GRAPHICS_PRAMTYPE_DATA6));
+	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(ShaderRandomTable::Instance()->GetCurlBuffer(GRAPHICS_PRAMTYPE_DATA6));
 
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(curlNoizeVRAMBuffer);
 	computeUpdateMeshParticle.m_extraBufferArray[7].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
@@ -264,6 +264,14 @@ void InstanceMeshParticle::Init()
 	computeUpdateMeshParticle.m_extraBufferArray.emplace_back(m_meshParticleIndexBuffer);
 	computeUpdateMeshParticle.m_extraBufferArray[9].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	computeUpdateMeshParticle.m_extraBufferArray[9].rootParamType = GRAPHICS_PRAMTYPE_DATA9;
+
+
+	m_initParticleBuffer = KazBufferHelper::SetGPUBufferData(sizeof(InitOutputData) * PARTICLE_MAX_NUM,"Init - MeshParticle");
+	m_initParticleBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	m_initParticleBuffer.bufferWrapper->CopyBuffer(meshParticleBufferData.bufferWrapper->GetBuffer());
+	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 }
 
@@ -349,7 +357,7 @@ void InstanceMeshParticle::AddMeshData(const InitMeshParticleData& DATA)
 		computeInitMeshParticle.Generate(ShaderOptionData("Resource/ShaderFiles/ComputeShader/InitPosUvMeshParticle.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), bufferArray);
 		isInitFlag = false;
 	}
-	computeInitMeshParticle.Compute({ 100,1,1 });
+	computeInitMeshParticle.Compute({ MOTHER_MAT_MAX,1,1 });
 
 	++MESH_PARTICLE_GENERATE_NUM;
 #pragma endregion
@@ -363,14 +371,39 @@ void InstanceMeshParticle::Compute(DrawingByRasterize& arg_rasterize)
 	m_particleRender.counterWrapper->CopyBuffer(copyBuffer.GetBuffer());
 	m_particleViewProjRender.counterWrapper->CopyBuffer(copyBuffer.GetBuffer());
 
-	std::vector<MotherMatData>lMatArray(motherMatArray.size());
-	std::vector<float>lColorArray(motherMatArray.size());
-	std::vector<DirectX::XMMATRIX>lScaleMatArray(scaleRotaMatArray.size());
-	std::vector<int>curlNoizeArray(motherMatArray.size());
+	std::vector<MotherMatData>lMatArray(MOTHER_MAT_MAX);
+	std::vector<float>lColorArray(MOTHER_MAT_MAX);
+	std::vector<DirectX::XMMATRIX>lScaleMatArray(MOTHER_MAT_MAX);
+	std::vector<int>curlNoizeArray(MOTHER_MAT_MAX);
 	for (int i = 0; i < lMatArray.size(); ++i)
 	{
-		lMatArray[i].motherMat = *motherMatArray[i].motherMat;
-		lColorArray[i] = *motherMatArray[i].alpha;
+		if (motherMatArray.size() <= i)
+		{
+			lMatArray[i].motherMat = DirectX::XMMatrixIdentity();
+			lColorArray[i] = 0.0f;
+			curlNoizeArray[i] = 0;
+			lScaleMatArray[i] = DirectX::XMMatrixIdentity();
+			continue;
+		}
+
+		//行列
+		if (motherMatArray[i].motherMat)
+		{
+			lMatArray[i].motherMat = *motherMatArray[i].motherMat;
+		}
+		else
+		{
+			lMatArray[i].motherMat = DirectX::XMMatrixIdentity();
+		}
+		//色
+		if (motherMatArray[i].alpha)
+		{
+			lColorArray[i] = *motherMatArray[i].alpha;
+		}
+		else
+		{
+			lColorArray[i] = 0.0f;
+		}
 
 		if (scaleRotaMatArray[i].billboardFlag)
 		{
@@ -380,13 +413,21 @@ void InstanceMeshParticle::Compute(DrawingByRasterize& arg_rasterize)
 		{
 			lScaleMatArray[i] = scaleRotaMatArray[i].scaleRotaMata;
 		}
-		curlNoizeArray[i] = static_cast<int>(*motherMatArray[i].curlNozieFlag);
+		//カールノイズ
+		if (motherMatArray[i].curlNozieFlag)
+		{
+			curlNoizeArray[i] = static_cast<int>(*motherMatArray[i].curlNozieFlag);
+		}
+		else
+		{
+			curlNoizeArray[i] = 0;
+		}
 	}
 
 	motherMatrixBuffer.TransData(lMatArray.data(), sizeof(MotherMatData) * static_cast<int>(lMatArray.size()));
 	colorBuffer.TransData(lColorArray.data(), sizeof(float) * static_cast<int>(lMatArray.size()));
-	scaleRotaBuffer.TransData(lScaleMatArray.data(), sizeof(DirectX::XMMATRIX) * static_cast<int>(scaleRotaMatArray.size()));
-	curlNoizeUploadBuffer.bufferWrapper->TransData(curlNoizeArray.data(), sizeof(UINT) * static_cast<int>(scaleRotaMatArray.size()));
+	scaleRotaBuffer.TransData(lScaleMatArray.data(), sizeof(DirectX::XMMATRIX) * static_cast<int>(MOTHER_MAT_MAX));
+	curlNoizeUploadBuffer.bufferWrapper->TransData(curlNoizeArray.data(), sizeof(UINT) * static_cast<int>(MOTHER_MAT_MAX));
 
 
 	particleMotherMatrixHandle.bufferWrapper->CopyBuffer(
@@ -425,4 +466,9 @@ void InstanceMeshParticle::InitCompute()
 {
 	meshParticleBufferData.counterWrapper->CopyBuffer(copyBuffer.GetBuffer());
 	computeInitMeshParticle.Compute({ DISPATCH_NUM,1,1 });
+}
+
+void InstanceMeshParticle::InitParticle()
+{
+	meshParticleBufferData.bufferWrapper->CopyBuffer(m_initParticleBuffer.bufferWrapper->GetBuffer());
 }

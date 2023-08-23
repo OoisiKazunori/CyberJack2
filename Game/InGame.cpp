@@ -357,6 +357,11 @@ void InGame::Update()
 	}
 	//“G‚ÌXVˆ—----------------------------------------------
 
+	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_A))
+	{
+		m_meshParticleRender->InitParticle();
+	}
+
 	for (int enemyType = 0; enemyType < m_enemies.size(); ++enemyType)
 	{
 		for (int enemyCount = 0; enemyCount < m_enemies[enemyType].size(); ++enemyCount)
@@ -373,12 +378,12 @@ void InGame::Update()
 				}
 				if (m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->rockOnNum <= 0 &&
 					m_cursor.Release() &&
-					!m_enemies[enemyType][enemyCount]->m_isBeingShot)
+					!m_enemies[enemyType][enemyCount]->m_isBeingShot||
+					KeyBoradInputManager::Instance()->InputTrigger(DIK_SPACE))
 				{
 					PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount]);
 					m_enemies[enemyType][enemyCount]->m_isBeingShot = true;
 
-					m_enemies[enemyType][enemyCount]->GetData()->meshParticleData;
 
 					m_enemies[enemyType][enemyCount]->Dead();
 					if (0 < static_cast<int>(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData.size())) {
