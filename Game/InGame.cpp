@@ -167,12 +167,15 @@ void InGame::Update()
 				if (hitFlag &&
 					enableToLockOnNumFlag &&
 					enableToLockOnEnemyFlag &&
-					!m_cursor.releaseFlag)
+					!m_cursor.releaseFlag &&
+					m_enemies[enemyType][enemyCount]->m_canLockOn)
 				{
 
 					m_cursor.Hit(enemyData->hitBox.center);
 
-					PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount]);
+					m_enemies[enemyType][enemyCount]->Hit();
+
+					//PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount]);
 
 					//stringLog.WriteLog(enemies[enemyType][enemyCount]->GetData()->oprationObjData->name, LOG_FONT_SIZE);
 

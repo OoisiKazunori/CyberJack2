@@ -43,7 +43,7 @@ public:
 	/// <summary>
 	/// •`‰æˆ—
 	/// </summary>
-	virtual void Draw(DrawingByRasterize&arg_rasterize, Raytracing::BlasVector& arg_blasVec) = 0;
+	virtual void Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec) = 0;
 
 	/// <summary>
 	/// “G‚ğ€–S‚³‚¹‚Ü‚·
@@ -172,7 +172,7 @@ public:
 	};
 	//‹¤’Êˆ—--------------------------------------------
 
-	void InitMeshPartilce(std::string arg_fileDir,std::string arg_fileName,DirectX::XMMATRIX *arg_mat);
+	void InitMeshPartilce(std::string arg_fileDir, std::string arg_fileName, DirectX::XMMATRIX* arg_mat);
 
 	std::unique_ptr<EnemyData> iEnemy_EnemyStatusData;		//“G‚Ìó‘Ô‚ğ•Û‘¶‚·‚éƒf[ƒ^
 	ObjModelRenderPtr iEnemy_ObjModelRender;				//“G‚Ì•`‰æ
@@ -207,4 +207,9 @@ private:
 	KazMath::Vec3<float>initDeadYVel;
 
 	EnemyModelType modelType;
+
+public:
+
+	bool m_canLockOn;
+
 };
