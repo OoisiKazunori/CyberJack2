@@ -239,6 +239,11 @@ std::vector<ModelMeshData> GLTFLoader::Load(std::string fileName, std::string fi
 		skelton->bones.emplace_back();
 		auto& bone = skelton->bones.back();
 		bone.name = gltfNode.name;
+
+		if (bone.name == "")
+		{
+			break;
+		}
 		for (auto& child : gltfNode.children)
 		{
 			auto childIdx = doc.nodes.GetIndex(child);
