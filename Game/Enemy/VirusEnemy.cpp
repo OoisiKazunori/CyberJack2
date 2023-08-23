@@ -85,7 +85,7 @@ void VirusEnemy::Update()
 	if (m_hp != m_prevhp) {
 
 		//攻撃を食らったときのリアクション用
-		const float DEAD_EFFECT_SCALE = 50.0f;
+		const float DEAD_EFFECT_SCALE = 1.0f;
 		m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
 
 	}
@@ -129,7 +129,7 @@ void VirusEnemy::Update()
 		iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 
 		//攻撃を食らったときのリアクション用
-		const float DEAD_EFFECT_SCALE = 50.0f;
+		const float DEAD_EFFECT_SCALE = 1.0f;
 		m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
 
 		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
@@ -159,7 +159,7 @@ void VirusEnemy::Update()
 
 		//座標を補間する。
 		float easingValue = EasingMaker(EasingType::Out, EaseInType::Back, std::clamp(m_appearEasingTimer + 1.0f, 0.0f, APPEAR_EASING_TIMER) / APPEAR_EASING_TIMER);
-		m_transform.scale = KazMath::Vec3<float>(1.0f, 1.0f, 1.0f) * easingValue;
+		m_transform.scale = KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) * easingValue;
 		m_transform.rotation = Vec3<float>(0, 0, 360) * easingValue;
 
 		//出現が終わったら待機状態へ
@@ -179,7 +179,7 @@ void VirusEnemy::Update()
 		//m_transform.rotation.z = 360.0f + sinf(m_stopTimer) * 35.0f;
 		m_transform.pos.y = m_initPos.y + sinf(m_moveTimer) * 1.0f;
 
-		m_transform.scale += (m_playerTransform->scale - m_transform.scale) / 5.0f;
+		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
 
 		//現在の位置を確定。
 		//m_transform.pos = centerPos + TransformVector3(Vec3<float>(0, 1, 0), playerQ) * AROUND_R;
@@ -250,7 +250,7 @@ void VirusEnemy::Update()
 	case VirusEnemy::DEAD:
 	{
 
-		m_transform.scale += (m_playerTransform->scale - m_transform.scale) / 5.0f;
+		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
 		m_gravity += 0.06f;
 		m_transform.pos.y -= m_gravity;
 		m_transform.rotation.x += 3.0f;

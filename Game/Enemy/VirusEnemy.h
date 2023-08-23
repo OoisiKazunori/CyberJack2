@@ -61,6 +61,8 @@ private:
 
 	int debugTimer = 0;
 
+	const float VIRUS_SCALE = 2.0f;
+
 
 	//プレイヤーを中心とした半径どのくらいの位置に敵を出すか。
 	const float SPAWN_R = 50.0f;
