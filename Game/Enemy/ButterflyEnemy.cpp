@@ -34,6 +34,7 @@ void ButterflyEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const
 
 	debugTimer = 0;
 	m_exitTimer = 0;
+	m_deadMoveSpeedZ = 0;
 
 	m_hp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
 	m_prevhp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
@@ -125,6 +126,7 @@ void ButterflyEnemy::Update()
 		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
 		SeaEffect::Instance()->m_isSeaEffect = true;
+		m_deadMoveSpeedZ = DEAD_MOVE_SPEED_Z;
 
 		//攻撃を食らったときのリアクション用
 		const float DEAD_EFFECT_SCALE = 50.0f;
@@ -221,6 +223,9 @@ void ButterflyEnemy::Update()
 	{
 
 		m_transform.scale += (KazMath::Vec3<float>(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE) - m_transform.scale) / 5.0f;
+
+		m_transform.pos.z += m_deadMoveSpeedZ;
+		m_deadMoveSpeedZ -= m_deadMoveSpeedZ / 5.0f;
 
 		m_transform.pos.y -= 0.6f;
 		m_transform.pos.x -= 0.2f;

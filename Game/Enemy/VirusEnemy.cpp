@@ -64,7 +64,7 @@ void VirusEnemy::Update()
 	if (m_hp != m_prevhp) {
 
 		//攻撃を食らったときのリアクション用
-		const float DEAD_EFFECT_SCALE = 40.0f;
+		const float DEAD_EFFECT_SCALE = 50.0f;
 		m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
 
 	}

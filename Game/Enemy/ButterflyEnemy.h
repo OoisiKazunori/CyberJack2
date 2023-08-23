@@ -46,6 +46,10 @@ private:
 	float m_angleXEasingTimer;
 	const float ANGLEX_EASING_TIMER = 80.0f;
 
+	//死亡時に奥側にふっとばす値
+	const float DEAD_MOVE_SPEED_Z = 3.0f;
+	float m_deadMoveSpeedZ;
+
 	DirectX::XMVECTOR m_postureQ;	//蝶の姿勢
 
 	//蝶のスケール
