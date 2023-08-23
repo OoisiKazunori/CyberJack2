@@ -52,7 +52,7 @@ private:
 
 	//自動的に消えるまでのタイマー
 	int m_exitTimer;
-	const int EXIT_TIMER = 480;
+	const int EXIT_TIMER = 420;
 
 
 	int debugTimer = 0;

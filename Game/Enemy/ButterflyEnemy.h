@@ -48,6 +48,9 @@ private:
 
 	DirectX::XMVECTOR m_postureQ;	//í±ÇÃépê®
 
+	//í±ÇÃÉXÉPÅ[Éã
+	const float MODEL_SCALE = 80.0f;
+
 	void RotationMatrixToEuler(const DirectX::XMMATRIX& R, double& roll, double& pitch, double& yaw)
 	{
 		roll = atan2(R.r[2].m128_f32[1], R.r[2].m128_f32[2]);

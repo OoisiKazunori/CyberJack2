@@ -148,7 +148,7 @@ void ButterflyEnemy::Update()
 		m_postureQ = DirectX::XMQuaternionMultiply(m_postureQ, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3({ 0,1,0 }, m_postureQ)), easingAmount * (DirectX::XM_2PI * 2.0f)));
 		m_transform.quaternion = m_postureQ;
 
-		m_transform.scale += (m_playerTransform->scale - m_transform.scale) / 20.0f;
+		m_transform.scale += (KazMath::Vec3<float>(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE) - m_transform.scale) / 20.0f;
 
 		//à íuÇ…ä÷Ç∑ÇÈèàóù
 		m_aroundAngle -= m_addAroundAngle;

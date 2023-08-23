@@ -146,9 +146,9 @@ void CameraWork::Update(const KazMath::Vec2<float> &CURSOR_VALUE, KazMath::Vec3<
 		//プレイヤーを画面の下部に持ってくる。
 		KazMath::Vec3<float> upVec3 = KazMath::Vec3<float>(upVec.m128_f32[0], upVec.m128_f32[1], upVec.m128_f32[2]);
 		const float PLAYER_OFFSET = 3.0f;
-		eyePos += upVec3 * PLAYER_OFFSET;
+		//eyePos += upVec3 * PLAYER_OFFSET;
 		eyePos += ShakeMgr::Instance()->GetShakeVec3();
-		targetPos += upVec3 * PLAYER_OFFSET;
+		//targetPos += upVec3 * PLAYER_OFFSET;
 
 		//カーソルの値によってプレイヤーをある程度傾ける。
 		const float MAX_PLAYER_MOVE_RIGHT = 2.0f;
