@@ -74,6 +74,8 @@ public:
 
 	int SceneChange();
 
+	std::array<std::array<shared_ptr<IEnemy>, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> GetEnemy() { return m_enemies; }
+
 private:
 	//•`‰æ---------------------------------------
 

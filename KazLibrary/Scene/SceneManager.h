@@ -76,7 +76,6 @@ private:
 		float m_skyFacter;
 	}m_debugRaytracingParam;
 	KazBufferHelper::BufferData m_debugRaytracingParamData;
-	bool m_isSkyEffect;
 
 	//海デバッグ用
 	struct DebugSeaParam
@@ -109,10 +108,6 @@ private:
 	//デバッグカメラ系変数
 	bool m_isPause;
 	bool m_isMoveOnly1F;
-
-	//時間帯のデバッグ
-	int m_debugTimeZone;
-
 
 	//ラスタライザ描画
 	DrawingByRasterize m_rasterize;

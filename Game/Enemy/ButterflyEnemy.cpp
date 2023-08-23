@@ -3,12 +3,15 @@
 #include"../KazLibrary/Render/DrawFunc.h"
 #include"../Effect/SeaEffect.h"
 #include"../Game/Effect/ShakeMgr.h"
+#include"../Effect/TimeZone.h"
 
 ButterflyEnemy::ButterflyEnemy(int arg_moveID, float arg_moveIDparam)
 {
 	m_model = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/Enemy/Butterfly/", "Butterfly.gltf"));
 	moveID = arg_moveID;
 	moveIDparam = arg_moveIDparam;
+	m_canSpawn = false;
+	m_spawnTimer = 0;
 }
 
 void ButterflyEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)
@@ -26,15 +29,28 @@ void ButterflyEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const
 
 	m_transform.scale = KazMath::Vec3<float>(0, 0, 0);
 
+	iEnemy_EnemyStatusData->oprationObjData->initFlag = true;
+
 	m_postureQ = DirectX::XMQuaternionIdentity();
 
-	m_status = APPEAR;
+	if (m_canSpawn) {
+		m_status = APPEAR;
+	}
+	else {
+		m_status = DEAD;
+		m_isDead = true;
+		iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
+	}
+
 	m_isDead = false;
 	m_canLockOn = false;
 
 	debugTimer = 0;
 	m_exitTimer = 0;
 	m_deadMoveSpeedZ = 0;
+
+	m_canSpawn = false;
+	m_spawnTimer = 0;
 
 	m_hp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
 	m_prevhp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
@@ -47,6 +63,20 @@ void ButterflyEnemy::Finalize()
 void ButterflyEnemy::Update()
 {
 	using namespace KazMath;
+
+	//死んでいたらリスポーンするまでのタイマーを更新
+	m_canSpawn = false;
+	if (!iEnemy_EnemyStatusData->oprationObjData->initFlag) {
+
+		const int RESPAWN_TIMER = 600;
+		++m_spawnTimer;
+		if (RESPAWN_TIMER < m_spawnTimer) {
+			m_spawnTimer = 0;
+			m_canSpawn = true;
+			TimeZone::Instance()->m_timeZone = 1;
+		}
+
+	}
 
 	//HPを保存。
 	m_prevhp = m_hp;
@@ -123,10 +153,12 @@ void ButterflyEnemy::Update()
 	if (!iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag && !m_isDead) {
 		m_status = DEAD;
 		m_isDead = true;
-		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
+		iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
 		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
 		SeaEffect::Instance()->m_isSeaEffect = true;
 		m_deadMoveSpeedZ = DEAD_MOVE_SPEED_Z;
+
+		TimeZone::Instance()->KillButterfly();
 
 		//攻撃を食らったときのリアクション用
 		const float DEAD_EFFECT_SCALE = 50.0f;
@@ -205,6 +237,7 @@ void ButterflyEnemy::Update()
 		m_addAroundAngle += (STAY_AROUND_ANGLE - m_addAroundAngle) / 10.0f;
 		if (m_aroundAngle < STAY_FINISH_ANGLE * 3.0f) {
 			m_status = DEAD;
+			TimeZone::Instance()->m_timeZone = 0;
 		}
 
 		m_canLockOn = true;

@@ -18,11 +18,12 @@
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
 #include"../Game/Effect/ShakeMgr.h"
 #include"../Scene/ModelToolScene.h"
+#include"../../Game/Effect/TimeZone.h"
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
 	scene.emplace_back(std::make_unique<GameScene>());
-	
+
 	nowScene = 0;
 	nextScene = 0;
 	itisInArrayFlag = true;
@@ -110,11 +111,11 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_isDebugSea = false;
 	m_isPause = false;
 	m_isMoveOnly1F = false;
-	m_isSkyEffect = false;
+	TimeZone::Instance()->m_isSkyEffect = false;
 	SeaEffect::Instance()->m_isSeaEffect = false;
 	m_seaID = SEA_ID::CALM;
 
-	m_debugTimeZone = 0;
+	TimeZone::Instance()->m_timeZone = 0;
 	m_debugRaytracingParam.m_skyFacter = 1.0f;
 
 	//OnOffデバッグ用のパラメーターを用意。
@@ -251,6 +252,8 @@ void SceneManager::Update()
 
 	}
 
+	TimeZone::Instance()->Update();
+
 	m_isOldDebugRaytracing = m_isDebugRaytracing;
 
 }
@@ -360,28 +363,28 @@ void SceneManager::Draw()
 
 		ImGui::Begin("TimeZone");
 
-		ImGui::RadioButton("Noon", &m_debugTimeZone, 0);
-		ImGui::RadioButton("Evening", &m_debugTimeZone, 1);
-		ImGui::Checkbox("SkyEffect", &m_isSkyEffect);
+		ImGui::RadioButton("Noon", &TimeZone::Instance()->m_timeZone, 0);
+		ImGui::RadioButton("Evening", &TimeZone::Instance()->m_timeZone, 1);
+		ImGui::Checkbox("SkyEffect", &TimeZone::Instance()->m_isSkyEffect);
 
 		ImGui::End();
 
-		//選択されている値によってDirLightの角度を変える。
-		if (m_debugTimeZone == 0) {
-			GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir += (KazMath::Vec3<float>(0.0f, -0.857f, 0.514f) - GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir) / 10.0f;
-		}
-		else if (m_debugTimeZone == 1) {
-			GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir += (KazMath::Vec3<float>(0.0f, -0.683f, -0.73f) - GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir) / 10.0f;
-		}
-		GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
+	}
 
-		if (m_isSkyEffect) {
-			m_debugRaytracingParam.m_skyFacter += (0.25f - m_debugRaytracingParam.m_skyFacter) / 5.0f;
-		}
-		else {
-			m_debugRaytracingParam.m_skyFacter += (1.0f - m_debugRaytracingParam.m_skyFacter) / 5.0f;
-		}
+	//選択されている値によってDirLightの角度を変える。
+	if (TimeZone::Instance()->m_timeZone == 0) {
+		GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir += (KazMath::Vec3<float>(0.0f, -0.857f, 0.514f) - GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir) / 30.0f;
+	}
+	else if (TimeZone::Instance()->m_timeZone == 1) {
+		GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir += (KazMath::Vec3<float>(0.0f, -0.683f, -0.73f) - GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir) / 30.0f;
+	}
+	GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
 
+	if (TimeZone::Instance()->m_isSkyEffect) {
+		m_debugRaytracingParam.m_skyFacter += (0.25f - m_debugRaytracingParam.m_skyFacter) / 5.0f;
+	}
+	else {
+		m_debugRaytracingParam.m_skyFacter += (1.0f - m_debugRaytracingParam.m_skyFacter) / 5.0f;
 	}
 
 	//ボリュームフォグのデバッグメニュー

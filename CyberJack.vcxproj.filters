@@ -437,6 +437,7 @@
     <ClInclude Include="KazLibrary\Buffer\ShaderRandomTable.h" />
     <ClInclude Include="KazLibrary\Scene\ModelToolScene.h" />
     <ClInclude Include="KazLibrary\Animation\AnimationInRaytracing.h" />
+    <ClInclude Include="Game\Effect\TimeZone.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
