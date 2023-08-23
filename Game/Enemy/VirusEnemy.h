@@ -48,13 +48,16 @@ private:
 	bool m_isMove;
 
 	//死亡演出用
-	KazMath::Vec3<float> m_deadEffectVel;
-	KazMath::Vec3<float> m_deadEffectVelStorage;
+	float m_gravity;
+	const float GRAVITY = 0.05f;
 
 	//自動的に消えるまでのタイマー
 	int m_exitTimer;
-	const int EXIT_TIMER = 480;
+	const int EXIT_TIMER = 420;
 
+	//HP
+	int m_hp;
+	int m_prevhp;
 
 	int debugTimer = 0;
 

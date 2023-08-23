@@ -46,7 +46,14 @@ private:
 	float m_angleXEasingTimer;
 	const float ANGLEX_EASING_TIMER = 80.0f;
 
+	//死亡時に奥側にふっとばす値
+	const float DEAD_MOVE_SPEED_Z = 3.0f;
+	float m_deadMoveSpeedZ;
+
 	DirectX::XMVECTOR m_postureQ;	//蝶の姿勢
+
+	//蝶のスケール
+	const float MODEL_SCALE = 80.0f;
 
 	void RotationMatrixToEuler(const DirectX::XMMATRIX& R, double& roll, double& pitch, double& yaw)
 	{
@@ -55,12 +62,12 @@ private:
 		yaw = atan2(R.r[1].m128_f32[0], R.r[0].m128_f32[0]);
 	}
 
-	//死亡演出用
-	KazMath::Vec3<float> m_deadEffectVel;
-	KazMath::Vec3<float> m_deadEffectVelStorage;
-
 
 	int debugTimer = 0;
+
+	//HP
+	int m_hp;
+	int m_prevhp;
 
 	//自動的に消えるまでのタイマー
 	int m_exitTimer;

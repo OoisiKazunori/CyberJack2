@@ -441,7 +441,7 @@ void SceneManager::Draw()
 	}
 
 	if (!SeaEffect::Instance()->m_isOldSeaEffect && SeaEffect::Instance()->m_isSeaEffect) {
-		m_debugSeaParam.m_amp += 0.2f;
+		m_debugSeaParam.m_amp += 0.4f;
 		m_debugSeaParam.m_freq += EFFECT_FREQ;
 		m_debugSeaParam.m_seaSpeed += 10.0f;
 	}

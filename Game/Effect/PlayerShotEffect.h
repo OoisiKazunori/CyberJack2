@@ -17,7 +17,7 @@ private:
 	std::array<KazMath::Vec3<float>, POINT_COUNT> m_points;
 	shared_ptr<IEnemy> m_refEnemy;
 	int m_frame;
-	const int EFFECT_FRAME = 5;
+	const int EFFECT_FRAME = 8;
 
 	//線の描画に必要な変数ら
 	int m_vertexBufferHandle;//デバック用のスプライン曲線描画の頂点バッファ

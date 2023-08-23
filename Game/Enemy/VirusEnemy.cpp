@@ -18,6 +18,8 @@ VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 	//アニメーション対応
 	m_animation = std::make_shared<ModelAnimator>(m_modelData);
 	m_computeAnimation.GenerateBuffer(*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0]);
+	m_spawnTimer = 0;
+	m_canSpawn = false;
 }
 
 void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)
@@ -34,6 +36,7 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 	m_moveTimer = 0;
 	m_isMove = false;
 	m_isDead = false;
+	m_canLockOn = false;
 
 	m_status = APPEAR;
 
@@ -45,6 +48,12 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 	m_alpha;
 
 	m_animation->Play("繧｢繝ｼ繝槭メ繝･繧｢Action", true, false);
+	m_gravity = 0;
+
+	m_hp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
+	m_prevhp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
+	m_spawnTimer = 0;
+	m_canSpawn = false;
 }
 
 void VirusEnemy::Finalize()
@@ -54,6 +63,33 @@ void VirusEnemy::Finalize()
 void VirusEnemy::Update()
 {
 	using namespace KazMath;
+
+	//死んでいたらリスポーンするまでのタイマーを更新
+	m_canSpawn = false;
+	if (!iEnemy_EnemyStatusData->oprationObjData->initFlag) {
+
+		const int RESPAWN_TIMER = 120;
+		++m_spawnTimer;
+		if (RESPAWN_TIMER < m_spawnTimer) {
+			m_spawnTimer = 0;
+			m_canSpawn = true;
+		}
+
+	}
+
+	//HPを保存。
+	m_prevhp = m_hp;
+	m_hp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
+
+	//HPが減った瞬間だったらスケールを変える。
+	if (m_hp != m_prevhp) {
+
+		//攻撃を食らったときのリアクション用
+		const float DEAD_EFFECT_SCALE = 50.0f;
+		m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
+
+	}
+
 
 	//移動した方向をもとにプレイヤーの姿勢を求める。
 	KazMath::Vec3<float> movedVec = m_playerTransform->pos - m_prevPlayerPos;
@@ -88,24 +124,26 @@ void VirusEnemy::Update()
 
 	if (!iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag && !m_isDead) {
 		m_status = DEAD;
-		//死亡時にいい感じに前に進ませるための計算。以下三行を殺す処理に持って行ってください。
-		m_deadEffectVel = m_playerTransform->pos - m_prevPlayerPos;
-		m_deadEffectVelStorage = m_playerTransform->pos - m_prevPlayerPos;
-		m_deadEffectVelStorage *= 2.0f;
+
 		m_isDead = true;
-		//iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
+		iEnemy_EnemyStatusData->oprationObjData->initFlag = false;
+
+		//攻撃を食らったときのリアクション用
+		const float DEAD_EFFECT_SCALE = 50.0f;
+		m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
 
 		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
 		SeaEffect::Instance()->m_isSeaEffect = true;
 
 	}
 
-	//自動的に消えるまでのタイマーを更新。
-	++m_exitTimer;
-	if (EXIT_TIMER <= m_exitTimer) {
-		m_status = EXIT;
-	}
+	////自動的に消えるまでのタイマーを更新。
+	//++m_exitTimer;
+	//if (EXIT_TIMER <= m_exitTimer) {
+	//	m_status = EXIT;
+	//}
 
+	m_canLockOn = false;
 	switch (m_status)
 	{
 	case VirusEnemy::APPEAR:
@@ -140,6 +178,8 @@ void VirusEnemy::Update()
 
 		//m_transform.rotation.z = 360.0f + sinf(m_stopTimer) * 35.0f;
 		m_transform.pos.y = m_initPos.y + sinf(m_moveTimer) * 1.0f;
+
+		m_transform.scale += (m_playerTransform->scale - m_transform.scale) / 5.0f;
 
 		//現在の位置を確定。
 		//m_transform.pos = centerPos + TransformVector3(Vec3<float>(0, 1, 0), playerQ) * AROUND_R;
@@ -182,6 +222,8 @@ void VirusEnemy::Update()
 		//		m_fromAroundAngle = m_aroundAngle;
 		//	}
 		//}
+
+		m_canLockOn = true;
 	}
 	break;
 	case VirusEnemy::EXIT:
@@ -208,13 +250,9 @@ void VirusEnemy::Update()
 	case VirusEnemy::DEAD:
 	{
 
-		//死亡演出用の移動量がまだ残っていたら
-		m_deadEffectVelStorage -= m_deadEffectVelStorage / 2.0f;
-		m_deadEffectVel += m_deadEffectVelStorage;
-
-		m_transform.pos += m_deadEffectVel;
-		m_transform.pos.y -= 0.8f;
-		m_deadEffectVel -= m_deadEffectVel / 10.0f;
+		m_transform.scale += (m_playerTransform->scale - m_transform.scale) / 5.0f;
+		m_gravity += 0.06f;
+		m_transform.pos.y -= m_gravity;
 		m_transform.rotation.x += 3.0f;
 
 		iEnemy_EnemyStatusData->curlNozieFlag = true;

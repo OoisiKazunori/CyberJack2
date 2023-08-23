@@ -15,7 +15,7 @@ private:
 	std::vector<std::shared_ptr<IEnemy>> m_enemyStack;
 
 	int m_effectDelay;
-	const int EFFECT_DELAY = 4;
+	const int EFFECT_DELAY = 10;
 
 public:
 

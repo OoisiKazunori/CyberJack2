@@ -33,24 +33,24 @@ struct VertexInput
     float3 binormal : BINORMAL;
 };
 
-VSOutput VSmain(VertexInput input,uint id : SV_INSTANCEID)
+VSOutput VSmain(VertexInput input, uint id : SV_INSTANCEID)
 {
     VSOutput op;
     op.worldpos = input.svpos;
-	op.svpos = mul(matrixData[id].mat, float4(input.svpos,1.0f));
+    op.svpos = mul(matrixData[id].mat, float4(input.svpos, 1.0f));
     op.color = matrixData[id].color;
     op.normal = input.normal;
-	return op;
+    return op;
 }
 
 GBufferOutput PSmain(VSOutput input) : SV_TARGET
 {
     GBufferOutput output;
     output.albedo = input.color;
-    output.normal = float4(input.normal,1.0f);
-    output.metalnessRoughness = float4(0,1,0,1);
-    output.world = float4(input.worldpos,1.0f);
-    output.emissive = float4(1.0f,0.0f,0.0f, 0.0f);
+    output.normal = float4(-1, -1, -1, 1.0f); //正しいワールド座標が取れないため、ここで法線を-1,-1,-1にすることによってGPUパーティクルであるということをレイトレ側に伝え、アルベドで塗りつぶす処理を書いています。
+    output.metalnessRoughness = float4(0, 1, 0, 1);
+    output.world = float4(input.svpos.xyz, 1.0f);
+    output.emissive = output.albedo / 2.0f;
     return output;
 }
 
