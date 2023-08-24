@@ -43,7 +43,7 @@ namespace Raytracing
 
 	}
 
-	void BlasVector::AddVector(std::weak_ptr<Blas> arg_refBlas, std::vector<DirectX::XMMATRIX> arg_worldMat, int arg_instanceIndex)
+	void BlasVector::AddVector(std::weak_ptr<Blas> arg_refBlas, std::vector<DirectX::XMMATRIX> arg_worldMat, int arg_instanceIndex, UINT arg_instanceMask)
 	{
 
 		/*===== Tlasに登録するために配列に追加する =====*/
@@ -67,7 +67,7 @@ namespace Raytracing
 
 			//インスタンスの詳細を設定。
 			instanceDesc.InstanceID = arg_instanceIndex;			//レイトレで行う処理のフラグをここで設定する。マテリアル側で設定してもよい。
-			instanceDesc.InstanceMask = 0xFF;
+			instanceDesc.InstanceMask = arg_instanceMask;
 			instanceDesc.InstanceContributionToHitGroupIndex = hitGroupSize;
 			instanceDesc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
 			instanceDesc.AccelerationStructure = m_refBlas.back().lock()->GetBlasBuffer()->GetGPUVirtualAddress();

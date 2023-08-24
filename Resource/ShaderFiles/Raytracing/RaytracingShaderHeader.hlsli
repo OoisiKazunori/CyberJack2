@@ -127,7 +127,7 @@ Vertex GetHitVertex(MyAttribute attrib, StructuredBuffer<Vertex> vertexBuffer, S
 }
 
 //レイを撃つ処理
-void CastRay(inout Payload arg_payload, float3 arg_origin, float3 arg_dir, float arg_far, int arg_msIndex, RAY_FLAG arg_rayFlag, RaytracingAccelerationStructure arg_scene)
+void CastRay(inout Payload arg_payload, float3 arg_origin, float3 arg_dir, float arg_far, int arg_msIndex, RAY_FLAG arg_rayFlag, RaytracingAccelerationStructure arg_scene, uint arg_instanceMask)
 {
     //レイの設定
     RayDesc rayDesc;
@@ -141,7 +141,7 @@ void CastRay(inout Payload arg_payload, float3 arg_origin, float3 arg_dir, float
     TraceRay(
         arg_scene, //TLAS
         arg_rayFlag,
-        0xFF,
+        arg_instanceMask,
         0, //固定でよし。
         1, //固定でよし。
         arg_msIndex, //MissShaderのインデックス。RenderScene.cppでm_pipelineShadersにMissShaderを登録している。
@@ -170,7 +170,7 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         }
         else
         {
-            CastRay(payloadData, arg_worldPosMap.xyz, -arg_lightData.m_dirLight.m_dir, 1000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+            CastRay(payloadData, arg_worldPosMap.xyz, -arg_lightData.m_dirLight.m_dir, 1000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene, 0x01);
         }
         
         //ライトのベクトルと法線から明るさを計算する。
@@ -200,7 +200,7 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
             
         
             //レイを撃つ
-            CastRay(payloadData, arg_worldPosMap.xyz, lightDir, distance, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+            CastRay(payloadData, arg_worldPosMap.xyz, lightDir, distance, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene, 0x01);
             
             //影が遮られていなかったら明るさを減衰させる。
             if (0 < payloadData.m_color.x)
@@ -291,137 +291,137 @@ bool IsInRange(float3 arg_value, float arg_range, float arg_wrapCount)
 void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_launchIndex, CameraEyePosConstData arg_cameraEyePos, LightData arg_lightData, RaytracingAccelerationStructure arg_scene, RWTexture3D<float4> arg_volumeTexture, RaymarchingParam arg_raymarchingParam)
 {
     
-    //カメラからサンプリング地点までをレイマーチングで動かす定数で割り、サンプリング回数を求める。
-    const int SAMPLING_COUNT = 16;
-    float3 samplingDir = normalize(arg_worldColor.xyz - arg_cameraEyePos.m_eye);
-    float samplingLength = length(arg_cameraEyePos.m_eye - arg_worldColor.xyz) / (float) SAMPLING_COUNT;
-    float raymarchingBright = 0.0f;
-    bool isFinshVolumeFog = false;
-    for (int counter = 0; counter < SAMPLING_COUNT; ++counter)
-    {
+    ////カメラからサンプリング地点までをレイマーチングで動かす定数で割り、サンプリング回数を求める。
+    //const int SAMPLING_COUNT = 16;
+    //float3 samplingDir = normalize(arg_worldColor.xyz - arg_cameraEyePos.m_eye);
+    //float samplingLength = length(arg_cameraEyePos.m_eye - arg_worldColor.xyz) / (float) SAMPLING_COUNT;
+    //float raymarchingBright = 0.0f;
+    //bool isFinshVolumeFog = false;
+    //for (int counter = 0; counter < SAMPLING_COUNT; ++counter)
+    //{
                 
-        //ペイロード(再帰的に処理をするレイトレの中で値の受け渡しに使用する構造体)を宣言。
-        Payload payloadData;
-        payloadData.m_emissive = float3(0.0f, 0.0f, 0.0f);
-        payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。何かに当たったときに呼ばれるClosestHitShaderが呼ばれたらそこは影なので0を書き込む。
+    //    //ペイロード(再帰的に処理をするレイトレの中で値の受け渡しに使用する構造体)を宣言。
+    //    Payload payloadData;
+    //    payloadData.m_emissive = float3(0.0f, 0.0f, 0.0f);
+    //    payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。何かに当たったときに呼ばれるClosestHitShaderが呼ばれたらそこは影なので0を書き込む。
         
-        //減衰
-        float progress = 1.0f / float(counter + 1.0f);
+    //    //減衰
+    //    float progress = 1.0f / float(counter + 1.0f);
         
-        //ディレクションライトの処理
-        if (arg_lightData.m_dirLight.m_isActive)
-        {
+    //    //ディレクションライトの処理
+    //    if (arg_lightData.m_dirLight.m_isActive)
+    //    {
         
-            //レイを撃つ
-            CastRay(payloadData, arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter, -arg_lightData.m_dirLight.m_dir, 300000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+    //        //レイを撃つ
+    //        CastRay(payloadData, arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter, -arg_lightData.m_dirLight.m_dir, 300000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
         
-            //結果を保存。
-            raymarchingBright = lerp(raymarchingBright, payloadData.m_color.x, progress);
+    //        //結果を保存。
+    //        raymarchingBright = lerp(raymarchingBright, payloadData.m_color.x, progress);
             
-        }
-        //ポイントライトの処理
-        float pointLightDistance = length((arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter) - arg_worldColor.xyz);
-        if (arg_lightData.m_pointLight.m_isActive && pointLightDistance < arg_lightData.m_pointLight.m_power)
-        {
+    //    }
+    //    //ポイントライトの処理
+    //    float pointLightDistance = length((arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter) - arg_worldColor.xyz);
+    //    if (arg_lightData.m_pointLight.m_isActive && pointLightDistance < arg_lightData.m_pointLight.m_power)
+    //    {
         
-            //レイを撃つ
-            CastRay(payloadData, arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter, -arg_lightData.m_dirLight.m_dir, pointLightDistance, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
+    //        //レイを撃つ
+    //        CastRay(payloadData, arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter, -arg_lightData.m_dirLight.m_dir, pointLightDistance, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
         
-            //結果を保存。
-            raymarchingBright = lerp(raymarchingBright, payloadData.m_color.x, progress);
+    //        //結果を保存。
+    //        raymarchingBright = lerp(raymarchingBright, payloadData.m_color.x, progress);
             
-        }
+    //    }
         
-    }
+    //}
     
-    //ボリュームフォグ
-    float3 fogColor = float3(0, 0, 0);
-    if (arg_raymarchingParam.m_isActive)
-    {
-        //レイマーチングの回数を計算。
-        float rayLength = length(arg_cameraEyePos.m_eye - arg_worldColor.xyz);
-        float marchingMovedLength = 0; //レイマーチングで動いた距離
-        float3 marchingPos = arg_cameraEyePos.m_eye;
-        float3 marchingDir = normalize(arg_worldColor.xyz - arg_cameraEyePos.m_eye);
-        for (int index = 0; index < 10000; ++index)
-        {
+    ////ボリュームフォグ
+    //float3 fogColor = float3(0, 0, 0);
+    //if (arg_raymarchingParam.m_isActive)
+    //{
+    //    //レイマーチングの回数を計算。
+    //    float rayLength = length(arg_cameraEyePos.m_eye - arg_worldColor.xyz);
+    //    float marchingMovedLength = 0; //レイマーチングで動いた距離
+    //    float3 marchingPos = arg_cameraEyePos.m_eye;
+    //    float3 marchingDir = normalize(arg_worldColor.xyz - arg_cameraEyePos.m_eye);
+    //    for (int index = 0; index < 10000; ++index)
+    //    {
         
-            //マーチングを進める量。
-            float marchingMoveLength = arg_raymarchingParam.m_sampleLength;
+    //        //マーチングを進める量。
+    //        float marchingMoveLength = arg_raymarchingParam.m_sampleLength;
         
-            //マーチングが上限より移動していたら。
-            bool isFinish = false;
-            if (rayLength < marchingMovedLength + marchingMoveLength)
-            {
+    //        //マーチングが上限より移動していたら。
+    //        bool isFinish = false;
+    //        if (rayLength < marchingMovedLength + marchingMoveLength)
+    //        {
             
-                //残りの量を移動させる。
-                marchingMoveLength = rayLength - marchingMovedLength;
-                isFinish = true;
+    //            //残りの量を移動させる。
+    //            marchingMoveLength = rayLength - marchingMovedLength;
+    //            isFinish = true;
 
-            }
-            else
-            {
+    //        }
+    //        else
+    //        {
             
-                //動いた量を保存。
-                marchingMovedLength += marchingMoveLength;
+    //            //動いた量を保存。
+    //            marchingMovedLength += marchingMoveLength;
             
-            }
+    //        }
         
-            //マーチングを進める。
-            marchingPos += marchingDir * marchingMoveLength;
+    //        //マーチングを進める。
+    //        marchingPos += marchingDir * marchingMoveLength;
         
-            //レイマーチングの座標をボクセル座標空間に直す。
-            float3 volumeTexPos = arg_raymarchingParam.m_pos;
-            volumeTexPos -= arg_raymarchingParam.m_gridSize * ((256.0f / 2.0f) * arg_raymarchingParam.m_wrapCount);
-            int3 boxPos = marchingPos - volumeTexPos; //マーチングのサンプリング地点をボリュームテクスチャの中心基準の座標にずらす。
-            boxPos /= arg_raymarchingParam.m_gridSize;
+    //        //レイマーチングの座標をボクセル座標空間に直す。
+    //        float3 volumeTexPos = arg_raymarchingParam.m_pos;
+    //        volumeTexPos -= arg_raymarchingParam.m_gridSize * ((256.0f / 2.0f) * arg_raymarchingParam.m_wrapCount);
+    //        int3 boxPos = marchingPos - volumeTexPos; //マーチングのサンプリング地点をボリュームテクスチャの中心基準の座標にずらす。
+    //        boxPos /= arg_raymarchingParam.m_gridSize;
         
-            //マーチング座標がボクセルの位置より離れていたらサンプリングしない。
-            if (!IsInRange(boxPos, 256.0f, arg_raymarchingParam.m_wrapCount))
-            {
+    //        //マーチング座標がボクセルの位置より離れていたらサンプリングしない。
+    //        if (!IsInRange(boxPos, 256.0f, arg_raymarchingParam.m_wrapCount))
+    //        {
         
-                if (isFinish)
-                {
-                    break;
-                }
-                continue;
-            }
+    //            if (isFinish)
+    //            {
+    //                break;
+    //            }
+    //            continue;
+    //        }
         
-            boxPos.x = boxPos.x % 256;
-            boxPos.y = boxPos.y % 256;
-            boxPos.z = boxPos.z % 256;
-            boxPos = clamp(boxPos, 0, 255);
+    //        boxPos.x = boxPos.x % 256;
+    //        boxPos.y = boxPos.y % 256;
+    //        boxPos.z = boxPos.z % 256;
+    //        boxPos = clamp(boxPos, 0, 255);
         
-            //ノイズを抜き取る。
-            float3 noise = arg_volumeTexture[boxPos].xyz / 50.0f;
+    //        //ノイズを抜き取る。
+    //        float3 noise = arg_volumeTexture[boxPos].xyz / 50.0f;
         
-            float3 weights = float3(0.8f, 0.1f, 0.1f); // 各ノイズの重み
-            float fogDensity = dot(noise, weights) * arg_raymarchingParam.m_density;
+    //        float3 weights = float3(0.8f, 0.1f, 0.1f); // 各ノイズの重み
+    //        float fogDensity = dot(noise, weights) * arg_raymarchingParam.m_density;
         
-            //Y軸の高さで減衰させる。
-            float maxY = 50.0f;
-           // fogDensity *= 1.0f - saturate(marchingPos.y / maxY);
+    //        //Y軸の高さで減衰させる。
+    //        float maxY = 50.0f;
+    //       // fogDensity *= 1.0f - saturate(marchingPos.y / maxY);
         
-            //その部分の色を抜き取る。
-            fogColor += float3(fogDensity, fogDensity, fogDensity) * arg_raymarchingParam.m_color;
-            //fogColor = arg_raymarchingParam.m_color * fogDensity + fogColor * saturate(1.0f - fogDensity);
+    //        //その部分の色を抜き取る。
+    //        fogColor += float3(fogDensity, fogDensity, fogDensity) * arg_raymarchingParam.m_color;
+    //        //fogColor = arg_raymarchingParam.m_color * fogDensity + fogColor * saturate(1.0f - fogDensity);
         
-            if (isFinish)
-            {
-                break;
-            }
+    //        if (isFinish)
+    //        {
+    //            break;
+    //        }
         
-        }
-    }
+    //    }
+    //}
     
-    const float3 FOGCOLOR_LIT = float3(1.0f, 1.0f, 1.0f);
-    const float3 FOGCOLOR_UNLIT = float3(0.0f, 0.0f, 0.0f);
+    //const float3 FOGCOLOR_LIT = float3(1.0f, 1.0f, 1.0f);
+    //const float3 FOGCOLOR_UNLIT = float3(0.0f, 0.0f, 0.0f);
     
-    float3 godRayColor = lerp(FOGCOLOR_UNLIT, FOGCOLOR_LIT, raymarchingBright);
-    const float FOG_DENSITY = 0.0001f;
-    float absorb = exp(-length(arg_cameraEyePos.m_eye - arg_worldColor.xyz) * FOG_DENSITY);
-    arg_albedoColor.xyz = lerp(godRayColor, arg_albedoColor.xyz, absorb);
-    arg_albedoColor.xyz += float3(clamp(fogColor.x, 0.0f, arg_raymarchingParam.m_color.x), clamp(fogColor.y, 0.0f, arg_raymarchingParam.m_color.y), clamp(fogColor.z, 0.0f, arg_raymarchingParam.m_color.z));
+    //float3 godRayColor = lerp(FOGCOLOR_UNLIT, FOGCOLOR_LIT, raymarchingBright);
+    //const float FOG_DENSITY = 0.0001f;
+    //float absorb = exp(-length(arg_cameraEyePos.m_eye - arg_worldColor.xyz) * FOG_DENSITY);
+    //arg_albedoColor.xyz = lerp(godRayColor, arg_albedoColor.xyz, absorb);
+    //arg_albedoColor.xyz += float3(clamp(fogColor.x, 0.0f, arg_raymarchingParam.m_color.x), clamp(fogColor.y, 0.0f, arg_raymarchingParam.m_color.y), clamp(fogColor.z, 0.0f, arg_raymarchingParam.m_color.z));
     
 }
 
@@ -438,7 +438,7 @@ void SecondaryPass(float3 arg_viewDir, inout float4 arg_emissiveColor, float4 ar
         
         //レイを撃つ
         float3 rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
-        CastRay(payloadData, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 100.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(payloadData, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 100.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene, 0xFF);
         
         //結果格納
         arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
@@ -455,7 +455,7 @@ void SecondaryPass(float3 arg_viewDir, inout float4 arg_emissiveColor, float4 ar
         
         //レイを撃つ
         float3 rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
-        CastRay(payloadData, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 100.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(payloadData, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 100.0f, MISS_DEFAULT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene, 0xFF);
         
         //結果格納
         arg_finalColor = float4(arg_albedoColor.xyz, 1) * arg_materialInfo.y;
@@ -475,8 +475,8 @@ void SecondaryPass(float3 arg_viewDir, inout float4 arg_emissiveColor, float4 ar
         
         //レイを撃つ
         float3 rayOrigin = arg_worldColor.xyz;
-        CastRay(refractionColor, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 500.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
-        CastRay(reflectionColor, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 500.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene);
+        CastRay(refractionColor, rayOrigin, refract(arg_viewDir, arg_normalColor.xyz, 0.1f), 500.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene, 0xFF);
+        CastRay(reflectionColor, rayOrigin, reflect(arg_viewDir, arg_normalColor.xyz), 500.0f, MISS_CHECKHIT, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, arg_scene, 0xFF);
         
         //レイが当たったか当たっていないかで色を変える。
         if (refractionColor.m_color.x < 0)
