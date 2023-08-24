@@ -404,16 +404,17 @@ void mainRayGen()
     float bright = 0.0f;
     if (0 < length(emissiveColor.xyz))
     {
-        bright = length(emissiveColor.xyz);
-
+        bright += length(emissiveColor.xyz);
     }
-    else if (0 < materialInfo.y)
+    else if (MATERIAL_REFLECT == materialInfo.y || MATERIAL_REFRACT == materialInfo.y)
     {
         bright = 1.0f;
     }
     else
     {
         LightingPass(bright, worldColor, normalColor, lightData, launchIndex, debugRaytracingData, gRtScene, isFar);
+        
+        
     }
     
     //輝度が一定以上だったらレンズフレア用のテクスチャに書きこむ。
@@ -438,6 +439,7 @@ void mainRayGen()
     else
     {
         SecondaryPass(dir, emissiveColor, worldColor, materialInfo, normalColor, albedoColor, gRtScene, cameraEyePos, final);
+
     }
     
     //描画されているけど水中！だったら水中っぽい見た目にする。
