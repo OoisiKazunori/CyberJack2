@@ -6,6 +6,9 @@ struct ParticleData
     uint id;
     float timer;
     float maxTimer;
+    float2 rate;
+    uint3 vertexIndex;
+    uint2 lengthIndex;
 };
 
 struct ParticleHitData

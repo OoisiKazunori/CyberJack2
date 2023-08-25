@@ -69,4 +69,6 @@ void AnimationInRaytracing::GenerateBuffer(const KazBufferHelper::BufferData& ar
 {
 	m_vertexBuffer = KazBufferHelper::SetGPUBufferData(arg_vertexBuffer.structureSize * arg_vertexBuffer.elementNum);
 	m_vertexBuffer.bufferWrapper->CopyBuffer(arg_vertexBuffer.bufferWrapper->GetBuffer());
+	m_vertexBuffer.elementNum = arg_vertexBuffer.elementNum;
+	m_vertexBuffer.structureSize = arg_vertexBuffer.structureSize;
 }

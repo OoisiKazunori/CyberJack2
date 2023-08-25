@@ -131,7 +131,7 @@ namespace KazBufferHelper
 			}
 			for (int i = 0; i < buffer.size(); ++i)
 			{
-				buffer[i]->Unmap(0, nullptr);
+				//buffer[i]->Unmap(0, nullptr);
 			}
 		}
 
@@ -206,7 +206,7 @@ namespace KazBufferHelper
 			return resourceState;
 		}
 	private:
-		static const int BACK_BUFFER_NUM = 2;
+		static const int BACK_BUFFER_NUM = 1;
 		std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, BACK_BUFFER_NUM>buffer;
 		std::array<void*, BACK_BUFFER_NUM>bufferMapPtr;
 		std::vector<RESOURCE_HANDLE> viewHandle;

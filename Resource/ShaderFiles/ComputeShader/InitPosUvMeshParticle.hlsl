@@ -10,9 +10,10 @@ struct InputData
 //???_???
 RWStructuredBuffer<float3> vertciesData : register(u0);
 RWStructuredBuffer<float2> uvData : register(u1);
+RWStructuredBuffer<uint> indexData : register(u2);
 
 //?o??
-AppendStructuredBuffer<ParticleData> outputData : register(u2);
+AppendStructuredBuffer<ParticleData> outputData : register(u3);
 
 Texture2D<float4> tex : register(t0);
 SamplerState smp : register(s0);
@@ -53,9 +54,9 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     }
     //?C???f?b?N?X???????��??????
     //?O?p?`???\??????C???f?b?N?X??w??--------------------------------------------
-    uint firstVertIndex = index * 3;
-    uint secondVertIndex = index * 3 + 1;
-    uint thirdVertIndex = index * 3 + 2;
+    uint firstVertIndex = indexData[index * 3];
+    uint secondVertIndex = indexData[index * 3 + 1];
+    uint thirdVertIndex = indexData[index * 3 + 2];
 
     uint uvFirstVertIndex = firstVertIndex;
     uint uvSecondVertIndex = secondVertIndex;
@@ -85,6 +86,15 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     triangleRay[1][1] = thirdVertWorldPos.pos.xyz;
     triangleRay[2][0] = thirdVertWorldPos.pos.xyz;
     triangleRay[2][1] = firstVertWorldPos.pos.xyz;
+
+    uint triangleRayIndex[RAY_MAX_NUM][RAY_POS_MAX_NUM];
+    triangleRayIndex[0][0] = firstVertIndex;
+    triangleRayIndex[0][1] = secondVertIndex;
+    triangleRayIndex[1][0] = secondVertIndex;
+    triangleRayIndex[1][1] = thirdVertIndex;
+    triangleRayIndex[2][0] = thirdVertIndex;
+    triangleRayIndex[2][1] = firstVertIndex;
+
 
     //?O?p?`???\???????C--------------------------------------------
 
@@ -119,17 +129,18 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
             const int PARTICLE_MAX_BIAS = 100;
             const int RANDOM_NUMBER_BIAS = meshData.y;
             
+            float areaRate = 0.0f;
             if(RandVec3(outputIndex,PARTICLE_MAX_BIAS,0).x <= RANDOM_NUMBER_BIAS)
             {
                 //?G?b?W??????�_??
-                rate = RandVec3(outputIndex + 1000,10,0).x / 100.0f;
-                resultPos = startPos + resultDistance * rate;
+                areaRate = RandVec3(outputIndex + 1000,10,0).x / 100.0f;
+                resultPos = startPos + resultDistance * areaRate;
             }
             else
             {
                 //???????�_??
-                rate = RandVec3(startPos.y * 10.0f + outputIndex + 10000,1,0).x;
-                resultPos = startPos + resultDistance * rate;
+                areaRate = RandVec3(startPos.y * 10.0f + outputIndex + 10000,1,0).x;
+                resultPos = startPos + resultDistance * areaRate;
             }
 
             //???W????UV?????------------------------------------------------------------------------------------------------
@@ -158,6 +169,10 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
             output.id = motherMatIndex;
             output.timer = RandVec3(startPos.y * 10.0f + outputIndex + 10000,120,0).x;
             output.maxTimer = output.timer;
+            output.rate.x = rate;
+            output.rate.y = areaRate;
+            output.vertexIndex = uint3(firstVertIndex,secondVertIndex,thirdVertIndex);
+            output.lengthIndex = uint2(triangleRayIndex[rayIndex][0],triangleRayIndex[rayIndex][1]);
             outputData.Append(output);
             //???W????UV?????------------------------------------------------------------------------------------------------
         }
