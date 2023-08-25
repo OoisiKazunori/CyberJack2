@@ -33,7 +33,8 @@ const InitMeshParticleData &MeshParticleLoader::LoadMesh(const std::string& FIRL
 
 	//êVÇµÇ¢ÉÇÉfÉãèÓïÒÇÃópà”
 	handleNameArray.emplace_back(MODEL_NAME);
-	meshBuffer.emplace_back(CreateMeshBuffer(lModelHandle.verticesArray, lModelHandle.uvArray, lModelHandle.indexArray));
+	std::vector<UINT>zeroArray;
+	meshBuffer.emplace_back(CreateMeshBuffer(lModelHandle.verticesArray, lModelHandle.uvArray, zeroArray));
 
 	InitMeshParticleData lMeshData;
 	if (meshBuffer[lNowHandle].IsDataIn(CreateMeshBuffer::DATA_VERT))
@@ -47,10 +48,10 @@ const InitMeshParticleData &MeshParticleLoader::LoadMesh(const std::string& FIRL
 	lMeshData.motherMat = MOTHER_MAT;
 	lMeshData.triagnleData =
 	{
-		static_cast<UINT>(lModelHandle.verticesArray.size()),
+		static_cast<UINT>(lModelHandle.indexArray.size()),
 		MESH_PARTICLE_DATA.bias,
 		MESH_PARTICLE_DATA.perTriangleNum,
-		meshBuffer[lNowHandle].GetBufferData(CreateMeshBuffer::DATA_VERT).elementNum / 3
+		static_cast<UINT>(lModelHandle.indexArray.size()) / 3
 	};
 
 	/*VertexData lModelHandle = ModelLoader::Instance()->Load(FIRLE_DIR, MODEL_NAME)->modelData[0].materialData;

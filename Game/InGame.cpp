@@ -13,9 +13,6 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 	m_debugFlag = false;
 
 	//m_bloomModelRender = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingBloomData(*ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf"), DrawFuncData::GetModelBloomShader());
-
-	m_meshParticleRender = std::make_unique<InstanceMeshParticle>();
-
 }
 
 void InGame::Init(bool SKIP_FLAG)
@@ -29,25 +26,6 @@ void InGame::Init(bool SKIP_FLAG)
 	m_isEnemyNotMoveFlag = false;
 	m_sceneNum = -1;
 	m_cursor.Init();
-
-	for (int enemyType = 0; enemyType < m_enemies.size(); ++enemyType)
-	{
-		for (int enemyCount = 0; enemyCount < m_enemies[enemyType].size(); ++enemyCount)
-		{
-			bool enableToUseDataFlag = m_enemies[enemyType][enemyCount] != nullptr;
-			if (enableToUseDataFlag)
-			{
-				EnemyData* data = m_enemies[enemyType][enemyCount]->GetData().get();
-				if (!data->meshParticleFlag)
-				{
-					continue;
-				}
-				//モデルの読み込み開始
-				m_meshParticleRender->AddMeshData(data->meshParticleData[0]->meshParticleData);
-			}
-		}
-	}
-	m_meshParticleRender->Init();
 
 	m_butterflyEnemyRespawnDelay = 0;
 
@@ -81,11 +59,6 @@ void InGame::Input()
 	if (input->InputTrigger(DIK_ESCAPE))
 	{
 		Init(false);
-	}
-
-	if (KeyBoradInputManager::Instance()->MouseInputTrigger(MOUSE_INPUT_MIDDLE))
-	{
-		m_meshParticleRender->InitCompute();
 	}
 
 
@@ -357,10 +330,6 @@ void InGame::Update()
 	}
 	//敵の更新処理----------------------------------------------
 
-	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_A))
-	{
-		m_meshParticleRender->InitParticle();
-	}
 
 	m_isEnemyNotMoveFlag = true;
 	for (int enemyType = 0; enemyType < m_enemies.size(); ++enemyType)
@@ -386,12 +355,6 @@ void InGame::Update()
 					m_enemies[enemyType][enemyCount]->m_isBeingShot = true;
 
 
-
-					//m_enemies[enemyType][enemyCount]->Dead();
-					if (0 < static_cast<int>(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData.size()))
-					{
-						//m_meshParticleRender->AddMeshData(m_enemies[enemyType][enemyCount]->GetData()->meshParticleData[0]->meshParticleData);
-					}
 				}
 			}
 			if (m_enemies[enemyType][enemyCount])
@@ -450,8 +413,6 @@ void InGame::Update()
 
 	if (120 == m_notMoveTimer)
 	{
-		m_meshParticleRender->InitParticle();
-
 		for (int enemyType = 0; enemyType < m_responeData.size(); ++enemyType)
 		{
 			for (int enemyCount = 0; enemyCount < m_responeData[enemyType].size(); ++enemyCount)
@@ -526,10 +487,6 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	//	arg_blasVec.Add(obj, transform.GetMat());
 	//}
 	//arg_rasterize.ObjectRender(m_bloomModelRender);
-
-
-	m_meshParticleRender->Compute(arg_rasterize);
-
 
 	ImGui::Begin("Game");
 	ImGui::Checkbox("Debug", &m_debugFlag);

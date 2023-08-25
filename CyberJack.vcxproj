@@ -295,6 +295,7 @@
     <ClCompile Include="KazLibrary\Render\GPUParticleRender.cpp" />
     <ClCompile Include="KazLibrary\Render\IRender.cpp" />
     <ClCompile Include="KazLibrary\Render\LineRender.cpp" />
+    <ClCompile Include="KazLibrary\Render\MeshParticleRender.cpp" />
     <ClCompile Include="KazLibrary\Render\MovieRender.cpp" />
     <ClCompile Include="KazLibrary\Render\ObjModelRender.cpp" />
     <ClCompile Include="KazLibrary\Render\PolygonRender.cpp" />
@@ -518,6 +519,7 @@
     <ClInclude Include="KazLibrary\Render\KazExcuteIndirect.h" />
     <ClInclude Include="KazLibrary\Render\KazRender.h" />
     <ClInclude Include="KazLibrary\Render\LineRender.h" />
+    <ClInclude Include="KazLibrary\Render\MeshParticleRender.h" />
     <ClInclude Include="KazLibrary\Render\MovieRender.h" />
     <ClInclude Include="KazLibrary\Render\ObjModelRender.h" />
     <ClInclude Include="KazLibrary\Render\PolygonRender.h" />

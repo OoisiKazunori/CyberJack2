@@ -261,4 +261,10 @@ void IEnemy::InitMeshPartilce(std::string arg_fileDir, std::string arg_fileName,
 
 	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData.particleScale = { 0.1f,0.1f,0.1f };
 	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData.billboardFlag = true;
+
+
+	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData.modelIndexBuffer = *VertexBufferMgr::Instance()->GetVertexIndexBuffer(ModelLoader::Instance()->Load("Resource/Enemy/Virus/", "virus_cur.gltf")->modelVertDataHandle).indexBuffer[0];
+	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData.modelIndexBuffer.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData.modelIndexBuffer.elementNum = 
+		static_cast<UINT>(VertexBufferMgr::Instance()->GetVertexIndexBuffer(ModelLoader::Instance()->Load("Resource/Enemy/Virus/", "virus_cur.gltf")->modelVertDataHandle).indexBuffer[0]->elementNum);
 }

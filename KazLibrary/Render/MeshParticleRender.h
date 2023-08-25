@@ -3,15 +3,15 @@
 #include"../KazLibrary/Helper/KazBufferHelper.h"
 #include"../KazLibrary/Helper/ISinglton.h"
 #include"../KazLibrary/Helper/Compute.h"
-#include"InstanceMeshParticleData.h"
+#include"../Game/Effect/InstanceMeshParticleData.h"
 #include"../KazLibrary/Render/DrawingByRasterize.h"
 #include<vector>
 #include"../KazLibrary/Helper/ISinglton.h"
 
-class InstanceMeshParticle
+class MeshParticleRender
 {
 public:
-	InstanceMeshParticle();
+	MeshParticleRender(const InitMeshParticleData& DATA);
 
 	void Init();
 	void AddMeshData(const InitMeshParticleData& DATA);
@@ -25,6 +25,14 @@ public:
 		DirectX::XMFLOAT3 pos;
 		DirectX::XMFLOAT4 color;
 		UINT id;
+		float timer;
+		float maxTimer;
+		//辺上の移動量と面への移動量
+		DirectX::XMFLOAT2 rate;
+		//どの頂点座標を使用したか
+		DirectX::XMUINT3 vertexIndex;
+		//どこ頂点座標を使用したか
+		DirectX::XMUINT2 lengthIndex;
 	};
 
 	KazBufferHelper::ID3D12ResourceWrapper copyBuffer;
@@ -33,6 +41,7 @@ private:
 	{
 		DirectX::XMMATRIX viewProjMat;
 		DirectX::XMMATRIX billboard;
+		UINT indexNum;
 	};
 	KazBufferHelper::BufferData cameraMatBuffer;
 
@@ -72,12 +81,12 @@ private:
 		DirectX::XMMATRIX motherMat;
 	};
 
-	static const int DISPATCH_NUM = 50;
+	static const int DISPATCH_NUM = 10;
 	static const int PARTICLE_MAX_NUM = 1024 * DISPATCH_NUM;
 	static const int VERT_BUFFER_SIZE = sizeof(DirectX::XMFLOAT3);
 	static const int UV_BUFFER_SIZE = sizeof(DirectX::XMFLOAT2);
 	static const int COMMON_BUFFER_SIZE = sizeof(CommonWithColorData);
-	static const int MOTHER_MAT_MAX = 100;
+	static const int MOTHER_MAT_MAX = 1;
 
 	static int MESH_PARTICLE_GENERATE_NUM;
 

@@ -209,6 +209,7 @@
     <ClCompile Include="KazLibrary\Scene\ModelToolScene.cpp" />
     <ClCompile Include="KazLibrary\Animation\AnimationInRaytracing.cpp" />
     <ClCompile Include="Game\Effect\ShockWave.cpp" />
+    <ClCompile Include="KazLibrary\Render\MeshParticleRender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -440,6 +441,7 @@
     <ClInclude Include="KazLibrary\Animation\AnimationInRaytracing.h" />
     <ClInclude Include="Game\Effect\TimeZone.h" />
     <ClInclude Include="Game\Effect\ShockWave.h" />
+    <ClInclude Include="KazLibrary\Render\MeshParticleRender.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -21,6 +21,12 @@ VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 	m_computeAnimation.GenerateBuffer(*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0]);
 	m_spawnTimer = 0;
 	m_canSpawn = false;
+
+	//モデル受け渡し
+	iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData.modelVertexBuffer = *VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0];
+	iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData.modelVertexBuffer.elementNum = VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0]->elementNum;
+	//メッシュパーティクルの表示
+	m_meshParticleRender = std::make_unique<MeshParticleRender>(iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData);
 }
 
 void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)
@@ -55,6 +61,8 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 	m_prevhp = iEnemy_EnemyStatusData->oprationObjData->rockOnNum;
 	m_spawnTimer = 0;
 	m_canSpawn = false;
+
+	m_meshParticleRender->InitParticle();
 	m_isBeingShot = false;
 
 	ShockWave::Instance()->m_shockWave[moveID].m_radius = 0.0f;
@@ -294,11 +302,11 @@ void VirusEnemy::Update()
 	m_motherMat = m_transform.GetMat();
 
 	m_animation->Update(1.0f);
-	/*m_computeAnimation.Compute(
+	m_computeAnimation.Compute(
 		*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0],
 		m_animation->GetBoneMatBuff(),
 		m_transform.GetMat()
-	);*/
+	);
 
 	if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
 	{
@@ -314,6 +322,7 @@ void VirusEnemy::Update()
 
 void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
+	m_meshParticleRender->Compute(arg_rasterize);
 	DrawFunc::DrawModel(m_model, m_transform, m_animation->GetBoneMatBuff());
 	if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
 	{
