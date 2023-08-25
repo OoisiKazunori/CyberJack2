@@ -159,7 +159,4 @@ private:
 
 	//ブルームテスト
 	DrawFuncData::DrawCallData m_bloomModelRender;
-
-	//メッシュパーティクル
-	std::unique_ptr<InstanceMeshParticle> m_meshParticleRender;
 };

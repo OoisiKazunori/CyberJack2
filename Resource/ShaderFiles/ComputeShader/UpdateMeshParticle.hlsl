@@ -140,6 +140,8 @@ struct VertexBufferData
     float2 uv;
     float3 tangent;
     float3 binormal;
+	uint4 boneNo;
+	float4 weight;
 };
 
 float3 GetNormal(RWStructuredBuffer<VertexBufferData> vertex,uint index,uint2 offset)
@@ -210,12 +212,12 @@ RWStructuredBuffer<uint> randomTable : register(u5);
 RWStructuredBuffer<uint> curlNoizeBuffer : register(u6);
 
 RWStructuredBuffer<VertexBufferData> vertexBuffer : register(u7);
-RWStructuredBuffer<uint> indexBuffer : register(u8);
 
 cbuffer Camera :register(b0)
 {
     matrix viewProjMat;
     matrix billboard;
+	uint indexNum;
 }
 
 [numthreads(1024, 1, 1)]
@@ -240,15 +242,28 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     	    updateParticleData[index].color.a = 0;
     	}
 	}
-
+	else
+	{
+		uint firstVertIndex = particleData.vertexIndex.x;
+    	uint secondVertIndex = particleData.vertexIndex.y;
+		uint thirdVertIndex = particleData.vertexIndex.z;
+		float3 firstVertWorldPos = GetPos(vertexBuffer[firstVertIndex].svpos.xyz,float3(0,0,0));
+    	float3 secondVertWorldPos = GetPos(vertexBuffer[secondVertIndex].svpos.xyz,float3(0,0,0));
+    	float3 thirdVertWorldPos = GetPos(vertexBuffer[thirdVertIndex].svpos.xyz,float3(0,0,0));
+    	float3 triangleCentralPos = (firstVertWorldPos.xyz + secondVertWorldPos.xyz + thirdVertWorldPos.xyz) / 3.0f;
+		//辺上の計算
+		float3 distance = vertexBuffer[particleData.lengthIndex.y].svpos.xyz - vertexBuffer[particleData.lengthIndex.x].svpos.xyz;
+		float3 edge = vertexBuffer[particleData.lengthIndex.x].svpos.xyz + distance * particleData.rate.x;
+		//面上の計算
+		distance = triangleCentralPos - edge;
+		float3 area = edge + distance * particleData.rate.y;
+		updateParticleData[index].pos = area;
+	}
     matrix worldMat = mul(scaleRotaMatData[particleData.id],billboard);
-    worldMat[0][3] = particleData.pos.x;
-    worldMat[1][3] = particleData.pos.y;
-    worldMat[2][3] = particleData.pos.z;
+    worldMat[0][3] = updateParticleData[index].pos.x;
+    worldMat[1][3] = updateParticleData[index].pos.y;
+    worldMat[2][3] = updateParticleData[index].pos.z;
     worldMat = mul(motherMatData[particleData.id].motherMat,worldMat);
-
-	GenerateVertexData(vertexBuffer,index,worldMat);
-    GenerateIndexData(indexBuffer,index);
 
     GPUParticleInput inputData;
     inputData.worldMat = mul(viewProjMat,worldMat);

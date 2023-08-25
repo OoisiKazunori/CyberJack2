@@ -6,7 +6,7 @@ struct InitMeshParticleData
 {
 	KazBufferHelper::BufferData vertData;
 	KazBufferHelper::BufferData uvData;
-	KazBufferHelper::BufferData modelVertexBuffer;
+	KazBufferHelper::BufferData modelVertexBuffer,modelIndexBuffer;
 	RESOURCE_HANDLE textureHandle;
 	//x vertNum, y bias,z perTriangleNum,w faceCountNum
 	DirectX::XMUINT4 triagnleData;
