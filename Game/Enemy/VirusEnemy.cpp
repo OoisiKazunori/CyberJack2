@@ -286,7 +286,7 @@ void VirusEnemy::Update()
 		*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0],
 		m_animation->GetBoneMatBuff(),
 		m_transform.GetMat()
-	);*/
+	);
 
 	if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
 	{
