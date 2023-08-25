@@ -96,6 +96,20 @@ struct DebugSeaParam
     float m_seaSpeed;
 };
 
+//ÕŒ‚”g
+struct ShockWave
+{
+    float3 m_pos;
+    float m_radius;
+    float m_power;
+    int m_isActive;
+    float2 m_pad;
+};
+struct ShockWaveParam
+{
+    ShockWave m_shockWave[4];
+};
+
 //barys‚ğŒvZ
 inline float3 CalcBarycentrics(float2 Barys)
 {

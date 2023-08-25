@@ -16,6 +16,7 @@ ConstantBuffer<LightData> lightData : register(b1);
 ConstantBuffer<RaymarchingParam> volumeFogData : register(b2);
 ConstantBuffer<DebugRaytracingParam> debugRaytracingData : register(b3);
 ConstantBuffer<DebugSeaParam> debugSeaData : register(b4);
+ConstantBuffer<ShockWaveParam> shockWaveData : register(b5);
 
 //GBuffer
 Texture2D<float4> albedoMap : register(t1);
@@ -201,11 +202,28 @@ float SeaOctave(float2 arg_uv, float arg_choppy, float3 arg_position)
 //海のハイトマップの計算の際にレイマーチングしている位置のノイズを計算する。
 float MappingHeightNoise(float3 arg_position, int arg_samplingCount)
 {
+    
     //定数 いずれ定数バッファにする。
     float freq = debugSeaData.m_freq;
     float amp = debugSeaData.m_amp;
     float choppy = debugSeaData.m_choppy;
     float seaSpeed = debugSeaData.m_seaSpeed;
+    
+    float thickness = 5.0f;
+    for (int index = 0; index < 4; ++index)
+    {
+        float waveLength = length(arg_position - shockWaveData.m_shockWave[index].m_pos) - shockWaveData.m_shockWave[index].m_radius;
+        if (abs(waveLength) <= thickness)
+        {
+    
+            float easing = (1.0f - abs(waveLength / thickness));
+            //easing = easing ==  0 ? 0 : pow(2, 10 * easing - 10);
+            easing = -(cos(PI * easing) - 1.0f) / 2.0f;
+            amp += shockWaveData.m_shockWave[index].m_power * easing;
+        
+        }
+    }
+    
 
     //XZ平面による計算
     float2 uv = arg_position.xz / 2.0f;

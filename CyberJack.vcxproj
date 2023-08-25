@@ -141,6 +141,7 @@
     <ClCompile Include="Game\Effect\RocketEffect.cpp" />
     <ClCompile Include="Game\Effect\RocketLightEffect.cpp" />
     <ClCompile Include="Game\Effect\SearchLight.cpp" />
+    <ClCompile Include="Game\Effect\ShockWave.cpp" />
     <ClCompile Include="Game\Effect\SparkEmitter.cpp" />
     <ClCompile Include="Game\Effect\SparkParticle.cpp" />
     <ClCompile Include="Game\Effect\SplineParticle.cpp" />
@@ -351,6 +352,7 @@
     <ClInclude Include="Game\Effect\SeaEffect.h" />
     <ClInclude Include="Game\Effect\SearchLight.h" />
     <ClInclude Include="Game\Effect\ShakeMgr.h" />
+    <ClInclude Include="Game\Effect\ShockWave.h" />
     <ClInclude Include="Game\Effect\SparkEmitter.h" />
     <ClInclude Include="Game\Effect\SparkParticle.h" />
     <ClInclude Include="Game\Effect\SplineParticle.h" />

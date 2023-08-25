@@ -19,6 +19,7 @@
 #include"../Game/Effect/ShakeMgr.h"
 #include"../Scene/ModelToolScene.h"
 #include"../../Game/Effect/TimeZone.h"
+#include"../Game/Effect/ShockWave.h"
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
@@ -37,7 +38,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	Raytracing::HitGroupMgr::Instance()->Setting();
 	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS", L"checkHitRayMS"}, {L"mainCHS", L"mainAnyHit"} });
 	int payloadSize = sizeof(float) * 7;
-	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 6, 5, 4, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
+	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 6, 6, 4, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
 
 	m_debugOnOffLineRender = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
@@ -129,6 +130,8 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_debugSeaParamData = KazBufferHelper::SetConstBufferData(sizeof(DebugSeaParam));
 	m_debugSeaParamData.bufferWrapper->TransData(&m_debugSeaParam, sizeof(DebugSeaParam));
 	m_rayPipeline->SetDebugSeaConstData(&m_debugSeaParamData);
+
+	ShockWave::Instance()->Setting();
 }
 
 SceneManager::~SceneManager()
@@ -255,6 +258,8 @@ void SceneManager::Update()
 	TimeZone::Instance()->Update();
 
 	m_isOldDebugRaytracing = m_isDebugRaytracing;
+
+	ShockWave::Instance()->Update();
 
 }
 

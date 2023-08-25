@@ -3,6 +3,7 @@
 #include"../KazLibrary/Render/DrawFunc.h"
 #include"../Game/Effect/ShakeMgr.h"
 #include"../Effect/SeaEffect.h"
+#include"../Effect/ShockWave.h"
 
 VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 {
@@ -55,6 +56,9 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 	m_spawnTimer = 0;
 	m_canSpawn = false;
 	m_isBeingShot = false;
+
+	ShockWave::Instance()->m_shockWave[moveID].m_radius = 0.0f;
+	ShockWave::Instance()->m_shockWave[moveID].m_isActive = false;
 }
 
 void VirusEnemy::Finalize()
@@ -135,6 +139,10 @@ void VirusEnemy::Update()
 
 		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
 		SeaEffect::Instance()->m_isSeaEffect = true;
+
+		ShockWave::Instance()->m_shockWave[moveID].m_isActive = true;
+		ShockWave::Instance()->m_shockWave[moveID].m_power = 1.0f;
+		ShockWave::Instance()->m_shockWave[moveID].m_radius = 0.0f;
 
 	}
 
@@ -257,6 +265,11 @@ void VirusEnemy::Update()
 		m_transform.rotation.x += 3.0f;
 
 		iEnemy_EnemyStatusData->curlNozieFlag = true;
+
+		ShockWave::Instance()->m_shockWave[moveID].m_pos = m_initPos;
+		ShockWave::Instance()->m_shockWave[moveID].m_radius += 2.0f;
+		ShockWave::Instance()->m_shockWave[moveID].m_power = std::clamp(ShockWave::Instance()->m_shockWave[moveID].m_power - 0.02f, 0.0f, 1.0f);
+
 	}
 	break;
 	default:

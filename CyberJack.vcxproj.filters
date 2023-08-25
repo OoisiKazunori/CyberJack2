@@ -208,6 +208,7 @@
     <ClCompile Include="KazLibrary\Buffer\ShaderRandomTable.cpp" />
     <ClCompile Include="KazLibrary\Scene\ModelToolScene.cpp" />
     <ClCompile Include="KazLibrary\Animation\AnimationInRaytracing.cpp" />
+    <ClCompile Include="Game\Effect\ShockWave.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -438,6 +439,7 @@
     <ClInclude Include="KazLibrary\Scene\ModelToolScene.h" />
     <ClInclude Include="KazLibrary\Animation\AnimationInRaytracing.h" />
     <ClInclude Include="Game\Effect\TimeZone.h" />
+    <ClInclude Include="Game\Effect\ShockWave.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
