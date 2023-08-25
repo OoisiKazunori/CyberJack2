@@ -63,6 +63,11 @@ private:
 
 	const float VIRUS_SCALE = 2.0f;
 
+	//衝撃波
+	float m_shockWaveTimer;
+	const float SHOCK_WAVE_TIMER = 60.0f;
+	const float SHOCK_WAVE_RAIDUS = 100.0f;
+
 
 	//プレイヤーを中心とした半径どのくらいの位置に敵を出すか。
 	const float SPAWN_R = 50.0f;

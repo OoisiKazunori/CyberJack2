@@ -144,6 +144,8 @@ void VirusEnemy::Update()
 		ShockWave::Instance()->m_shockWave[moveID].m_power = 1.0f;
 		ShockWave::Instance()->m_shockWave[moveID].m_radius = 0.0f;
 
+		m_shockWaveTimer = 0;
+
 	}
 
 	////自動的に消えるまでのタイマーを更新。
@@ -266,9 +268,14 @@ void VirusEnemy::Update()
 
 		iEnemy_EnemyStatusData->curlNozieFlag = true;
 
+		m_shockWaveTimer = std::clamp(m_shockWaveTimer + 1.0f, 0.0f, SHOCK_WAVE_TIMER);
+
+		//イージングを計算。
+		float easing = EasingMaker(EasingType::Out, EaseInType::Cubic, m_shockWaveTimer / SHOCK_WAVE_TIMER);
+
 		ShockWave::Instance()->m_shockWave[moveID].m_pos = m_initPos;
-		ShockWave::Instance()->m_shockWave[moveID].m_radius += 2.0f;
-		ShockWave::Instance()->m_shockWave[moveID].m_power = std::clamp(ShockWave::Instance()->m_shockWave[moveID].m_power - 0.02f, 0.0f, 1.0f);
+		ShockWave::Instance()->m_shockWave[moveID].m_radius = easing * SHOCK_WAVE_RAIDUS;
+		ShockWave::Instance()->m_shockWave[moveID].m_power = (1.0f - easing);
 
 	}
 	break;

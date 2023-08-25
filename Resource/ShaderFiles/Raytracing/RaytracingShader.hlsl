@@ -209,7 +209,7 @@ float MappingHeightNoise(float3 arg_position, int arg_samplingCount)
     float choppy = debugSeaData.m_choppy;
     float seaSpeed = debugSeaData.m_seaSpeed;
     
-    float thickness = 5.0f;
+    float thickness = 8.0f;
     for (int index = 0; index < 4; ++index)
     {
         float waveLength = length(arg_position - shockWaveData.m_shockWave[index].m_pos) - shockWaveData.m_shockWave[index].m_radius;
