@@ -271,8 +271,8 @@ void VirusEnemy::Update()
 
 		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
 		m_gravity += 0.06f;
-		m_transform.pos.y -= m_gravity;
-		m_transform.rotation.x += 3.0f;
+		//m_transform.pos.y -= m_gravity;
+		//m_transform.rotation.x += 3.0f;
 
 		iEnemy_EnemyStatusData->curlNozieFlag = true;
 
@@ -301,12 +301,15 @@ void VirusEnemy::Update()
 
 	m_motherMat = m_transform.GetMat();
 
-	m_animation->Update(1.0f);
-	m_computeAnimation.Compute(
-		*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0],
-		m_animation->GetBoneMatBuff(),
-		m_transform.GetMat()
-	);
+	if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
+	{
+		m_animation->Update(1.0f);
+		m_computeAnimation.Compute(
+			*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0],
+			m_animation->GetBoneMatBuff(),
+			m_transform.GetMat()
+		);
+	}
 
 	if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
 	{
@@ -322,12 +325,12 @@ void VirusEnemy::Update()
 
 void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
-	m_meshParticleRender->Compute(arg_rasterize);
+	//m_meshParticleRender->Compute(arg_rasterize);
 	DrawFunc::DrawModel(m_model, m_transform, m_animation->GetBoneMatBuff());
-	if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
-	{
-		arg_rasterize.ObjectRender(m_model);
-	}
+	//if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
+	//{
+	arg_rasterize.ObjectRender(m_model);
+	//}
 	for (auto& index : m_model.m_raytracingData.m_blas)
 	{
 		arg_blasVec.Add(index, m_transform.GetMat());
