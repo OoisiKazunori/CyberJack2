@@ -468,7 +468,7 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	m_player.Draw(arg_rasterize, arg_blasVec);
 
 	//アウトラインを計算
-	GBufferMgr::Instance()->m_outline->Apply();
+	//GBufferMgr::Instance()->m_outline->Apply();
 
 	if (!m_debugFlag)
 	{

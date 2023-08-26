@@ -105,7 +105,7 @@ GBufferMgr::GBufferMgr()
 
 	//レンズフレア用のブラー
 	m_lensFlareBlur = std::make_shared<PostEffect::GaussianBlur>(m_lensFlareLuminanceGBuffer);
-	m_outline = std::make_shared<PostEffect::Outline>(RenderTargetStatus::Instance()->GetBuffer(GetRenderTarget()[GBufferMgr::NORMAL]));
+	//m_outline = std::make_shared<PostEffect::Outline>(m_outlineBuffer);
 
 	//レンズフレア合成関連。
 	m_lensFlareConposeBuffTexture = KazBufferHelper::SetUAVTexBuffer(1280, 720, DXGI_FORMAT_R8G8B8A8_UNORM);
