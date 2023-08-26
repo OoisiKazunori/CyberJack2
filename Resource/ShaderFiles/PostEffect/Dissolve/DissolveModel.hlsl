@@ -316,7 +316,10 @@ float3 PerlinNoise(float2 arg_st, int arg_octaves, float arg_persistence, float 
 cbuffer Dissolve : register(b4)
 {
     float4 m_dissolveStrength;
+    float4 m_outlineColor;
 }
+
+RWTexture2D<float4> outlineTexutre : register(u0);
 
 GBufferOutput PSDefferdAnimationMainDissolve(PosUvNormalTangentBinormalOutput input) : SV_TARGET
 {
@@ -328,6 +331,8 @@ GBufferOutput PSDefferdAnimationMainDissolve(PosUvNormalTangentBinormalOutput in
     float3 noisevalue = PerlinNoise(input.uv, octave, persitance, lacunarity, m_dissolveStrength.x);
     float3 weights = float3(0.8f, 0.1f, 0.1f); // 各ノイズの重み
     float noise = dot(noisevalue, weights);
+    
+    outlineTexutre[uint2(input.svpos.xy)] = float4(1, 1, 0, 1);
     
     if (noise <= 0.01f)
     {

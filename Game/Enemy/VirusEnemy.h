@@ -80,7 +80,10 @@ private:
 	DirectX::XMMATRIX m_motherMat;
 	float m_alpha;
 
-	KazMath::Vec4<float> m_dissolve;
+	struct DeadEffectData {
+		KazMath::Vec4<float> m_dissolve;
+		KazMath::Vec4<float> m_outlineColor;
+	}m_deadEffectData;
 
 	AnimationInRaytracing m_computeAnimation;
 	std::shared_ptr<ModelAnimator> m_animation;

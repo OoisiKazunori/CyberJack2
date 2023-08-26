@@ -93,11 +93,19 @@ GBufferMgr::GBufferMgr()
 			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), winSize.x * winSize.y),
 			m_backBufferCompositeBuffer.bufferWrapper->GetBuffer().Get()
 		);
+
+		m_outlineBuffer = KazBufferHelper::SetUAVTexBuffer(winSize.x, winSize.y, DXGI_FORMAT_R8G8B8A8_UNORM);
+		m_outlineBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
+		DescriptorHeapMgr::Instance()->CreateBufferView(
+			m_outlineBuffer.bufferWrapper->GetViewHandle(),
+			KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), winSize.x * winSize.y),
+			m_outlineBuffer.bufferWrapper->GetBuffer().Get()
+		);
 	}
 
 	//レンズフレア用のブラー
 	m_lensFlareBlur = std::make_shared<PostEffect::GaussianBlur>(m_lensFlareLuminanceGBuffer);
-	m_outline = std::make_shared<PostEffect::Outline>(RenderTargetStatus::Instance()->GetBuffer(GetRenderTarget()[GBufferMgr::NORMAL]));
+	//m_outline = std::make_shared<PostEffect::Outline>(m_outlineBuffer);
 
 	//レンズフレア合成関連。
 	m_lensFlareConposeBuffTexture = KazBufferHelper::SetUAVTexBuffer(1280, 720, DXGI_FORMAT_R8G8B8A8_UNORM);

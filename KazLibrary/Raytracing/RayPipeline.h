@@ -84,6 +84,7 @@ namespace Raytracing {
 
 		//アウトライン合成用
 		ComputeShader m_outlineComposeShader;
+		ComputeShader m_outlineCleanShader;
 
 	public:
 

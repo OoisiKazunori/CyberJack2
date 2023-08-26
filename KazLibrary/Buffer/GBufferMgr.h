@@ -121,6 +121,8 @@ public:
 	std::shared_ptr<PostEffect::GaussianBlur> m_lensFlareBlur;
 	std::shared_ptr<PostEffect::Outline> m_outline;
 
+	KazBufferHelper::BufferData m_outlineBuffer;
+
 private:
 	//G-Buffer用のレンダーターゲット
 	std::vector<RESOURCE_HANDLE>m_gBufferRenderTargetHandleArray;

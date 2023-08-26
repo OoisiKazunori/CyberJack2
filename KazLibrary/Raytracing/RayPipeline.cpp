@@ -177,13 +177,11 @@ namespace Raytracing {
 
 		//アウトライン合成用シェーダー
 		{
-
 			std::vector<KazBufferHelper::BufferData>extraBuffer =
 			{
 				 GBufferMgr::Instance()->GetRayTracingBuffer(),
 				 GBufferMgr::Instance()->GetLensFlareBuffer(),
-				 GBufferMgr::Instance()->m_outline->GetOutputAlbedoTexture(),
-				 GBufferMgr::Instance()->m_outline->GetOutputEmissiveTexture(),
+				 GBufferMgr::Instance()->m_outlineBuffer,
 			};
 			extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 			extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
@@ -191,9 +189,16 @@ namespace Raytracing {
 			extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_TEX2;
 			extraBuffer[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 			extraBuffer[2].rootParamType = GRAPHICS_PRAMTYPE_TEX3;
-			extraBuffer[3].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-			extraBuffer[3].rootParamType = GRAPHICS_PRAMTYPE_TEX4;
 			m_outlineComposeShader.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "PostEffect/Outline/" + "ComposeOutline.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
+		}
+		{
+			std::vector<KazBufferHelper::BufferData>extraBuffer =
+			{
+				 GBufferMgr::Instance()->m_outlineBuffer,
+			};
+			extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+			extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
+			m_outlineCleanShader.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "PostEffect/Outline/" + "BlackOut.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
 		}
 
 	}
@@ -327,6 +332,11 @@ namespace Raytracing {
 		dispatchData.y = static_cast<UINT>(720 / 16) + 1;
 		dispatchData.z = static_cast<UINT>(1);
 		m_outlineComposeShader.Compute(dispatchData);
+
+		dispatchData.x = static_cast<UINT>(1280 / 16) + 1;
+		dispatchData.y = static_cast<UINT>(720 / 16) + 1;
+		dispatchData.z = static_cast<UINT>(1);
+		m_outlineCleanShader.Compute(dispatchData);
 
 		PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
 

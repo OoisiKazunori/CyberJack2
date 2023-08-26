@@ -4,6 +4,7 @@
 #include"../Game/Effect/ShakeMgr.h"
 #include"../Effect/SeaEffect.h"
 #include"../Effect/ShockWave.h"
+#include"../KazLibrary/Buffer/GBufferMgr.h"
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
 
 VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
@@ -339,8 +340,12 @@ void VirusEnemy::Update()
 
 
 
-	m_dissolve.x = 0.55f;
-	m_model.extraBufferArray.back().bufferWrapper->TransData(&m_dissolve, sizeof(KazMath::Vec4<float>));
+	m_deadEffectData.m_dissolve.x = 0.55f;
+	m_model.extraBufferArray[1].bufferWrapper->TransData(&m_deadEffectData, sizeof(m_deadEffectData));
+
+	m_model.extraBufferArray.back() = GBufferMgr::Instance()->m_outlineBuffer;
+	m_model.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	m_model.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_TEX;
 }
 
 void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
@@ -353,7 +358,7 @@ void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector&
 	}
 	else
 	{
-	//	m_deadParticle->UpdateCompute(arg_rasterize);
+		m_deadParticle->UpdateCompute(arg_rasterize);
 	}
 	for (auto& index : m_model.m_raytracingData.m_blas)
 	{
