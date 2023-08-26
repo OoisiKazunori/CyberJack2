@@ -75,6 +75,10 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 	{
 		m_deadParticle = std::make_unique<EnemyDeadParticle>(m_meshParticleRender->meshParticleBufferData, m_transform.pos);
 	}
+	else
+	{
+		m_deadParticle->InitCompute();
+	}
 }
 
 void VirusEnemy::Finalize()
