@@ -1,6 +1,7 @@
 #include "ChildOfEdenStage.h"
 #include "../KazLibrary/Raytracing/Blas.h"
 #include"../KazLibrary/Buffer/ShaderRandomTable.h"
+#include"../KazLibrary/Input/KeyBoradInputManager.h"
 
 
 ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
@@ -34,41 +35,11 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-
-	m_particleVertexBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData((sizeof(VertexBufferData) * PARTICLE_MAX_NUM) * 4, "GPUParticle-VertexBuffer"));
-	m_particleVertexBuffer->structureSize = sizeof(VertexBufferData);
-	m_particleVertexBuffer->elementNum = PARTICLE_MAX_NUM * 4;
-
-	m_particleIndexBuffer = std::make_shared<KazBufferHelper::BufferData>(KazBufferHelper::SetGPUBufferData((sizeof(UINT) * PARTICLE_MAX_NUM) * 6, "GPUParticle-IndexBuffer"));
-	m_particleIndexBuffer->structureSize = sizeof(UINT);
-	m_particleIndexBuffer->elementNum = PARTICLE_MAX_NUM * 6;
-
-	//m_drawTriangleParticleInRaytracing = DrawFuncData::SetParticleInRaytracing(
-	//	m_particleVertexBuffer,
-	//	m_particleIndexBuffer
-	//);
-	m_particleVertexBuffer->bufferWrapper->ChangeBarrier(
-		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
-	);
-	m_particleIndexBuffer->bufferWrapper->ChangeBarrier(
-		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
-	);
-
-	m_computeUpdateBuffer.emplace_back(*m_particleVertexBuffer);
-	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-
-	m_computeUpdateBuffer.emplace_back(*m_particleIndexBuffer);
-	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
-
 	matrixBuffer = KazBufferHelper::SetUploadBufferData(sizeof(DirectX::XMMATRIX) * PARTICLE_MAX_NUM, "Particle-Matrix");
 	m_particleMatrix.resize(PARTICLE_MAX_NUM);
 	m_computeUpdateBuffer.emplace_back(matrixBuffer);
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA5;
+	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
 
 	m_computeUpdate.Generate(
 		ShaderOptionData("Resource/ShaderFiles/ShaderFile/TriangleParticle.hlsl", "UpdateCSmain", "cs_6_4", SHADER_TYPE_COMPUTE),
@@ -76,8 +47,8 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	);
 
 	m_computeUpdateBuffer[1].bufferWrapper->ChangeBarrier(
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		D3D12_RESOURCE_STATE_COMMON
+		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 	);
 
 	m_drawTriangleParticle =
@@ -93,33 +64,11 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 
 	m_computeInit.Compute({ DISPATCH_MAX_NUM,1,1 });
 
-	KazRenderHelper::DrawIndexInstanceCommandData command;
-	//topology
-	command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	//indexinstance
-	command.drawIndexInstancedData = { PARTICLE_MAX_NUM * 6,1,0,0,0 };
-	//view
-	command.vertexBufferDrawData.slot = 0;
-	command.vertexBufferDrawData.numViews = 1;
-	command.vertexBufferDrawData.vertexBufferView =
-		KazBufferHelper::SetVertexBufferView(
-			m_particleVertexBuffer->bufferWrapper->GetGpuAddress(),
-			sizeof(VertexBufferData) * (PARTICLE_MAX_NUM * 4),
-			sizeof(VertexBufferData)
-		);
-	command.indexBufferView = KazBufferHelper::SetIndexBufferView(m_particleIndexBuffer->bufferWrapper->GetGpuAddress(), sizeof(UINT) * (PARTICLE_MAX_NUM * 6));
-
-
-	command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	//m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0] = command.drawIndexInstancedData;
-	//m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.vertexBufferDrawData[0] = command.vertexBufferDrawData;
-	//m_drawTriangleParticle.drawMultiMeshesIndexInstanceCommandData.indexBufferView[0] = command.indexBufferView;
-	//m_drawCall = DrawFuncData::SetDrawPolygonIndexData(command, DrawFuncData::GetBasicShader());
-
 	auto playerModel = *ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf");
 	auto pipeline = DrawFuncData::GetModelBloomShader();
 	//m_playerModel.resize(PARTICLE_MAX_NUM);
-	for (auto& index : m_playerModel) {
+	for (auto& index : m_playerModel)
+	{
 		index = DrawFuncData::SetRaytracingData(playerModel, pipeline);
 	}
 }
@@ -136,7 +85,8 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 
 	memcpy(m_particleMatrix.data(), matrixBuffer.bufferWrapper->GetMapAddres(), sizeof(DirectX::XMMATRIX) * PARTICLE_MAX_NUM);
 
-	for (auto& blas : m_playerModel.back().m_raytracingData.m_blas) {
+	for (auto& blas : m_playerModel.back().m_raytracingData.m_blas)
+	{
 		arg_blasVec.AddVector(blas, m_particleMatrix, 1, 0xFE);
 	}
 
@@ -151,30 +101,18 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 	cameraMat.m_billboardMat = CameraMgr::Instance()->GetMatBillBoard();
 	cameraMat.m_viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
 	cameraMat.m_playerPosZ = playerPosZ;
+	if (hitFlag)
+	{
+		cameraMat.num = 1;
+	}
+	else
+	{
+		cameraMat.num = 0;
+	}
+
 	m_computeUpdateBuffer[2].bufferWrapper->TransData(&cameraMat, sizeof(CameraBufferData));
 
-	m_particleVertexBuffer->bufferWrapper->ChangeBarrier(
-		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
-	);
-	m_particleIndexBuffer->bufferWrapper->ChangeBarrier(
-		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
-	);
-
-	m_particleVertexBuffer->bufferWrapper->ChangeBarrierUAV();
-	m_particleIndexBuffer->bufferWrapper->ChangeBarrierUAV();
 	m_computeUpdate.Compute({ DISPATCH_MAX_NUM,1,1 });
-	m_particleVertexBuffer->bufferWrapper->ChangeBarrierUAV();
-	m_particleIndexBuffer->bufferWrapper->ChangeBarrierUAV();
 
-	m_particleVertexBuffer->bufferWrapper->ChangeBarrier(
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
-	);
-	m_particleIndexBuffer->bufferWrapper->ChangeBarrier(
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE
-	);
 	//arg_rasterize.ObjectRender(m_drawCall);
 }

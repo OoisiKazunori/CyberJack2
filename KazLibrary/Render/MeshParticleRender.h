@@ -36,6 +36,7 @@ public:
 	};
 
 	KazBufferHelper::ID3D12ResourceWrapper copyBuffer;
+	KazBufferHelper::BufferData meshParticleBufferData;
 private:
 	struct CameraMatData
 	{
@@ -59,7 +60,7 @@ private:
 	KazBufferHelper::BufferData commonAndColorBufferData;
 	std::vector<KazBufferHelper::BufferData> commonBufferData;
 	std::vector<KazBufferHelper::BufferData> commonColorBufferData;
-	KazBufferHelper::BufferData meshParticleBufferData;
+
 	struct WorldMatData
 	{
 		DirectX::XMMATRIX scaleRotateBillboardMat;

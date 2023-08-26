@@ -24,6 +24,9 @@ struct ShaderOptionData
 	ShaderOptionData(std::string FILE_NAME, std::string ENTRY_POINT, std::string SHADER_MODEL, ShaderType TYPE) :fileName(FILE_NAME), entryPoint(ENTRY_POINT), shaderModel(SHADER_MODEL), shaderType(TYPE)
 	{
 	};
+	ShaderOptionData(std::string FILE_NAME, std::string ENTRY_POINT, std::string SHADER_MODEL) :fileName(FILE_NAME), entryPoint(ENTRY_POINT), shaderModel(SHADER_MODEL), shaderType(SHADER_TYPE_NONE)
+	{
+	};
 	ShaderOptionData() :fileName(""), entryPoint(""), shaderModel(""), shaderType(SHADER_TYPE_NONE)
 	{
 	};

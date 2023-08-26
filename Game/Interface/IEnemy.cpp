@@ -255,7 +255,7 @@ void IEnemy::InitMeshPartilce(std::string arg_fileDir, std::string arg_fileName,
 	MeshParticleLoadData data;
 	data.bias = 70;
 	data.faceCountNum = 0;
-	data.perTriangleNum = 10;
+	data.perTriangleNum = 3;
 	iEnemy_EnemyStatusData->motherMat = arg_mat;
 	iEnemy_EnemyStatusData->meshParticleData.back()->meshParticleData
 		= MeshParticleLoader::Instance()->LoadMesh(arg_fileDir, arg_fileName, iEnemy_EnemyStatusData->motherMat, data);

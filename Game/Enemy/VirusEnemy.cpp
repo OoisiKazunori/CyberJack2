@@ -4,6 +4,7 @@
 #include"../Game/Effect/ShakeMgr.h"
 #include"../Effect/SeaEffect.h"
 #include"../Effect/ShockWave.h"
+#include"../KazLibrary/Input/KeyBoradInputManager.h"
 
 VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 {
@@ -27,6 +28,7 @@ VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 	iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData.modelVertexBuffer.elementNum = VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0]->elementNum;
 	//メッシュパーティクルの表示
 	m_meshParticleRender = std::make_unique<MeshParticleRender>(iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData);
+
 }
 
 void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)
@@ -67,6 +69,11 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 
 	ShockWave::Instance()->m_shockWave[moveID].m_radius = 0.0f;
 	ShockWave::Instance()->m_shockWave[moveID].m_isActive = false;
+
+	if (!m_deadParticle)
+	{
+		m_deadParticle = std::make_unique<EnemyDeadParticle>(m_meshParticleRender->meshParticleBufferData, m_transform.pos);
+	}
 }
 
 void VirusEnemy::Finalize()
@@ -320,13 +327,14 @@ void VirusEnemy::Update()
 
 	if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
 	{
-		m_alpha = 0.0f;
+		m_alpha = 1.0f;
 		iEnemy_EnemyStatusData->curlNozieFlag = false;
 	}
 	else
 	{
 		m_alpha = 1.0f;
 		iEnemy_EnemyStatusData->curlNozieFlag = true;
+
 	}
 
 
@@ -339,10 +347,14 @@ void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector&
 {
 	//m_meshParticleRender->Compute(arg_rasterize);
 	DrawFunc::DrawModel(m_model, m_transform, m_animation->GetBoneMatBuff());
-	//if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
-	//{
-	arg_rasterize.ObjectRender(m_model);
-	//}
+	if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
+	{
+		arg_rasterize.ObjectRender(m_model);
+	}
+	else
+	{
+	//	m_deadParticle->UpdateCompute(arg_rasterize);
+	}
 	for (auto& index : m_model.m_raytracingData.m_blas)
 	{
 		arg_blasVec.Add(index, m_transform.GetMat());
