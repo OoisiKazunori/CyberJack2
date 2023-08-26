@@ -246,6 +246,73 @@ PosUvNormalTangentBinormalOutput VSDefferdAnimationMain(VertexData input)
 }
 
 
+
+
+
+//乱数を取得。
+float2 Random2D(float2 arg_st)
+{
+    float2 seed = float2(dot(arg_st, float2(127.1f, 311.7f)), dot(arg_st, float2(269.5f, 183.3f)));
+    return -1.0f + 2.0f * frac(sin(seed) * 43758.5453123f);
+}
+
+//2Dグラディエントノイズ関数
+float GradientNoise(float2 arg_st)
+{
+    float2 i = floor(arg_st);
+    float2 f = frac(arg_st);
+
+    //四つの隣接点の座標を求める
+    float2 u = f * f * (3.0f - 2.0f * f);
+
+    float a = dot(Random2D(i), f - float2(0, 0));
+    float b = dot(Random2D(i + float2(1, 0)), f - float2(1, 0));
+    float c = dot(Random2D(i + float2(0, 1)), f - float2(0, 1));
+    float d = dot(Random2D(i + float2(1, 1)), f - float2(1, 1));
+
+    //ノイズ値を補間する
+    float x1 = lerp(a, b, u.x);
+    float x2 = lerp(c, d, u.x);
+
+    return lerp(x1, x2, u.y);
+}
+
+float3 PerlinNoise(float2 arg_st, int arg_octaves, float arg_persistence, float arg_lacunarity, float arg_threshold)
+{
+    float amplitude = 1.0f;
+
+    float3 noiseValue = float3(0, 0, 0);
+
+    for (int j = 0; j < 3; ++j)
+    {
+        float frequency = pow(2.0f, float(j));
+        float localAmplitude = amplitude;
+        float sum = 0.0f;
+        float maxValue = 0.0f;
+        
+        for (int i = 0; i < arg_octaves; ++i)
+        {
+            sum += localAmplitude * GradientNoise(arg_st * 10.0f * frequency);
+            maxValue += localAmplitude;
+
+            localAmplitude *= arg_persistence;
+            frequency *= arg_lacunarity;
+        }
+
+        noiseValue[j] = (sum / maxValue + 1.0f) * 0.5f; //ノイズ値を0.0から1.0の範囲に再マッピング
+
+        if (noiseValue[j] <= arg_threshold)
+        {
+            noiseValue[j] = 0.0f;
+        }
+    }
+
+    return noiseValue;
+}
+
+
+
+
 cbuffer Dissolve : register(b4)
 {
     float4 m_dissolveStrength;
@@ -253,6 +320,21 @@ cbuffer Dissolve : register(b4)
 
 GBufferOutput PSDefferdAnimationMainDissolve(PosUvNormalTangentBinormalOutput input) : SV_TARGET
 {
+    
+    int octave = 4;
+    float persitance = 2.0f;
+    float lacunarity = 0.5f;
+    
+    float3 noisevalue = PerlinNoise(input.uv, octave, persitance, lacunarity, m_dissolveStrength.x);
+    float3 weights = float3(0.8f, 0.1f, 0.1f); // 各ノイズの重み
+    float noise = dot(noisevalue, weights);
+    
+    if (noise <= 0.01f)
+    {
+        discard;
+    }
+    
+    
     float4 normalColor = NormalTex.Sample(smp, input.uv);
     //-1.0f ~ 1.0f
     float3 normalVec = 2 * normalColor - 1.0f;
@@ -279,7 +361,7 @@ GBufferOutput PSDefferdAnimationMainDissolve(PosUvNormalTangentBinormalOutput in
     }
 
     GBufferOutput output;
-    output.albedo = m_dissolveStrength;
+    output.albedo = texColor * color;
     output.normal = float4(normal, 1.0f);
     output.metalnessRoughness = float4(mrColor.xyz, raytracingId);
     output.world = float4(input.worldPos, 1.0f);

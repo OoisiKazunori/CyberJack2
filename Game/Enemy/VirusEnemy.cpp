@@ -198,7 +198,7 @@ void VirusEnemy::Update()
 		m_stopTimer += 0.1f;
 		m_moveTimer += 0.06f;
 
-		m_transform.rotation.z = 360.0f + sinf(m_stopTimer) * 35.0f;
+		//m_transform.rotation.z = 360.0f + sinf(m_stopTimer) * 35.0f;
 		m_transform.pos.y = m_initPos.y + sinf(m_moveTimer) * 1.0f;
 
 		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
@@ -329,10 +329,9 @@ void VirusEnemy::Update()
 		iEnemy_EnemyStatusData->curlNozieFlag = true;
 	}
 
-	m_dissolve.x = 1.0f;
-	m_dissolve.y = 1.0f;
-	m_dissolve.z = 0.0f;
-	m_dissolve.a = 1.0f;
+
+
+	m_dissolve.x = sinf(m_stopTimer);
 	m_model.extraBufferArray.back().bufferWrapper->TransData(&m_dissolve, sizeof(KazMath::Vec4<float>));
 }
 
