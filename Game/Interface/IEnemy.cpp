@@ -46,9 +46,12 @@ IEnemy::IEnemy() :hpDirtyFlag(&iOperationData.rockOnNum)
 	yVel = KazMath::Rand<float>(1.0f, 0.1f);
 }
 
-void IEnemy::Dead()
+void IEnemy::Dead(KazMath::Vec3<float>* arg_playerShotEffectPos)
 {
 	iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag = false;
+	if (arg_playerShotEffectPos) {
+		m_deadEffectVel = KazMath::Vec3<float>(m_transform.pos - *arg_playerShotEffectPos).GetNormal();
+	}
 }
 
 void IEnemy::DeadEffect(KazMath::Vec3<float> *POS, KazMath::Vec3<float> *ROTATION, int *ALPHA)

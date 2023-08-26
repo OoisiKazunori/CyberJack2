@@ -48,7 +48,7 @@ public:
 	/// <summary>
 	/// “G‚ğ€–S‚³‚¹‚Ü‚·
 	/// </summary>
-	void Dead();
+	void Dead(KazMath::Vec3<float>* arg_playerShotEffectPos = nullptr);
 
 	/// <summary>
 	/// €–S‰‰o
@@ -213,5 +213,6 @@ public:
 	bool m_canLockOn;
 	int m_spawnTimer;
 	bool m_canSpawn;
+	KazMath::Vec3<float> m_deadEffectVel;
 
 };
