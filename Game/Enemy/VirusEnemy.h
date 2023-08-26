@@ -72,6 +72,9 @@ private:
 	//プレイヤーを中心とした半径どのくらいの位置に敵を出すか。
 	const float SPAWN_R = 50.0f;
 
+	//死亡エフェクト時の初速度
+	const float DEAD_EFFECT_VEL = 2.5f;
+
 
 	DirectX::XMMATRIX m_motherMat;
 	float m_alpha;

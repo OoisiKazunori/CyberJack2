@@ -10,7 +10,7 @@ class PlayerShotEffectMgr : public ISingleton<PlayerShotEffectMgr> {
 
 private:
 
-	static const int EFFECT_NUM = 20;
+	static const int EFFECT_NUM = 10;
 	std::array<PlayerShotEffect, EFFECT_NUM> m_effects;
 	std::vector<std::shared_ptr<IEnemy>> m_enemyStack;
 

@@ -154,6 +154,9 @@ void VirusEnemy::Update()
 
 		m_shockWaveTimer = 0;
 
+		//死亡エフェクトの初速度を計算。
+		m_deadEffectVel *= DEAD_EFFECT_VEL;
+
 	}
 
 	////自動的に消えるまでのタイマーを更新。
@@ -270,9 +273,13 @@ void VirusEnemy::Update()
 	{
 
 		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
-		m_gravity += 0.06f;
-		//m_transform.pos.y -= m_gravity;
-		//m_transform.rotation.x += 3.0f;
+		m_gravity += 0.005f;
+		m_transform.pos.y -= m_gravity;
+		m_transform.rotation.x += 3.0f;
+
+		//死亡時のエフェクトを計算。
+		m_transform.pos += m_deadEffectVel;
+		m_deadEffectVel -= m_deadEffectVel / 6.0f;
 
 		iEnemy_EnemyStatusData->curlNozieFlag = true;
 

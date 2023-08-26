@@ -17,7 +17,7 @@ private:
 	std::array<KazMath::Vec3<float>, POINT_COUNT> m_points;
 	shared_ptr<IEnemy> m_refEnemy;
 	int m_frame;
-	const int EFFECT_FRAME = 8;
+	const int EFFECT_FRAME = 20;
 
 	DrawFuncData::DrawCallData m_model;
 	KazMath::Transform3D m_transform;

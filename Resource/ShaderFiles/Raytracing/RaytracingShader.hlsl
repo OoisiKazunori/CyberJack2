@@ -415,6 +415,7 @@ void mainRayGen()
         normalColor.xyz = n;
         materialInfo.y = 0.8f;
         materialInfo.w = MATERIAL_SEA;
+        emissiveColor = float4(0, 0, 0, 0);
 
     }
     

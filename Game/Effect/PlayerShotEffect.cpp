@@ -120,7 +120,7 @@ void PlayerShotEffect::Update()
 		}
 		else {
 
-			m_refEnemy->Dead();
+			m_refEnemy->Dead(&m_prevPos);
 
 		}
 
