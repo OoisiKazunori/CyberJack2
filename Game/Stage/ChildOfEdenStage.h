@@ -39,6 +39,7 @@ public:
 		DirectX::XMMATRIX m_billboardMat;
 		DirectX::XMMATRIX m_viewProjMat;
 		float m_playerPosZ;
+		UINT num;
 	};
 	struct OutputData
 	{
@@ -50,12 +51,6 @@ public:
 	std::vector<KazBufferHelper::BufferData> m_computeUpdateBuffer;
 
 	ComputeShader m_computeInit,m_computeUpdate;
-
-	std::shared_ptr<KazBufferHelper::BufferData>m_particleVertexBuffer;
-	std::shared_ptr<KazBufferHelper::BufferData>m_particleIndexBuffer;
-
-	//DrawFuncData::DrawCallData m_drawCall;
-
 
 	KazBufferHelper::BufferData matrixBuffer;
 	std::vector<DirectX::XMMATRIX> m_particleMatrix;

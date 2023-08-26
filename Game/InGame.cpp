@@ -383,6 +383,14 @@ void InGame::Update()
 
 	m_rail.Update();
 	m_stageArray[m_gameStageLevel]->playerPosZ = m_rail.GetPosition().z;
+	if (KeyBoradInputManager::Instance()->InputState(DIK_O))
+	{
+		m_stageArray[m_gameStageLevel]->hitFlag = true;
+	}
+	else
+	{
+		m_stageArray[m_gameStageLevel]->hitFlag = false;
+	}
 	m_stageArray[m_gameStageLevel]->Update();
 
 	m_player.Update();
