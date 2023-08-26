@@ -5,7 +5,18 @@ PlayerShotEffect::PlayerShotEffect()
 {
 
 	m_vertexBufferHandle = -1;
-	m_model = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/ShotEffect/", "ShotEffect.gltf"));
+	//m_model = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/ShotEffect/", "ShotEffect.gltf"));
+
+	DrawFuncData::PipelineGenerateData lData;
+	lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSPosNormalUvLightMain", "vs_6_4", SHADER_TYPE_VERTEX);
+	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvLightMain", "ps_6_4", SHADER_TYPE_PIXEL);
+	lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+	auto playerModel = *ModelLoader::Instance()->Load("Resource/ShotEffect/", "ShotEffect.gltf");
+	auto pipeline = DrawFuncData::GetModelBloomShader();
+	m_model = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*ModelLoader::Instance()->Load("Resource/ShotEffect/", "ShotEffect.gltf"), lData);
+
+	//m_model = DrawFuncData::SetRaytracingData(playerModel, pipeline);
 
 }
 
@@ -50,7 +61,7 @@ void PlayerShotEffect::Update()
 
 	//始点と終点の値を決める。
 	std::array<KazMath::Vec3<float>, 4> controlPoints;
-	controlPoints.front() = *m_refPlayerPos - KazMath::Vec3<float>(0,0,10.0f);
+	controlPoints.front() = *m_refPlayerPos - KazMath::Vec3<float>(0, 0, 10.0f);
 	controlPoints.back() = m_refEnemy->m_transform.pos;
 
 	//制御点の場所を決める。
@@ -89,7 +100,7 @@ void PlayerShotEffect::Update()
 
 	//ベジエ曲線上の点を計算する。
 	for (int index = 0; index < POINT_COUNT; ++index) {
-		
+
 		//このIndexの時間
 		float time = static_cast<float>(index) / static_cast<float>(POINT_COUNT);
 
@@ -122,6 +133,14 @@ void PlayerShotEffect::Update()
 
 		m_isActive = false;
 	}
+
+	//DrawFunc::Test(m_model, m_transform, DrawFunc::NONE);
+
+	m_emissive.x = 1.0f;
+	m_emissive.y = 1.0f;
+	m_emissive.z = 1.0f;
+	m_emissive.a = 1;
+	m_model.extraBufferArray.back().bufferWrapper->TransData(&m_emissive, sizeof(DirectX::XMFLOAT4));
 
 }
 
