@@ -19,9 +19,9 @@ private:
 	int m_frame;
 	const int EFFECT_FRAME = 8;
 
-	//DrawFuncData::DrawCallData m_model;
-	//KazMath::Transform3D m_transform;
-	//KazMath::Vec3<float> m_prevPos;
+	DrawFuncData::DrawCallData m_model;
+	KazMath::Transform3D m_transform;
+	KazMath::Vec3<float> m_prevPos;
 
 	//線の描画に必要な変数ら
 	int m_vertexBufferHandle;//デバック用のスプライン曲線描画の頂点バッファ

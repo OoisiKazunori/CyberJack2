@@ -5,7 +5,7 @@ PlayerShotEffect::PlayerShotEffect()
 {
 
 	m_vertexBufferHandle = -1;
-	//m_model = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/ShotEffect/", "ShotEffect.gltf"));
+	m_model = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/ShotEffect/", "ShotEffect.gltf"));
 
 }
 
@@ -43,7 +43,7 @@ void PlayerShotEffect::Generate(const KazMath::Vec3<float>* arg_refPlayerPos, sh
 void PlayerShotEffect::Update()
 {
 
-	//m_prevPos = m_transform.pos;
+	m_prevPos = m_transform.pos;
 
 	//現在のフレームのタイマーを更新。
 	++m_frame;
@@ -57,35 +57,35 @@ void PlayerShotEffect::Update()
 	controlPoints[1] = controlPoints[0] + m_controlPointVec;
 	controlPoints[2] = controlPoints[3] + m_controlPointVec;
 
-	////座標を求める。
-	//m_transform.pos = EvaluateBezierCurve(controlPoints, static_cast<float>(m_frame) / static_cast<float>(EFFECT_FRAME));
+	//座標を求める。
+	m_transform.pos = EvaluateBezierCurve(controlPoints, static_cast<float>(m_frame) / static_cast<float>(EFFECT_FRAME));
 
-	////移動した方向をもとにプレイヤーの姿勢を求める。
-	//KazMath::Vec3<float> movedVec = m_transform.pos - m_prevPos;
-	////動いていたら姿勢を更新。動いていなかったらやばい値になるため。
-	//DirectX::XMVECTOR playerQ = DirectX::XMQuaternionIdentity();
-	//if (0 < movedVec.Length()) {
+	//移動した方向をもとにプレイヤーの姿勢を求める。
+	KazMath::Vec3<float> movedVec = m_transform.pos - m_prevPos;
+	//動いていたら姿勢を更新。動いていなかったらやばい値になるため。
+	DirectX::XMVECTOR playerQ = DirectX::XMQuaternionIdentity();
+	if (0 < movedVec.Length()) {
 
-	//	KazMath::Vec3<float> movedVecNormal = movedVec.GetNormal();
+		KazMath::Vec3<float> movedVecNormal = movedVec.GetNormal();
 
-	//	//デフォルトの回転軸と移動した方向のベクトルが同じ値だったらデフォルトの回転軸の方向に移動しているってこと！
-	//	if (movedVecNormal.Dot(KazMath::Vec3<float>(0, 0, 1)) < 0.999f) {
+		//デフォルトの回転軸と移動した方向のベクトルが同じ値だったらデフォルトの回転軸の方向に移動しているってこと！
+		if (movedVecNormal.Dot(KazMath::Vec3<float>(0, 0, 1)) < 0.999f) {
 
-	//		KazMath::Vec3<float> cameraAxisZ = movedVecNormal;
-	//		KazMath::Vec3<float> cameraAxisY = KazMath::Vec3<float>(0, 1, 0);
-	//		KazMath::Vec3<float> cameraAxisX = cameraAxisY.Cross(cameraAxisZ);
-	//		cameraAxisY = cameraAxisZ.Cross(cameraAxisX);
-	//		DirectX::XMMATRIX cameraMatWorld = DirectX::XMMatrixIdentity();
-	//		cameraMatWorld.r[0] = { cameraAxisX.x, cameraAxisX.y, cameraAxisX.z, 0.0f };
-	//		cameraMatWorld.r[1] = { cameraAxisY.x, cameraAxisY.y, cameraAxisY.z, 0.0f };
-	//		cameraMatWorld.r[2] = { cameraAxisZ.x, cameraAxisZ.y, cameraAxisZ.z, 0.0f };
-	//		playerQ = DirectX::XMQuaternionRotationMatrix(cameraMatWorld);
+			KazMath::Vec3<float> cameraAxisZ = movedVecNormal;
+			KazMath::Vec3<float> cameraAxisY = KazMath::Vec3<float>(0, 1, 0);
+			KazMath::Vec3<float> cameraAxisX = cameraAxisY.Cross(cameraAxisZ);
+			cameraAxisY = cameraAxisZ.Cross(cameraAxisX);
+			DirectX::XMMATRIX cameraMatWorld = DirectX::XMMatrixIdentity();
+			cameraMatWorld.r[0] = { cameraAxisX.x, cameraAxisX.y, cameraAxisX.z, 0.0f };
+			cameraMatWorld.r[1] = { cameraAxisY.x, cameraAxisY.y, cameraAxisY.z, 0.0f };
+			cameraMatWorld.r[2] = { cameraAxisZ.x, cameraAxisZ.y, cameraAxisZ.z, 0.0f };
+			playerQ = DirectX::XMQuaternionRotationMatrix(cameraMatWorld);
 
-	//	}
+		}
 
-	//}
+	}
 
-	//m_transform.quaternion = playerQ;
+	m_transform.quaternion = playerQ;
 
 	//ベジエ曲線上の点を計算する。
 	for (int index = 0; index < POINT_COUNT; ++index) {
@@ -129,14 +129,14 @@ void PlayerShotEffect::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 {
 
 	//DrawFunc::DrawModelInRaytracing(m_model, m_transform, DrawFunc::NONE);
-	//DrawFunc::DrawModel(m_model, m_transform);
-	//arg_rasterize.ObjectRender(m_model);
-	//for (auto& index : m_model.m_raytracingData.m_blas) {
-	//	arg_blasVec.Add(index, m_transform.GetMat());
-	//}
+	DrawFunc::DrawModel(m_model, m_transform);
+	arg_rasterize.ObjectRender(m_model);
+	for (auto& index : m_model.m_raytracingData.m_blas) {
+		//6arg_blasVec.Add(index, m_transform.GetMat());
+	}
 
-	DrawFunc::DrawLine(m_splineDrawCall, m_splineRailPosArray, m_vertexBufferHandle);
-	arg_rasterize.ObjectRender(m_splineDrawCall);
+	//DrawFunc::DrawLine(m_splineDrawCall, m_splineRailPosArray, m_vertexBufferHandle);
+	//arg_rasterize.ObjectRender(m_splineDrawCall);
 
 }
 
