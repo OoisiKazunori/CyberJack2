@@ -79,6 +79,8 @@ private:
 	DirectX::XMMATRIX m_motherMat;
 	float m_alpha;
 
+	KazMath::Vec4<float> m_dissolve;
+
 	AnimationInRaytracing m_computeAnimation;
 	std::shared_ptr<ModelAnimator> m_animation;
 	std::shared_ptr<ModelInfomation>m_modelData;

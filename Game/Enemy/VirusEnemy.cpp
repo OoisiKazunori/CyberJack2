@@ -8,7 +8,7 @@
 VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 {
 	m_modelData = ModelLoader::Instance()->Load("Resource/Enemy/Virus/", "virus_cur.gltf");
-	m_model = DrawFuncData::SetDefferdRenderingModelAnimation(m_modelData);
+	m_model = DrawFuncData::SetDefferdRenderingModelAnimationDissolve(m_modelData);
 	m_alpha = 1.0f;
 	iEnemy_EnemyStatusData->fAlpha = &m_alpha;
 	InitMeshPartilce("Resource/Enemy/Virus/", "virus_cur.gltf", &m_motherMat);
@@ -328,6 +328,12 @@ void VirusEnemy::Update()
 		m_alpha = 1.0f;
 		iEnemy_EnemyStatusData->curlNozieFlag = true;
 	}
+
+	m_dissolve.x = 1.0f;
+	m_dissolve.y = 1.0f;
+	m_dissolve.z = 0.0f;
+	m_dissolve.a = 1.0f;
+	m_model.extraBufferArray.back().bufferWrapper->TransData(&m_dissolve, sizeof(KazMath::Vec4<float>));
 }
 
 void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
