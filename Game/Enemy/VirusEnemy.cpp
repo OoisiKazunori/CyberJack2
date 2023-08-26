@@ -273,6 +273,7 @@ void VirusEnemy::Update()
 	case VirusEnemy::DEAD:
 	{
 
+		m_deadEffectData.m_outlineColor = KazMath::Vec4<float>(KazMath::Rand(0, 10) / 10.0f, KazMath::Rand(0, 10) / 10.0f, 0, 1);
 		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
 		m_gravity += 0.005f;
 		m_transform.pos.y -= m_gravity;
@@ -333,7 +334,7 @@ void VirusEnemy::Update()
 
 
 	m_deadEffectData.m_dissolve.x = 0.55f;
-	m_model.extraBufferArray[1].bufferWrapper->TransData(&m_deadEffectData, sizeof(m_deadEffectData));
+	m_model.extraBufferArray[4].bufferWrapper->TransData(&m_deadEffectData, sizeof(m_deadEffectData));
 
 	m_model.extraBufferArray.back() = GBufferMgr::Instance()->m_outlineBuffer;
 	m_model.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;

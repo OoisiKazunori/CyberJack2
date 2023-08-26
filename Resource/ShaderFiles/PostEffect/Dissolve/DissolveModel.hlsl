@@ -332,12 +332,12 @@ GBufferOutput PSDefferdAnimationMainDissolve(PosUvNormalTangentBinormalOutput in
     float3 weights = float3(0.8f, 0.1f, 0.1f); // 各ノイズの重み
     float noise = dot(noisevalue, weights);
     
-    outlineTexutre[uint2(input.svpos.xy)] = float4(1, 1, 0, 1);
-    
     if (noise <= 0.01f)
     {
         discard;
     }
+    
+    outlineTexutre[uint2(input.svpos.xy)] = m_outlineColor;
     
     
     float4 normalColor = NormalTex.Sample(smp, input.uv);

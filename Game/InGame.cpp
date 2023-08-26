@@ -467,9 +467,6 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
 	m_player.Draw(arg_rasterize, arg_blasVec);
 
-	//アウトラインを計算
-	//GBufferMgr::Instance()->m_outline->Apply();
-
 	if (!m_debugFlag)
 	{
 		m_cursor.Draw(arg_rasterize);
