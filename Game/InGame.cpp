@@ -4,6 +4,7 @@
 #include"../KazLibrary/Input/ControllerInputManager.h"
 #include"Effect/PlayerShotEffectMgr.h"
 #include"../KazLibrary/Loader/MeshParticleLoader.h"
+#include"PostEffect/Outline.h"
 
 InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX>& arg_responeData, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>& arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX>& BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX>& CAMERA_ARRAY) :
 	m_stageArray(arg_stageArray), m_responeData(arg_responeData), m_sceneNum(-1)
@@ -466,6 +467,9 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
 	m_player.Draw(arg_rasterize, arg_blasVec);
 
+	//アウトラインを計算
+	GBufferMgr::Instance()->m_outline->Apply();
+
 	if (!m_debugFlag)
 	{
 		m_cursor.Draw(arg_rasterize);
@@ -502,4 +506,15 @@ int InGame::SceneChange()
 		return tmp;
 	}
 	return SCENE_NONE;
+}
+
+void InGame::BufferStatesTransition(ID3D12Resource* arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after)
+{
+	D3D12_RESOURCE_BARRIER barriers[] = {
+	CD3DX12_RESOURCE_BARRIER::Transition(
+		arg_resource,
+		arg_before,
+		arg_after),
+	};
+	DirectX12CmdList::Instance()->cmdList->ResourceBarrier(_countof(barriers), barriers);
 }

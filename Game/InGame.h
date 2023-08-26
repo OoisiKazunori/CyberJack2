@@ -74,6 +74,8 @@ public:
 
 	int SceneChange();
 
+	void BufferStatesTransition(ID3D12Resource* arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after);
+
 	std::array<std::array<shared_ptr<IEnemy>, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> GetEnemy() { return m_enemies; }
 
 private:

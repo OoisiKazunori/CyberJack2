@@ -5,6 +5,7 @@
 #include"RenderTarget/RenderTargetStatus.h"
 #include"../KazLibrary/PostEffect/GaussianBlur.h"
 #include"../KazLibrary/Helper/Compute.h"
+#include"../PostEffect/Outline.h"
 #include <Helper/Compute.h>
 
 //ワールド座標、ラフネス、メタルネス、スぺキュラ、オブジェクトが反射するか屈折するか(インデックス)、Albedo、法線、カメラ座標(定数バッファでも可能)
@@ -96,6 +97,7 @@ GBufferMgr::GBufferMgr()
 
 	//レンズフレア用のブラー
 	m_lensFlareBlur = std::make_shared<PostEffect::GaussianBlur>(m_lensFlareLuminanceGBuffer);
+	m_outline = std::make_shared<PostEffect::Outline>(RenderTargetStatus::Instance()->GetBuffer(GetRenderTarget()[GBufferMgr::NORMAL]));
 
 	//レンズフレア合成関連。
 	m_lensFlareConposeBuffTexture = KazBufferHelper::SetUAVTexBuffer(1280, 720, DXGI_FORMAT_R8G8B8A8_UNORM);

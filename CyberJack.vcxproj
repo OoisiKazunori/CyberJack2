@@ -271,6 +271,7 @@
     <ClCompile Include="KazLibrary\PostEffect\Bloom.cpp" />
     <ClCompile Include="KazLibrary\PostEffect\GaussianBlur.cpp" />
     <ClCompile Include="KazLibrary\PostEffect\LensFlare.cpp" />
+    <ClCompile Include="KazLibrary\PostEffect\Outline.cpp" />
     <ClCompile Include="KazLibrary\Raytracing\Blas.cpp" />
     <ClCompile Include="KazLibrary\Raytracing\BlasDataContainer.cpp" />
     <ClCompile Include="KazLibrary\Raytracing\BlasVector.cpp" />
@@ -493,6 +494,7 @@
     <ClInclude Include="KazLibrary\PostEffect\Bloom.h" />
     <ClInclude Include="KazLibrary\PostEffect\GaussianBlur.h" />
     <ClInclude Include="KazLibrary\PostEffect\LensFlare.h" />
+    <ClInclude Include="KazLibrary\PostEffect\Outline.h" />
     <ClInclude Include="KazLibrary\Raytracing\Blas.h" />
     <ClInclude Include="KazLibrary\Raytracing\BlasDataContainer.h" />
     <ClInclude Include="KazLibrary\Raytracing\BlasVector.h" />

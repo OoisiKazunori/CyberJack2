@@ -6,6 +6,7 @@
 
 namespace PostEffect {
 	class GaussianBlur;
+	class Outline;
 }
 class ComputeShader;
 
@@ -118,6 +119,7 @@ public:
 
 	//レンズフレア用ブラー
 	std::shared_ptr<PostEffect::GaussianBlur> m_lensFlareBlur;
+	std::shared_ptr<PostEffect::Outline> m_outline;
 
 private:
 	//G-Buffer用のレンダーターゲット

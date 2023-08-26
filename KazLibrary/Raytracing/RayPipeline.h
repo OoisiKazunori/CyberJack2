@@ -11,6 +11,7 @@
 #include "HitGroupMgr.h"
 #include "DirectXCommon/DirectX12.h"
 #include "Helper/KazBufferHelper.h"
+#include "Helper/Compute.h"
 
 namespace PostEffect {
 	class LensFlare;
@@ -80,6 +81,9 @@ namespace Raytracing {
 
 		//レンズフレアクラス
 		std::shared_ptr<PostEffect::LensFlare> m_lensFlare;
+
+		//アウトライン合成用
+		ComputeShader m_outlineComposeShader;
 
 	public:
 

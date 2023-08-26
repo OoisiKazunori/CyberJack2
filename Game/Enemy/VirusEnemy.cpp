@@ -308,15 +308,15 @@ void VirusEnemy::Update()
 
 	m_motherMat = m_transform.GetMat();
 
-	if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
-	{
-		m_animation->Update(1.0f);
-		m_computeAnimation.Compute(
-			*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0],
-			m_animation->GetBoneMatBuff(),
-			m_transform.GetMat()
-		);
-	}
+	//if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
+	//{
+	//	m_animation->Update(1.0f);
+	//	m_computeAnimation.Compute(
+	//		*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0],
+	//		m_animation->GetBoneMatBuff(),
+	//		m_transform.GetMat()
+	//	);
+	//}
 
 	if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
 	{
@@ -331,7 +331,7 @@ void VirusEnemy::Update()
 
 
 
-	m_dissolve.x = sinf(m_stopTimer);
+	m_dissolve.x = 0.55f;
 	m_model.extraBufferArray.back().bufferWrapper->TransData(&m_dissolve, sizeof(KazMath::Vec4<float>));
 }
 
