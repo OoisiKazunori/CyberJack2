@@ -903,7 +903,6 @@ namespace DrawFuncData
 		return drawCallData;
 	};
 
-
 	//モデルのポリゴン表示(インデックスあり、マテリアルあり)
 	static DrawCallData SetDrawGLTFIndexMaterialLightData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
@@ -1063,6 +1062,65 @@ namespace DrawFuncData
 
 		return drawCallData;
 	};
+
+	//レイトレでのモデルのポリゴン表示(インデックスあり、マテリアルあり、ブルームの加減設定あり、アニメーション対応)
+	static DrawCallData SetDrawGLTFAnimationIndexMaterialInRayTracingBloomData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA)
+	{
+		DrawCallData drawCallData;
+
+		//頂点情報
+		drawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
+		drawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(MODEL_DATA.modelVertDataHandle).index;
+		drawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
+		for (auto& obj : MODEL_DATA.modelData)
+		{
+			drawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
+		}
+
+		//行列情報
+		drawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(CoordinateSpaceMatData))
+		);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
+
+		//レイトレ側での判断
+		drawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(UINT))
+		);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(UINT);
+
+		//色乗算
+		drawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
+		);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
+		KazMath::Color init(255, 255, 255, 255);
+		drawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+
+		//エミッシブ..xyz色,a強さ
+		drawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
+		);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
+
+		drawCallData.pipelineData = PIPELINE_DATA;
+		drawCallData.pipelineData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+
+		drawCallData.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
+
+		drawCallData.SetupRaytracing(true);
+
+		return drawCallData;
+	};
+
 	//レイトレのみセットアップ
 	DrawCallData SetRaytracingData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA);
 
@@ -1317,6 +1375,23 @@ namespace DrawFuncData
 	{
 		DrawFuncData::PipelineGenerateData lData;
 		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdMain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdBloomMain", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+
+		//その他設定
+		lData.desc.NumRenderTargets = static_cast<UINT>(GBufferMgr::Instance()->GetRenderTargetFormat().size());
+		for (int i = 0; i < GBufferMgr::Instance()->GetRenderTargetFormat().size(); ++i)
+		{
+			lData.desc.RTVFormats[i] = GBufferMgr::Instance()->GetRenderTargetFormat()[i];
+		}
+		return lData;
+	};
+
+	static DrawFuncData::PipelineGenerateData GetAnimationModelBloomShader()
+	{
+		DrawFuncData::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormalBoneNoWeight();
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSDefferdMain", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSDefferdBloomMain", "ps_6_4", SHADER_TYPE_PIXEL);
 		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;

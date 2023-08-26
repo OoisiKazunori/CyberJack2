@@ -7,16 +7,9 @@ PlayerShotEffect::PlayerShotEffect()
 	m_vertexBufferHandle = -1;
 	//m_model = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/ShotEffect/", "ShotEffect.gltf"));
 
-	DrawFuncData::PipelineGenerateData lData;
-	lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormal();
-	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSPosNormalUvLightMain", "vs_6_4", SHADER_TYPE_VERTEX);
-	lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSPosNormalUvLightMain", "ps_6_4", SHADER_TYPE_PIXEL);
-	lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 	auto playerModel = *ModelLoader::Instance()->Load("Resource/ShotEffect/", "ShotEffect.gltf");
-	auto pipeline = DrawFuncData::GetModelBloomShader();
-	m_model = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingData(*ModelLoader::Instance()->Load("Resource/ShotEffect/", "ShotEffect.gltf"), lData);
-
-	//m_model = DrawFuncData::SetRaytracingData(playerModel, pipeline);
+	auto pipeline = DrawFuncData::GetAnimationModelBloomShader();
+	m_model = DrawFuncData::SetDrawGLTFAnimationIndexMaterialInRayTracingBloomData(*ModelLoader::Instance()->Load("Resource/ShotEffect/", "ShotEffect.gltf"), pipeline);
 
 }
 

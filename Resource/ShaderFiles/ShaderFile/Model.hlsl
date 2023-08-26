@@ -232,38 +232,6 @@ cbuffer cbuff4 : register(b3)
 PosUvNormalTangentBinormalOutput VSDefferdAnimationMain(VertexData input)
 {
     float4 resultPos = input.pos;
-    //if (input.boneNo[2] != NO_BONE)
-    //{
-    //    int num;
-    //    
-    //    if (input.boneNo[3] != NO_BONE)
-    //    {
-    //        num = 4;
-    //    }
-    //    else
-    //    {
-    //        num = 3;
-    //    }
-    //    
-    //    matrix mat = bones[input.boneNo[0]] * input.weight[0];
-    //    for (int i = 1; i < num; ++i)
-    //    {
-    //        mat += bones[input.boneNo[i]] * input.weight[i];
-    //    }
-    //    resultPos = mul(mat, input.pos);
-    //}
-    //else if (input.boneNo[1] != NO_BONE)
-    //{
-    //    matrix mat = bones[input.boneNo[0]] * input.weight[0];
-    //    mat += bones[input.boneNo[1]] * (1 - input.weight[0]);
-    //    
-    //    resultPos = mul(mat, input.pos);
-    //}
-    //else if (input.boneNo[0] != NO_BONE)
-    //{
-    //    resultPos = mul(bones[input.boneNo[0]], input.pos);
-    //}
-
     PosUvNormalTangentBinormalOutput op;
     op.svpos = mul(worldMat,resultPos);
     op.worldPos = op.svpos.xyz;
@@ -310,5 +278,56 @@ GBufferOutput PSDefferdAnimationMain(PosUvNormalTangentBinormalOutput input) : S
     output.metalnessRoughness = float4(mrColor.xyz,raytracingId);
     output.world = float4(input.worldPos,1.0f);
     output.emissive = EmissiveTex.Sample(smp,input.uv);
+    return output;
+}
+
+cbuffer cbuff4 : register(b3)
+{
+    float4 bloomColor;
+}
+
+GBufferOutput PSDefferdAnimationBloomMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
+{
+    float4 normalColor = NormalTex.Sample(smp,input.uv);
+    //-1.0f ~ 1.0f
+    float3 normalVec = 2 * normalColor - 1.0f;
+    normalVec = normalize(normalVec);
+
+    float3 normal = mul(rotaion,float4(input.normal,1.0f));
+    normal = normalize(normal);
+    float3 tangent = mul(rotaion,float4(input.tangent,1.0f));
+    tangent = normalize(tangent);
+    float3 binormal = cross(normal,tangent);
+
+    float3 nWorld = CalucurateTangentToLocal(normalVec,normal,tangent,binormal);
+    if(IsEnableToUseMaterialTex(normalColor))
+    {
+        nWorld = input.normal;
+    }
+
+    float4 texColor = AlbedoTex.Sample(smp,input.uv);
+    float4 mrColor = MetalnessRoughnessTex.Sample(smp,input.uv);
+
+    if(IsEnableToUseMaterialTex(mrColor))
+    {
+        mrColor.xyz = float3(0.0f,0.0f,0.0f);
+    }
+
+    GBufferOutput output;
+    output.albedo = texColor * color;
+    output.normal = float4(normal, 1.0f);
+    output.metalnessRoughness = float4(mrColor.xyz,raytracingId);
+    output.world = float4(input.worldPos,1.0f);
+
+    float4 emissive = EmissiveTex.Sample(smp,input.uv);
+    if(IsEnableToUseMaterialTex(emissive))
+    {
+        emissive = emissiveColorAndStrength;
+    }
+    else
+    {
+        emissive *= emissiveColorAndStrength;
+    }
+    output.emissive = emissive;
     return output;
 }
