@@ -1280,10 +1280,14 @@ namespace DrawFuncData
 		drawCall.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
 
 		drawCall.extraBufferArray.emplace_back(
-			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4) * 2)
 		);
 		drawCall.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		drawCall.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA5;
+
+		drawCall.extraBufferArray.emplace_back();
+		drawCall.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+		drawCall.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_TEX;
 
 		drawCall.SetupRaytracing(true);
 
