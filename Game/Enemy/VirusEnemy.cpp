@@ -68,6 +68,11 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 
 	ShockWave::Instance()->m_shockWave[moveID].m_radius = 0.0f;
 	ShockWave::Instance()->m_shockWave[moveID].m_isActive = false;
+
+	m_deadEffectData.m_dissolve.x = 0.0f;
+
+	m_deadEffectData.m_outlineColor = OUTLINE_COLOR;
+	m_deadEffectData.m_outlineColor.a = 0.0f;
 }
 
 void VirusEnemy::Finalize()
@@ -273,11 +278,14 @@ void VirusEnemy::Update()
 	case VirusEnemy::DEAD:
 	{
 
-		m_deadEffectData.m_outlineColor = KazMath::Vec4<float>(KazMath::Rand(0, 10) / 10.0f, KazMath::Rand(0, 10) / 10.0f, 0, 1);
 		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
 		m_gravity += 0.005f;
 		m_transform.pos.y -= m_gravity;
 		m_transform.rotation.x += 3.0f;
+
+		m_deadEffectData.m_dissolve.x = std::clamp(m_deadEffectData.m_dissolve.x + 0.01f, 0.0f, 1.0f);
+
+		m_deadEffectData.m_outlineColor.a += (1.0f - m_deadEffectData.m_outlineColor.a) / 50.0f;
 
 		//死亡時のエフェクトを計算。
 		m_transform.pos += m_deadEffectVel;
@@ -333,7 +341,6 @@ void VirusEnemy::Update()
 
 
 
-	m_deadEffectData.m_dissolve.x = 0.55f;
 	m_model.extraBufferArray[4].bufferWrapper->TransData(&m_deadEffectData, sizeof(m_deadEffectData));
 
 	m_model.extraBufferArray.back() = GBufferMgr::Instance()->m_outlineBuffer;

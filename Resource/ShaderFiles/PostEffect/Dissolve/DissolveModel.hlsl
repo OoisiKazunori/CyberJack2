@@ -337,7 +337,10 @@ GBufferOutput PSDefferdAnimationMainDissolve(PosUvNormalTangentBinormalOutput in
         discard;
     }
     
+    if (0 < input.worldPos.y)
+    {
     outlineTexutre[uint2(input.svpos.xy)] = m_outlineColor;
+    }
     
     
     float4 normalColor = NormalTex.Sample(smp, input.uv);
@@ -370,6 +373,7 @@ GBufferOutput PSDefferdAnimationMainDissolve(PosUvNormalTangentBinormalOutput in
     output.normal = float4(normal, 1.0f);
     output.metalnessRoughness = float4(mrColor.xyz, raytracingId);
     output.world = float4(input.worldPos, 1.0f);
+    //output.emissive = float4(0,0,0,0);
     output.emissive = EmissiveTex.Sample(smp, input.uv);
     return output;
 }

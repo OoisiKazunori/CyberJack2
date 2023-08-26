@@ -68,6 +68,8 @@ private:
 	const float SHOCK_WAVE_TIMER = 60.0f;
 	const float SHOCK_WAVE_RAIDUS = 100.0f;
 
+	const KazMath::Vec4<float> OUTLINE_COLOR = KazMath::Vec4<float>(0.35f, 0.91f, 0.55f, 1.0f);
+
 
 	//プレイヤーを中心とした半径どのくらいの位置に敵を出すか。
 	const float SPAWN_R = 50.0f;
