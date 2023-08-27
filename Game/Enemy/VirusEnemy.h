@@ -3,6 +3,7 @@
 #include"../Game/Interface/IEnemy.h"
 #include"../KazLibrary/Render/MeshParticleRender.h"
 #include"../KazLibrary/Animation/AnimationInRaytracing.h"
+#include"../Game/Effect/EnemyDeadParticle.h"
 
 class VirusEnemy:public IEnemy
 {
@@ -93,5 +94,10 @@ private:
 	std::shared_ptr<ModelInfomation>m_modelData;
 
 	std::unique_ptr<MeshParticleRender>m_meshParticleRender;
+	std::unique_ptr<EnemyDeadParticle>m_deadParticle;
+	std::unique_ptr<EnemyDeadParticle>m_knockBackParticle;
+	bool m_initDeadParticleFlag;
+
+
 };
 

@@ -6,6 +6,7 @@
 #include"../Effect/ShockWave.h"
 #include"../KazLibrary/Buffer/GBufferMgr.h"
 #include"../Effect/EnemyDissolveParam.h"
+#include"../KazLibrary/Input/KeyBoradInputManager.h"
 
 VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 {
@@ -29,6 +30,7 @@ VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 	iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData.modelVertexBuffer.elementNum = VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0]->elementNum;
 	//メッシュパーティクルの表示
 	m_meshParticleRender = std::make_unique<MeshParticleRender>(iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData);
+
 }
 
 void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)
@@ -76,6 +78,19 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 
 	m_deadEffectData.m_outlineColor = OUTLINE_COLOR;
 	m_deadEffectData.m_outlineColor.a = 0.0f;
+
+	if (!m_deadParticle)
+	{
+		m_deadParticle = std::make_unique<EnemyDeadParticle>(m_meshParticleRender->meshParticleBufferData, m_transform.pos);
+		m_deadParticle->m_vel = 2.0f;
+	}
+	if (!m_knockBackParticle)
+	{
+		m_knockBackParticle = std::make_unique<EnemyDeadParticle>(m_meshParticleRender->meshParticleBufferData, m_transform.pos);
+		m_knockBackParticle->m_vel = 0.5f;
+	}
+
+	m_initDeadParticleFlag = false;
 }
 
 void VirusEnemy::Finalize()
@@ -144,7 +159,8 @@ void VirusEnemy::Update()
 	playerQ = DirectX::XMQuaternionMultiply(playerQ, DirectX::XMQuaternionRotationAxis(GetXMVECTOR(TransformVector3(Vec3<float>(0, 0, 1), playerQ)), m_aroundAngle));
 
 
-	if (!iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag && !m_isDead) {
+	if (!iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag && !m_isDead)
+	{
 		m_status = DEAD;
 
 		m_isDead = true;
@@ -166,6 +182,7 @@ void VirusEnemy::Update()
 		//死亡エフェクトの初速度を計算。
 		m_deadEffectVel *= DEAD_EFFECT_VEL;
 
+		m_knockBackParticle->InitCompute(m_transform.pos, 1000);
 	}
 
 	////自動的に消えるまでのタイマーを更新。
@@ -282,7 +299,6 @@ void VirusEnemy::Update()
 	break;
 	case VirusEnemy::DEAD:
 	{
-
 		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
 		m_gravity += 0.002f;
 		m_transform.pos.y -= m_gravity;
@@ -309,6 +325,22 @@ void VirusEnemy::Update()
 		ShockWave::Instance()->m_shockWave[moveID].m_radius = easing * SHOCK_WAVE_RAIDUS;
 		ShockWave::Instance()->m_shockWave[moveID].m_power = (1.0f - easing);
 
+		if (0.94f <= m_deadEffectData.m_dissolve.a && !m_initDeadParticleFlag)
+		{
+			m_deadParticle->InitCompute(m_transform.pos, 100);
+			m_initDeadParticleFlag = true;
+		}
+		m_deadParticle->m_pos = m_transform.pos;
+
+		//ノックバックのパーティクルを出させない
+		if (0.6f <= m_deadEffectData.m_dissolve.a)
+		{
+			m_knockBackParticle->m_pos = { -10000.0f,0.0f,0.0f };
+		}
+		else
+		{
+			m_knockBackParticle->m_pos = m_transform.pos;
+		}
 	}
 	break;
 	default:
@@ -334,19 +366,17 @@ void VirusEnemy::Update()
 
 	m_motherMat = m_transform.GetMat();
 
-	//if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
-	//{
-	//	m_animation->Update(1.0f);
-	//	m_computeAnimation.Compute(
-	//		*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0],
-	//		m_animation->GetBoneMatBuff(),
-	//		m_transform.GetMat()
-	//	);
-	//}
+	m_animation->Update(1.0f - m_deadEffectData.m_dissolve.a);
+	m_computeAnimation.Compute(
+		*VertexBufferMgr::Instance()->GetVertexIndexBuffer(m_model.m_modelVertDataHandle).vertBuffer[0],
+		m_animation->GetBoneMatBuff(),
+		m_transform.GetMat()
+	);
+
 
 	if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
 	{
-		m_alpha = 0.0f;
+		m_alpha = 1.0f;
 		iEnemy_EnemyStatusData->curlNozieFlag = false;
 	}
 	else
@@ -371,10 +401,19 @@ void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector&
 {
 	//m_meshParticleRender->Compute(arg_rasterize);
 	DrawFunc::DrawModel(m_model, m_transform, m_animation->GetBoneMatBuff());
-	//if (iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag)
-	//{
 	arg_rasterize.ObjectRender(m_model);
-	//}
+	if (m_initDeadParticleFlag)
+	{
+		m_deadParticle->m_color = KazMath::Color(0, 200, 0, 255);
+		m_deadParticle->UpdateCompute(arg_rasterize);
+
+	}
+	if (m_status == VirusEnemy::DEAD)
+	{
+		m_knockBackParticle->m_color = KazMath::Color(255, 0, 0, 255);
+		m_knockBackParticle->UpdateCompute(arg_rasterize);
+	}
+
 	for (auto& index : m_model.m_raytracingData.m_blas)
 	{
 		arg_blasVec.Add(index, m_transform.GetMat(), moveID + 2);	//+2は0は通常オブジェクトで1はGPUパーティクルなため

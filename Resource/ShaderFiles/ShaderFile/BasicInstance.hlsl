@@ -47,10 +47,26 @@ GBufferOutput PSmain(VSOutput input) : SV_TARGET
 {
     GBufferOutput output;
     output.albedo = input.color;
-    output.normal = float4(-1, -1, -1, 1.0f); //³‚µ‚¢ƒ[ƒ‹ƒhÀ•W‚ªæ‚ê‚È‚¢‚½‚ßA‚±‚±‚Å–@ü‚ğ-1,-1,-1‚É‚·‚é‚±‚Æ‚É‚æ‚Á‚ÄGPUƒp[ƒeƒBƒNƒ‹‚Å‚ ‚é‚Æ‚¢‚¤‚±‚Æ‚ğƒŒƒCƒgƒŒ‘¤‚É“`‚¦AƒAƒ‹ƒxƒh‚Å“h‚è‚Â‚Ô‚·ˆ—‚ğ‘‚¢‚Ä‚¢‚Ü‚·B
+    output.normal = float4(-1, -1, -1, 1.0f); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½hï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½ßAï¿½ï¿½ï¿½ï¿½ï¿½Å–@ï¿½ï¿½ï¿½ï¿½-1,-1,-1ï¿½É‚ï¿½ï¿½é‚±ï¿½Æ‚É‚ï¿½ï¿½ï¿½ï¿½GPUï¿½pï¿½[ï¿½eï¿½Bï¿½Nï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½ï¿½ï¿½Cï¿½gï¿½ï¿½ï¿½ï¿½ï¿½É“`ï¿½ï¿½ï¿½Aï¿½Aï¿½ï¿½ï¿½xï¿½hï¿½Å“hï¿½ï¿½Â‚Ô‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½B
     output.metalnessRoughness = float4(0, 1, 0, 1);
     output.world = float4(input.svpos.xyz, 1.0f);
     output.emissive = output.albedo / 2.0f;
+    return output;
+}
+
+
+cbuffer buffer0 : register(b0)
+{
+    float4 emissive;
+}
+GBufferOutput PSEmissiveMain(VSOutput input) : SV_TARGET
+{
+    GBufferOutput output;
+    output.albedo = input.color;
+    output.normal = float4(-1, -1, -1, 1.0f); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½hï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½ßAï¿½ï¿½ï¿½ï¿½ï¿½Å–@ï¿½ï¿½ï¿½ï¿½-1,-1,-1ï¿½É‚ï¿½ï¿½é‚±ï¿½Æ‚É‚ï¿½ï¿½ï¿½ï¿½GPUï¿½pï¿½[ï¿½eï¿½Bï¿½Nï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½ï¿½ï¿½Cï¿½gï¿½ï¿½ï¿½ï¿½ï¿½É“`ï¿½ï¿½ï¿½Aï¿½Aï¿½ï¿½ï¿½xï¿½hï¿½Å“hï¿½ï¿½Â‚Ô‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½B
+    output.metalnessRoughness = float4(0, 1, 0, 1);
+    output.world = float4(input.svpos.xyz, 1.0f);
+    output.emissive = emissive;
     return output;
 }
 

@@ -195,6 +195,8 @@ struct ParticeArgumentData
     float3 rotation;
     float3 rotationVel;
     float4 color;
+    float3 rotationLerp;
+    float4 colorLerp;
 };
 
 static const int PARTICLE_MAX_NUM = 1024;
@@ -225,7 +227,7 @@ void InitCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, uin
 
     ParticleDataBuffer[index].scale = float3(SCALE, SCALE, SCALE);
     ParticleDataBuffer[index].rotation = RandVec3(RandomTableBuffer[index], 360.0f, 0.0f);
-    ParticleDataBuffer[index].rotationVel = RandVec3(RandomTableBuffer[index], 10.0f, 0.0f);
+    ParticleDataBuffer[index].rotationVel = RandVec3(RandomTableBuffer[index], 5.0f, 0.0f);
     ParticleDataBuffer[index].color = float4(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
@@ -239,7 +241,9 @@ cbuffer CameraBuffer : register(b0)
 {
     matrix billboard;
     matrix viewProj;
-    float playerPosZ;
+    float3 playerPos;
+    float radius;
+    uint rotaFlag;
 }
 
 struct VertexBufferData
@@ -251,82 +255,51 @@ struct VertexBufferData
     float3 binormal;
 };
 
-float3 GetNormal(RWStructuredBuffer<VertexBufferData> vertex,uint index,uint2 offset)
+
+bool CheckCircleAndCircle(float3 arg_A,float3 arg_B,float arg_AR,float arg_BR)
 {
-    return cross(normalize(vertex[index + offset.x].svpos - vertex[index].svpos),normalize(vertex[index + offset.y].svpos - vertex[index].svpos));
-}
+    return distance(arg_A,arg_B) <= arg_AR + arg_BR;
+};
+
 
 RWStructuredBuffer<OutputData> WorldDataBuffer : register(u1);
-RWStructuredBuffer<VertexBufferData> VertexBuffer : register(u2);
-RWStructuredBuffer<uint> IndexBuffer : register(u3);
-RWStructuredBuffer<matrix> WorldMatBuffer : register(u4);
+RWStructuredBuffer<matrix> WorldMatBuffer : register(u2);
 [numthreads(1024, 1, 1)]
 void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, uint3 groupThreadID : SV_GroupThreadID)
 {
     uint index = ThreadGroupIndex(groupId, groupIndex, groupThreadID, 1024);
 
     //プレイヤーより手前の場合は奥に置く
-    if (ParticleDataBuffer[index].pos.z <= playerPosZ)
+    if (ParticleDataBuffer[index].pos.z <= playerPos.z)
     {
-        ParticleDataBuffer[index].pos.z = playerPosZ + 2000.0f;
+        ParticleDataBuffer[index].pos.z = playerPos.z + 2000.0f;
         ParticleDataBuffer[index].scale = float3(0.0f, 0.0f, 0.0f);
     }
     ParticleDataBuffer[index].scale = Lerp(ParticleDataBuffer[index].scale, float3(SCALE, SCALE, SCALE), 0.1f);
-    ParticleDataBuffer[index].rotation += ParticleDataBuffer[index].rotationVel;
+
+
+    bool isHitFLag = CheckCircleAndCircle(ParticleDataBuffer[index].pos,playerPos,ParticleDataBuffer[index].scale.x,radius);
+    float3 rotaVel = ParticleDataBuffer[index].rotationVel;
+    float4 color = ParticleDataBuffer[index].color;
+    if(isHitFLag)
+    {
+        rotaVel = ParticleDataBuffer[index].rotationVel + float3(5.0f,5.0f,5.0f);
+        color = float4(0.8,0.0,0.0,1.0);
+    }
+
+    
+    ParticleDataBuffer[index].rotation += rotaVel;
+    ParticleDataBuffer[index].rotationLerp = lerp(ParticleDataBuffer[index].rotationLerp,ParticleDataBuffer[index].rotation,0.1f);
+    ParticleDataBuffer[index].colorLerp = lerp(ParticleDataBuffer[index].colorLerp,color,0.1f);
 
     WorldDataBuffer[index].mat =
     CalucurateWorldMat(
         ParticleDataBuffer[index].pos,
         ParticleDataBuffer[index].scale,
-        ParticleDataBuffer[index].rotation
+        ParticleDataBuffer[index].rotationLerp
     );
 
     WorldMatBuffer[index] = WorldDataBuffer[index].mat;
-
-    uint vertexIndex = index * 4;
-    float vertScale = 1.0f;
-    
-    VertexBuffer[vertexIndex].svpos = float4(-0.5f, 0.5f, 0.0f, 1.0f);
-    VertexBuffer[vertexIndex + 1].svpos = float4(-0.5f, -0.5f, 0.0f, 1.0f);
-    VertexBuffer[vertexIndex + 2].svpos = float4(0.5f, 0.5f, 0.0f, 1.0f);
-    VertexBuffer[vertexIndex + 3].svpos = float4(0.5f, -0.5f, 0.0f, 1.0f);
-
-    VertexBuffer[vertexIndex].svpos =     mul(WorldDataBuffer[index].mat, float4(VertexBuffer[vertexIndex].svpos    , 1.0f));
-    VertexBuffer[vertexIndex + 1].svpos = mul(WorldDataBuffer[index].mat, float4(VertexBuffer[vertexIndex + 1].svpos, 1.0f));
-    VertexBuffer[vertexIndex + 2].svpos = mul(WorldDataBuffer[index].mat, float4(VertexBuffer[vertexIndex + 2].svpos, 1.0f));
-    VertexBuffer[vertexIndex + 3].svpos = mul(WorldDataBuffer[index].mat, float4(VertexBuffer[vertexIndex + 3].svpos, 1.0f));
-
-    VertexBuffer[vertexIndex].normal =     GetNormal(VertexBuffer,vertexIndex,uint2(1,2));
-    VertexBuffer[vertexIndex + 1].normal = GetNormal(VertexBuffer,vertexIndex,uint2(1,2));
-    VertexBuffer[vertexIndex + 2].normal = GetNormal(VertexBuffer,vertexIndex,uint2(1,2));
-    VertexBuffer[vertexIndex + 3].normal = GetNormal(VertexBuffer,vertexIndex,uint2(1,2));
-
-    for(int i = vertexIndex;i < vertexIndex + 4; ++i)
-    {
-        VertexBuffer[vertexIndex + 1].uv = float2(0.0f,0.0f);
-        VertexBuffer[vertexIndex + 1].binormal = float3(0.0f,0.0f,0.0f);
-        VertexBuffer[vertexIndex + 1].tangent = float3(0.0f,0.0f,0.0f);
-    }
-    uint indeciesIndex = index * 6;
-    if(index == 0)
-    {
-        IndexBuffer[indeciesIndex] = indeciesIndex;
-	    IndexBuffer[indeciesIndex + 1] = indeciesIndex + 1;
-	    IndexBuffer[indeciesIndex + 2] = indeciesIndex + 2;
-	    IndexBuffer[indeciesIndex + 3] = indeciesIndex + 2;
-	    IndexBuffer[indeciesIndex + 4] = indeciesIndex + 1;
-	    IndexBuffer[indeciesIndex + 5] = indeciesIndex + 3;
-    }
-    else
-    {
-        uint offsetIndex = index * 4;
-        IndexBuffer[indeciesIndex] = offsetIndex;
-	    IndexBuffer[indeciesIndex + 1] = offsetIndex + 1;
-	    IndexBuffer[indeciesIndex + 2] = offsetIndex + 2;
-	    IndexBuffer[indeciesIndex + 3] = offsetIndex + 2;
-	    IndexBuffer[indeciesIndex + 4] = offsetIndex + 1;
-	    IndexBuffer[indeciesIndex + 5] = offsetIndex + 3;
-    }
     WorldDataBuffer[index].mat = mul(viewProj,WorldDataBuffer[index].mat);
-    WorldDataBuffer[index].color = ParticleDataBuffer[index].color;
+    WorldDataBuffer[index].color = ParticleDataBuffer[index].colorLerp;
 }

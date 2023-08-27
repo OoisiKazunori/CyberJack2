@@ -68,9 +68,9 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     InputData secondVertWorldPos;
     InputData thirdVertWorldPos;
 
-    firstVertWorldPos.pos = GetPos(vertciesData[firstVertIndex].xyz,float3(0,0,0));
-    secondVertWorldPos.pos = GetPos(vertciesData[secondVertIndex].xyz,float3(0,0,0));
-    thirdVertWorldPos.pos = GetPos(vertciesData[thirdVertIndex].xyz,float3(0,0,0));
+    firstVertWorldPos.pos = GetPos(vertciesData[firstVertIndex].xyz,float3(0,0,0),float3(0,0,0));
+    secondVertWorldPos.pos = GetPos(vertciesData[secondVertIndex].xyz,float3(0,0,0),float3(0,0,0));
+    thirdVertWorldPos.pos = GetPos(vertciesData[thirdVertIndex].xyz,float3(0,0,0),float3(0,0,0));
     firstVertWorldPos.uv = uvData[uvFirstVertIndex];
     secondVertWorldPos.uv = uvData[uvSecondVertIndex];
     thirdVertWorldPos.uv = uvData[uvThirdVertIndex];

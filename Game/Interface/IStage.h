@@ -38,7 +38,7 @@ public:
 	bool hitFlag = false;
 	bool startFlag = false;
 	Sprite3DRender vaporWaveSunRender;
-	float playerPosZ;
+	KazMath::Vec3<float> playerPos;
 protected:
 	int cameraIndex = 0;
 	float objectSpeed;

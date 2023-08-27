@@ -210,9 +210,9 @@ float CaluDistacne(float3 POS_A, float3 POS_B)
 	return sqrt(lpow.x + lpow.y + lpow.z);
 }
 
-float4 GetPos(float3 VERT_POS,float3 WORLD_POS)
+float4 GetPos(float3 VERT_POS,float3 WORLD_POS,float3 SCALE)
 {
-    float3 defaltScale = float3(1,1,1);
+    float3 defaltScale = SCALE;
     float3 defaltRota = float3(0,0,0);
 
     matrix pMatWorld = CalucurateWorldMat(WORLD_POS,defaltScale,defaltRota);

@@ -33,12 +33,16 @@ public:
 		DirectX::XMFLOAT3 m_rotation;
 		DirectX::XMFLOAT3 m_rotationVel;
 		DirectX::XMFLOAT4 m_color;
+		DirectX::XMFLOAT3 m_rotationLerp;
+		DirectX::XMFLOAT4 m_colorlerp;
 	};
 	struct CameraBufferData
 	{
 		DirectX::XMMATRIX m_billboardMat;
 		DirectX::XMMATRIX m_viewProjMat;
-		float m_playerPosZ;
+		DirectX::XMFLOAT3 m_playerPos;
+		float radius;
+		UINT num;
 	};
 	struct OutputData
 	{
@@ -51,16 +55,11 @@ public:
 
 	ComputeShader m_computeInit,m_computeUpdate;
 
-	std::shared_ptr<KazBufferHelper::BufferData>m_particleVertexBuffer;
-	std::shared_ptr<KazBufferHelper::BufferData>m_particleIndexBuffer;
-
-	//DrawFuncData::DrawCallData m_drawCall;
-
-
 	KazBufferHelper::BufferData matrixBuffer;
 	std::vector<DirectX::XMMATRIX> m_particleMatrix;
 
 
 	std::array<DrawFuncData::DrawCallData, PARTICLE_MAX_NUM> m_playerModel;
+	float m_radius;
 };
 
