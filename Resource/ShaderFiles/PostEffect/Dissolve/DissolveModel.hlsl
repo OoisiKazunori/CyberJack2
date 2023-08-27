@@ -313,6 +313,14 @@ cbuffer Dissolve : register(b4)
     float4 m_outlineColor;
 }
 
+float3 ConvertToGrayscale(float3 arg_color, float arg_coefficient)
+{
+    //係数を元の色とグレースケールとの間で補間して変換
+    float3 grayscaleColor = lerp(arg_color, dot(arg_color, float3(0.299f, 0.587f, 0.114f)), arg_coefficient);
+    
+    return grayscaleColor;
+}
+
 RWTexture2D<float4> outlineTexutre : register(u0);
 
 GBufferOutput PSDefferdAnimationMainDissolve(PosUvNormalTangentBinormalOutput input) : SV_TARGET
@@ -364,11 +372,12 @@ GBufferOutput PSDefferdAnimationMainDissolve(PosUvNormalTangentBinormalOutput in
 
     GBufferOutput output;
     output.albedo = texColor * color;
+    output.albedo.xyz = ConvertToGrayscale(output.albedo.xyz, m_dissolveStrength.w);
     output.normal = float4(normal, 1.0f);
     output.metalnessRoughness = float4(mrColor.xyz, raytracingId);
     output.world = float4(input.worldPos, 1.0f);
     //output.emissive = float4(0, 0, 0, 0);
-    output.emissive = EmissiveTex.Sample(smp, input.uv);
+    output.emissive = EmissiveTex.Sample(smp, input.uv) * (1.0f - m_dissolveStrength.w);
     return output;
 }
 

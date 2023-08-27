@@ -70,6 +70,7 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 	ShockWave::Instance()->m_shockWave[moveID].m_isActive = false;
 
 	m_deadEffectData.m_dissolve.x = 0.0f;
+	m_deadEffectData.m_dissolve.a = 0.0f;
 
 	m_deadEffectData.m_outlineColor = OUTLINE_COLOR;
 	m_deadEffectData.m_outlineColor.a = 0.0f;
@@ -279,9 +280,11 @@ void VirusEnemy::Update()
 	{
 
 		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
-		//m_gravity += 0.005f;
-		//m_transform.pos.y -= m_gravity;
-		//m_transform.rotation.x += 3.0f;
+		m_gravity += 0.002f;
+		m_transform.pos.y -= m_gravity;
+		m_transform.rotation.x += 2.0f;
+
+		m_deadEffectData.m_dissolve.a += (1.0f - m_deadEffectData.m_dissolve.a) / 20.0f;
 
 		m_deadEffectData.m_dissolve.x = std::clamp(m_deadEffectData.m_dissolve.x + 0.005f, 0.0f, 1.0f);
 
