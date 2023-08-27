@@ -10,7 +10,7 @@ PlayerShotEffect::PlayerShotEffect()
 
 	auto playerModel = *ModelLoader::Instance()->Load("Resource/ShotEffect/", "ShotEffect.gltf");
 	auto pipeline = DrawFuncData::GetAnimationModelBloomShader();
-	m_model = DrawFuncData::SetDrawGLTFAnimationIndexMaterialInRayTracingBloomData(*ModelLoader::Instance()->Load("Resource/ShotEffect/", "ShotEffect.gltf"), pipeline);
+	m_model = DrawFuncData::SetDrawGLTFAnimationIndexMaterialInRayTracingBloomData(playerModel, pipeline);
 
 }
 
@@ -125,7 +125,7 @@ void PlayerShotEffect::Update()
 
 	}
 
-	const float SHOCK_WAVE_VEL = 0.2f;
+	const float SHOCK_WAVE_VEL = 0.3f;
 	//一定フレーム経過したら処理を終わらせる。
 	if (EFFECT_FRAME <= m_frame && !m_isFinish) {
 
@@ -189,9 +189,9 @@ void PlayerShotEffect::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 	//DrawFunc::DrawModelInRaytracing(m_model, m_transform, DrawFunc::NONE);
 	DrawFunc::DrawModel(m_model, m_transform);
 	arg_rasterize.ObjectRender(m_model);
-	for (auto& index : m_model.m_raytracingData.m_blas) {
-		//6arg_blasVec.Add(index, m_transform.GetMat());
-	}
+	//for (auto& index : m_model.m_raytracingData.m_blas) {
+	//	arg_blasVec.Add(index, m_transform.GetMat());
+	//}
 
 	//DrawFunc::DrawLine(m_splineDrawCall, m_splineRailPosArray, m_vertexBufferHandle);
 	//arg_rasterize.ObjectRender(m_splineDrawCall);
