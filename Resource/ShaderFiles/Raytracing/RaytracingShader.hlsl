@@ -13,10 +13,15 @@ RaytracingAccelerationStructure gRtScene : register(t0);
 //カメラ座標用定数バッファ
 ConstantBuffer<CameraEyePosConstData> cameraEyePos : register(b0);
 ConstantBuffer<LightData> lightData : register(b1);
-ConstantBuffer<RaymarchingParam> volumeFogData : register(b2);
-ConstantBuffer<DebugRaytracingParam> debugRaytracingData : register(b3);
-ConstantBuffer<DebugSeaParam> debugSeaData : register(b4);
-ConstantBuffer<ShockWaveParam> shockWaveData : register(b5);
+//ConstantBuffer<RaymarchingParam> volumeFogData : register(b2);
+ConstantBuffer<DebugRaytracingParam> debugRaytracingData : register(b2);
+ConstantBuffer<DebugSeaParam> debugSeaData : register(b3);
+ConstantBuffer<ShockWaveParam> shockWaveData : register(b4);
+//struct EnemyDissolve
+//{
+//    float m_facter[4];
+//};
+//ConstantBuffer<EnemyDissolve> dissolve : register(b5);
 
 //GBuffer
 Texture2D<float4> albedoMap : register(t1);
@@ -524,6 +529,62 @@ void checkHitRayMS(inout Payload payload)
 
 }
 
+//乱数を取得。
+float2 Random2D(float2 arg_st)
+{
+    float2 seed = float2(dot(arg_st, float2(127.1f, 311.7f)), dot(arg_st, float2(269.5f, 183.3f)));
+    return -1.0f + 2.0f * frac(sin(seed) * 43758.5453123f);
+}
+
+//2Dグラディエントノイズ関数
+float GradientNoise2D(float2 arg_st)
+{
+    float2 i = floor(arg_st);
+    float2 f = frac(arg_st);
+
+    //四つの隣接点の座標を求める
+    float2 u = f * f * (3.0f - 2.0f * f);
+
+    float a = dot(Random2D(i), f - float2(0, 0));
+    float b = dot(Random2D(i + float2(1, 0)), f - float2(1, 0));
+    float c = dot(Random2D(i + float2(0, 1)), f - float2(0, 1));
+    float d = dot(Random2D(i + float2(1, 1)), f - float2(1, 1));
+
+    //ノイズ値を補間する
+    float x1 = lerp(a, b, u.x);
+    float x2 = lerp(c, d, u.x);
+
+    return lerp(x1, x2, u.y);
+}
+
+float PerlinNoise2D(float2 arg_st, int arg_octaves, float arg_persistence, float arg_lacunarity, float arg_threshold)
+{
+    float noiseValue = 0;
+    
+    float frequency = 0.9f;
+    float localAmplitude = 5.0f;
+    float sum = 0.0f;
+    float maxValue = 0.0f;
+
+    for (int i = 0; i < arg_octaves; ++i)
+    {
+        sum += localAmplitude * GradientNoise2D(arg_st * frequency);
+        maxValue += localAmplitude;
+
+        localAmplitude *= arg_persistence;
+        frequency *= arg_lacunarity;
+    }
+
+    noiseValue = (sum / maxValue + 1.0f) * 0.5f; //ノイズ値を再マッピング
+
+    if (noiseValue <= arg_threshold)
+    {
+        noiseValue = 0.0f;
+    }
+    return noiseValue;
+}
+
+
 //closesthitシェーダー レイがヒットした時に呼ばれるシェーダー
 [shader("closesthit")]
 
@@ -540,20 +601,72 @@ void checkHitRayMS(inout Payload payload)
     float4 mainTexColor = objectTexture.SampleLevel(smp, vtx.uv, 0);
     payload.m_color = mainTexColor.xyz;
     
-    //当たったオブジェクトのInstanceIDが1だったら(GPUパーティクルだったら)輝度を保存する。
-    if (InstanceID() == 1)
+    
+    //rayidが1なら影用のライト
+    if (payload.m_rayID == 1)
     {
-        payload.m_emissive = payload.m_color;
+        
+        uint instanceID = InstanceID();
+    
+        int octave = 6;
+        float persitance = 2.0f;
+        float lacunarity = 1.25f;
+    
+        float noise = PerlinNoise2D(vtx.uv, octave, persitance, lacunarity, shockWaveData.m_shockWave[clamp(instanceID - 2, 0, 5)].m_facter);
+    
+        if (noise <= 0.01f)
+        {
+            payload.m_color = float3(1, 0, 0);
+        }
+        else
+        {
+            payload.m_color = float3(0, 0, 0);
+        }
+        
     }
-    else
+    //rayidが2なら敵の反射屈折
+    else if (payload.m_rayID == 2)
     {
+        
         //反射先のライティングを行う。
         float bright = 0;
         const float REFLECTION_DEADLINE = 10000.0f;
         bool isFar = REFLECTION_DEADLINE < length(cameraEyePos.m_eye - vtx.pos.xyz);
         LightingPass(bright, float4(WorldRayOrigin(), 1.0f), float4(vtx.normal, 1.0f), lightData, DispatchRaysIndex(), debugRaytracingData, gRtScene, isFar);
         payload.m_color *= clamp(bright, 0.3f, 1.0f);
+    
+        int octave = 6;
+        float persitance = 2.0f;
+        float lacunarity = 1.25f;
+    
+        uint instanceID = InstanceID();
+        float noise = PerlinNoise2D(vtx.uv, octave, persitance, lacunarity, shockWaveData.m_shockWave[clamp(instanceID - 2, 0, 5)].m_facter);
+        
+        if (noise <= 0.01f)
+        {
+            payload.m_color = float3(-1, -1, -1);
+        }
+    }
+    //それ以外は通常の反射
+    else
+    {
+    
+        //当たったオブジェクトのInstanceIDが1だったら(GPUパーティクルだったら)輝度を保存する。
+        uint instanceID = InstanceID();
+        if (instanceID == 1)
+        {
+            payload.m_emissive = payload.m_color;
+        }
+        else
+        {
+            //反射先のライティングを行う。
+            float bright = 0;
+            const float REFLECTION_DEADLINE = 10000.0f;
+            bool isFar = REFLECTION_DEADLINE < length(cameraEyePos.m_eye - vtx.pos.xyz);
+            LightingPass(bright, float4(WorldRayOrigin(), 1.0f), float4(vtx.normal, 1.0f), lightData, DispatchRaysIndex(), debugRaytracingData, gRtScene, isFar);
+            payload.m_color *= clamp(bright, 0.3f, 1.0f);
 
+        }
     }
            
 }

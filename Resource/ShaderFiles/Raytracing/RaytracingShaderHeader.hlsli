@@ -103,7 +103,8 @@ struct ShockWave
     float m_radius;
     float m_power;
     int m_isActive;
-    float2 m_pad;
+    float m_facter;
+    float m_pad;
 };
 struct ShockWaveParam
 {
@@ -175,6 +176,7 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         Payload payloadData;
         payloadData.m_emissive = float3(0.0f, 0.0f, 0.0f);
         payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。
+        payloadData.m_rayID = 1;
         
         //レイを撃つ
         bool isDebug = arg_debugRaytracingData.m_debugShadow == 1 && arg_launchIndex.x < arg_debugRaytracingData.m_sliderRate;
@@ -184,7 +186,7 @@ void LightingPass(inout float arg_bright, float4 arg_worldPosMap, float4 arg_nor
         }
         else
         {
-            CastRay(payloadData, arg_worldPosMap.xyz, -arg_lightData.m_dirLight.m_dir, 1000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene, 0x01);
+            CastRay(payloadData, arg_worldPosMap.xyz, -arg_lightData.m_dirLight.m_dir, 1000.0f, MISS_LIGHTING, RAY_FLAG_NONE, arg_scene, 0x01);
         }
         
         //ライトのベクトルと法線から明るさを計算する。
@@ -449,6 +451,7 @@ void SecondaryPass(float3 arg_viewDir, inout float4 arg_emissiveColor, float4 ar
         Payload payloadData;
         payloadData.m_emissive = float3(0.0f, 0.0f, 0.0f);
         payloadData.m_color = float3(1, 1, 1);
+        payloadData.m_rayID = 0;
         
         //レイを撃つ
         float3 rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
@@ -466,6 +469,7 @@ void SecondaryPass(float3 arg_viewDir, inout float4 arg_emissiveColor, float4 ar
         Payload payloadData;
         payloadData.m_emissive = float3(0.0f, 0.0f, 0.0f);
         payloadData.m_color = float3(1, 1, 1);
+        payloadData.m_rayID = 0;
         
         //レイを撃つ
         float3 rayOrigin = arg_worldColor.xyz + arg_normalColor.xyz * 3.0f;
@@ -483,9 +487,11 @@ void SecondaryPass(float3 arg_viewDir, inout float4 arg_emissiveColor, float4 ar
         Payload refractionColor;
         refractionColor.m_emissive = float3(0.0f, 0.0f, 0.0f);
         refractionColor.m_color = float3(1, 1, 1);
+        refractionColor.m_rayID = 2;
         Payload reflectionColor;
         reflectionColor.m_emissive = float3(0.0f, 0.0f, 0.0f);
         reflectionColor.m_color = float3(1, 1, 1);
+        reflectionColor.m_rayID = 2;
         
         //レイを撃つ
         float3 rayOrigin = arg_worldColor.xyz;

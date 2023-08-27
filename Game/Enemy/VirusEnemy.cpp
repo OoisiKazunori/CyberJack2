@@ -5,6 +5,7 @@
 #include"../Effect/SeaEffect.h"
 #include"../Effect/ShockWave.h"
 #include"../KazLibrary/Buffer/GBufferMgr.h"
+#include"../Effect/EnemyDissolveParam.h"
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
 
 VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
@@ -392,6 +393,8 @@ void VirusEnemy::Update()
 	m_model.extraBufferArray.back() = GBufferMgr::Instance()->m_outlineBuffer;
 	m_model.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 	m_model.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_TEX;
+
+	ShockWave::Instance()->m_shockWave[moveID].m_facter = m_deadEffectData.m_dissolve.x;
 }
 
 void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
@@ -413,7 +416,7 @@ void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector&
 
 	for (auto& index : m_model.m_raytracingData.m_blas)
 	{
-		arg_blasVec.Add(index, m_transform.GetMat());
+		arg_blasVec.Add(index, m_transform.GetMat(), moveID + 2);	//+2は0は通常オブジェクトで1はGPUパーティクルなため
 	}
 
 

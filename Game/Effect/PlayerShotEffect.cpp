@@ -10,7 +10,7 @@ PlayerShotEffect::PlayerShotEffect()
 
 	auto playerModel = *ModelLoader::Instance()->Load("Resource/ShotEffect/", "ShotEffect.gltf");
 	auto pipeline = DrawFuncData::GetAnimationModelBloomShader();
-	m_model = DrawFuncData::SetDrawGLTFAnimationIndexMaterialInRayTracingBloomData(*ModelLoader::Instance()->Load("Resource/ShotEffect/", "ShotEffect.gltf"), pipeline);
+	m_model = DrawFuncData::SetDrawGLTFAnimationIndexMaterialInRayTracingBloomData(playerModel, pipeline);
 
 }
 
@@ -31,6 +31,8 @@ void PlayerShotEffect::Generate(const KazMath::Vec3<float>* arg_refPlayerPos, sh
 	m_refEnemy = arg_refEnemy;
 	m_otherEnemy = arg_refOtherEnemy;
 	m_isActive = true;
+	m_isFinish = false;
+	m_transform.scale = KazMath::Vec3<float>(1.0f, 1.0f, 1.0f);
 
 	//Line描画用の処理
 	m_splineRailPosArray.resize(POINT_COUNT);
@@ -49,72 +51,83 @@ void PlayerShotEffect::Generate(const KazMath::Vec3<float>* arg_refPlayerPos, sh
 void PlayerShotEffect::Update()
 {
 
-	m_prevPos = m_transform.pos;
+	//ベジエの終点に達していたら
+	if (m_isFinish) {
 
-	//現在のフレームのタイマーを更新。
-	++m_frame;
+		m_transform.pos += m_finishVel;
 
-	//始点と終点の値を決める。
-	std::array<KazMath::Vec3<float>, 4> controlPoints;
-	controlPoints.front() = *m_refPlayerPos - KazMath::Vec3<float>(0, 0, 10.0f);
-	controlPoints.back() = m_refEnemy->m_transform.pos;
+	}
+	//まだベジエの終点に達していなかったら
+	else {
 
-	//制御点の場所を決める。
-	controlPoints[1] = controlPoints[0] + m_controlPointVec;
-	controlPoints[2] = controlPoints[3] + m_controlPointVec;
+		m_prevPos = m_transform.pos;
 
-	//座標を求める。
-	m_transform.pos = EvaluateBezierCurve(controlPoints, static_cast<float>(m_frame) / static_cast<float>(EFFECT_FRAME));
+		//現在のフレームのタイマーを更新。
+		++m_frame;
 
-	//移動した方向をもとにプレイヤーの姿勢を求める。
-	KazMath::Vec3<float> movedVec = m_transform.pos - m_prevPos;
-	//動いていたら姿勢を更新。動いていなかったらやばい値になるため。
-	DirectX::XMVECTOR playerQ = DirectX::XMQuaternionIdentity();
-	if (0 < movedVec.Length()) {
+		//始点と終点の値を決める。
+		std::array<KazMath::Vec3<float>, 4> controlPoints;
+		controlPoints.front() = *m_refPlayerPos - KazMath::Vec3<float>(0, 0, 10.0f);
+		controlPoints.back() = m_refEnemy->m_transform.pos;
 
-		KazMath::Vec3<float> movedVecNormal = movedVec.GetNormal();
+		//制御点の場所を決める。
+		controlPoints[1] = controlPoints[0] + m_controlPointVec;
+		controlPoints[2] = controlPoints[3] + m_controlPointVec;
 
-		//デフォルトの回転軸と移動した方向のベクトルが同じ値だったらデフォルトの回転軸の方向に移動しているってこと！
-		if (movedVecNormal.Dot(KazMath::Vec3<float>(0, 0, 1)) < 0.999f) {
+		//座標を求める。
+		m_transform.pos = EvaluateBezierCurve(controlPoints, static_cast<float>(m_frame) / static_cast<float>(EFFECT_FRAME));
 
-			KazMath::Vec3<float> cameraAxisZ = movedVecNormal;
-			KazMath::Vec3<float> cameraAxisY = KazMath::Vec3<float>(0, 1, 0);
-			KazMath::Vec3<float> cameraAxisX = cameraAxisY.Cross(cameraAxisZ);
-			cameraAxisY = cameraAxisZ.Cross(cameraAxisX);
-			DirectX::XMMATRIX cameraMatWorld = DirectX::XMMatrixIdentity();
-			cameraMatWorld.r[0] = { cameraAxisX.x, cameraAxisX.y, cameraAxisX.z, 0.0f };
-			cameraMatWorld.r[1] = { cameraAxisY.x, cameraAxisY.y, cameraAxisY.z, 0.0f };
-			cameraMatWorld.r[2] = { cameraAxisZ.x, cameraAxisZ.y, cameraAxisZ.z, 0.0f };
-			playerQ = DirectX::XMQuaternionRotationMatrix(cameraMatWorld);
+		//移動した方向をもとにプレイヤーの姿勢を求める。
+		KazMath::Vec3<float> movedVec = m_transform.pos - m_prevPos;
+		//動いていたら姿勢を更新。動いていなかったらやばい値になるため。
+		DirectX::XMVECTOR playerQ = DirectX::XMQuaternionIdentity();
+		if (0 < movedVec.Length()) {
 
+			KazMath::Vec3<float> movedVecNormal = movedVec.GetNormal();
+
+			//デフォルトの回転軸と移動した方向のベクトルが同じ値だったらデフォルトの回転軸の方向に移動しているってこと！
+			if (movedVecNormal.Dot(KazMath::Vec3<float>(0, 0, 1)) < 0.999f) {
+
+				KazMath::Vec3<float> cameraAxisZ = movedVecNormal;
+				KazMath::Vec3<float> cameraAxisY = KazMath::Vec3<float>(0, 1, 0);
+				KazMath::Vec3<float> cameraAxisX = cameraAxisY.Cross(cameraAxisZ);
+				cameraAxisY = cameraAxisZ.Cross(cameraAxisX);
+				DirectX::XMMATRIX cameraMatWorld = DirectX::XMMatrixIdentity();
+				cameraMatWorld.r[0] = { cameraAxisX.x, cameraAxisX.y, cameraAxisX.z, 0.0f };
+				cameraMatWorld.r[1] = { cameraAxisY.x, cameraAxisY.y, cameraAxisY.z, 0.0f };
+				cameraMatWorld.r[2] = { cameraAxisZ.x, cameraAxisZ.y, cameraAxisZ.z, 0.0f };
+				playerQ = DirectX::XMQuaternionRotationMatrix(cameraMatWorld);
+
+			}
+
+		}
+
+		m_transform.quaternion = playerQ;
+
+		//ベジエ曲線上の点を計算する。
+		for (int index = 0; index < POINT_COUNT; ++index) {
+
+			//このIndexの時間
+			float time = static_cast<float>(index) / static_cast<float>(POINT_COUNT);
+
+			m_splineRailPosArray[index] = EvaluateBezierCurve(controlPoints, time);
+
+		}
+		m_splineRailPosArray.back() = controlPoints[3];
+
+		//現在の時間を01で求める。
+		float nowTime = static_cast<float>(m_frame) / static_cast<float>(EFFECT_FRAME);
+		//現在の時間以下のIndexの頂点をなくす。
+		int vertexDeadline = std::clamp(static_cast<int>(nowTime * POINT_COUNT), 0, POINT_COUNT - 1);
+		for (int index = 0; index < vertexDeadline; ++index) {
+			m_splineRailPosArray[index] = m_splineRailPosArray[vertexDeadline];
 		}
 
 	}
 
-	m_transform.quaternion = playerQ;
-
-	//ベジエ曲線上の点を計算する。
-	for (int index = 0; index < POINT_COUNT; ++index) {
-
-		//このIndexの時間
-		float time = static_cast<float>(index) / static_cast<float>(POINT_COUNT);
-
-		m_splineRailPosArray[index] = EvaluateBezierCurve(controlPoints, time);
-
-	}
-	m_splineRailPosArray.back() = controlPoints[3];
-
-	//現在の時間を01で求める。
-	float nowTime = static_cast<float>(m_frame) / static_cast<float>(EFFECT_FRAME);
-	//現在の時間以下のIndexの頂点をなくす。
-	int vertexDeadline = std::clamp(static_cast<int>(nowTime * POINT_COUNT), 0, POINT_COUNT - 1);
-	for (int index = 0; index < vertexDeadline; ++index) {
-		m_splineRailPosArray[index] = m_splineRailPosArray[vertexDeadline];
-	}
-
-	const float SHOCK_WAVE_VEL = 0.2f;
+	const float SHOCK_WAVE_VEL = 0.3f;
 	//一定フレーム経過したら処理を終わらせる。
-	if (EFFECT_FRAME <= m_frame) {
+	if (EFFECT_FRAME <= m_frame && !m_isFinish) {
 
 		if (0 < m_refEnemy->iOperationData.rockOnNum) {
 
@@ -122,29 +135,42 @@ void PlayerShotEffect::Update()
 			StopMgr::Instance()->m_stopTimer = StopMgr::Instance()->ENEMY_HIT_STOP;
 			m_refEnemy->Dead(&m_prevPos);
 
+			//周りの敵も反動で動かす。
 			for (auto& index : m_otherEnemy) {
 
 				index->m_shockWaveVel = KazMath::Vec3<float>(index->m_transform.pos - m_refEnemy->m_transform.pos).GetNormal() * SHOCK_WAVE_VEL;
-				int a = 0;
 
 			}
 
 		}
 		else {
 
+			//周りの敵も反動で動かす。
 			StopMgr::Instance()->m_stopTimer = StopMgr::Instance()->ENEMY_HIT_STOP;
 			m_refEnemy->Dead(&m_prevPos);
 
 			for (auto& index : m_otherEnemy) {
 
 				index->m_shockWaveVel = KazMath::Vec3<float>(index->m_transform.pos - m_refEnemy->m_transform.pos).GetNormal() * SHOCK_WAVE_VEL;
-				int a = 0;
 
 			}
 
 		}
 
-		m_isActive = false;
+		m_isFinish = true;
+		m_finishVel = (m_transform.pos - m_prevPos);
+	}
+
+	if (m_isFinish) {
+
+		m_transform.scale.z -= m_transform.scale.z / 2.0f;
+
+		if (m_transform.scale.z < 0.01f) {
+
+			m_isActive = false;
+
+		}
+
 	}
 
 	//DrawFunc::Test(m_model, m_transform, DrawFunc::NONE);
@@ -163,9 +189,9 @@ void PlayerShotEffect::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 	//DrawFunc::DrawModelInRaytracing(m_model, m_transform, DrawFunc::NONE);
 	DrawFunc::DrawModel(m_model, m_transform);
 	arg_rasterize.ObjectRender(m_model);
-	for (auto& index : m_model.m_raytracingData.m_blas) {
-		//6arg_blasVec.Add(index, m_transform.GetMat());
-	}
+	//for (auto& index : m_model.m_raytracingData.m_blas) {
+	//	arg_blasVec.Add(index, m_transform.GetMat());
+	//}
 
 	//DrawFunc::DrawLine(m_splineDrawCall, m_splineRailPosArray, m_vertexBufferHandle);
 	//arg_rasterize.ObjectRender(m_splineDrawCall);
