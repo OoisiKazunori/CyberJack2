@@ -644,11 +644,7 @@ float PerlinNoise2D(float2 arg_st, int arg_octaves, float arg_persistence, float
         
         if (noise <= 0.01f)
         {
-            payload.m_color = float3(0, 0, 0);
-        }
-        else
-        {
-            payload.m_color = float3(1, 1, 1);
+            payload.m_color = float3(-1, -1, -1);
         }
     }
     //それ以外は通常の反射
