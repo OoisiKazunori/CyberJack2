@@ -247,9 +247,9 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
 		uint firstVertIndex = particleData.vertexIndex.x;
     	uint secondVertIndex = particleData.vertexIndex.y;
 		uint thirdVertIndex = particleData.vertexIndex.z;
-		float3 firstVertWorldPos = GetPos(vertexBuffer[firstVertIndex].svpos.xyz,float3(0,0,0));
-    	float3 secondVertWorldPos = GetPos(vertexBuffer[secondVertIndex].svpos.xyz,float3(0,0,0));
-    	float3 thirdVertWorldPos = GetPos(vertexBuffer[thirdVertIndex].svpos.xyz,float3(0,0,0));
+		float3 firstVertWorldPos = GetPos(vertexBuffer[firstVertIndex].svpos.xyz,float3(0,0,0),float3(0,0,0));
+    	float3 secondVertWorldPos = GetPos(vertexBuffer[secondVertIndex].svpos.xyz,float3(0,0,0),float3(0,0,0));
+    	float3 thirdVertWorldPos = GetPos(vertexBuffer[thirdVertIndex].svpos.xyz,float3(0,0,0),float3(0,0,0));
     	float3 triangleCentralPos = (firstVertWorldPos.xyz + secondVertWorldPos.xyz + thirdVertWorldPos.xyz) / 3.0f;
 		//辺上の計算
 		float3 distance = vertexBuffer[particleData.lengthIndex.y].svpos.xyz - vertexBuffer[particleData.lengthIndex.x].svpos.xyz;

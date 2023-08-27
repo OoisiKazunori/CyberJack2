@@ -77,7 +77,7 @@ float PerlinNoise(float3 arg_st, int arg_octaves, float arg_persistence, float a
 
 }
 
-float3 CurlNoise3D(float3 arg_st, float3 arg_pos)
+float3 CurlNoise3D(float3 arg_st, float3 arg_pos,float arg_vel)
 {
 	const float epsilon = 0.001f;
 	
@@ -107,7 +107,7 @@ float3 CurlNoise3D(float3 arg_st, float3 arg_pos)
 	vel.y = dNoiseZ - dNoiseX;
 	vel.z = dNoiseX - dNoiseY;
 	
-    return vel;
+    return vel * arg_vel;
 
 }
 
@@ -120,6 +120,8 @@ struct OutputData
 struct Particle
 {
     float3 pos;
+    float3 scale;
+    float3 localPos;
     int emittTimer;
     int timer;
     int maxTimer;
@@ -135,6 +137,8 @@ cbuffer cbuff :register(b0)
     float particleNum;
 }
 
+static const float SCALE = 0.25f;
+
 [numthreads(1024, 1, 1)]
 void InitCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, uint3 groupThreadID : SV_GroupThreadID)
 {
@@ -146,10 +150,12 @@ void InitCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, uin
     }
 
     uint particleIndex = Rand1(randomTable[index],particleNum,0);
-    emitterBuffer[index].pos = GetPos(updateParticleData[particleIndex].pos,pos);
-    emitterBuffer[index].maxTimer = 120;
+    emitterBuffer[index].pos = float3(0,0,0);
+    emitterBuffer[index].scale = float3(SCALE,SCALE,SCALE);
+    emitterBuffer[index].localPos = updateParticleData[particleIndex].pos;
+    emitterBuffer[index].maxTimer = 60;
     emitterBuffer[index].timer = emitterBuffer[index].maxTimer;
-    emitterBuffer[index].emittTimer = Rand(randomTable[index],randomTable[index + 1],60,0);
+    emitterBuffer[index].emittTimer = RandVec3(randomTable[index],60,0).x;
 }
 
 cbuffer Camera :register(b0)
@@ -157,7 +163,9 @@ cbuffer Camera :register(b0)
     matrix viewProjMat;
     matrix billboard;
     matrix scaleRotaMat;
-    uint emittTimer;
+    float4 emittPosAndTimer;
+    float4 color;
+    float vel;
 }
 
 RWStructuredBuffer<OutputData> outputBuffer : register(u0);
@@ -171,13 +179,14 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
 
     float rate = (float)particleBuffer[index].timer / (float)particleBuffer[index].maxTimer;
     //パーティクル開始時間
-    if(emittTimer < particleBuffer[index].emittTimer)
+    if(emittPosAndTimer.w < particleBuffer[index].emittTimer)
     {
+        particleBuffer[index].pos = GetPos(particleBuffer[index].localPos,emittPosAndTimer.xyz,float3(1.0f,1.0f,1.0f)).xyz;
         return;
     }
 
     
-    particleBuffer[index].pos += CurlNoise3D(float3(curlRandomTable[index],curlRandomTable[index],curlRandomTable[index]),particleBuffer[index].pos);
+    particleBuffer[index].pos += CurlNoise3D(float3(curlRandomTable[index],curlRandomTable[index],curlRandomTable[index]),particleBuffer[index].pos,vel);
     if(0 < particleBuffer[index].timer)
     {
         --particleBuffer[index].timer;
@@ -186,23 +195,12 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
     {
         particleBuffer[index].timer = 0;
     }
-    outputBuffer[index].color.xyz = float3(0,0.8,0);
-    outputBuffer[index].color.a = rate;
+    outputBuffer[index].color = color;
+    float scaleRate = SCALE * rate;
+    particleBuffer[index].scale = float3(scaleRate,scaleRate,scaleRate);
 
-    if(0.1f < rate)
-    {
-        matrix worldMat = mul(scaleRotaMat,billboard);
-        worldMat[0][3] = particleBuffer[index].pos.x;
-        worldMat[1][3] = particleBuffer[index].pos.y;
-        worldMat[2][3] = particleBuffer[index].pos.z;
-        outputBuffer[index].mat = mul(viewProjMat,worldMat);
-    }
-    else
-    {
-        matrix worldMat = mul(scaleRotaMat,billboard);
-        worldMat[0][3] = -100000.0f;
-        worldMat[1][3] = -100000.0f;
-        worldMat[2][3] = -100000.0f;
-        outputBuffer[index].mat = mul(viewProjMat,worldMat);
-    }
+    matrix worldMat = CalucurateWorldMat(
+        particleBuffer[index].pos,particleBuffer[index].scale,float3(0,0,0),billboard
+    );
+    outputBuffer[index].mat = mul(viewProjMat,worldMat);
 }

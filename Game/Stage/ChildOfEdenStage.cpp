@@ -100,15 +100,18 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 	CameraBufferData cameraMat;
 	cameraMat.m_billboardMat = CameraMgr::Instance()->GetMatBillBoard();
 	cameraMat.m_viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
-	cameraMat.m_playerPosZ = playerPosZ;
+	cameraMat.m_playerPos = playerPos.ConvertXMFLOAT3();
 	if (hitFlag)
 	{
 		cameraMat.num = 1;
+		m_radius += 50.0f;
 	}
 	else
 	{
 		cameraMat.num = 0;
+		m_radius = 0.0f;
 	}
+	cameraMat.radius = m_radius;
 
 	m_computeUpdateBuffer[2].bufferWrapper->TransData(&cameraMat, sizeof(CameraBufferData));
 

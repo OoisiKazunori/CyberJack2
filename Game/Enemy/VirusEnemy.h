@@ -95,6 +95,8 @@ private:
 
 	std::unique_ptr<MeshParticleRender>m_meshParticleRender;
 	std::unique_ptr<EnemyDeadParticle>m_deadParticle;
+	std::unique_ptr<EnemyDeadParticle>m_knockBackParticle;
+	bool m_initDeadParticleFlag;
 
 
 };

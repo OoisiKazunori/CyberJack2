@@ -171,7 +171,6 @@ void InGame::Update()
 					m_cursor.Hit(enemyData->hitBox.center);
 
 					m_enemies[enemyType][enemyCount]->Hit();
-
 					//PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount]);
 
 					//stringLog.WriteLog(enemies[enemyType][enemyCount]->GetData()->oprationObjData->name, LOG_FONT_SIZE);
@@ -324,6 +323,7 @@ void InGame::Update()
 				if (m_enemies[enemyType][enemyCount]->GetData()->timer <= 0)
 				{
 					m_player.Hit();
+
 					//enemies[enemyType][enemyCount]->Dead();
 				}
 			}
@@ -365,7 +365,7 @@ void InGame::Update()
 					PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount], refOtherEnemy);
 					m_enemies[enemyType][enemyCount]->m_isBeingShot = true;
 
-
+					m_stageArray[m_gameStageLevel]->hitFlag = true;
 				}
 			}
 			if (m_enemies[enemyType][enemyCount])
@@ -393,15 +393,7 @@ void InGame::Update()
 
 
 	m_rail.Update();
-	m_stageArray[m_gameStageLevel]->playerPosZ = m_rail.GetPosition().z;
-	if (KeyBoradInputManager::Instance()->InputState(DIK_O))
-	{
-		m_stageArray[m_gameStageLevel]->hitFlag = true;
-	}
-	else
-	{
-		m_stageArray[m_gameStageLevel]->hitFlag = false;
-	}
+	m_stageArray[m_gameStageLevel]->playerPos = m_rail.GetPosition();
 	m_stageArray[m_gameStageLevel]->Update();
 
 	m_player.Update();
@@ -440,6 +432,8 @@ void InGame::Update()
 
 				m_enemies[enemyType][enemyCount]->OnInit(m_responeData[enemyType][enemyCount].generateData.useMeshPaticleFlag);
 				m_enemies[enemyType][enemyCount]->Init(&(m_player.m_transform), m_responeData[enemyType][enemyCount].generateData, false);
+
+				m_stageArray[m_gameStageLevel]->hitFlag = false;
 
 				if (m_enemies[enemyType][enemyCount]->GetData()->meshParticleFlag)
 				{

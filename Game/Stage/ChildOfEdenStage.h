@@ -33,12 +33,15 @@ public:
 		DirectX::XMFLOAT3 m_rotation;
 		DirectX::XMFLOAT3 m_rotationVel;
 		DirectX::XMFLOAT4 m_color;
+		DirectX::XMFLOAT3 m_rotationLerp;
+		DirectX::XMFLOAT4 m_colorlerp;
 	};
 	struct CameraBufferData
 	{
 		DirectX::XMMATRIX m_billboardMat;
 		DirectX::XMMATRIX m_viewProjMat;
-		float m_playerPosZ;
+		DirectX::XMFLOAT3 m_playerPos;
+		float radius;
 		UINT num;
 	};
 	struct OutputData
@@ -57,5 +60,6 @@ public:
 
 
 	std::array<DrawFuncData::DrawCallData, PARTICLE_MAX_NUM> m_playerModel;
+	float m_radius;
 };
 

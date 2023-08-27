@@ -27,11 +27,6 @@ EnemyDeadParticle::EnemyDeadParticle(const KazBufferHelper::BufferData& arg_mesh
 	m_initCommonBuffer = KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(InitCommonData)), GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA);
 	m_updateCommonBuffer = KazBufferHelper::BufferData(KazBufferHelper::SetConstBufferData(sizeof(UpdateCommonData)), GRAPHICS_RANGE_TYPE_CBV_VIEW, GRAPHICS_PRAMTYPE_DATA);
 
-	InitCommonData num;
-	num.m_particleNum = 100;
-	num.pos = arg_pos.ConvertXMFLOAT3();
-	m_initCommonBuffer.bufferWrapper->TransData(&num, sizeof(InitCommonData));
-
 	//バッファ生成
 	m_init.m_extraBufferArray.emplace_back(arg_meshEmitterBuffer);
 	m_init.m_extraBufferArray.emplace_back(m_emitterBuffer);
@@ -44,10 +39,8 @@ EnemyDeadParticle::EnemyDeadParticle(const KazBufferHelper::BufferData& arg_mesh
 	m_update.m_extraBufferArray.emplace_back(ShaderRandomTable::Instance()->GetCurlBuffer(GRAPHICS_PRAMTYPE_DATA3));
 	m_update.m_extraBufferArray.emplace_back(m_updateCommonBuffer);
 
-	m_timer = 0;
-
 	m_executeIndirect = DrawFuncData::SetExecuteIndirect(
-		DrawFuncData::GetBasicInstanceShader(),
+		DrawFuncData::GetBasicInstanceEmissiveShader(),
 		m_outputBuffer.bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
 		PARTICLE_MAX_NUM
 	);
@@ -55,11 +48,25 @@ EnemyDeadParticle::EnemyDeadParticle(const KazBufferHelper::BufferData& arg_mesh
 	m_executeIndirect.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_executeIndirect.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-	InitCompute();
+	m_executeIndirect.extraBufferArray.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4)));
+	m_executeIndirect.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+	m_executeIndirect.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+
+	DirectX::XMFLOAT4 emissive = { 0.0f,1.0f,0.0f,1.0f };
+	m_executeIndirect.extraBufferArray.back().bufferWrapper->TransData(&emissive, sizeof(DirectX::XMFLOAT4));
+
 }
 
-void EnemyDeadParticle::InitCompute()
+void EnemyDeadParticle::InitCompute(const KazMath::Vec3<float>& arg_pos, int particleNum)
 {
+	m_timer = 0;
+
+	InitCommonData num;
+	num.m_particleNum = static_cast<float>(particleNum);
+	num.pos = arg_pos.ConvertXMFLOAT3();
+	m_pos = arg_pos;
+
+	m_initCommonBuffer.bufferWrapper->TransData(&num, sizeof(InitCommonData));
 	//初期化シェーダーを通す
 	m_init.Compute({ 1,1,1 });
 }
@@ -71,9 +78,12 @@ void EnemyDeadParticle::UpdateCompute(DrawingByRasterize& arg_rasterize)
 	UpdateCommonData data;
 	data.m_billboard = CameraMgr::Instance()->GetMatBillBoard();
 	data.m_viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
-	float scale = 0.5f;
+	float scale = 0.25f;
 	data.m_scaleRotaMat = KazMath::CaluScaleMatrix(KazMath::Vec3<float>(scale, scale, scale));
-	data.m_emitterTimer = m_timer;
+	data.emittPosAndEmittTimer = m_pos.ConvertXMFLOAT4();
+	data.emittPosAndEmittTimer.w = static_cast<float>(m_timer);
+	data.color = m_color.ConvertColorRateToXMFLOAT4();
+	data.m_vel = m_vel;
 	m_updateCommonBuffer.bufferWrapper->TransData(&data, sizeof(UpdateCommonData));
 	//更新シェーダーを通す
 	m_update.Compute({ 1,1,1 });
