@@ -124,6 +124,7 @@
     <ClCompile Include="Game\Debug\WirteCpuLineData.cpp" />
     <ClCompile Include="Game\Effect\ComputeLerp.cpp" />
     <ClCompile Include="Game\Effect\DeadParticle.cpp" />
+    <ClCompile Include="Game\Effect\EnemyDissolveParam.cpp" />
     <ClCompile Include="Game\Effect\GalacticParticle.cpp" />
     <ClCompile Include="Game\Effect\InstanceDeadParticle.cpp" />
     <ClCompile Include="Game\Effect\InstanceMeshParticle.cpp" />
@@ -335,6 +336,7 @@
     <ClInclude Include="Game\Debug\WirteCpuLineData.h" />
     <ClInclude Include="Game\Effect\ComputeLerp.h" />
     <ClInclude Include="Game\Effect\DeadParticle.h" />
+    <ClInclude Include="Game\Effect\EnemyDissolveParam.h" />
     <ClInclude Include="Game\Effect\GalacticParticle.h" />
     <ClInclude Include="Game\Effect\InstanceDeadParticle.h" />
     <ClInclude Include="Game\Effect\InstanceMeshParticle.h" />

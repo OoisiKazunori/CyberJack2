@@ -211,6 +211,7 @@
     <ClCompile Include="Game\Effect\ShockWave.cpp" />
     <ClCompile Include="KazLibrary\Render\MeshParticleRender.cpp" />
     <ClCompile Include="KazLibrary\PostEffect\Outline.cpp" />
+    <ClCompile Include="Game\Effect\EnemyDissolveParam.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -445,6 +446,7 @@
     <ClInclude Include="KazLibrary\Render\MeshParticleRender.h" />
     <ClInclude Include="KazLibrary\PostEffect\Outline.h" />
     <ClInclude Include="Game\Effect\StopMgr.h" />
+    <ClInclude Include="Game\Effect\EnemyDissolveParam.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

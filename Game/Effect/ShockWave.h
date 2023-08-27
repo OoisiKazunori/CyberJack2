@@ -14,7 +14,8 @@ public:
 		float m_radius;
 		float m_power;
 		int m_isActive;
-		KazMath::Vec2<float> m_pad;
+		float m_facter;
+		float m_pad;
 
 	};
 
