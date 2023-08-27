@@ -104,9 +104,6 @@ private:
 	bool m_isDebugVolumeFog;
 	bool m_isDebugSea;
 
-	//デバッグカメラ系変数
-	bool m_isPause;
-	bool m_isMoveOnly1F;
 
 	//ラスタライザ描画
 	DrawingByRasterize m_rasterize;

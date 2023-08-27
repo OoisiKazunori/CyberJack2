@@ -1,5 +1,6 @@
 #include "PlayerShotEffect.h"
 #include <Render/DrawFunc.h>
+#include "../Game/Effect/StopMgr.h"
 
 PlayerShotEffect::PlayerShotEffect()
 {
@@ -116,11 +117,13 @@ void PlayerShotEffect::Update()
 		if (0 < m_refEnemy->iOperationData.rockOnNum) {
 
 			//m_refEnemy->Hit();
+			StopMgr::Instance()->m_stopTimer = StopMgr::Instance()->ENEMY_HIT_STOP;
 			m_refEnemy->Dead(&m_prevPos);
 
 		}
 		else {
 
+			StopMgr::Instance()->m_stopTimer = StopMgr::Instance()->ENEMY_HIT_STOP;
 			m_refEnemy->Dead(&m_prevPos);
 
 		}

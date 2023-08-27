@@ -444,6 +444,7 @@
     <ClInclude Include="Game\Effect\ShockWave.h" />
     <ClInclude Include="KazLibrary\Render\MeshParticleRender.h" />
     <ClInclude Include="KazLibrary\PostEffect\Outline.h" />
+    <ClInclude Include="Game\Effect\StopMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

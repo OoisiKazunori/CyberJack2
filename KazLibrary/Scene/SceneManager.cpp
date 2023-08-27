@@ -20,6 +20,7 @@
 #include"../Scene/ModelToolScene.h"
 #include"../../Game/Effect/TimeZone.h"
 #include"../Game/Effect/ShockWave.h"
+#include"../../Game/Effect/StopMgr.h"
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
@@ -110,8 +111,8 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_isDebugTimeZone = false;
 	m_isDebugVolumeFog = false;
 	m_isDebugSea = false;
-	m_isPause = false;
-	m_isMoveOnly1F = false;
+	StopMgr::Instance()->m_isPause = false;
+	StopMgr::Instance()->m_isMoveOnly1F = false;
 	TimeZone::Instance()->m_isSkyEffect = false;
 	SeaEffect::Instance()->m_isSeaEffect = false;
 	SeaEffect::Instance()->m_seaID = SEA_ID::CALM;
@@ -143,7 +144,8 @@ void SceneManager::Update()
 {
 	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
 
-	if (m_isPause && !m_isMoveOnly1F) {
+	if ((StopMgr::Instance()->m_isPause && !StopMgr::Instance()->m_isMoveOnly1F) || 0 < StopMgr::Instance()->m_stopTimer) {
+		StopMgr::Instance()->m_stopTimer = std::clamp(StopMgr::Instance()->m_stopTimer - 1, 0, 100000);
 		m_blasVector.Update();
 		return;
 	}
@@ -320,17 +322,17 @@ void SceneManager::Draw()
 	//カメラのデバッグメニュー
 	if (m_isDebugCamera) {
 
-		m_isPause = true;
+		StopMgr::Instance()->m_isPause = true;
 
 		ImGui::Begin("DebugCamera");
 
-		m_isMoveOnly1F = ImGui::Button("MoveOnly1F");
+		StopMgr::Instance()->m_isMoveOnly1F = ImGui::Button("MoveOnly1F");
 
 		ImGui::End();
 
 	}
 	else {
-		m_isPause = false;
+		StopMgr::Instance()->m_isPause = false;
 	}
 
 	//レイトレのデバッグメニュー

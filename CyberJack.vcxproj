@@ -358,6 +358,7 @@
     <ClInclude Include="Game\Effect\SparkEmitter.h" />
     <ClInclude Include="Game\Effect\SparkParticle.h" />
     <ClInclude Include="Game\Effect\SplineParticle.h" />
+    <ClInclude Include="Game\Effect\StopMgr.h" />
     <ClInclude Include="Game\Effect\TextureParticle.h" />
     <ClInclude Include="Game\Effect\EaseScaleParticle.h" />
     <ClInclude Include="Game\Effect\HitEffectPattern1Emitter.h" />
