@@ -352,7 +352,17 @@ void InGame::Update()
 					!m_enemies[enemyType][enemyCount]->m_isBeingShot ||
 					KeyBoradInputManager::Instance()->InputTrigger(DIK_SPACE))
 				{
-					PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount]);
+					//UŒ‚‚ğ“–‚Ä‚é“GˆÈŠO‚ÌQÆ‚à•Û‘¶‚µ‚Ä“n‚·B
+					std::array<std::shared_ptr<IEnemy>, 3> refOtherEnemy;
+					int counter = 0;
+					for (int index = 0; index < 4; ++index) {
+						if (m_enemies[enemyType][enemyCount] == m_enemies[enemyType][index]) continue;
+
+						refOtherEnemy[counter] = m_enemies[enemyType][index];
+						++counter;
+					}
+
+					PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount], refOtherEnemy);
 					m_enemies[enemyType][enemyCount]->m_isBeingShot = true;
 
 
@@ -412,7 +422,7 @@ void InGame::Update()
 		m_notMoveTimer = 0;
 	}
 
-	if (120 == m_notMoveTimer)
+	if (180 == m_notMoveTimer)
 	{
 		for (int enemyType = 0; enemyType < m_responeData.size(); ++enemyType)
 		{
@@ -441,7 +451,7 @@ void InGame::Update()
 
 	//ƒQ[ƒ€ƒ‹[ƒv‚Ì‰Šú‰»
 	//if (KazMath::ConvertSecondToFlame(15) <= m_gameFlame)
-	if (600 <= m_gameFlame)
+	if (720 <= m_gameFlame)
 	{
 		m_gameFlame = 0;
 	}

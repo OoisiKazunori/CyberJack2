@@ -214,5 +214,6 @@ public:
 	int m_spawnTimer;
 	bool m_canSpawn;
 	KazMath::Vec3<float> m_deadEffectVel;
+	KazMath::Vec3<float> m_shockWaveVel;
 
 };

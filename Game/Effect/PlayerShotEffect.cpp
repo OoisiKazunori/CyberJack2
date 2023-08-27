@@ -21,7 +21,7 @@ void PlayerShotEffect::Init()
 
 }
 
-void PlayerShotEffect::Generate(const KazMath::Vec3<float>* arg_refPlayerPos, shared_ptr<IEnemy> arg_refEnemy)
+void PlayerShotEffect::Generate(const KazMath::Vec3<float>* arg_refPlayerPos, shared_ptr<IEnemy> arg_refEnemy, std::array<std::shared_ptr<IEnemy>, 3> arg_refOtherEnemy)
 {
 	//制御点を決めるベクトルを求める。
 	m_controlPointVec = KazMath::Vec3<float>(KazMath::Rand(-CONTROL_POINT_R, CONTROL_POINT_R), KazMath::Rand(-CONTROL_POINT_R, CONTROL_POINT_R), KazMath::Rand(-CONTROL_POINT_R, CONTROL_POINT_R));
@@ -29,6 +29,7 @@ void PlayerShotEffect::Generate(const KazMath::Vec3<float>* arg_refPlayerPos, sh
 	m_frame = 0;
 	m_refPlayerPos = arg_refPlayerPos;
 	m_refEnemy = arg_refEnemy;
+	m_otherEnemy = arg_refOtherEnemy;
 	m_isActive = true;
 
 	//Line描画用の処理
@@ -111,6 +112,7 @@ void PlayerShotEffect::Update()
 		m_splineRailPosArray[index] = m_splineRailPosArray[vertexDeadline];
 	}
 
+	const float SHOCK_WAVE_VEL = 0.2f;
 	//一定フレーム経過したら処理を終わらせる。
 	if (EFFECT_FRAME <= m_frame) {
 
@@ -120,11 +122,25 @@ void PlayerShotEffect::Update()
 			StopMgr::Instance()->m_stopTimer = StopMgr::Instance()->ENEMY_HIT_STOP;
 			m_refEnemy->Dead(&m_prevPos);
 
+			for (auto& index : m_otherEnemy) {
+
+				index->m_shockWaveVel = KazMath::Vec3<float>(index->m_transform.pos - m_refEnemy->m_transform.pos).GetNormal() * SHOCK_WAVE_VEL;
+				int a = 0;
+
+			}
+
 		}
 		else {
 
 			StopMgr::Instance()->m_stopTimer = StopMgr::Instance()->ENEMY_HIT_STOP;
 			m_refEnemy->Dead(&m_prevPos);
+
+			for (auto& index : m_otherEnemy) {
+
+				index->m_shockWaveVel = KazMath::Vec3<float>(index->m_transform.pos - m_refEnemy->m_transform.pos).GetNormal() * SHOCK_WAVE_VEL;
+				int a = 0;
+
+			}
 
 		}
 

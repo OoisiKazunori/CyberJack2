@@ -18,7 +18,8 @@ private:
 
 	DrawFuncData::DrawCallData m_model;
 	KazMath::Vec3<float> m_prevPlayerPos;
-	KazMath::Vec3<float> m_initPos;
+	KazMath::Vec3<float> m_initPos;	//初期地点 書き換えない
+	KazMath::Vec3<float> m_basePos; //サイン波で動かすときの中心点 初期地点を入れる。
 
 	//ステータス
 	enum STATUS {
