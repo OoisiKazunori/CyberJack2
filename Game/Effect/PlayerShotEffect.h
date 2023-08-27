@@ -20,6 +20,9 @@ private:
 	int m_frame;
 	const int EFFECT_FRAME = 20;
 
+	bool m_isFinish;
+	KazMath::Vec3<float> m_finishVel;
+
 	DrawFuncData::DrawCallData m_model;
 	KazMath::Transform3D m_transform;
 	KazMath::Vec3<float> m_prevPos;
