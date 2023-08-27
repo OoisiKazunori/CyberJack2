@@ -22,6 +22,7 @@
 #include"../Game/Effect/ShockWave.h"
 #include"../../Game/Effect/StopMgr.h"
 #include"../Game/Effect/EnemyDissolveParam.h"
+#include"../Game/UI/OptionUI.h"
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
@@ -134,6 +135,8 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_rayPipeline->SetDebugSeaConstData(&m_debugSeaParamData);
 
 	ShockWave::Instance()->Setting();
+
+	OptionUI::Instance()->Setting();
 	
 	//EnemyDissolveParam::Instance()->Setting();
 }
@@ -277,6 +280,9 @@ void SceneManager::Draw()
 	{
 		scene[nowScene]->Draw(m_rasterize, m_blasVector);
 	}
+
+	//IUを描画
+	OptionUI::Instance()->Draw(m_rasterize);
 
 	//デバッグ用のOnOffのラインを描画する。
 	if (m_isDebugRaytracing) {

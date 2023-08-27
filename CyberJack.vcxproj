@@ -211,6 +211,7 @@
     <ClCompile Include="Game\UI\DrawMenu.cpp" />
     <ClCompile Include="Game\UI\Letter.cpp" />
     <ClCompile Include="Game\UI\LockOnBoxEffect.cpp" />
+    <ClCompile Include="Game\UI\OptionUI.cpp" />
     <ClCompile Include="Game\UI\PlayerHpUi.cpp" />
     <ClCompile Include="Game\UI\StringWindow.cpp" />
     <ClCompile Include="KazLibrary\Animation\AnimationData.cpp" />
@@ -428,6 +429,7 @@
     <ClInclude Include="Game\UI\DrawMenu.h" />
     <ClInclude Include="Game\UI\Letter.h" />
     <ClInclude Include="Game\UI\LockOnBoxEffect.h" />
+    <ClInclude Include="Game\UI\OptionUI.h" />
     <ClInclude Include="Game\UI\PlayerHpUi.h" />
     <ClInclude Include="Game\UI\StringWindow.h" />
     <ClInclude Include="KazLibrary\Animation\AnimationData.h" />

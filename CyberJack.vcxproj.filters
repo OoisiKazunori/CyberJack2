@@ -212,6 +212,7 @@
     <ClCompile Include="KazLibrary\Render\MeshParticleRender.cpp" />
     <ClCompile Include="KazLibrary\PostEffect\Outline.cpp" />
     <ClCompile Include="Game\Effect\EnemyDissolveParam.cpp" />
+    <ClCompile Include="Game\UI\OptionUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -447,6 +448,7 @@
     <ClInclude Include="KazLibrary\PostEffect\Outline.h" />
     <ClInclude Include="Game\Effect\StopMgr.h" />
     <ClInclude Include="Game\Effect\EnemyDissolveParam.h" />
+    <ClInclude Include="Game\UI\OptionUI.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
