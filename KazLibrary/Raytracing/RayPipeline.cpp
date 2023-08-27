@@ -181,7 +181,8 @@ namespace Raytracing {
 			{
 				 GBufferMgr::Instance()->GetRayTracingBuffer(),
 				 GBufferMgr::Instance()->GetLensFlareBuffer(),
-				 GBufferMgr::Instance()->m_outlineBuffer,
+				 GBufferMgr::Instance()->m_outline->GetOutputAlbedoTexture(),
+				 GBufferMgr::Instance()->m_outline->GetOutputEmissiveTexture(),
 			};
 			extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 			extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
@@ -189,6 +190,8 @@ namespace Raytracing {
 			extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_TEX2;
 			extraBuffer[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 			extraBuffer[2].rootParamType = GRAPHICS_PRAMTYPE_TEX3;
+			extraBuffer[3].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+			extraBuffer[3].rootParamType = GRAPHICS_PRAMTYPE_TEX4;
 			m_outlineComposeShader.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "PostEffect/Outline/" + "ComposeOutline.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
 		}
 		{
@@ -326,6 +329,9 @@ namespace Raytracing {
 		/*===== 書き込んだアウトラインを合成 =====*/
 
 		PIXBeginEvent(DirectX12CmdList::Instance()->cmdList.Get(), 0, "Outline");
+
+		//アウトラインを計算
+		GBufferMgr::Instance()->m_outline->Apply();
 
 		DispatchData dispatchData;
 		dispatchData.x = static_cast<UINT>(1280 / 16) + 1;

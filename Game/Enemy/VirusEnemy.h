@@ -19,7 +19,8 @@ private:
 
 	DrawFuncData::DrawCallData m_model;
 	KazMath::Vec3<float> m_prevPlayerPos;
-	KazMath::Vec3<float> m_initPos;
+	KazMath::Vec3<float> m_initPos;	//初期地点 書き換えない
+	KazMath::Vec3<float> m_basePos; //サイン波で動かすときの中心点 初期地点を入れる。
 
 	//ステータス
 	enum STATUS {
@@ -68,6 +69,9 @@ private:
 	float m_shockWaveTimer;
 	const float SHOCK_WAVE_TIMER = 60.0f;
 	const float SHOCK_WAVE_RAIDUS = 100.0f;
+
+	const KazMath::Vec4<float> OUTLINE_COLOR = KazMath::Vec4<float>(0.35f, 0.91f, 0.55f, 1.0f);
+	//const KazMath::Vec4<float> OUTLINE_COLOR = KazMath::Vec4<float>(0.95f, 0.91f, 0.95f, 1.0f);
 
 
 	//プレイヤーを中心とした半径どのくらいの位置に敵を出すか。

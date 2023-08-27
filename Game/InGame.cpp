@@ -352,7 +352,17 @@ void InGame::Update()
 					!m_enemies[enemyType][enemyCount]->m_isBeingShot ||
 					KeyBoradInputManager::Instance()->InputTrigger(DIK_SPACE))
 				{
-					PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount]);
+					//攻撃を当てる敵以外の参照も保存して渡す。
+					std::array<std::shared_ptr<IEnemy>, 3> refOtherEnemy;
+					int counter = 0;
+					for (int index = 0; index < 4; ++index) {
+						if (m_enemies[enemyType][enemyCount] == m_enemies[enemyType][index]) continue;
+
+						refOtherEnemy[counter] = m_enemies[enemyType][index];
+						++counter;
+					}
+
+					PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount], refOtherEnemy);
 					m_enemies[enemyType][enemyCount]->m_isBeingShot = true;
 
 
@@ -420,7 +430,7 @@ void InGame::Update()
 		m_notMoveTimer = 0;
 	}
 
-	if (120 == m_notMoveTimer)
+	if (180 == m_notMoveTimer)
 	{
 		for (int enemyType = 0; enemyType < m_responeData.size(); ++enemyType)
 		{
@@ -449,7 +459,7 @@ void InGame::Update()
 
 	//ゲームループの初期化
 	//if (KazMath::ConvertSecondToFlame(15) <= m_gameFlame)
-	if (600 <= m_gameFlame)
+	if (720 <= m_gameFlame)
 	{
 		m_gameFlame = 0;
 	}
@@ -474,9 +484,6 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	}
 	PIXEndEvent(DirectX12CmdList::Instance()->cmdList.Get());
 	m_player.Draw(arg_rasterize, arg_blasVec);
-
-	//アウトラインを計算
-	//GBufferMgr::Instance()->m_outline->Apply();
 
 	if (!m_debugFlag)
 	{

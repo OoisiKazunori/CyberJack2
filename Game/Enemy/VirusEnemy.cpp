@@ -52,6 +52,7 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 
 	m_transform.pos = GENERATE_DATA.initPos;
 	m_initPos = GENERATE_DATA.initPos;
+	m_basePos = m_initPos;
 
 	debugTimer = 0;
 	m_exitTimer = 0;
@@ -70,6 +71,13 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 
 	ShockWave::Instance()->m_shockWave[moveID].m_radius = 0.0f;
 	ShockWave::Instance()->m_shockWave[moveID].m_isActive = false;
+
+	m_deadEffectData.m_dissolve.x = 0.0f;
+	m_deadEffectData.m_dissolve.a = 0.0f;
+
+	m_deadEffectData.m_outlineColor = OUTLINE_COLOR;
+	m_deadEffectData.m_outlineColor.a = 0.0f;
+}
 
 	if (!m_deadParticle)
 	{
@@ -186,7 +194,8 @@ void VirusEnemy::Update()
 		//現在の位置を確定。
 		//m_transform.pos = centerPos + TransformVector3(Vec3<float>(0, 1, 0), playerQ) * AROUND_R;
 		m_moveTimer += 0.06f;
-		m_transform.pos.y = m_initPos.y + sinf(m_moveTimer) * 1.0f;
+		m_transform.pos.x = m_basePos.x;
+		m_transform.pos.y = m_basePos.y + sinf(m_moveTimer) * 1.0f;
 
 		//出現のタイマーを更新。
 		m_appearEasingTimer = std::clamp(m_appearEasingTimer + 1.0f, 0.0f, APPEAR_EASING_TIMER * 10.0f);
@@ -211,7 +220,8 @@ void VirusEnemy::Update()
 		m_moveTimer += 0.06f;
 
 		//m_transform.rotation.z = 360.0f + sinf(m_stopTimer) * 35.0f;
-		m_transform.pos.y = m_initPos.y + sinf(m_moveTimer) * 1.0f;
+		m_transform.pos.x = m_basePos.x;
+		m_transform.pos.y = m_basePos.y + sinf(m_moveTimer) * 1.0f;
 
 		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
 
@@ -285,9 +295,15 @@ void VirusEnemy::Update()
 	{
 
 		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
-		m_gravity += 0.005f;
+		m_gravity += 0.002f;
 		m_transform.pos.y -= m_gravity;
-		m_transform.rotation.x += 3.0f;
+		m_transform.rotation.x += 2.0f;
+
+		m_deadEffectData.m_dissolve.a += (1.0f - m_deadEffectData.m_dissolve.a) / 20.0f;
+
+		m_deadEffectData.m_dissolve.x = std::clamp(m_deadEffectData.m_dissolve.x + 0.005f, 0.0f, 1.0f);
+
+		m_deadEffectData.m_outlineColor.a += (1.0f - m_deadEffectData.m_outlineColor.a) / 50.0f;
 
 		//死亡時のエフェクトを計算。
 		m_transform.pos += m_deadEffectVel;
@@ -300,7 +316,7 @@ void VirusEnemy::Update()
 		//イージングを計算。
 		float easing = EasingMaker(EasingType::Out, EaseInType::Cubic, m_shockWaveTimer / SHOCK_WAVE_TIMER);
 
-		ShockWave::Instance()->m_shockWave[moveID].m_pos = m_initPos;
+		ShockWave::Instance()->m_shockWave[moveID].m_pos = m_basePos;
 		ShockWave::Instance()->m_shockWave[moveID].m_radius = easing * SHOCK_WAVE_RAIDUS;
 		ShockWave::Instance()->m_shockWave[moveID].m_power = (1.0f - easing);
 
@@ -308,6 +324,15 @@ void VirusEnemy::Update()
 	break;
 	default:
 		break;
+	}
+
+	//衝撃波で動かす。
+	m_basePos += m_shockWaveVel;
+	if (0.01f < m_shockWaveVel.Length()) {
+		m_shockWaveVel -= m_shockWaveVel / 20.0f;
+	}
+	else {
+		m_basePos += (m_initPos - m_basePos) / 10.0f;
 	}
 
 	//DrawFunc::DrawModelInRaytracing(m_model, m_transform, DrawFunc::NONE);
@@ -344,8 +369,8 @@ void VirusEnemy::Update()
 
 
 
-	m_deadEffectData.m_dissolve.x = 0.55f;
-	m_model.extraBufferArray[1].bufferWrapper->TransData(&m_deadEffectData, sizeof(m_deadEffectData));
+	m_deadEffectData.m_outlineColor.a = 1;
+	m_model.extraBufferArray[4].bufferWrapper->TransData(&m_deadEffectData, sizeof(m_deadEffectData));
 
 	m_model.extraBufferArray.back() = GBufferMgr::Instance()->m_outlineBuffer;
 	m_model.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
@@ -368,4 +393,11 @@ void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector&
 	{
 		arg_blasVec.Add(index, m_transform.GetMat());
 	}
+
+
+	std::vector<D3D12_RESOURCE_BARRIER> barrier;
+
+	barrier.emplace_back(CD3DX12_RESOURCE_BARRIER::UAV(GBufferMgr::Instance()->m_outlineBuffer.bufferWrapper->GetBuffer().Get()));;
+
+	DirectX12CmdList::Instance()->cmdList->ResourceBarrier(static_cast<UINT>(barrier.size()), barrier.data());
 }
