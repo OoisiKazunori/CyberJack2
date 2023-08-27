@@ -115,7 +115,8 @@ void PlayerShotEffect::Update()
 
 		if (0 < m_refEnemy->iOperationData.rockOnNum) {
 
-			m_refEnemy->Hit();
+			//m_refEnemy->Hit();
+			m_refEnemy->Dead(&m_prevPos);
 
 		}
 		else {

@@ -279,11 +279,11 @@ void VirusEnemy::Update()
 	{
 
 		m_transform.scale += (KazMath::Vec3<float>(VIRUS_SCALE, VIRUS_SCALE, VIRUS_SCALE) - m_transform.scale) / 5.0f;
-		m_gravity += 0.005f;
-		m_transform.pos.y -= m_gravity;
-		m_transform.rotation.x += 3.0f;
+		//m_gravity += 0.005f;
+		//m_transform.pos.y -= m_gravity;
+		//m_transform.rotation.x += 3.0f;
 
-		m_deadEffectData.m_dissolve.x = std::clamp(m_deadEffectData.m_dissolve.x + 0.01f, 0.0f, 1.0f);
+		m_deadEffectData.m_dissolve.x = std::clamp(m_deadEffectData.m_dissolve.x + 0.005f, 0.0f, 1.0f);
 
 		m_deadEffectData.m_outlineColor.a += (1.0f - m_deadEffectData.m_outlineColor.a) / 50.0f;
 
@@ -341,6 +341,7 @@ void VirusEnemy::Update()
 
 
 
+	m_deadEffectData.m_outlineColor.a = 1;
 	m_model.extraBufferArray[4].bufferWrapper->TransData(&m_deadEffectData, sizeof(m_deadEffectData));
 
 	m_model.extraBufferArray.back() = GBufferMgr::Instance()->m_outlineBuffer;
@@ -360,4 +361,11 @@ void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector&
 	{
 		arg_blasVec.Add(index, m_transform.GetMat());
 	}
+
+
+	std::vector<D3D12_RESOURCE_BARRIER> barrier;
+
+	barrier.emplace_back(CD3DX12_RESOURCE_BARRIER::UAV(GBufferMgr::Instance()->m_outlineBuffer.bufferWrapper->GetBuffer().Get()));;
+
+	DirectX12CmdList::Instance()->cmdList->ResourceBarrier(static_cast<UINT>(barrier.size()), barrier.data());
 }

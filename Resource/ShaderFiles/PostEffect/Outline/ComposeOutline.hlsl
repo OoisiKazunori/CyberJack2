@@ -9,6 +9,13 @@ RWTexture2D<float4> OutlineEmissive : register(u3);
 [numthreads(16, 16, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
-    Albedo[DTid.xy] += OutlineAlbedo[DTid.xy];
+    if (0 < OutlineAlbedo[DTid.xy].a)
+    {
+        Albedo[DTid.xy] = OutlineAlbedo[DTid.xy];
+    }
+    else
+    {
+        Albedo[DTid.xy] += OutlineAlbedo[DTid.xy];
+    }
     Emissive[DTid.xy] += OutlineEmissive[DTid.xy];
 }

@@ -42,12 +42,12 @@ PostEffect::Outline::Outline(KazBufferHelper::BufferData arg_outlineTargetTextur
 			 m_outputEmissiveTexture,
 			 m_outlineColorConstBuffer,
 		};
-		extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
+		extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 		extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
 		extraBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_TEX;
+		extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_TEX2;
 		extraBuffer[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		extraBuffer[2].rootParamType = GRAPHICS_PRAMTYPE_TEX2;
+		extraBuffer[2].rootParamType = GRAPHICS_PRAMTYPE_TEX3;
 		extraBuffer[3].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		extraBuffer[3].rootParamType = GRAPHICS_PRAMTYPE_DATA;
 		m_outlineShader.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "PostEffect/Outline/" + "Outline.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
@@ -57,6 +57,13 @@ PostEffect::Outline::Outline(KazBufferHelper::BufferData arg_outlineTargetTextur
 
 void PostEffect::Outline::Apply()
 {
+	std::vector<D3D12_RESOURCE_BARRIER> barrier;
+
+	barrier.emplace_back(CD3DX12_RESOURCE_BARRIER::UAV(m_outlineTargetTexture.bufferWrapper->GetBuffer().Get()));
+	barrier.emplace_back(CD3DX12_RESOURCE_BARRIER::UAV(m_outputAlbedoTexture.bufferWrapper->GetBuffer().Get()));
+	barrier.emplace_back(CD3DX12_RESOURCE_BARRIER::UAV(m_outputEmissiveTexture.bufferWrapper->GetBuffer().Get()));
+
+	DirectX12CmdList::Instance()->cmdList->ResourceBarrier(static_cast<UINT>(barrier.size()), barrier.data());
 
 	m_outlineColorConstBuffer.bufferWrapper->TransData(&m_outlineColor, sizeof(KazMath::Vec4<float>));
 	DispatchData dispatchData;
