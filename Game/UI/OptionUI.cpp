@@ -47,6 +47,8 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 			//この文字のFontの番号を調べる。
 			int fontNum = static_cast<int>(headline.m_headline[index]) - ASCII_A;
 
+			headline.m_color[index] = KazMath::Color(0, 255, 0, 255);
+
 			//トランスフォームを用意。
 			KazMath::Transform2D transform;
 			transform.pos = headline.m_pos;
@@ -54,7 +56,7 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 			transform.pos.y += headline.m_fontSize / 2.0f;
 			transform.scale.x = headline.m_fontSize;
 			transform.scale.y = headline.m_fontSize;
-			DrawFunc::DrawTextureIn2D(headline.m_render[index], transform, m_font[fontNum]);
+			DrawFunc::DrawTextureIn2D(headline.m_render[index], transform, m_font[fontNum], headline.m_color[index]);
 			arg_rasterize.ObjectRender(headline.m_render[index]);
 
 
@@ -69,7 +71,7 @@ OptionUI::OptionHeadline::OptionHeadline(std::string arg_headline, KazMath::Vec2
 {
 	//m_render.resize(static_cast<int>(arg_headline.size()));
 	for (auto& index : m_render) {
-		index = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
+		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	}
 
 	//for (int index = 0; index < static_cast<int>(arg_headline.size()); ++index) {

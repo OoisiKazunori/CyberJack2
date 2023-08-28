@@ -21,6 +21,7 @@ public:
 		float m_fontSize;
 		int m_headlineID;
 		std::array<DrawFuncData::DrawCallData, 10> m_render;
+		std::array<KazMath::Color, 10> m_color;
 		OptionHeadline(std::string arg_headline, KazMath::Vec2<float> arg_pos, float arg_fontSize, int arg_headlineID);
 	};
 
