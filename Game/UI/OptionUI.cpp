@@ -2,6 +2,7 @@
 #include "../KazLibrary/Loader/TextureResourceMgr.h"
 #include "../KazLibrary/Render/DrawFunc.h"
 #include "../KazLibrary/Input/ControllerInputManager.h"
+#include <Imgui/imgui.h>
 
 void OptionUI::Setting()
 {
@@ -24,9 +25,10 @@ void OptionUI::Setting()
 	}
 
 	//小見出しを設定。
-	m_headlines.emplace_back(OptionHeadline("RAYTRACING", KazMath::Vec2<float>(10, 10), 32.0f, 0));
-	m_headlines.emplace_back(OptionHeadline("TIMEZONE", KazMath::Vec2<float>(10, 50), 32.0f, 1));
-	m_headlines.emplace_back(OptionHeadline("SEA", KazMath::Vec2<float>(10, 90), 32.0f, 2));
+	m_headlines.emplace_back(OptionHeadline("RAYTRACING", KazMath::Vec2<float>(0, 0), 32.0f, 0));
+	m_headlines.emplace_back(OptionHeadline("TIMEZONE", KazMath::Vec2<float>(0, 0), 32.0f, 1));
+	m_headlines.emplace_back(OptionHeadline("SEA", KazMath::Vec2<float>(0, 0), 32.0f, 2));
+	m_optionUI.emplace_back(OptionHeadline("OPTION", KazMath::Vec2<float>(0, 0), OPTION_FONTSIZE, 0));
 
 	//各変数の初期設定
 	m_nowSelectHeadline = 0;
@@ -49,7 +51,46 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 
 	if (!m_isDisplayUI) return;
 
+	//ImGui::Begin("UI");
+
+	//ImGui::DragFloat("BASE_POS_X", &HEADLINE_BASEPOS.x, 0.5f);
+	//ImGui::DragFloat("BASE_POS_Y", &HEADLINE_BASEPOS.y, 0.5f);
+	//ImGui::DragFloat("Gyokan", &BETWEEN_LINES, 0.1f);
+	//ImGui::DragFloat("DEFAULT_FONTSIZE", &DEFAULT_FONTSIZE, 0.1f);
+	//ImGui::DragFloat("SELECT_FONTSIZE", &SELECT_FONTSIZE, 0.1f);
+	//ImGui::DragFloat("OPTION_POS_X", &OPTION_BASEPOS.x, 0.5f);
+	//ImGui::DragFloat("OPTION_POS_Y", &OPTION_BASEPOS.y, 0.5f);
+	//ImGui::DragFloat("OPTION_FONTSIZE", &OPTION_FONTSIZE, 0.1f);
+
+	//ImGui::End();
+
+
 	const int ASCII_A = 65;	//"A"のASCIIコード
+
+	//OPTIONの文字を描画する。
+	{
+		const int CHARA_COUNT = static_cast<int>(m_optionUI.front().m_headline.size());
+		for (int index = 0; index < CHARA_COUNT; ++index) {
+
+			//この文字のFontの番号を調べる。
+			int fontNum = static_cast<int>(m_optionUI.front().m_headline[index]) - ASCII_A;
+
+			m_optionUI.front().m_color[index] = KazMath::Color(10, 10, 10, 255);
+
+			m_optionUI.front().m_fontSize = OPTION_FONTSIZE;
+
+			//トランスフォームを用意。
+			KazMath::Transform2D transform;
+			transform.pos = OPTION_BASEPOS;
+			transform.pos.x += (m_optionUI.front().m_fontSize / 2.0f) + (m_optionUI.front().m_fontSize * index);
+			transform.scale.x = m_optionUI.front().m_fontSize;
+			transform.scale.y = m_optionUI.front().m_fontSize;
+			DrawFunc::DrawTextureIn2D(m_optionUI.front().m_render[index], transform, m_font[fontNum], m_optionUI.front().m_color[index]);
+			arg_rasterize.ObjectRender(m_optionUI.front().m_render[index]);
+
+
+		}
+	}
 
 	//小見出しを描画
 	for (auto& headline : m_headlines) {
@@ -60,13 +101,19 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 			//この文字のFontの番号を調べる。
 			int fontNum = static_cast<int>(headline.m_headline[index]) - ASCII_A;
 
-			headline.m_color[index] = KazMath::Color(0, 255, 0, 255);
+			headline.m_color[index] = KazMath::Color(10, 10, 10, 255);
+
+			//使用するフォントのサイズを決める。
+			headline.m_fontSize = DEFAULT_FONTSIZE;
+			if (headline.m_headlineID == m_nowSelectHeadline) {
+				headline.m_fontSize = SELECT_FONTSIZE;
+			}
 
 			//トランスフォームを用意。
 			KazMath::Transform2D transform;
-			transform.pos = headline.m_pos;
+			transform.pos = HEADLINE_BASEPOS;
 			transform.pos.x += (headline.m_fontSize / 2.0f) + (headline.m_fontSize * index);
-			transform.pos.y += headline.m_fontSize / 2.0f + (headline.m_headlineID == m_nowSelectHeadline ? 20.0f : 0.0f);
+			transform.pos.y += headline.m_fontSize / 2.0f + (BETWEEN_LINES * headline.m_headlineID);
 			transform.scale.x = headline.m_fontSize;
 			transform.scale.y = headline.m_fontSize;
 			DrawFunc::DrawTextureIn2D(headline.m_render[index], transform, m_font[fontNum], headline.m_color[index]);

@@ -2,6 +2,7 @@
 #include"../KazLibrary/Helper/ResourceFilePass.h"
 #include"../KazLibrary/Imgui/MyImgui.h"
 #include"../KazLibrary/Sound/SoundManager.h"
+#include"../UI/OptionUI.h"
 
 DirectX::XMFLOAT2 Cursor::KOCKBACK_MAX_VALUE = { 200.0f,200.0f };
 DirectX::XMFLOAT2 Cursor::KOCKBACK_VELOCITY = { 5.0f,5.0f };
@@ -72,6 +73,18 @@ void Cursor::Init()
 
 void Cursor::Input(bool UP_FLAG, bool DOWN_FLAG, bool LEFT_FLAG, bool RIGHT_FLAG, bool DONE_FLAG, bool RELEASE_FLAG, const KazMath::Vec2<float>& ANGLE)
 {
+	//UIが表示されていたら入力をすべて切る。
+	if (OptionUI::Instance()->m_isDisplayUI) {
+		upFlag = false;
+		downFlag = false;
+		leftFlag = false;
+		rightFlag = false;
+		doneFlag = false;
+		releaseFlag = false;
+		stickAngle = { 0.0f,0.0f };
+		return;
+	}
+
 	if (!dontMoveFlag)
 	{
 		upFlag = UP_FLAG;
@@ -504,6 +517,11 @@ void Cursor::Update()
 
 void Cursor::Draw(DrawingByRasterize& arg_rasterize)
 {
+	//UIが表示されていたら描画をすべて切る。
+	if (OptionUI::Instance()->m_isDisplayUI) {
+		return;
+	}
+
 	//数字
 	{
 		KazMath::Transform2D transform;

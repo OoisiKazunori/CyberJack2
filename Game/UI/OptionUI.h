@@ -27,6 +27,7 @@ public:
 
 	//小見出し配列
 	std::vector<OptionHeadline> m_headlines;
+	std::vector<OptionHeadline> m_optionUI;	//"OPTION"用
 
 	//現在選択中の小見出しID
 	int m_nowSelectHeadline;
@@ -40,6 +41,15 @@ public:
 
 	//フォント配列
 	std::array<KazBufferHelper::BufferData, 26> m_font;
+
+	//UI配置用変数
+	float BETWEEN_LINES = 55.0f;
+	KazMath::Vec2<float> HEADLINE_BASEPOS = KazMath::Vec2<float>(170,300);
+	float DEFAULT_FONTSIZE = 25.0f;
+	float SELECT_FONTSIZE = 30.0f;
+	float OPTION_FONTSIZE = 45.7f;
+	KazMath::Vec2<float> OPTION_BASEPOS = KazMath::Vec2<float>(143, 240);
+
 
 public:
 
