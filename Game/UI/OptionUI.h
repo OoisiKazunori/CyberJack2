@@ -67,6 +67,11 @@ public:
 	//フォント配列
 	std::array<KazBufferHelper::BufferData, 26> m_font;
 
+	//デバッグの表示中の背景を暗くする用のテクスチャ
+	DrawFuncData::DrawCallData m_backGroundRender;
+	KazMath::Color m_backGroundColor;
+	KazBufferHelper::BufferData m_backGroundTexture;
+
 	//UI配置用変数
 	float BETWEEN_LINES = 55.0f;
 	KazMath::Vec2<float> HEADLINE_BASEPOS = KazMath::Vec2<float>(170, 300);
@@ -74,9 +79,9 @@ public:
 	float SELECT_FONTSIZE = 30.0f;
 	float OPTION_FONTSIZE = 45.7f;
 	KazMath::Vec2<float> OPTION_BASEPOS = KazMath::Vec2<float>(143, 240);
-	KazMath::Vec2<float> DETAIL_BASEPOS = KazMath::Vec2<float>(750, 300);
+	KazMath::Vec2<float> DETAIL_BASEPOS = KazMath::Vec2<float>(600, 300);
 	float DETAIL_FONTSIZE = 25.0f;
-	float DETAIL_FLAG_POS = 300.0f;	//詳細の右側のONOFFとかを描画する位置。
+	float DETAIL_FLAG_POS = 180.0f;	//詳細の右側のONOFFとかを描画する位置。
 
 	//デバッグの名称
 	enum DEBUG_NAME {
