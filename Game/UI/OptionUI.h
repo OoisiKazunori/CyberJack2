@@ -55,6 +55,12 @@ public:
 	DrawFuncData::DrawCallData m_rightArrowRender;
 	DrawFuncData::DrawCallData m_leftArrowRender;
 
+	//OnOffØ‚è‘Ö‚¦ƒ‰ƒCƒ“
+	DrawFuncData::DrawCallData m_debugOnOffLineRender;
+	KazBufferHelper::BufferData m_debugOnOffLineBuffer;
+	KazBufferHelper::BufferData m_debugOnOffLineStayBuffer;
+	KazMath::Transform2D m_debugOnOffLineTransform;
+
 	//Œ»İ‘I‘ğ’†‚Ì¬Œ©o‚µID
 	int m_nowSelectHeadline;
 
@@ -107,7 +113,7 @@ public:
 
 	void Update();
 
-	void Draw(DrawingByRasterize& arg_rasterize);
+	void Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate);
 
 private:
 

@@ -161,6 +161,12 @@ void PlayerShotEffect::Update(std::array<bool, 4>& arg_hitArray, int* arg_hitNum
 
 			}
 
+			if (*arg_hitNum < arg_hitArray.size())
+			{
+				arg_hitArray[*arg_hitNum] = true;
+				*arg_hitNum += 1;
+			}
+
 		}
 
 		m_isFinish = true;
