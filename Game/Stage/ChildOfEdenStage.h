@@ -49,6 +49,10 @@ public:
 		float m_posZ2;
 		float m_posZ3;
 		float m_posZ4;
+		float m_posZ5;
+		float m_posZ6;
+		float m_posZ7;
+		float m_posZ8;
 		UINT num;
 	};
 	struct OutputData
@@ -68,7 +72,7 @@ public:
 
 
 	std::array<DrawFuncData::DrawCallData, PARTICLE_MAX_NUM> m_playerModel;
-	std::array<float,4> m_radius;
-	std::array<float,4> m_rate;
+	std::array<float,8> m_radius;
+	std::array<float,8> m_rate;
 };
 
