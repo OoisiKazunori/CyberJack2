@@ -104,7 +104,7 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 	if (hitFlag)
 	{
 		cameraMat.num = 1;
-		m_radius += 50.0f;
+		m_radius += 10.0f;
 	}
 	else
 	{

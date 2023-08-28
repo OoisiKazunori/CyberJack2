@@ -286,21 +286,28 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
     bool isHitFLag = CheckCircleAndCircle(ParticleDataBuffer[index].pos,playerPos,ParticleDataBuffer[index].scale.x,radius);
     float3 rotaVel = ParticleDataBuffer[index].rotationVel;
     float4 color = ParticleDataBuffer[index].color;
-    if(isHitFLag)
+    if(!isHitFLag)
+    {
+        ParticleDataBuffer[index].timer = 0;
+    }
+
+    if(isHitFLag && ParticleDataBuffer[index].timer <= 10)
     {
         rotaVel = ParticleDataBuffer[index].rotationVel + float3(5.0f,5.0f,5.0f);
         color = float4(0.8,0.0,0.0,1.0);
         ++ParticleDataBuffer[index].timer;
         ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos + float3(0.0f,55.0f,0.0f);
     }
-    else
-    {
-        ParticleDataBuffer[index].timer = 0;
-    }
 
-    if(5 <= ParticleDataBuffer[index].timer)
+    if(10 <= ParticleDataBuffer[index].timer)
     {
         ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos;
+        color = float4(0.8,0.0,0.0,1.0);
+        ++ParticleDataBuffer[index].timer;
+    }
+    if(120 <= ParticleDataBuffer[index].timer)
+    {
+        color = float4(1.0,1.0,1.0,1.0);
     }
 
     
