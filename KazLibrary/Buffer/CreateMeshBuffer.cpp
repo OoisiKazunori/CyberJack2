@@ -90,6 +90,6 @@ void CreateMeshBuffer::UploadToVRAM()
 		m_VRAMBufferHandleDataArray[i].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 		m_VRAMBufferHandleDataArray[i].rootParamType = static_cast<GraphicsRootParamType>(GRAPHICS_PRAMTYPE_DATA + i);
 
-		m_VRAMBufferHandleDataArray[i].bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		m_VRAMBufferHandleDataArray[i].bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	}
 }

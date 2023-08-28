@@ -169,7 +169,9 @@ namespace KazBufferHelper
 		)const;
 
 		void ChangeBarrier(
-			D3D12_RESOURCE_STATES BEFORE_STATE,
+			D3D12_RESOURCE_STATES BEFORE_STATE,D3D12_RESOURCE_STATES AFTER_STATE
+		);
+		void ChangeBarrier(
 			D3D12_RESOURCE_STATES AFTER_STATE
 		);
 

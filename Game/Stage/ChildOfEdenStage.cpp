@@ -17,6 +17,7 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_drawTriangleParticle.extraBufferArray[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
 	m_computeInitBuffer.emplace_back(m_drawTriangleParticle.extraBufferArray[0]);
+	m_computeInitBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_computeInitBuffer.emplace_back(ShaderRandomTable::Instance()->GetBuffer(GRAPHICS_PRAMTYPE_DATA2));
 	m_computeInit.Generate(
 		ShaderOptionData("Resource/ShaderFiles/ShaderFile/TriangleParticle.hlsl", "InitCSmain", "cs_6_4", SHADER_TYPE_COMPUTE),
@@ -35,7 +36,25 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 	m_computeUpdateBuffer.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-	matrixBuffer = KazBufferHelper::SetUploadBufferData(sizeof(DirectX::XMMATRIX) * PARTICLE_MAX_NUM, "Particle-Matrix");
+	matrixVRAMBuffer = KazBufferHelper::BufferResourceData
+	(
+		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		CD3DX12_RESOURCE_DESC::Buffer(sizeof(DirectX::XMMATRIX) * PARTICLE_MAX_NUM),
+		D3D12_RESOURCE_STATE_COMMON,
+		nullptr,
+		"Particle-Matrix"
+	);
+	matrixBuffer = KazBufferHelper::BufferResourceData
+	(
+		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAG_NONE,
+		CD3DX12_RESOURCE_DESC::Buffer(sizeof(DirectX::XMMATRIX) * PARTICLE_MAX_NUM),
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		"Particle-Matrix"
+	);
+
 	m_particleMatrix.resize(PARTICLE_MAX_NUM);
 	m_computeUpdateBuffer.emplace_back(matrixBuffer);
 	m_computeUpdateBuffer.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
@@ -47,7 +66,6 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	);
 
 	m_computeUpdateBuffer[1].bufferWrapper->ChangeBarrier(
-		D3D12_RESOURCE_STATE_COMMON,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 	);
 
@@ -67,7 +85,7 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	auto playerModel = *ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf");
 	auto pipeline = DrawFuncData::GetModelBloomShader();
 	//m_playerModel.resize(PARTICLE_MAX_NUM);
-	for (auto& index : m_playerModel)
+	for (auto &index : m_playerModel)
 	{
 		index = DrawFuncData::SetRaytracingData(playerModel, pipeline);
 	}
@@ -83,14 +101,16 @@ void ChildOfEdenStage::Update()
 	//m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas[0]->Update();
 }
 
-void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
+void ChildOfEdenStage::Draw(DrawingByRasterize &arg_rasterize, Raytracing::BlasVector &arg_blasVec)
 {
 	//DrawFunc::DrawModel(m_drawSkydorm, m_skydormTransform);
 	//arg_rasterize.ObjectRender(m_drawSkydorm);
 
+	//matrixBuffer.bufferWrapper->CopyBuffer(matrixVRAMBuffer.bufferWrapper->GetBuffer());
+
 	memcpy(m_particleMatrix.data(), matrixBuffer.bufferWrapper->GetMapAddres(), sizeof(DirectX::XMMATRIX) * PARTICLE_MAX_NUM);
 
-	for (auto& blas : m_playerModel.back().m_raytracingData.m_blas)
+	for (auto &blas : m_playerModel.back().m_raytracingData.m_blas)
 	{
 		arg_blasVec.AddVector(blas, m_particleMatrix, 1, 0xFE);
 	}

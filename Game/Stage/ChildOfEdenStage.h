@@ -62,6 +62,7 @@ public:
 
 	ComputeShader m_computeInit,m_computeUpdate;
 
+	KazBufferHelper::BufferData matrixVRAMBuffer;
 	KazBufferHelper::BufferData matrixBuffer;
 	std::vector<DirectX::XMMATRIX> m_particleMatrix;
 

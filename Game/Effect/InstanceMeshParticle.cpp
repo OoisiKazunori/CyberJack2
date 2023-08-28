@@ -108,7 +108,7 @@ InstanceMeshParticle::InstanceMeshParticle() :
 	meshParticleBufferData.rootParamType = GRAPHICS_PRAMTYPE_DATA;
 	meshParticleBufferData.structureSize = sizeof(InitOutputData);
 	meshParticleBufferData.elementNum = PARTICLE_MAX_NUM;
-	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	meshParticleBufferData.GenerateCounterBuffer();
 	meshParticleBufferData.CreateUAVView();
 
@@ -173,7 +173,7 @@ InstanceMeshParticle::InstanceMeshParticle() :
 	};
 	const int VERT_MAX_NUM = 100000;
 	m_inputVertexBuffer = KazBufferHelper::SetGPUBufferData(sizeof(Input) * VERT_MAX_NUM, "VertexBufferArray");
-	m_inputVertexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	m_inputVertexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	m_inputVertexBuffer.GenerateCounterBuffer();
 	m_inputVertexBuffer.CreateUAVView();
 	m_inputVertexBuffer.counterWrapper->CopyBuffer(copyBuffer.GetBuffer());
@@ -288,11 +288,11 @@ void InstanceMeshParticle::Init()
 
 
 	m_initParticleBuffer = KazBufferHelper::SetGPUBufferData(sizeof(InitOutputData) * PARTICLE_MAX_NUM, "Init - MeshParticle");
-	m_initParticleBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	m_initParticleBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COPY_SOURCE);
 	m_initParticleBuffer.bufferWrapper->CopyBuffer(meshParticleBufferData.bufferWrapper->GetBuffer());
-	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 }
 
