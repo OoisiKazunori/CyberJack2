@@ -88,14 +88,20 @@ public:
 	float m_backGroundEasingTimer;
 	const float BACK_GROUND_EASING_TIMER = 20;
 
+	//OnOffの文字
+	std::string m_onString;
+	std::string m_offString;
+	std::array<DrawFuncData::DrawCallData, 2> m_onRender;
+	std::array<DrawFuncData::DrawCallData, 3> m_offRender;
+
 	//UI配置用変数
 	const float BETWEEN_LINES = 55.0f;
-	const KazMath::Vec2<float> HEADLINE_BASEPOS = KazMath::Vec2<float>(170, 300);
+	const KazMath::Vec2<float> HEADLINE_BASEPOS = KazMath::Vec2<float>(170 + 150, 300);
 	const float DEFAULT_FONTSIZE = 25.0f;
 	const float SELECT_FONTSIZE = 30.0f;
 	const float OPTION_FONTSIZE = 45.7f;
-	const KazMath::Vec2<float> OPTION_BASEPOS = KazMath::Vec2<float>(143, 240);
-	const KazMath::Vec2<float> DETAIL_BASEPOS = KazMath::Vec2<float>(600, 300);
+	const KazMath::Vec2<float> OPTION_BASEPOS = KazMath::Vec2<float>(143 + 150, 240);
+	const KazMath::Vec2<float> DETAIL_BASEPOS = KazMath::Vec2<float>(600 + 150, 300);
 	const float DETAIL_FONTSIZE = 25.0f;
 	const float DETAIL_FLAG_POS = 180.0f;	//詳細の右側のONOFFとかを描画する位置。
 

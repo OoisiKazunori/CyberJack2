@@ -54,6 +54,14 @@ void OptionUI::Setting()
 	m_debugOnOffLineRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	m_debugOnOffLineBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLine.png");
 	m_debugOnOffLineStayBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLineStay.png");
+	for (auto& index : m_onRender) {
+		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
+	}
+	for (auto& index : m_offRender) {
+		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
+	}
+	m_onString = "ON";
+	m_offString = "OFF";
 
 	//各変数の初期設定
 	m_nowSelectHeadline = 0;
@@ -158,11 +166,11 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate)
 
 	//ImGui::Begin("UI");
 
-	//ImGui::DragFloat("X", &DETAIL_BASEPOS.x);
-	//ImGui::DragFloat("Y", &DETAIL_BASEPOS.y);
-	//ImGui::DragFloat("DETAIL_FLAG_POS", &DETAIL_FLAG_POS);
-
 	//ImGui::End();
+
+
+	const int ASCII_A = 65;	//"A"のASCIIコード
+	const int ASCII_Z = 90;	//"Z"のASCIIコード
 
 	//OnOffラインを描画
 	if(m_isRaytracingDebug) {
@@ -187,11 +195,59 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate)
 
 		arg_rasterize.ObjectRender(m_debugOnOffLineRender);
 
+
+		//ON
+		{
+			const int CHARA_COUNT = static_cast<int>(m_onString.size());
+			for (int index = 0; index < CHARA_COUNT; ++index) {
+
+				//この文字のFontの番号を調べる。
+				int fontNum = static_cast<int>(m_onString[index]) - ASCII_A;
+
+				//フォント数が既定値を超えていたら飛ばす。
+				if (fontNum < 0 || static_cast<int>(m_font.size()) <= fontNum) continue;
+
+				KazMath::Color color = KazMath::Color(255, 255, 255, 255);
+
+				//トランスフォームを用意。
+				KazMath::Transform2D transform;
+				transform.pos = KazMath::Vec2<float>(1280.0f - OPTION_FONTSIZE * 2.0f, 720.0f - OPTION_FONTSIZE);
+				transform.pos.x += OPTION_FONTSIZE * (index);
+				transform.scale.x = OPTION_FONTSIZE;
+				transform.scale.y = OPTION_FONTSIZE;
+				DrawFunc::DrawTextureIn2D(m_onRender[index], transform, m_font[fontNum], color);
+				arg_rasterize.ObjectRender(m_onRender[index]);
+
+
+			}
+		}
+		//OFF
+		{
+			const int CHARA_COUNT = static_cast<int>(m_offString.size());
+			for (int index = 0; index < CHARA_COUNT; ++index) {
+
+				//この文字のFontの番号を調べる。
+				int fontNum = static_cast<int>(m_offString[index]) - ASCII_A;
+
+				//フォント数が既定値を超えていたら飛ばす。
+				if (fontNum < 0 || static_cast<int>(m_font.size()) <= fontNum) continue;
+
+				KazMath::Color color = KazMath::Color(255, 255, 255, 255);
+
+				//トランスフォームを用意。
+				KazMath::Transform2D transform;
+				transform.pos = KazMath::Vec2<float>(OPTION_FONTSIZE * 1.0f, 720.0f - OPTION_FONTSIZE);
+				transform.pos.x += OPTION_FONTSIZE * (index);
+				transform.scale.x = OPTION_FONTSIZE;
+				transform.scale.y = OPTION_FONTSIZE;
+				DrawFunc::DrawTextureIn2D(m_offRender[index], transform, m_font[fontNum], color);
+				arg_rasterize.ObjectRender(m_offRender[index]);
+
+
+			}
+		}
+
 	}
-
-
-	const int ASCII_A = 65;	//"A"のASCIIコード
-	const int ASCII_Z = 90;	//"Z"のASCIIコード
 
 	//OPTIONの文字を描画する。
 	{

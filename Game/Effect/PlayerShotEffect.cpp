@@ -199,8 +199,8 @@ void PlayerShotEffect::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 {
 
 	//DrawFunc::DrawModelInRaytracing(m_model, m_transform, DrawFunc::NONE);
-	//DrawFunc::DrawModel(m_model, m_transform);
-	//arg_rasterize.ObjectRender(m_model);
+	DrawFunc::DrawModel(m_model, m_transform);
+	arg_rasterize.ObjectRender(m_model);
 	//for (auto& index : m_model.m_raytracingData.m_blas) {
 	//	arg_blasVec.Add(index, m_transform.GetMat());
 	//}
