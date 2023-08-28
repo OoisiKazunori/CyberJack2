@@ -431,7 +431,7 @@ void InGame::Update()
 
 	if (180 == m_notMoveTimer)
 	{
-		for (int enemyType = 0; enemyType < m_responeData.size(); ++enemyType)
+		/*for (int enemyType = 0; enemyType < m_responeData.size(); ++enemyType)
 		{
 			for (int enemyCount = 0; enemyCount < m_responeData[enemyType].size(); ++enemyCount)
 			{
@@ -451,7 +451,7 @@ void InGame::Update()
 		{
 			m_stageArray[m_gameStageLevel]->hitFlag[i] = false;
 		}
-		m_lightIndex = 0;
+		m_lightIndex = 0;*/
 	}
 	else
 	{
@@ -460,7 +460,7 @@ void InGame::Update()
 
 	PlayerShotEffectMgr::Instance()->Update(&m_camera.GetEyePos(), m_stageArray[m_gameStageLevel]->hitFlag, &m_lightIndex);
 
-	m_gameFlame += m_gameSpeed;
+	//m_gameFlame += m_gameSpeed;
 
 	//ƒQ[ƒ€ƒ‹[ƒv‚Ì‰Šú‰»
 	//if (KazMath::ConvertSecondToFlame(15) <= m_gameFlame)

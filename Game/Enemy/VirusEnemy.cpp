@@ -103,16 +103,16 @@ void VirusEnemy::Update()
 
 	//死んでいたらリスポーンするまでのタイマーを更新
 	m_canSpawn = false;
-	//if (!iEnemy_EnemyStatusData->oprationObjData->initFlag) {
+	if (!iEnemy_EnemyStatusData->oprationObjData->initFlag) {
 
-	//	const int RESPAWN_TIMER = 120;
-	//	++m_spawnTimer;
-	//	if (RESPAWN_TIMER < m_spawnTimer) {
-	//		m_spawnTimer = 0;
-	//		m_canSpawn = true;
-	//	}
+		const int RESPAWN_TIMER = 180;
+		++m_spawnTimer;
+		if (RESPAWN_TIMER < m_spawnTimer) {
+			m_spawnTimer = 0;
+			m_canSpawn = true;
+		}
 
-	//}
+	}
 
 	//HPを保存。
 	m_prevhp = m_hp;
