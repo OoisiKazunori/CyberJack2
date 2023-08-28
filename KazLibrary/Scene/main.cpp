@@ -110,7 +110,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		#ifdef DEBUG
 		winApi.FPS();
 		#endif
-		winApi.FPS();
 
 		if (lStop1FlameFlag)
 		{

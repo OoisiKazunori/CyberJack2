@@ -348,8 +348,7 @@ void InGame::Update()
 				}
 				if (m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->rockOnNum <= 0 &&
 					m_cursor.Release() &&
-					!m_enemies[enemyType][enemyCount]->m_isBeingShot ||
-					KeyBoradInputManager::Instance()->InputTrigger(DIK_SPACE))
+					!m_enemies[enemyType][enemyCount]->m_isBeingShot)
 				{
 					//攻撃を当てる敵以外の参照も保存して渡す。
 					std::array<std::shared_ptr<IEnemy>, 3> refOtherEnemy;
@@ -377,133 +376,6 @@ void InGame::Update()
 			}
 		}
 	}
-
-
-
-
-
-	//キーボードで殺す仕様。
-	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_1)) {
-		bool enableToUseDataFlag =
-			m_enemies[ENEMY_TYPE_VIRUS][0] != nullptr &&
-			m_enemies[ENEMY_TYPE_VIRUS][0]->GetData()->oprationObjData->initFlag &&
-			!m_enemies[ENEMY_TYPE_VIRUS][0]->GetData()->outOfStageFlag;
-		if (enableToUseDataFlag)
-		{
-			if (m_enemies[ENEMY_TYPE_VIRUS][0]->GetData()->oprationObjData->enableToHitFlag)
-			{
-				m_enemies[ENEMY_TYPE_VIRUS][0]->SetLight(m_cursor.hitBox.dir, m_enemies[ENEMY_TYPE_VIRUS][0]->GetData()->objFlag);
-			}
-			if (!m_enemies[ENEMY_TYPE_VIRUS][0]->m_isBeingShot ||
-				KeyBoradInputManager::Instance()->InputTrigger(DIK_SPACE))
-			{
-				//攻撃を当てる敵以外の参照も保存して渡す。
-				std::array<std::shared_ptr<IEnemy>, 3> refOtherEnemy;
-				int counter = 0;
-				for (int index = 0; index < 4; ++index) {
-					if (m_enemies[ENEMY_TYPE_VIRUS][0] == m_enemies[ENEMY_TYPE_VIRUS][index]) continue;
-
-					refOtherEnemy[counter] = m_enemies[ENEMY_TYPE_VIRUS][index];
-					++counter;
-				}
-
-				PlayerShotEffectMgr::Instance()->Generate(m_enemies[ENEMY_TYPE_VIRUS][0], refOtherEnemy);
-				m_enemies[ENEMY_TYPE_VIRUS][0]->m_isBeingShot = true;
-			}
-		}
-	}
-	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_2)) {
-		bool enableToUseDataFlag =
-			m_enemies[ENEMY_TYPE_VIRUS][1] != nullptr &&
-			m_enemies[ENEMY_TYPE_VIRUS][1]->GetData()->oprationObjData->initFlag &&
-			!m_enemies[ENEMY_TYPE_VIRUS][1]->GetData()->outOfStageFlag;
-		if (enableToUseDataFlag)
-		{
-			if (m_enemies[ENEMY_TYPE_VIRUS][1]->GetData()->oprationObjData->enableToHitFlag)
-			{
-				m_enemies[ENEMY_TYPE_VIRUS][1]->SetLight(m_cursor.hitBox.dir, m_enemies[ENEMY_TYPE_VIRUS][1]->GetData()->objFlag);
-			}
-			if (!m_enemies[ENEMY_TYPE_VIRUS][1]->m_isBeingShot ||
-				KeyBoradInputManager::Instance()->InputTrigger(DIK_SPACE))
-			{
-				//攻撃を当てる敵以外の参照も保存して渡す。
-				std::array<std::shared_ptr<IEnemy>, 3> refOtherEnemy;
-				int counter = 0;
-				for (int index = 0; index < 4; ++index) {
-					if (m_enemies[ENEMY_TYPE_VIRUS][1] == m_enemies[ENEMY_TYPE_VIRUS][index]) continue;
-
-					refOtherEnemy[counter] = m_enemies[ENEMY_TYPE_VIRUS][index];
-					++counter;
-				}
-
-				PlayerShotEffectMgr::Instance()->Generate(m_enemies[ENEMY_TYPE_VIRUS][1], refOtherEnemy);
-				m_enemies[ENEMY_TYPE_VIRUS][1]->m_isBeingShot = true;
-			}
-		}
-	}
-	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_3)) {
-		bool enableToUseDataFlag =
-			m_enemies[ENEMY_TYPE_VIRUS][2] != nullptr &&
-			m_enemies[ENEMY_TYPE_VIRUS][2]->GetData()->oprationObjData->initFlag &&
-			!m_enemies[ENEMY_TYPE_VIRUS][2]->GetData()->outOfStageFlag;
-		if (enableToUseDataFlag)
-		{
-			if (m_enemies[ENEMY_TYPE_VIRUS][2]->GetData()->oprationObjData->enableToHitFlag)
-			{
-				m_enemies[ENEMY_TYPE_VIRUS][2]->SetLight(m_cursor.hitBox.dir, m_enemies[ENEMY_TYPE_VIRUS][2]->GetData()->objFlag);
-			}
-			if (!m_enemies[ENEMY_TYPE_VIRUS][2]->m_isBeingShot ||
-				KeyBoradInputManager::Instance()->InputTrigger(DIK_SPACE))
-			{
-				//攻撃を当てる敵以外の参照も保存して渡す。
-				std::array<std::shared_ptr<IEnemy>, 3> refOtherEnemy;
-				int counter = 0;
-				for (int index = 0; index < 4; ++index) {
-					if (m_enemies[ENEMY_TYPE_VIRUS][2] == m_enemies[ENEMY_TYPE_VIRUS][index]) continue;
-
-					refOtherEnemy[counter] = m_enemies[ENEMY_TYPE_VIRUS][index];
-					++counter;
-				}
-
-				PlayerShotEffectMgr::Instance()->Generate(m_enemies[ENEMY_TYPE_VIRUS][2], refOtherEnemy);
-				m_enemies[ENEMY_TYPE_VIRUS][2]->m_isBeingShot = true;
-
-			}
-		}
-	}
-	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_4)) {
-		bool enableToUseDataFlag =
-			m_enemies[ENEMY_TYPE_VIRUS][3] != nullptr &&
-			m_enemies[ENEMY_TYPE_VIRUS][3]->GetData()->oprationObjData->initFlag &&
-			!m_enemies[ENEMY_TYPE_VIRUS][3]->GetData()->outOfStageFlag;
-		if (enableToUseDataFlag)
-		{
-			if (m_enemies[ENEMY_TYPE_VIRUS][3]->GetData()->oprationObjData->enableToHitFlag)
-			{
-				m_enemies[ENEMY_TYPE_VIRUS][3]->SetLight(m_cursor.hitBox.dir, m_enemies[ENEMY_TYPE_VIRUS][3]->GetData()->objFlag);
-			}
-			if (!m_enemies[ENEMY_TYPE_VIRUS][3]->m_isBeingShot ||
-				KeyBoradInputManager::Instance()->InputTrigger(DIK_SPACE))
-			{
-				//攻撃を当てる敵以外の参照も保存して渡す。
-				std::array<std::shared_ptr<IEnemy>, 3> refOtherEnemy;
-				int counter = 0;
-				for (int index = 0; index < 4; ++index) {
-					if (m_enemies[ENEMY_TYPE_VIRUS][3] == m_enemies[ENEMY_TYPE_VIRUS][index]) continue;
-
-					refOtherEnemy[counter] = m_enemies[ENEMY_TYPE_VIRUS][index];
-					++counter;
-				}
-
-				PlayerShotEffectMgr::Instance()->Generate(m_enemies[ENEMY_TYPE_VIRUS][3], refOtherEnemy);
-				m_enemies[ENEMY_TYPE_VIRUS][3]->m_isBeingShot = true;
-
-			}
-		}
-	}
-
-
-
 
 
 
