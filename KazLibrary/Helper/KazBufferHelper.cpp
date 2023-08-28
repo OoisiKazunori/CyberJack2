@@ -391,6 +391,21 @@ void KazBufferHelper::ID3D12ResourceWrapper::ChangeBarrier(D3D12_RESOURCE_STATES
 	resourceState = AFTER_STATE;
 }
 
+void KazBufferHelper::ID3D12ResourceWrapper::ChangeBarrier(D3D12_RESOURCE_STATES AFTER_STATE)
+{
+	for (int i = 0; i < buffer.size(); ++i)
+	{
+		DirectX12CmdList::Instance()->cmdList->ResourceBarrier(
+			1,
+			&CD3DX12_RESOURCE_BARRIER::Transition(buffer[i].Get(),
+				resourceState,
+				AFTER_STATE
+			)
+		);
+	}
+	resourceState = AFTER_STATE;
+}
+
 const Microsoft::WRL::ComPtr<ID3D12Resource>& KazBufferHelper::ID3D12ResourceWrapper::GetBuffer(int INDEX) const
 {
 	if (INDEX == -1)
@@ -445,7 +460,7 @@ KazBufferHelper::BufferResourceData KazBufferHelper::SetUploadBufferData(BUFFER_
 void KazBufferHelper::BufferData::GenerateCounterBuffer()
 {
 	counterWrapper = std::make_shared<ID3D12ResourceWrapper>(KazBufferHelper::SetGPUBufferData(sizeof(UINT), "CopyCounterBuffer-VRAM"));
-	counterWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	counterWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 }
 
 void KazBufferHelper::BufferData::CreateUAVView()

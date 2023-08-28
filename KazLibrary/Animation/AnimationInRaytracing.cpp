@@ -41,7 +41,6 @@ void AnimationInRaytracing::Compute(const KazBufferHelper::BufferData& arg_verte
 
 
 	arg_vertexBuffer.bufferWrapper->ChangeBarrier(
-		D3D12_RESOURCE_STATE_COMMON,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 	);
 	/*arg_indexBuffer.bufferWrapper->ChangeBarrier(
@@ -56,7 +55,6 @@ void AnimationInRaytracing::Compute(const KazBufferHelper::BufferData& arg_verte
 	//arg_indexBuffer.bufferWrapper->ChangeBarrierUAV();
 
 	arg_vertexBuffer.bufferWrapper->ChangeBarrier(
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 		D3D12_RESOURCE_STATE_COMMON
 	);
 	/*arg_indexBuffer.bufferWrapper->ChangeBarrier(

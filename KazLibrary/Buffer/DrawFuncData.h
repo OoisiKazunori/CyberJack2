@@ -1375,7 +1375,6 @@ namespace DrawFuncData
 			drawCallData.m_executeIndirectGenerateData.m_uploadArgumentBuffer.bufferWrapper->GetBuffer());
 
 		drawCallData.m_executeIndirectGenerateData.m_uavArgumentBuffer.bufferWrapper->ChangeBarrier(
-			D3D12_RESOURCE_STATE_COMMON,
 			D3D12_RESOURCE_STATE_UNORDERED_ACCESS
 		);
 

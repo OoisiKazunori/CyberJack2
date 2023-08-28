@@ -110,7 +110,7 @@ MeshParticleRender::MeshParticleRender(const InitMeshParticleData& DATA) :
 	meshParticleBufferData.rootParamType = GRAPHICS_PRAMTYPE_DATA;
 	meshParticleBufferData.structureSize = sizeof(InitOutputData);
 	meshParticleBufferData.elementNum = PARTICLE_MAX_NUM;
-	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	meshParticleBufferData.GenerateCounterBuffer();
 	meshParticleBufferData.CreateUAVView();
 
@@ -176,12 +176,15 @@ MeshParticleRender::MeshParticleRender(const InitMeshParticleData& DATA) :
 	m_inputVertexBuffer = KazBufferHelper::SetGPUBufferData(sizeof(Input) * VERT_MAX_NUM, "VertexBufferArray");
 	m_inputVertexBuffer.structureSize = sizeof(Input);
 	m_inputVertexBuffer.elementNum = VERT_MAX_NUM;
-	m_inputVertexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	m_inputVertexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	m_inputVertexBuffer.GenerateCounterBuffer();
 	m_inputVertexBuffer.CreateUAVView();
 	m_inputVertexBuffer.counterWrapper->CopyBuffer(copyBuffer.GetBuffer());
 
+	m_meshParticleIndexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	AddMeshData(DATA);
+	m_meshParticleIndexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+
 	Init();
 }
 
@@ -290,11 +293,11 @@ void MeshParticleRender::Init()
 
 
 	m_initParticleBuffer = KazBufferHelper::SetGPUBufferData(sizeof(InitOutputData) * PARTICLE_MAX_NUM, "Init - MeshParticle");
-	m_initParticleBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	m_initParticleBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COPY_SOURCE);
 	m_initParticleBuffer.bufferWrapper->CopyBuffer(meshParticleBufferData.bufferWrapper->GetBuffer());
-	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	meshParticleBufferData.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 }
 
@@ -383,10 +386,7 @@ void MeshParticleRender::AddMeshData(const InitMeshParticleData& DATA)
 		computeInitMeshParticle.Generate(ShaderOptionData("Resource/ShaderFiles/ComputeShader/InitPosUvMeshParticle.hlsl", "CSmain", "cs_6_4", SHADER_TYPE_COMPUTE), bufferArray);
 		isInitFlag = false;
 	}
-	DATA.modelIndexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	computeInitMeshParticle.Compute({ MOTHER_MAT_MAX,1,1 });
-	DATA.modelIndexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-	DATA.modelIndexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
 
 #pragma endregion
 
@@ -504,9 +504,9 @@ void MeshParticleRender::Compute(DrawingByRasterize& arg_rasterize)
 	camera.indexNum = initData.back().triagnleData.w;
 	cameraMatBuffer.bufferWrapper->TransData(&camera, sizeof(CameraMatData));
 
-	m_meshParticleVertexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	m_meshParticleVertexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	computeUpdateMeshParticle.Compute({ DISPATCH_NUM,1,1 });
-	m_meshParticleVertexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
+	m_meshParticleVertexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON);
 
 	//•`‰æˆ—---------------------------------------
 	/*

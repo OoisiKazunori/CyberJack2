@@ -14,6 +14,11 @@ ShaderRandomTable::ShaderRandomTable()
 		m_shaderRandomTableBuffer.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 		m_shaderRandomTableBuffer.structureSize = sizeof(UINT);
 		m_shaderRandomTableBuffer.elementNum = RANDOM_TABLE_NUM;
+
+		m_shaderRandomTableVRAMBuffer = KazBufferHelper::SetGPUBufferData(sizeof(UINT) * RANDOM_TABLE_NUM, "RandomTable-UAV-UploadBuffer");
+		m_shaderRandomTableVRAMBuffer.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+		m_shaderRandomTableVRAMBuffer.bufferWrapper->CopyBuffer(m_shaderRandomTableBuffer.bufferWrapper->GetBuffer());
+		m_shaderRandomTableVRAMBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	}
 
 	{
@@ -27,17 +32,23 @@ ShaderRandomTable::ShaderRandomTable()
 		m_shaderRandomTableForCurlNoizeBuffer.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 		m_shaderRandomTableForCurlNoizeBuffer.structureSize = sizeof(UINT);
 		m_shaderRandomTableForCurlNoizeBuffer.elementNum = RANDOM_TABLE_NUM;
+
+
+		m_shaderRandomTableForCurlNoizeVRAMBuffer = KazBufferHelper::SetGPUBufferData(sizeof(UINT) * RANDOM_TABLE_NUM, "RandomTable-UAV-UploadBuffer");
+		m_shaderRandomTableForCurlNoizeVRAMBuffer.rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
+		m_shaderRandomTableForCurlNoizeVRAMBuffer.bufferWrapper->CopyBuffer(m_shaderRandomTableForCurlNoizeBuffer.bufferWrapper->GetBuffer());
+		m_shaderRandomTableForCurlNoizeVRAMBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	}
 }
 
 const KazBufferHelper::BufferData& ShaderRandomTable::GetBuffer(GraphicsRootParamType arg_rootparam)
 {
-	m_shaderRandomTableBuffer.rootParamType = arg_rootparam;
-	return m_shaderRandomTableBuffer;
+	m_shaderRandomTableVRAMBuffer.rootParamType = arg_rootparam;
+	return m_shaderRandomTableVRAMBuffer;
 }
 
 const KazBufferHelper::BufferData& ShaderRandomTable::GetCurlBuffer(GraphicsRootParamType arg_rootparam)
 {
-	m_shaderRandomTableForCurlNoizeBuffer.rootParamType = arg_rootparam;
-	return m_shaderRandomTableForCurlNoizeBuffer;
+	m_shaderRandomTableForCurlNoizeVRAMBuffer.rootParamType = arg_rootparam;
+	return m_shaderRandomTableForCurlNoizeVRAMBuffer;
 }
