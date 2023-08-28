@@ -43,17 +43,25 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 		CD3DX12_RESOURCE_DESC::Buffer(sizeof(DirectX::XMMATRIX) * PARTICLE_MAX_NUM),
 		D3D12_RESOURCE_STATE_COMMON,
 		nullptr,
-		"Particle-Matrix"
+		"Particle-Matrix-VRAM"
 	);
+
+	D3D12_HEAP_PROPERTIES prop = {};
+	prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+	prop.CreationNodeMask = 1;
+	prop.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
+	prop.Type = D3D12_HEAP_TYPE_CUSTOM;
+	prop.VisibleNodeMask = 1;
 	matrixBuffer = KazBufferHelper::BufferResourceData
 	(
-		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		prop,
 		D3D12_HEAP_FLAG_NONE,
-		CD3DX12_RESOURCE_DESC::Buffer(sizeof(DirectX::XMMATRIX) * PARTICLE_MAX_NUM),
-		D3D12_RESOURCE_STATE_GENERIC_READ,
+		CD3DX12_RESOURCE_DESC::Buffer(sizeof(DirectX::XMMATRIX) * PARTICLE_MAX_NUM, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS),
+		D3D12_RESOURCE_STATE_COMMON,
 		nullptr,
 		"Particle-Matrix"
 	);
+	matrixBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 	m_particleMatrix.resize(PARTICLE_MAX_NUM);
 	m_computeUpdateBuffer.emplace_back(matrixBuffer);
