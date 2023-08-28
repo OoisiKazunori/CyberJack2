@@ -76,7 +76,7 @@ void RenderTargetStatus::SetDoubleBufferFlame()
 void RenderTargetStatus::ClearDoubuleBuffer(DirectX::XMFLOAT3 COLOR)
 {
 	//レンダータゲットのクリア
-	float clearColor[] = { COLOR.x / 255.0f,COLOR.y / 255.0f,COLOR.z / 255.0f, 1.0f };
+	float clearColor[] = { COLOR.x / 255.0f,COLOR.y / 255.0f,COLOR.z / 255.0f, 0.0f };
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvH = rtvHeaps->GetCPUDescriptorHandleForHeapStart();
 	rtvH.ptr += bbIndex * DirectX12Device::Instance()->dev->GetDescriptorHandleIncrementSize(heapDesc.Type);
 	DirectX12CmdList::Instance()->cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);

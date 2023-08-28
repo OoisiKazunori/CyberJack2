@@ -13,7 +13,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 {
     
     //”wŒiF‚¾‚Á‚½‚çƒŒƒCƒgƒŒ‚ÌŒ‹‰Ê‚ğ•`‰æ
-    bool isBackGroundColor = 0.8f <= BackBuffer[DTid.xy].r && BackBuffer[DTid.xy].g <= 0.01f && BackBuffer[DTid.xy].b <= 0.01f;
+    bool isBackGroundColor = BackBuffer[DTid.xy].a <= 0.0f;
     if (isBackGroundColor)
     {
     
@@ -22,8 +22,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
     }
     else
     {
-        
-        OutputImg[DTid.xy] = BackBuffer[DTid.xy];
+        float alpha = BackBuffer[DTid.xy].w;
+        OutputImg[DTid.xy] = BackBuffer[DTid.xy] * alpha + Raytracing[DTid.xy] * (1.0f - alpha);
     
     }
     

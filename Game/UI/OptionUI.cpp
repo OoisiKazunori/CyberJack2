@@ -102,6 +102,10 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 			int fontNum = static_cast<int>(headline.m_headline[index]) - ASCII_A;
 
 			headline.m_color[index] = KazMath::Color(10, 10, 10, 255);
+			//選択中じゃなかったら色を薄くする。
+			if (headline.m_headlineID != m_nowSelectHeadline) {
+				headline.m_color[index] = KazMath::Color(10, 10, 10, 100);
+			}
 
 			//使用するフォントのサイズを決める。
 			headline.m_fontSize = DEFAULT_FONTSIZE;
