@@ -2,7 +2,7 @@
 #include "../KazLibrary/Raytracing/Blas.h"
 #include"../KazLibrary/Buffer/ShaderRandomTable.h"
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
-
+#include"../KazLibrary/Easing/easing.h"
 
 ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 {
@@ -108,15 +108,17 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 	//cameraMat.m_hitPos = playerPos.ConvertXMFLOAT3();
 	for (int i = 0; i < hitFlag.size(); ++i)
 	{
+		Rate(&m_rate[i], 0.01f, 1.0f);
 		if (hitFlag[i])
 		{
 			cameraMat.num = 1;
-			m_radius[i] += 20.0f;
+			m_radius[i] += 60.0f;
 		}
 		else
 		{
 			cameraMat.num = 0;
 			m_radius[i] = 0.0f;
+			m_rate[i] = 0.0f;
 		}
 	}
 	cameraMat.m_posZ1 = m_radius[0];

@@ -36,7 +36,8 @@ public:
 		DirectX::XMFLOAT4 m_color;
 		DirectX::XMFLOAT3 m_posLerp;
 		DirectX::XMFLOAT3 m_rotationLerp;
-		DirectX::XMFLOAT4 m_colorlerp;
+		DirectX::XMFLOAT4 m_colorLerp;
+		DirectX::XMFLOAT3 m_scaleLerp;
 		int m_timer;
 		int isHitFlag;
 	};
@@ -67,5 +68,6 @@ public:
 
 	std::array<DrawFuncData::DrawCallData, PARTICLE_MAX_NUM> m_playerModel;
 	std::array<float,4> m_radius;
+	std::array<float,4> m_rate;
 };
 

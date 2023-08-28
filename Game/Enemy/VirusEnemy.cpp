@@ -327,7 +327,7 @@ void VirusEnemy::Update()
 
 		if (0.94f <= m_deadEffectData.m_dissolve.a && !m_initDeadParticleFlag)
 		{
-			m_deadParticle->InitCompute(m_transform.pos, 100);
+			m_deadParticle->InitCompute(m_transform.pos, 350);
 			m_initDeadParticleFlag = true;
 		}
 		m_deadParticle->m_pos = m_transform.pos;

@@ -199,6 +199,7 @@ struct ParticeArgumentData
     float3 posLerp;
     float3 rotationLerp;
     float4 colorLerp;
+    float3 scaleLerp;
     int timer;
     int isHitFlag;
 };
@@ -278,10 +279,7 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
 {
     uint index = ThreadGroupIndex(groupId, groupIndex, groupThreadID, 1024);
 
-    //プレイヤーより手前の場合は奥に置く
-    ParticleDataBuffer[index].scale = Lerp(ParticleDataBuffer[index].scale, float3(SCALE, SCALE, SCALE), 0.1f);
-
-    float len = 10.0f;
+    float len = 35.0f;
     if(ParticleDataBuffer[index].pos.z - len <= posZ1 && posZ1 <= ParticleDataBuffer[index].pos.z + len)
     {
         ParticleDataBuffer[index].isHitFlag = 1;
@@ -305,6 +303,7 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
 
     if(!ParticleDataBuffer[index].isHitFlag)
     {
+        ParticleDataBuffer[index].scale = float3(SCALE, SCALE, SCALE);
         ParticleDataBuffer[index].timer = 0;
         ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos;
     }
@@ -315,16 +314,18 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
 
     if(ParticleDataBuffer[index].isHitFlag && ParticleDataBuffer[index].timer <= 10)
     {
-        rotaVel = ParticleDataBuffer[index].rotationVel + float3(5.0f,5.0f,5.0f);
-        color = float4(0.8,0.0,0.0,1.0);
-        
-        ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos + float3(0.0f,55.0f,0.0f);
+        rotaVel = ParticleDataBuffer[index].rotationVel + float3(25.0f,25.0f,25.0f);
+        //color = float4(0.90, 0.09, 0.09,1.0);
+        ParticleDataBuffer[index].scale = float3(SCALE + 5.0f, SCALE + 5.0f, SCALE + 5.0f);
+        //ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos + float3(0.0f,55.0f,0.0f);
     }
 
     if(10 <= ParticleDataBuffer[index].timer)
-    {
+    {        
+        ParticleDataBuffer[index].scale = float3(SCALE + 5.0f, SCALE + 5.0f, SCALE + 5.0f);
+        rotaVel = ParticleDataBuffer[index].rotationVel + float3(25.0f,25.0f,25.0f);
         ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos;
-        color = float4(0.8,0.0,0.0,1.0);
+        //color = float4(0.90, 0.09, 0.09,1.0);
     }
     if(30 <= ParticleDataBuffer[index].timer)
     {
@@ -337,11 +338,12 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
     ParticleDataBuffer[index].posLerp = lerp(ParticleDataBuffer[index].posLerp,ParticleDataBuffer[index].pos,lerpVel);
     ParticleDataBuffer[index].rotationLerp = lerp(ParticleDataBuffer[index].rotationLerp,ParticleDataBuffer[index].rotation,lerpVel);
     ParticleDataBuffer[index].colorLerp = lerp(ParticleDataBuffer[index].colorLerp,color,lerpVel);
+    ParticleDataBuffer[index].scaleLerp = Lerp(ParticleDataBuffer[index].scaleLerp, ParticleDataBuffer[index].scale, lerpVel);
 
     WorldDataBuffer[index].mat =
     CalucurateWorldMat(
         ParticleDataBuffer[index].posLerp,
-        ParticleDataBuffer[index].scale,
+        ParticleDataBuffer[index].scaleLerp,
         ParticleDataBuffer[index].rotationLerp
     );
 
