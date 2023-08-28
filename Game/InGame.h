@@ -162,5 +162,5 @@ private:
 	//ブルームテスト
 	DrawFuncData::DrawCallData m_bloomModelRender;
 
-	int m_lightIndex = 1;
+	int m_lightIndex = 0;
 };

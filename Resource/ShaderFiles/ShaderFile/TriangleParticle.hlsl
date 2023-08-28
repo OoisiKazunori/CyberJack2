@@ -281,19 +281,20 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
     //プレイヤーより手前の場合は奥に置く
     ParticleDataBuffer[index].scale = Lerp(ParticleDataBuffer[index].scale, float3(SCALE, SCALE, SCALE), 0.1f);
 
-    if(ParticleDataBuffer[index].pos.z - 5.0f <= posZ1 && posZ1 <= ParticleDataBuffer[index].pos.z + 5.0f)
+    float len = 10.0f;
+    if(ParticleDataBuffer[index].pos.z - len <= posZ1 && posZ1 <= ParticleDataBuffer[index].pos.z + len)
     {
         ParticleDataBuffer[index].isHitFlag = 1;
     }
-    if(ParticleDataBuffer[index].pos.z - 5.0f <= posZ2 && posZ2 <= ParticleDataBuffer[index].pos.z + 5.0f)
+    if(ParticleDataBuffer[index].pos.z - len <= posZ2 && posZ2 <= ParticleDataBuffer[index].pos.z + len)
     {
         ParticleDataBuffer[index].isHitFlag = 1;
     }
-    if(ParticleDataBuffer[index].pos.z - 5.0f <= posZ3 && posZ3 <= ParticleDataBuffer[index].pos.z + 5.0f)
+    if(ParticleDataBuffer[index].pos.z - len <= posZ3 && posZ3 <= ParticleDataBuffer[index].pos.z + len)
     {
         ParticleDataBuffer[index].isHitFlag = 1;
     }
-    if(ParticleDataBuffer[index].pos.z - 5.0f <= posZ4 && posZ4 <= ParticleDataBuffer[index].pos.z + 5.0f)
+    if(ParticleDataBuffer[index].pos.z - len <= posZ4 && posZ4 <= ParticleDataBuffer[index].pos.z + len)
     {
         ParticleDataBuffer[index].isHitFlag = 1;
     }
@@ -325,7 +326,7 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
         ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos;
         color = float4(0.8,0.0,0.0,1.0);
     }
-    if(60 <= ParticleDataBuffer[index].timer)
+    if(30 <= ParticleDataBuffer[index].timer)
     {
         color = float4(1.0,1.0,1.0,1.0);
         ParticleDataBuffer[index].isHitFlag = 0;

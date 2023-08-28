@@ -167,7 +167,10 @@ void InGame::Update()
 					!m_cursor.releaseFlag &&
 					m_enemies[enemyType][enemyCount]->m_canLockOn)
 				{
-					m_stageArray[m_gameStageLevel]->hitFlag[m_lightIndex] = true;
+					if (m_lightIndex < m_stageArray[m_gameStageLevel]->hitFlag.size())
+					{
+						m_stageArray[m_gameStageLevel]->hitFlag[m_lightIndex] = true;
+					}
 					++m_lightIndex;
 					m_cursor.Hit(enemyData->hitBox.center);
 
