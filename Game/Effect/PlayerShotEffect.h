@@ -36,6 +36,7 @@ private:
 
 	//”­Ë‰¹‚Ìƒf[ƒ^
 	SoundData m_shotSE;
+	SoundData m_hitSE;
 	
 
 public:

@@ -31,6 +31,9 @@ VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 	//メッシュパーティクルの表示
 	m_meshParticleRender = std::make_unique<MeshParticleRender>(iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData);
 
+	m_dispperSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/disapper.wav");
+	m_dispperSE.volume = 0.001f;
+
 }
 
 void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const EnemyGenerateData& GENERATE_DATA, bool DEMO_FLAG)
@@ -329,6 +332,8 @@ void VirusEnemy::Update()
 		{
 			m_deadParticle->InitCompute(m_transform.pos, 350);
 			m_initDeadParticleFlag = true;
+
+			SoundManager::Instance()->SoundPlayerWave(m_dispperSE, 0);
 		}
 		m_deadParticle->m_pos = m_transform.pos;
 
