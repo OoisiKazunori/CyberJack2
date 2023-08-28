@@ -3,6 +3,8 @@
 #include "../KazLibrary/Render/DrawFunc.h"
 #include "../KazLibrary/Input/ControllerInputManager.h"
 #include <Imgui/imgui.h>
+#include "../Effect/TimeZone.h"
+#include "../Effect/SeaEffect.h"
 
 void OptionUI::Setting()
 {
@@ -25,15 +27,15 @@ void OptionUI::Setting()
 	}
 
 	//小見出しを設定。
-	m_headlines.emplace_back(OptionHeadline("RAYTRACING", KazMath::Vec2<float>(0, 0), 32.0f, 0));
-	m_headlines.emplace_back(OptionHeadline("TIMEZONE", KazMath::Vec2<float>(0, 0), 32.0f, 1));
-	m_headlines.emplace_back(OptionHeadline("SEA", KazMath::Vec2<float>(0, 0), 32.0f, 2));
+	m_headlines.emplace_back(OptionHeadline("RAYTRACING", KazMath::Vec2<float>(0, 0), 32.0f, RAYTRACING));
+	m_headlines.emplace_back(OptionHeadline("TIMEZONE", KazMath::Vec2<float>(0, 0), 32.0f, TIMEZONE));
+	m_headlines.emplace_back(OptionHeadline("SEA", KazMath::Vec2<float>(0, 0), 32.0f, SEA));
 	m_optionUI.emplace_back(OptionHeadline("OPTION", KazMath::Vec2<float>(0, 0), OPTION_FONTSIZE, 0));
 
 	//オプション詳細を設定。
-	m_optionDetails.emplace_back(OptionDetails("DEBUG MODE", { DrawStringData("ON"),DrawStringData("OFF") }, KazMath::Vec2<float>(), 0));
-	m_optionDetails.emplace_back(OptionDetails("TIMEZONE", { DrawStringData("NOON"),DrawStringData("EVENING") }, KazMath::Vec2<float>(), 1));
-	m_optionDetails.emplace_back(OptionDetails("SEA STATE", { DrawStringData("A"),DrawStringData("B"),DrawStringData("C") }, KazMath::Vec2<float>(), 2));
+	m_optionDetails.emplace_back(OptionDetails("DEBUG MODE", { DrawStringData("ON"),DrawStringData("OFF") }, KazMath::Vec2<float>(), RAYTRACING));
+	m_optionDetails.emplace_back(OptionDetails("TIMEZONE", { DrawStringData("NOON"),DrawStringData("EVENING") }, KazMath::Vec2<float>(), TIMEZONE));
+	m_optionDetails.emplace_back(OptionDetails("SEA STATE", { DrawStringData("A"),DrawStringData("B"),DrawStringData("C") }, KazMath::Vec2<float>(), SEA));
 
 	//各変数の初期設定
 	m_nowSelectHeadline = 0;
@@ -42,6 +44,7 @@ void OptionUI::Setting()
 	m_prevInputRight = false;
 	m_prevInputLeft = false;
 	m_isDisplayUI = false;
+	m_isRaytracingDebug = false;
 
 }
 
@@ -50,6 +53,36 @@ void OptionUI::Update()
 
 	//入力処理
 	Input();
+
+	//選択している値によってデバッグを切り替える。
+	switch (m_nowSelectHeadline) {
+	case RAYTRACING:
+	{
+
+		//選択している詳細のIDを反映。
+		m_isRaytracingDebug = m_optionDetails[RAYTRACING].m_selectID;
+
+		break;
+	}
+	case TIMEZONE:
+	{
+
+		//選択している詳細のIDを反映。
+		TimeZone::Instance()->m_timeZone = m_optionDetails[TIMEZONE].m_selectID;
+
+		break;
+	}
+	case SEA:
+	{
+
+		//選択している詳細のIDを反映。
+		SeaEffect::Instance()->m_seaID = m_optionDetails[SEA].m_selectID;
+
+		break;
+	}
+	default:
+		break;
+	}
 
 }
 

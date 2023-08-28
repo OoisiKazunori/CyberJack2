@@ -61,6 +61,9 @@ public:
 	//UIを表示するかどうかのフラグ
 	bool m_isDisplayUI;
 
+	//レイトレのデバッグのフラグ
+	bool m_isRaytracingDebug;
+
 	//フォント配列
 	std::array<KazBufferHelper::BufferData, 26> m_font;
 
@@ -74,6 +77,13 @@ public:
 	KazMath::Vec2<float> DETAIL_BASEPOS = KazMath::Vec2<float>(750, 300);
 	float DETAIL_FONTSIZE = 25.0f;
 	float DETAIL_FLAG_POS = 300.0f;	//詳細の右側のONOFFとかを描画する位置。
+
+	//デバッグの名称
+	enum DEBUG_NAME {
+		RAYTRACING,
+		TIMEZONE,
+		SEA
+	};
 
 
 public:

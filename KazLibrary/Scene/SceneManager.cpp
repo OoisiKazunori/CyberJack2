@@ -23,6 +23,7 @@
 #include"../../Game/Effect/StopMgr.h"
 #include"../Game/Effect/EnemyDissolveParam.h"
 #include"../Game/UI/OptionUI.h"
+#include <Input/ControllerInputManager.h>
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
@@ -137,7 +138,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	ShockWave::Instance()->Setting();
 
 	OptionUI::Instance()->Setting();
-	
+
 	//EnemyDissolveParam::Instance()->Setting();
 }
 
@@ -249,7 +250,7 @@ void SceneManager::Update()
 	GBufferMgr::Instance()->m_cameraEyePosData.m_noiseTimer += 0.02f;
 
 	//デバッグ実行中はOnOffのラインをつかんで動かせるようにする。
-	if (m_isDebugRaytracing) {
+	if (OptionUI::Instance()->m_isRaytracingDebug) {
 
 		//左クリックしていたら。
 		bool isMouseLeftClick = KeyBoradInputManager::Instance()->MouseInputState(MOUSE_INPUT_LEFT);
@@ -261,14 +262,20 @@ void SceneManager::Update()
 
 		}
 
+		//左スティックでも動かせる。
+		const float STICK_SPEED = 10.0f;
+		m_debugRaytracingParam.m_sliderRate += ControllerInputManager::Instance()->InputStickState(ControllerStickSide::RIGHT_STICK, ControllerSide::RIGHT_SIDE) * STICK_SPEED;
+		m_debugRaytracingParam.m_sliderRate -= ControllerInputManager::Instance()->InputStickState(ControllerStickSide::RIGHT_STICK, ControllerSide::LEFT_SIDE) * STICK_SPEED;
+		m_debugRaytracingParam.m_sliderRate = std::clamp(m_debugRaytracingParam.m_sliderRate, 0.0f, 1280.0f);
+
 	}
 
 	TimeZone::Instance()->Update();
 
-	m_isOldDebugRaytracing = m_isDebugRaytracing;
-
 	ShockWave::Instance()->Update();
 	//EnemyDissolveParam::Instance()->Update();
+
+	m_isOldDebugRaytracing = OptionUI::Instance()->m_isRaytracingDebug;
 
 	OptionUI::Instance()->Update();
 
@@ -278,16 +285,11 @@ void SceneManager::Draw()
 {
 	change->Draw(m_rasterize);
 
-	if (itisInArrayFlag)
-	{
-		scene[nowScene]->Draw(m_rasterize, m_blasVector);
-	}
-
 	//IUを描画
 	OptionUI::Instance()->Draw(m_rasterize);
 
 	//デバッグ用のOnOffのラインを描画する。
-	if (m_isDebugRaytracing) {
+	if (OptionUI::Instance()->m_isRaytracingDebug) {
 		m_debugOnOffLineTransform.pos.x = m_debugRaytracingParam.m_sliderRate;
 		m_debugOnOffLineTransform.pos.y = 720.0f / 2.0f;
 		m_debugOnOffLineTransform.scale.x = 10.0f;
@@ -299,6 +301,11 @@ void SceneManager::Draw()
 			DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineStayBuffer);
 		}
 		m_rasterize.ObjectRender(m_debugOnOffLineRender);
+	}
+
+	if (itisInArrayFlag)
+	{
+		scene[nowScene]->Draw(m_rasterize, m_blasVector);
 	}
 
 	m_rasterize.Sort();
@@ -320,16 +327,16 @@ void SceneManager::Draw()
 		//GBufferMgr::Instance()->DebugDraw();
 	}
 
-	//デバッグメニューの大本
-	ImGui::Begin("DebugMenu");
+	////デバッグメニューの大本
+	//ImGui::Begin("DebugMenu");
 
-	ImGui::Checkbox("DebugCamera", &m_isDebugCamera);
-	ImGui::Checkbox("Raytracing", &m_isDebugRaytracing);
-	ImGui::Checkbox("TimeZone", &m_isDebugTimeZone);
-	ImGui::Checkbox("VolumeFog", &m_isDebugVolumeFog);
-	ImGui::Checkbox("Sea", &m_isDebugSea);
-	ImGui::Checkbox("DrawRaytracing", &m_raytracingFlag);
-	ImGui::End();
+	//ImGui::Checkbox("DebugCamera", &m_isDebugCamera);
+	//ImGui::Checkbox("Raytracing", &m_isDebugRaytracing);
+	//ImGui::Checkbox("TimeZone", &m_isDebugTimeZone);
+	//ImGui::Checkbox("VolumeFog", &m_isDebugVolumeFog);
+	//ImGui::Checkbox("Sea", &m_isDebugSea);
+	//ImGui::Checkbox("DrawRaytracing", &m_raytracingFlag);
+	//ImGui::End();
 
 	//カメラのデバッグメニュー
 	if (m_isDebugCamera) {
@@ -348,33 +355,33 @@ void SceneManager::Draw()
 	}
 
 	//レイトレのデバッグメニュー
-	if (m_isDebugRaytracing) {
+	if (OptionUI::Instance()->m_isRaytracingDebug) {
 
-		ImGui::Begin("Raytracing");
+		//ImGui::Begin("Raytracing");
 
-		bool checkBox = m_debugRaytracingParam.m_debugReflection;
-		ImGui::Checkbox("REFLECT", &checkBox);
-		m_debugRaytracingParam.m_debugReflection = checkBox;
-		ImGui::SameLine();
-		checkBox = m_debugRaytracingParam.m_debugShadow;
-		ImGui::Checkbox("SHADOW", &checkBox);
-		m_debugRaytracingParam.m_debugShadow = checkBox;
-		ImGui::SliderFloat("RATE", &m_debugRaytracingParam.m_sliderRate, 0.0f, 1280.0f);
+		//bool checkBox = m_debugRaytracingParam.m_debugReflection;
+		//ImGui::Checkbox("REFLECT", &checkBox);
+		//m_debugRaytracingParam.m_debugReflection = checkBox;
+		//ImGui::SameLine();
+		//checkBox = m_debugRaytracingParam.m_debugShadow;
+		//ImGui::Checkbox("SHADOW", &checkBox);
+		//m_debugRaytracingParam.m_debugShadow = checkBox;
+		//ImGui::SliderFloat("RATE", &m_debugRaytracingParam.m_sliderRate, 0.0f, 1280.0f);
 
-		ImGui::End();
+		//ImGui::End();
 
 	}
 	else {
-		m_debugRaytracingParam.m_debugReflection = false;
-		m_debugRaytracingParam.m_debugShadow = false;
-		m_debugRaytracingParam.m_sliderRate = 1280.0f / 2.0f;
+		//m_debugRaytracingParam.m_debugReflection = false;
+		//m_debugRaytracingParam.m_debugShadow = false;
+		//m_debugRaytracingParam.m_sliderRate = 1280.0f / 2.0f;
 	}
-	//このデバッグ機能が切り替わった瞬間だったら初期値を入れる。
-	if (m_isDebugRaytracing && !m_isOldDebugRaytracing) {
-		m_debugRaytracingParam.m_debugReflection = true;
-		m_debugRaytracingParam.m_debugShadow = true;
-		m_debugRaytracingParam.m_sliderRate = 1280.0f / 2.0f;
-	}
+	////このデバッグ機能が切り替わった瞬間だったら初期値を入れる。
+	//if (OptionUI::Instance()->m_isRaytracingDebug && !m_isOldDebugRaytracing) {
+	//	m_debugRaytracingParam.m_debugReflection = true;
+	//	m_debugRaytracingParam.m_debugShadow = true;
+	//	m_debugRaytracingParam.m_sliderRate = 1280.0f / 2.0f;
+	//}
 	m_debugRaytracingParamData.bufferWrapper->TransData(&m_debugRaytracingParam, sizeof(DebugRaytracingParam));
 
 	//時間帯のデバッグメニュー
