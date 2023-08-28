@@ -327,8 +327,9 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
         ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos;
         //color = float4(0.90, 0.09, 0.09,1.0);
     }
-    if(30 <= ParticleDataBuffer[index].timer)
+    if(15 <= ParticleDataBuffer[index].timer)
     {
+        ParticleDataBuffer[index].scale = float3(SCALE, SCALE, SCALE);
         color = float4(1.0,1.0,1.0,1.0);
         ParticleDataBuffer[index].isHitFlag = 0;
     }
