@@ -182,7 +182,7 @@ void VirusEnemy::Update()
 		//死亡エフェクトの初速度を計算。
 		m_deadEffectVel *= DEAD_EFFECT_VEL;
 
-		m_knockBackParticle->InitCompute(m_transform.pos, 1000);
+		m_knockBackParticle->InitCompute(m_transform.pos, static_cast<UINT>(1000 * 3.5));
 	}
 
 	////自動的に消えるまでのタイマーを更新。
