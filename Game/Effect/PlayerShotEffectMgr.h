@@ -23,7 +23,7 @@ public:
 	PlayerShotEffectMgr();
 	void Init();
 	void Generate(shared_ptr<IEnemy> arg_refEnemy, std::array<std::shared_ptr<IEnemy>, 3> arg_refOtherEnemy);
-	void Update(const KazMath::Vec3<float>* arg_refPlayerPoint);
+	void Update(const KazMath::Vec3<float>* arg_refPlayerPoint, std::array<bool, 4>& arg_hitArray, int* arg_hitNum);
 	void Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec);
 
 	int GetAliveCount()
