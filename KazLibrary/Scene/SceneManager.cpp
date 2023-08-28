@@ -45,7 +45,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 6, 5, 4, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
 
-	m_debugOnOffLineRender = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
+	m_debugOnOffLineRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	m_debugOnOffLineBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLine.png");
 	m_debugOnOffLineStayBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLineStay.png");
 
@@ -362,11 +362,15 @@ void SceneManager::Draw()
 		m_debugOnOffLineTransform.pos.y = 720.0f / 2.0f;
 		m_debugOnOffLineTransform.scale.x = 10.0f;
 		m_debugOnOffLineTransform.scale.y = 720.0f;
+		
+		//色を設定
+		KazMath::Color color = KazMath::Color(255, 255, 255, 255);
+
 		if (KeyBoradInputManager::Instance()->MouseInputState(MOUSE_INPUT_LEFT)) {
-			DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineBuffer);
+			DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineBuffer, color);
 		}
 		else {
-			DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineStayBuffer);
+			DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineStayBuffer, color);
 		}
 		m_rasterize.ObjectRender(m_debugOnOffLineRender);
 	}
