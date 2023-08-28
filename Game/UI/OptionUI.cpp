@@ -33,9 +33,14 @@ void OptionUI::Setting()
 	m_optionUI.emplace_back(OptionHeadline("OPTION", KazMath::Vec2<float>(0, 0), OPTION_FONTSIZE, 0));
 
 	//オプション詳細を設定。
-	m_optionDetails.emplace_back(OptionDetails("DEBUG MODE", { DrawStringData("ON"),DrawStringData("OFF") }, KazMath::Vec2<float>(), RAYTRACING));
-	m_optionDetails.emplace_back(OptionDetails("TIMEZONE", { DrawStringData("NOON"),DrawStringData("EVENING") }, KazMath::Vec2<float>(), TIMEZONE));
-	m_optionDetails.emplace_back(OptionDetails("SEA STATE", { DrawStringData("A"),DrawStringData("B"),DrawStringData("C") }, KazMath::Vec2<float>(), SEA));
+	m_optionDetails.emplace_back(OptionDetails("DEBUG", { DrawStringData("ON"),DrawStringData("OFF") }, KazMath::Vec2<float>(), RAYTRACING));
+	m_optionDetails.emplace_back(OptionDetails("TIME", { DrawStringData("NOON"),DrawStringData("EVENING") }, KazMath::Vec2<float>(), TIMEZONE));
+	m_optionDetails.emplace_back(OptionDetails("STATE", { DrawStringData("A"),DrawStringData("B"),DrawStringData("C") }, KazMath::Vec2<float>(), SEA));
+
+	//背景をロード
+	m_backGroundTexture = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/white.png");
+	m_backGroundColor = KazMath::Color(0,0,0,220);
+	m_backGroundRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 
 	//各変数の初期設定
 	m_nowSelectHeadline = 0;
@@ -91,22 +96,13 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 
 	if (!m_isDisplayUI) return;
 
-	ImGui::Begin("UI");
+	//ImGui::Begin("UI");
 
-	//ImGui::DragFloat("BASE_POS_X", &HEADLINE_BASEPOS.x, 0.5f);
-	//ImGui::DragFloat("BASE_POS_Y", &HEADLINE_BASEPOS.y, 0.5f);
-	//ImGui::DragFloat("Gyokan", &BETWEEN_LINES, 0.1f);
-	//ImGui::DragFloat("DEFAULT_FONTSIZE", &DEFAULT_FONTSIZE, 0.1f);
-	//ImGui::DragFloat("SELECT_FONTSIZE", &SELECT_FONTSIZE, 0.1f);
-	//ImGui::DragFloat("OPTION_POS_X", &OPTION_BASEPOS.x, 0.5f);
-	//ImGui::DragFloat("OPTION_POS_Y", &OPTION_BASEPOS.y, 0.5f);
-	//ImGui::DragFloat("OPTION_FONTSIZE", &OPTION_FONTSIZE, 0.1f);
-	ImGui::DragFloat("DETAIL_BASEPOSX", &DETAIL_BASEPOS.x, 0.5f);
-	ImGui::DragFloat("DETAIL_BASEPOSY", &DETAIL_BASEPOS.y, 0.5f);
-	ImGui::DragFloat("DETAIL_FONTSIZE", &DETAIL_FONTSIZE, 0.1f);
-	ImGui::DragFloat("DETAIL_FLAG_POS", &DETAIL_FLAG_POS, 0.1f);
+	//ImGui::DragFloat("X", &DETAIL_BASEPOS.x);
+	//ImGui::DragFloat("Y", &DETAIL_BASEPOS.y);
+	//ImGui::DragFloat("DETAIL_FLAG_POS", &DETAIL_FLAG_POS);
 
-	ImGui::End();
+	//ImGui::End();
 
 
 	const int ASCII_A = 65;	//"A"のASCIIコード
@@ -123,7 +119,7 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 			//フォント数が既定値を超えていたら飛ばす。
 			if (fontNum < 0 || static_cast<int>(m_font.size()) <= fontNum) continue;
 
-			m_optionUI.front().m_name.m_color[index] = KazMath::Color(10, 10, 10, 255);
+			m_optionUI.front().m_name.m_color[index] = KazMath::Color(255, 255, 255, 255);
 
 			m_optionUI.front().m_fontSize = OPTION_FONTSIZE;
 
@@ -152,10 +148,10 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 			//フォント数が既定値を超えていたら飛ばす。
 			if (fontNum < 0 || static_cast<int>(m_font.size()) <= fontNum) continue;
 
-			headline.m_name.m_color[index] = KazMath::Color(10, 10, 10, 255);
+			headline.m_name.m_color[index] = KazMath::Color(255,255,255, 255);
 			//選択中じゃなかったら色を薄くする。
 			if (headline.m_headlineID != m_nowSelectHeadline) {
-				headline.m_name.m_color[index] = KazMath::Color(10, 10, 10, 100);
+				headline.m_name.m_color[index] = KazMath::Color(150,150,150, 200);
 			}
 
 			//使用するフォントのサイズを決める。
@@ -189,13 +185,13 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 		//フォント数が既定値を超えていたら飛ばす。
 		if (fontNum < 0 || static_cast<int>(m_font.size()) <= fontNum) continue;
 
-		m_optionDetails[m_nowSelectHeadline].m_name.m_color[index] = KazMath::Color(10, 10, 10, 255);
+		m_optionDetails[m_nowSelectHeadline].m_name.m_color[index] = KazMath::Color(255, 255, 255, 255);
 
 		//トランスフォームを用意。
 		KazMath::Transform2D transform;
 		transform.pos = DETAIL_BASEPOS;
 		transform.pos.x += (DETAIL_FONTSIZE / 2.0f) + (DETAIL_FONTSIZE * index);
-		transform.pos.y += DETAIL_FONTSIZE / 2.0f;
+		transform.pos.y += DETAIL_FONTSIZE / 2.0f + (BETWEEN_LINES * m_nowSelectHeadline);
 		transform.scale.x = DETAIL_FONTSIZE;
 		transform.scale.y = DETAIL_FONTSIZE;
 		DrawFunc::DrawTextureIn2D(m_optionDetails[m_nowSelectHeadline].m_name.m_render[index], transform, m_font[fontNum], m_optionDetails[m_nowSelectHeadline].m_name.m_color[index]);
@@ -212,18 +208,27 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 		//フォント数が既定値を超えていたら飛ばす。
 		if (fontNum < 0 || static_cast<int>(m_font.size()) <= fontNum) continue;
 
-		m_optionDetails[m_nowSelectHeadline].m_selectName[NOW_SELECT_DETAIL_ID].m_color[index] = KazMath::Color(10, 10, 10, 255);
+		m_optionDetails[m_nowSelectHeadline].m_selectName[NOW_SELECT_DETAIL_ID].m_color[index] = KazMath::Color(255, 255, 255, 255);
 
 		//トランスフォームを用意。
 		KazMath::Transform2D transform;
 		transform.pos = DETAIL_BASEPOS;
 		transform.pos.x += (DETAIL_FONTSIZE / 2.0f) + (DETAIL_FONTSIZE * index) + DETAIL_FLAG_POS;
-		transform.pos.y += DETAIL_FONTSIZE / 2.0f;
+		transform.pos.y += DETAIL_FONTSIZE / 2.0f + (BETWEEN_LINES * m_nowSelectHeadline);
 		transform.scale.x = DETAIL_FONTSIZE;
 		transform.scale.y = DETAIL_FONTSIZE;
 		DrawFunc::DrawTextureIn2D(m_optionDetails[m_nowSelectHeadline].m_selectName[NOW_SELECT_DETAIL_ID].m_render[index], transform, m_font[fontNum], m_optionDetails[m_nowSelectHeadline].m_selectName[NOW_SELECT_DETAIL_ID].m_color[index]);
 		arg_rasterize.ObjectRender(m_optionDetails[m_nowSelectHeadline].m_selectName[NOW_SELECT_DETAIL_ID].m_render[index]);
 
+	}
+
+	//背景を描画
+	{
+		KazMath::Transform2D transform;
+		transform.pos = KazMath::Vec2<float>(1280.0f / 2.0f, 720.0f / 2.0f);
+		transform.scale = KazMath::Vec2<float>(1280.0f, 720.0f);
+		DrawFunc::DrawTextureIn2D(m_backGroundRender, transform, m_backGroundTexture, m_backGroundColor);
+		arg_rasterize.ObjectRender(m_backGroundRender);
 	}
 
 }
@@ -238,15 +243,17 @@ void OptionUI::Input()
 	//UIが表示されていない状態だったら入力を切る。
 	if (!m_isDisplayUI) return;
 
+	const int DEADLINE = 30000;
+
 	//下方向に入力されたら
-	bool isInputDown = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::DOWN_SIDE);
+	bool isInputDown = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::DOWN_SIDE, DEADLINE);
 	if (isInputDown && !m_prevInputDown) {
 
 		m_nowSelectHeadline = std::clamp(m_nowSelectHeadline + 1, 0, static_cast<int>(m_headlines.size()) - 1);
 
 	}
 	//上方向に入力されたら
-	bool isInputUp = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::UP_SIDE);
+	bool isInputUp = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::UP_SIDE, DEADLINE);
 	if (isInputUp && !m_prevInputUp) {
 
 		m_nowSelectHeadline = std::clamp(m_nowSelectHeadline - 1, 0, static_cast<int>(m_headlines.size()) - 1);
@@ -254,7 +261,7 @@ void OptionUI::Input()
 	}
 
 	//右方向に入力されたら
-	bool isInputRight = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::RIGHT_SIDE);
+	bool isInputRight = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::RIGHT_SIDE, DEADLINE);
 	if (isInputRight && !m_prevInputRight) {
 
 		++m_optionDetails[m_nowSelectHeadline].m_selectID;
@@ -262,7 +269,7 @@ void OptionUI::Input()
 	}
 
 	//左方向に入力されたら
-	bool isInputLeft = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::LEFT_SIDE);
+	bool isInputLeft = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::LEFT_SIDE, DEADLINE);
 	if (isInputLeft && !m_prevInputLeft) {
 
 		--m_optionDetails[m_nowSelectHeadline].m_selectID;
