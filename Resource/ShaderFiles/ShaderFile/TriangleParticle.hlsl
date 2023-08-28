@@ -312,7 +312,7 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
         ++ParticleDataBuffer[index].timer;
     }
 
-    if(ParticleDataBuffer[index].isHitFlag && ParticleDataBuffer[index].timer <= 10)
+    if(ParticleDataBuffer[index].isHitFlag && ParticleDataBuffer[index].timer <= 5)
     {
         rotaVel = ParticleDataBuffer[index].rotationVel + float3(25.0f,25.0f,25.0f);
         //color = float4(0.90, 0.09, 0.09,1.0);
@@ -320,14 +320,14 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
         //ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos + float3(0.0f,55.0f,0.0f);
     }
 
-    if(10 <= ParticleDataBuffer[index].timer)
+    if(5 <= ParticleDataBuffer[index].timer)
     {        
         ParticleDataBuffer[index].scale = float3(SCALE + 5.0f, SCALE + 5.0f, SCALE + 5.0f);
         rotaVel = ParticleDataBuffer[index].rotationVel + float3(25.0f,25.0f,25.0f);
         ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos;
         //color = float4(0.90, 0.09, 0.09,1.0);
     }
-    if(15 <= ParticleDataBuffer[index].timer)
+    if(6 <= ParticleDataBuffer[index].timer)
     {
         ParticleDataBuffer[index].scale = float3(SCALE, SCALE, SCALE);
         color = float4(1.0,1.0,1.0,1.0);
