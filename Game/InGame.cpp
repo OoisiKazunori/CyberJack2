@@ -501,9 +501,9 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	//}
 	//arg_rasterize.ObjectRender(m_bloomModelRender);
 
-	ImGui::Begin("Game");
-	ImGui::Checkbox("Debug", &m_debugFlag);
-	ImGui::End();
+	//ImGui::Begin("Game");
+	//ImGui::Checkbox("Debug", &m_debugFlag);
+	//ImGui::End();
 }
 
 int InGame::SceneChange()
