@@ -71,6 +71,11 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 	{
 		index = DrawFuncData::SetRaytracingData(playerModel, pipeline);
 	}
+
+	for (int i = 0; i < m_radius.size(); ++i)
+	{
+		m_radius[i] = 0.0f;
+	}
 }
 
 void ChildOfEdenStage::Update()
@@ -100,18 +105,24 @@ void ChildOfEdenStage::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasV
 	CameraBufferData cameraMat;
 	cameraMat.m_billboardMat = CameraMgr::Instance()->GetMatBillBoard();
 	cameraMat.m_viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
-	cameraMat.m_playerPos = playerPos.ConvertXMFLOAT3();
-	if (hitFlag)
+	//cameraMat.m_hitPos = playerPos.ConvertXMFLOAT3();
+	for (int i = 0; i < hitFlag.size(); ++i)
 	{
-		cameraMat.num = 1;
-		m_radius += 10.0f;
+		if (hitFlag[i])
+		{
+			cameraMat.num = 1;
+			m_radius[i] += 10.0f;
+		}
+		else
+		{
+			cameraMat.num = 0;
+			m_radius[i] = 0.0f;
+		}
 	}
-	else
-	{
-		cameraMat.num = 0;
-		m_radius = 0.0f;
-	}
-	cameraMat.radius = m_radius;
+	cameraMat.m_posZ1 = m_radius[0];
+	cameraMat.m_posZ2 = m_radius[1];
+	cameraMat.m_posZ3 = m_radius[2];
+	cameraMat.m_posZ4 = m_radius[3];
 
 	m_computeUpdateBuffer[2].bufferWrapper->TransData(&cameraMat, sizeof(CameraBufferData));
 

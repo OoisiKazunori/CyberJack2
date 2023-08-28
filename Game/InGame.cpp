@@ -364,8 +364,6 @@ void InGame::Update()
 
 					PlayerShotEffectMgr::Instance()->Generate(m_enemies[enemyType][enemyCount], refOtherEnemy);
 					m_enemies[enemyType][enemyCount]->m_isBeingShot = true;
-
-					m_stageArray[m_gameStageLevel]->hitFlag = true;
 				}
 			}
 			if (m_enemies[enemyType][enemyCount])
@@ -393,6 +391,24 @@ void InGame::Update()
 
 
 	m_rail.Update();
+
+	for (int i = 0; i < PlayerShotEffectMgr::Instance()->GetAliveCount(); ++i)
+	{
+		if (i < m_stageArray[m_gameStageLevel]->hitFlag.size())
+		{
+			m_stageArray[m_gameStageLevel]->hitFlag[i] = true;
+		}
+	}
+
+	//if (m_gameFlame % (60 * 3) == 0)
+	//{
+	//	if (m_lightIndex < m_stageArray[m_gameStageLevel]->hitFlag.size())
+	//	{
+	//		m_stageArray[m_gameStageLevel]->hitFlag[m_lightIndex] = true;
+	//	}
+	//	++m_lightIndex;
+	//}
+
 	m_stageArray[m_gameStageLevel]->playerPos = m_rail.GetPosition();
 	m_stageArray[m_gameStageLevel]->Update();
 
@@ -414,7 +430,6 @@ void InGame::Update()
 
 	if (m_isEnemyNotMoveFlag)
 	{
-
 		++m_notMoveTimer;
 	}
 	else
@@ -433,14 +448,18 @@ void InGame::Update()
 				m_enemies[enemyType][enemyCount]->OnInit(m_responeData[enemyType][enemyCount].generateData.useMeshPaticleFlag);
 				m_enemies[enemyType][enemyCount]->Init(&(m_player.m_transform), m_responeData[enemyType][enemyCount].generateData, false);
 
-				m_stageArray[m_gameStageLevel]->hitFlag = false;
-
 				if (m_enemies[enemyType][enemyCount]->GetData()->meshParticleFlag)
 				{
 					continue;
 				}
 			}
 		}
+
+		for (int i = 0; i < m_stageArray[m_gameStageLevel]->hitFlag.size(); ++i)
+		{
+			m_stageArray[m_gameStageLevel]->hitFlag[i] = false;
+		}
+		m_lightIndex = 1;
 	}
 	else
 	{
