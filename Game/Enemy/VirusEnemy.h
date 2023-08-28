@@ -4,6 +4,7 @@
 #include"../KazLibrary/Render/MeshParticleRender.h"
 #include"../KazLibrary/Animation/AnimationInRaytracing.h"
 #include"../Game/Effect/EnemyDeadParticle.h"
+#include "../KazLibrary/Sound/SoundManager.h"
 
 class VirusEnemy:public IEnemy
 {
@@ -83,6 +84,9 @@ private:
 
 	DirectX::XMMATRIX m_motherMat;
 	float m_alpha;
+
+	//Ž€–SŽž‚Ì‰¹
+	SoundData m_dispperSE;
 
 	struct DeadEffectData {
 		KazMath::Vec4<float> m_dissolve;

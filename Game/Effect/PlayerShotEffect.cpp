@@ -13,6 +13,9 @@ PlayerShotEffect::PlayerShotEffect()
 	m_model = DrawFuncData::SetDrawGLTFAnimationIndexMaterialInRayTracingBloomData(playerModel, pipeline);
 
 	m_shotSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/Razer.wav");
+	m_shotSE.volume = 0.01f;
+	m_hitSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/hit.wav");
+	m_hitSE.volume = 0.01f;
 
 }
 
@@ -151,6 +154,7 @@ void PlayerShotEffect::Update(std::array<bool, 4>& arg_hitArray, int* arg_hitNum
 				index->m_shockWaveVel = KazMath::Vec3<float>(index->m_transform.pos - m_refEnemy->m_transform.pos).GetNormal() * SHOCK_WAVE_VEL;
 
 			}
+			SoundManager::Instance()->SoundPlayerWave(m_hitSE, 0);
 
 		}
 		else {
@@ -170,6 +174,7 @@ void PlayerShotEffect::Update(std::array<bool, 4>& arg_hitArray, int* arg_hitNum
 				arg_hitArray[*arg_hitNum] = true;
 				*arg_hitNum += 1;
 			}
+			SoundManager::Instance()->SoundPlayerWave(m_hitSE, 0);
 
 		}
 
