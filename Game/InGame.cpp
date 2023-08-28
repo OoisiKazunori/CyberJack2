@@ -167,7 +167,8 @@ void InGame::Update()
 					!m_cursor.releaseFlag &&
 					m_enemies[enemyType][enemyCount]->m_canLockOn)
 				{
-
+					m_stageArray[m_gameStageLevel]->hitFlag[m_lightIndex] = true;
+					++m_lightIndex;
 					m_cursor.Hit(enemyData->hitBox.center);
 
 					m_enemies[enemyType][enemyCount]->Hit();
@@ -410,6 +411,7 @@ void InGame::Update()
 
 				PlayerShotEffectMgr::Instance()->Generate(m_enemies[ENEMY_TYPE_VIRUS][0], refOtherEnemy);
 				m_enemies[ENEMY_TYPE_VIRUS][0]->m_isBeingShot = true;
+				m_stageArray[m_gameStageLevel]->hitFlag[0] = true;
 			}
 		}
 	}
@@ -439,6 +441,7 @@ void InGame::Update()
 
 				PlayerShotEffectMgr::Instance()->Generate(m_enemies[ENEMY_TYPE_VIRUS][1], refOtherEnemy);
 				m_enemies[ENEMY_TYPE_VIRUS][1]->m_isBeingShot = true;
+				m_stageArray[m_gameStageLevel]->hitFlag[1] = true;
 			}
 		}
 	}
@@ -468,6 +471,8 @@ void InGame::Update()
 
 				PlayerShotEffectMgr::Instance()->Generate(m_enemies[ENEMY_TYPE_VIRUS][2], refOtherEnemy);
 				m_enemies[ENEMY_TYPE_VIRUS][2]->m_isBeingShot = true;
+
+				m_stageArray[m_gameStageLevel]->hitFlag[2] = true;
 			}
 		}
 	}
@@ -497,6 +502,8 @@ void InGame::Update()
 
 				PlayerShotEffectMgr::Instance()->Generate(m_enemies[ENEMY_TYPE_VIRUS][3], refOtherEnemy);
 				m_enemies[ENEMY_TYPE_VIRUS][3]->m_isBeingShot = true;
+
+				m_stageArray[m_gameStageLevel]->hitFlag[3] = true;
 			}
 		}
 	}
@@ -526,7 +533,6 @@ void InGame::Update()
 			m_stageArray[m_gameStageLevel]->hitFlag[i] = true;
 		}
 	}
-
 	//if (m_gameFlame % (60 * 3) == 0)
 	//{
 	//	if (m_lightIndex < m_stageArray[m_gameStageLevel]->hitFlag.size())
@@ -586,7 +592,7 @@ void InGame::Update()
 		{
 			m_stageArray[m_gameStageLevel]->hitFlag[i] = false;
 		}
-		m_lightIndex = 1;
+		m_lightIndex = 0;
 	}
 	else
 	{
