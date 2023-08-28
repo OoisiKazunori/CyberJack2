@@ -49,6 +49,12 @@ public:
 	//オプション詳細用配列
 	std::vector<OptionDetails> m_optionDetails;
 
+	//矢印
+	KazBufferHelper::BufferData m_rightArrowTexture;
+	KazBufferHelper::BufferData m_leftArrowTexture;
+	DrawFuncData::DrawCallData m_rightArrowRender;
+	DrawFuncData::DrawCallData m_leftArrowRender;
+
 	//現在選択中の小見出しID
 	int m_nowSelectHeadline;
 

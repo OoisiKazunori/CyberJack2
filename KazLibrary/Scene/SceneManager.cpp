@@ -45,7 +45,7 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 6, 5, 4, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
 
-	m_debugOnOffLineRender = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
+	m_debugOnOffLineRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	m_debugOnOffLineBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLine.png");
 	m_debugOnOffLineStayBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLineStay.png");
 
@@ -268,6 +268,9 @@ void SceneManager::Update()
 		m_debugRaytracingParam.m_sliderRate -= ControllerInputManager::Instance()->InputStickState(ControllerStickSide::RIGHT_STICK, ControllerSide::LEFT_SIDE) * STICK_SPEED;
 		m_debugRaytracingParam.m_sliderRate = std::clamp(m_debugRaytracingParam.m_sliderRate, 0.0f, 1280.0f);
 
+		m_debugRaytracingParam.m_debugReflection = true;
+		m_debugRaytracingParam.m_debugShadow = true;
+
 	}
 
 	TimeZone::Instance()->Update();
@@ -356,20 +359,24 @@ void SceneManager::Draw()
 {
 	change->Draw(m_rasterize);
 
-	//デバッグ用のOnOffのラインを描画する。
-	if (OptionUI::Instance()->m_isRaytracingDebug) {
-		m_debugOnOffLineTransform.pos.x = m_debugRaytracingParam.m_sliderRate;
-		m_debugOnOffLineTransform.pos.y = 720.0f / 2.0f;
-		m_debugOnOffLineTransform.scale.x = 10.0f;
-		m_debugOnOffLineTransform.scale.y = 720.0f;
-		if (KeyBoradInputManager::Instance()->MouseInputState(MOUSE_INPUT_LEFT)) {
-			DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineBuffer);
-		}
-		else {
-			DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineStayBuffer);
-		}
-		m_rasterize.ObjectRender(m_debugOnOffLineRender);
-	}
+	////デバッグ用のOnOffのラインを描画する。
+	//if (OptionUI::Instance()->m_isRaytracingDebug) {
+	//	m_debugOnOffLineTransform.pos.x = m_debugRaytracingParam.m_sliderRate;
+	//	m_debugOnOffLineTransform.pos.y = 720.0f / 2.0f;
+	//	m_debugOnOffLineTransform.scale.x = 10.0f;
+	//	m_debugOnOffLineTransform.scale.y = 720.0f;
+	//	
+	//	//色を設定
+	//	KazMath::Color color = KazMath::Color(255, 255, 255, 255);
+
+	//	if (KeyBoradInputManager::Instance()->MouseInputState(MOUSE_INPUT_LEFT)) {
+	//		DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineBuffer, color);
+	//	}
+	//	else {
+	//		DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineStayBuffer, color);
+	//	}
+	//	m_rasterize.ObjectRender(m_debugOnOffLineRender);
+	//}
 
 	//IUを描画
 	OptionUI::Instance()->Draw(m_rasterize);
