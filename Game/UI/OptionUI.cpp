@@ -30,6 +30,21 @@ void OptionUI::Setting()
 	m_headlines.emplace_back(OptionHeadline("SEA", KazMath::Vec2<float>(0, 0), 32.0f, 2));
 	m_optionUI.emplace_back(OptionHeadline("OPTION", KazMath::Vec2<float>(0, 0), OPTION_FONTSIZE, 0));
 
+	//オプション詳細を設定。
+	OptionDetails detail;
+	detail.m_name = DrawStringData("SWITCHING RAYTRACING");
+	detail.m_selectName = { DrawStringData("ON"),DrawStringData("OFF") };
+	detail.m_id = 0;
+	m_optionDetails.emplace_back(detail);
+	detail.m_name = DrawStringData("CHANGE TIMEZONE");
+	detail.m_selectName = { DrawStringData("NOON"),DrawStringData("EVENING") };
+	detail.m_id = 1;
+	m_optionDetails.emplace_back(detail);
+	detail.m_name = DrawStringData("CHANGE THE STATE OF THE SEA");
+	detail.m_selectName = { DrawStringData("A"),DrawStringData("B"),DrawStringData("C") };
+	detail.m_id = 2;
+	m_optionDetails.emplace_back(detail);
+
 	//各変数の初期設定
 	m_nowSelectHeadline = 0;
 	m_prevInputUp = false;
@@ -66,16 +81,20 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 
 
 	const int ASCII_A = 65;	//"A"のASCIIコード
+	const int ASCII_Z = 90;	//"Z"のASCIIコード
 
 	//OPTIONの文字を描画する。
 	{
-		const int CHARA_COUNT = static_cast<int>(m_optionUI.front().m_headline.size());
+		const int CHARA_COUNT = static_cast<int>(m_optionUI.front().m_name.m_string.size());
 		for (int index = 0; index < CHARA_COUNT; ++index) {
 
 			//この文字のFontの番号を調べる。
-			int fontNum = static_cast<int>(m_optionUI.front().m_headline[index]) - ASCII_A;
+			int fontNum = static_cast<int>(m_optionUI.front().m_name.m_string[index]) - ASCII_A;
 
-			m_optionUI.front().m_color[index] = KazMath::Color(10, 10, 10, 255);
+			//フォント数が既定値を超えていたら飛ばす。
+			if (static_cast<int>(m_font.size()) <= fontNum) continue;
+
+			m_optionUI.front().m_name.m_color[index] = KazMath::Color(10, 10, 10, 255);
 
 			m_optionUI.front().m_fontSize = OPTION_FONTSIZE;
 
@@ -85,8 +104,8 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 			transform.pos.x += (m_optionUI.front().m_fontSize / 2.0f) + (m_optionUI.front().m_fontSize * index);
 			transform.scale.x = m_optionUI.front().m_fontSize;
 			transform.scale.y = m_optionUI.front().m_fontSize;
-			DrawFunc::DrawTextureIn2D(m_optionUI.front().m_render[index], transform, m_font[fontNum], m_optionUI.front().m_color[index]);
-			arg_rasterize.ObjectRender(m_optionUI.front().m_render[index]);
+			DrawFunc::DrawTextureIn2D(m_optionUI.front().m_name.m_render[index], transform, m_font[fontNum], m_optionUI.front().m_name.m_color[index]);
+			arg_rasterize.ObjectRender(m_optionUI.front().m_name.m_render[index]);
 
 
 		}
@@ -95,16 +114,16 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 	//小見出しを描画
 	for (auto& headline : m_headlines) {
 
-		const int CHARA_COUNT = static_cast<int>(headline.m_headline.size());
+		const int CHARA_COUNT = static_cast<int>(headline.m_name.m_string.size());
 		for (int index = 0; index < CHARA_COUNT; ++index) {
 
 			//この文字のFontの番号を調べる。
-			int fontNum = static_cast<int>(headline.m_headline[index]) - ASCII_A;
+			int fontNum = static_cast<int>(headline.m_name.m_string[index]) - ASCII_A;
 
-			headline.m_color[index] = KazMath::Color(10, 10, 10, 255);
+			headline.m_name.m_color[index] = KazMath::Color(10, 10, 10, 255);
 			//選択中じゃなかったら色を薄くする。
 			if (headline.m_headlineID != m_nowSelectHeadline) {
-				headline.m_color[index] = KazMath::Color(10, 10, 10, 100);
+				headline.m_name.m_color[index] = KazMath::Color(10, 10, 10, 100);
 			}
 
 			//使用するフォントのサイズを決める。
@@ -120,8 +139,8 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 			transform.pos.y += headline.m_fontSize / 2.0f + (BETWEEN_LINES * headline.m_headlineID);
 			transform.scale.x = headline.m_fontSize;
 			transform.scale.y = headline.m_fontSize;
-			DrawFunc::DrawTextureIn2D(headline.m_render[index], transform, m_font[fontNum], headline.m_color[index]);
-			arg_rasterize.ObjectRender(headline.m_render[index]);
+			DrawFunc::DrawTextureIn2D(headline.m_name.m_render[index], transform, m_font[fontNum], headline.m_name.m_color[index]);
+			arg_rasterize.ObjectRender(headline.m_name.m_render[index]);
 
 
 		}
@@ -161,14 +180,43 @@ void OptionUI::Input()
 }
 
 OptionUI::OptionHeadline::OptionHeadline(std::string arg_headline, KazMath::Vec2<float> arg_pos, float arg_fontSize, int arg_headlineID)
-	: m_headline(arg_headline), m_pos(arg_pos), m_fontSize(arg_fontSize), m_headlineID(arg_headlineID)
+	: m_pos(arg_pos), m_fontSize(arg_fontSize), m_headlineID(arg_headlineID)
 {
 
-	for (auto& index : m_render) {
+	m_name.m_string = arg_headline;
+	for (auto& index : m_name.m_render) {
 		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	}
-	for (auto& index : m_color) {
+	for (auto& index : m_name.m_color) {
 		index = KazMath::Color(0, 255, 0, 255);
 	}
+
+}
+
+OptionUI::OptionDetails::OptionDetails(std::string arg_name, std::vector<OptionDetails> arg_selectName, KazMath::Vec2<float> arg_pos, int arg_id)
+	: m_pos(arg_pos), m_id(arg_id)
+{
+
+	m_name.m_string = arg_name;
+	for (auto& index : m_name.m_render) {
+		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
+	}
+	for (auto& index : m_name.m_color) {
+		index = KazMath::Color(0, 255, 0, 255);
+	}
+
+	const int SELECT_COUNT = static_cast<int>(arg_selectName.size());
+	m_selectName.resize(SELECT_COUNT);
+	for (int index = 0; index < SELECT_COUNT; ++index) {
+		m_selectName[index].m_string = arg_name;
+		for (auto& index : m_selectName[index].m_render) {
+			index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
+		}
+		for (auto& index : m_selectName[index].m_color) {
+			index = KazMath::Color(0, 255, 0, 255);
+		}
+	}
+
+	m_selectID = 0;
 
 }
