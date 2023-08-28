@@ -48,7 +48,7 @@ void PlayerShotEffect::Generate(const KazMath::Vec3<float>* arg_refPlayerPos, sh
 
 }
 
-void PlayerShotEffect::Update()
+void PlayerShotEffect::Update(std::array<bool, 4>& arg_hitArray, int* arg_hitNum)
 {
 
 	//ベジエの終点に達していたら
@@ -134,6 +134,12 @@ void PlayerShotEffect::Update()
 			//m_refEnemy->Hit();
 			StopMgr::Instance()->m_stopTimer = StopMgr::Instance()->ENEMY_HIT_STOP;
 			m_refEnemy->Dead(&m_prevPos);
+
+			if (*arg_hitNum < arg_hitArray.size())
+			{
+				arg_hitArray[*arg_hitNum] = true;
+				*arg_hitNum += 1;
+			}
 
 			//周りの敵も反動で動かす。
 			for (auto& index : m_otherEnemy) {
