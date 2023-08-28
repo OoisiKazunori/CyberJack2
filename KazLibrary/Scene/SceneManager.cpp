@@ -270,6 +270,8 @@ void SceneManager::Update()
 	ShockWave::Instance()->Update();
 	//EnemyDissolveParam::Instance()->Update();
 
+	OptionUI::Instance()->Update();
+
 }
 
 void SceneManager::Draw()

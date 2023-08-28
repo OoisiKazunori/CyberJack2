@@ -28,6 +28,16 @@ public:
 	//小見出し配列
 	std::vector<OptionHeadline> m_headlines;
 
+	//現在選択中の小見出しID
+	int m_nowSelectHeadline;
+
+	//入力保存用
+	bool m_prevInputUp;
+	bool m_prevInputDown;
+
+	//UIを表示するかどうかのフラグ
+	bool m_isDisplayUI;
+
 	//フォント配列
 	std::array<KazBufferHelper::BufferData, 26> m_font;
 
@@ -38,5 +48,9 @@ public:
 	void Update();
 
 	void Draw(DrawingByRasterize& arg_rasterize);
+
+private:
+
+	void Input();
 
 };
