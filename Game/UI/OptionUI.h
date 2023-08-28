@@ -29,7 +29,6 @@ public:
 		KazMath::Vec2<float> m_pos;
 		float m_fontSize;
 		int m_headlineID;
-		OptionHeadline() {};
 		OptionHeadline(std::string arg_headline, KazMath::Vec2<float> arg_pos, float arg_fontSize, int arg_headlineID);
 	};
 
@@ -44,10 +43,7 @@ public:
 		KazMath::Vec2<float> m_pos;
 		int m_id;
 		int m_selectID;
-		OptionDetails() {
-			m_selectID = 0;
-		};
-		OptionDetails(std::string arg_name, std::vector<OptionDetails> arg_selectName, KazMath::Vec2<float> arg_pos, int arg_id);
+		OptionDetails(std::string arg_name, std::vector<DrawStringData> arg_selectName, KazMath::Vec2<float> arg_pos, int arg_id);
 	};
 
 	//オプション詳細用配列
@@ -59,6 +55,8 @@ public:
 	//入力保存用
 	bool m_prevInputUp;
 	bool m_prevInputDown;
+	bool m_prevInputRight;
+	bool m_prevInputLeft;
 
 	//UIを表示するかどうかのフラグ
 	bool m_isDisplayUI;
@@ -73,6 +71,9 @@ public:
 	float SELECT_FONTSIZE = 30.0f;
 	float OPTION_FONTSIZE = 45.7f;
 	KazMath::Vec2<float> OPTION_BASEPOS = KazMath::Vec2<float>(143, 240);
+	KazMath::Vec2<float> DETAIL_BASEPOS = KazMath::Vec2<float>(750, 300);
+	float DETAIL_FONTSIZE = 25.0f;
+	float DETAIL_FLAG_POS = 300.0f;	//詳細の右側のONOFFとかを描画する位置。
 
 
 public:
