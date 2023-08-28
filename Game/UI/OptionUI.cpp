@@ -34,7 +34,7 @@ void OptionUI::Setting()
 	m_optionUI.emplace_back(OptionHeadline("OPTION", KazMath::Vec2<float>(0, 0), OPTION_FONTSIZE, 0));
 
 	//オプション詳細を設定。
-	m_optionDetails.emplace_back(OptionDetails("DEBUG", { DrawStringData("ON"),DrawStringData("OFF") }, KazMath::Vec2<float>(), RAYTRACING));
+	m_optionDetails.emplace_back(OptionDetails("DEBUG", { DrawStringData("OFF"),DrawStringData("ON") }, KazMath::Vec2<float>(), RAYTRACING));
 	m_optionDetails.emplace_back(OptionDetails("TIME", { DrawStringData("NOON"),DrawStringData("EVENING") }, KazMath::Vec2<float>(), TIMEZONE));
 	m_optionDetails.emplace_back(OptionDetails("STATE", { DrawStringData("A"),DrawStringData("B"),DrawStringData("C") }, KazMath::Vec2<float>(), SEA));
 
@@ -49,6 +49,11 @@ void OptionUI::Setting()
 	m_leftArrowTexture = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/leftArrow.png");
 	m_rightArrowRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	m_leftArrowRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
+
+	//OnOff切り替えライン
+	m_debugOnOffLineRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
+	m_debugOnOffLineBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLine.png");
+	m_debugOnOffLineStayBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLineStay.png");
 
 	//各変数の初期設定
 	m_nowSelectHeadline = 0;
@@ -148,7 +153,7 @@ void OptionUI::Update()
 
 }
 
-void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
+void OptionUI::Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate)
 {
 
 	//ImGui::Begin("UI");
@@ -158,6 +163,31 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 	//ImGui::DragFloat("DETAIL_FLAG_POS", &DETAIL_FLAG_POS);
 
 	//ImGui::End();
+
+	//OnOffラインを描画
+	if(m_isRaytracingDebug) {
+
+		if (m_isDisplayUI) {
+
+			m_debugOnOffLineTransform.scale.x = 2.0f;
+		}
+		else {
+
+			m_debugOnOffLineTransform.scale.x = 2.0f;
+		}
+
+		m_debugOnOffLineTransform.pos.x = arg_sliderRate;
+		m_debugOnOffLineTransform.pos.y = 720.0f / 2.0f;
+		m_debugOnOffLineTransform.scale.y = 720.0f;
+
+		//色を設定
+		KazMath::Color color = KazMath::Color(255, 255, 255, static_cast<int>(255));
+
+		DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineStayBuffer, color);
+
+		arg_rasterize.ObjectRender(m_debugOnOffLineRender);
+
+	}
 
 
 	const int ASCII_A = 65;	//"A"のASCIIコード
@@ -283,7 +313,7 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 
 	//矢印を描画する。
 	{
-		KazMath::Color color = KazMath::Color(255,255,255, m_backGroundColor.color.a);
+		KazMath::Color color = KazMath::Color(255, 255, 255, m_backGroundColor.color.a);
 		KazMath::Transform2D transform;
 		transform.pos = detailPos;
 		transform.pos.x += DETAIL_FONTSIZE;
@@ -301,6 +331,7 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 		arg_rasterize.ObjectRender(m_leftArrowRender);
 
 	}
+
 
 	//背景を描画
 	{

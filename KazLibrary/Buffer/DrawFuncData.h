@@ -212,7 +212,7 @@ namespace DrawFuncPipelineData
 		gPipeline.RasterizerState = rasterrize;
 
 		//ブレンドモード
-		gPipeline.BlendState.RenderTarget[0] = SetAlphaBlend();
+		gPipeline.BlendState.RenderTarget[0] = SetAddBlend();
 
 		//図形の形状
 		gPipeline.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;

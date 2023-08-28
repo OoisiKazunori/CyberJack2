@@ -45,10 +45,6 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_rayPipeline = std::make_unique<Raytracing::RayPipeline>(m_pipelineShaders, Raytracing::HitGroupMgr::DEF, 6, 5, 4, payloadSize, static_cast<int>(sizeof(KazMath::Vec2<float>)), 6);
 
 
-	m_debugOnOffLineRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
-	m_debugOnOffLineBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLine.png");
-	m_debugOnOffLineStayBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLineStay.png");
-
 	//ボリュームテクスチャを生成。
 	m_volumeFogTextureBuffer = KazBufferHelper::SetUAV3DTexBuffer(256, 256, 256, DXGI_FORMAT_R8G8B8A8_UNORM);
 	m_volumeFogTextureBuffer.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
@@ -140,6 +136,8 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	OptionUI::Instance()->Setting();
 
 	//EnemyDissolveParam::Instance()->Setting();
+
+	m_debugLineScale = 0;
 }
 
 SceneManager::~SceneManager()
@@ -272,6 +270,11 @@ void SceneManager::Update()
 		m_debugRaytracingParam.m_debugShadow = true;
 
 	}
+	else {
+		m_debugRaytracingParam.m_debugReflection = false;
+		m_debugRaytracingParam.m_debugShadow = false;
+
+	}
 
 	TimeZone::Instance()->Update();
 
@@ -359,27 +362,8 @@ void SceneManager::Draw()
 {
 	change->Draw(m_rasterize);
 
-	////デバッグ用のOnOffのラインを描画する。
-	//if (OptionUI::Instance()->m_isRaytracingDebug) {
-	//	m_debugOnOffLineTransform.pos.x = m_debugRaytracingParam.m_sliderRate;
-	//	m_debugOnOffLineTransform.pos.y = 720.0f / 2.0f;
-	//	m_debugOnOffLineTransform.scale.x = 10.0f;
-	//	m_debugOnOffLineTransform.scale.y = 720.0f;
-	//	
-	//	//色を設定
-	//	KazMath::Color color = KazMath::Color(255, 255, 255, 255);
-
-	//	if (KeyBoradInputManager::Instance()->MouseInputState(MOUSE_INPUT_LEFT)) {
-	//		DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineBuffer, color);
-	//	}
-	//	else {
-	//		DrawFunc::DrawTextureIn2D(m_debugOnOffLineRender, m_debugOnOffLineTransform, m_debugOnOffLineStayBuffer, color);
-	//	}
-	//	m_rasterize.ObjectRender(m_debugOnOffLineRender);
-	//}
-
 	//IUを描画
-	OptionUI::Instance()->Draw(m_rasterize);
+	OptionUI::Instance()->Draw(m_rasterize, m_debugRaytracingParam.m_sliderRate);
 
 	if (itisInArrayFlag)
 	{
