@@ -10,7 +10,7 @@ Player::Player()
 	hp = -1;
 	pos = {};
 
-	damageSoundHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "PlayerDamage.wav");
+	//damageSoundHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "PlayerDamage.wav");
 
 	fbxRender[LEFT].data.handle = FbxModelResourceMgr::Instance()->LoadModel(KazFilePathName::PlayerPath + "CH_Right_Back_Anim.fbx");
 	fbxRender[RIGHT].data.handle = FbxModelResourceMgr::Instance()->LoadModel(KazFilePathName::PlayerPath + "CH_Left_Back_Anim.fbx");
@@ -96,7 +96,7 @@ void Player::Update()
 	//----------HP‚ªŒ¸‚Á‚½‚çƒvƒŒƒCƒ„[‚ðÔ‚­‚·‚é----------
 	if (hp != prevHp)
 	{
-		SoundManager::Instance()->PlaySoundMem(damageSoundHandle, 1);
+		//SoundManager::Instance()->PlaySoundMem(damageSoundHandle, 1);
 		damageEffect.Init(pos);
 		damageWindow.Init(pos + KazMath::Vec3<float>(WIN_X / 2.0f, WIN_Y / 2.0f + 200.0f, 0.0f));
 		redFlag = true;

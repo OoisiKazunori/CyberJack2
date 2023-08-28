@@ -31,8 +31,8 @@ IEnemy::IEnemy() :hpDirtyFlag(&iOperationData.rockOnNum)
 	lockOnWindowRender.data.transform.scale = { 0.3f,0.3f };
 	lockOnWindowRender.data.pipelineName = PIPELINE_NAME_SPRITE_Z_ALWAYS;
 
-	deadSoundHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "EnemyDead.wav", false);
-	shotSoundHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "Shot.wav", false);
+	//deadSoundHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "EnemyDead.wav", false);
+	//shotSoundHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "Shot.wav", false);
 
 	debugShotFlag = false;
 
@@ -164,12 +164,12 @@ const unique_ptr<EnemyData> &IEnemy::GetData()
 
 void IEnemy::DeadSound()
 {
-	SoundManager::Instance()->PlaySoundMem(deadSoundHandle, 1);
+	//SoundManager::Instance()->PlaySoundMem(deadSoundHandle, 1);
 }
 
 void IEnemy::ShotSound()
 {
-	SoundManager::Instance()->PlaySoundMem(shotSoundHandle, 1);
+	//SoundManager::Instance()->PlaySoundMem(shotSoundHandle, 1);
 }
 
 void IEnemy::InitModel(const KazMath::Transform3D &TRANSFORM, const std::string &MODEL_FILEPASS, float HITBOX_RADIUS, EnemyModelType MODEL_TYPE, bool REV_UV_FLAG, bool GENERATE_PARTICLE_FLAG)

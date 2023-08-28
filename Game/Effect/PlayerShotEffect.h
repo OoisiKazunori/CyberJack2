@@ -5,6 +5,7 @@
 #include <memory>
 #include <Math/KazMath.h>
 #include "../Interface/IEnemy.h"
+#include "../KazLibrary/Sound/SoundManager.h"
 
 class PlayerShotEffect {
 
@@ -32,6 +33,10 @@ private:
 	int m_vertexBufferHandle;//デバック用のスプライン曲線描画の頂点バッファ
 	DrawFuncData::DrawCallData m_splineDrawCall;
 	std::vector<KazMath::Vec3<float>>m_splineRailPosArray;
+
+	//発射音のデータ
+	SoundData m_shotSE;
+	SoundData m_hitSE;
 	
 
 public:
