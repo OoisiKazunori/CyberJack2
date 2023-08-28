@@ -5,6 +5,7 @@
 #include <Imgui/imgui.h>
 #include "../Effect/TimeZone.h"
 #include "../Effect/SeaEffect.h"
+#include "../KazLibrary/Easing/easing.h"
 
 void OptionUI::Setting()
 {
@@ -39,8 +40,9 @@ void OptionUI::Setting()
 
 	//背景をロード
 	m_backGroundTexture = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/white.png");
-	m_backGroundColor = KazMath::Color(0,0,0,220);
+	m_backGroundColor = KazMath::Color(0,0,0,0);
 	m_backGroundRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
+	m_backGroundEasingTimer = 0;
 
 	//各変数の初期設定
 	m_nowSelectHeadline = 0;
@@ -49,6 +51,7 @@ void OptionUI::Setting()
 	m_prevInputRight = false;
 	m_prevInputLeft = false;
 	m_isDisplayUI = false;
+	m_isChangeDisplayUI = false;
 	m_isRaytracingDebug = false;
 
 }
@@ -89,12 +92,58 @@ void OptionUI::Update()
 		break;
 	}
 
+	//表示状態だったら
+	if (m_isDisplayUI) {
+
+		//表示を切り替える状態だったら
+		if (m_isChangeDisplayUI) {
+
+			//背景のアルファを更新。
+			m_backGroundEasingTimer = std::clamp(m_backGroundEasingTimer + 1.0f, 0.0f, BACK_GROUND_EASING_TIMER);
+			float backGroundAlphaEasing = EasingMaker(Out, Cubic, m_backGroundEasingTimer / BACK_GROUND_EASING_TIMER);
+			m_backGroundColor.color.a = BACK_GROUND_ALPHA - static_cast<int>(BACK_GROUND_ALPHA * backGroundAlphaEasing);
+
+			//すべてのイージングが終わったら。
+			if (BACK_GROUND_EASING_TIMER <= m_backGroundEasingTimer) {
+
+				m_isDisplayUI = false;
+				m_isChangeDisplayUI = false;
+				m_backGroundEasingTimer = 0;
+
+			}
+
+		}
+
+	}
+	else {
+
+		//表示を切り替える状態だったら
+		if (m_isChangeDisplayUI) {
+
+			//背景のアルファを更新。
+			m_backGroundEasingTimer = std::clamp(m_backGroundEasingTimer + 1.0f, 0.0f, BACK_GROUND_EASING_TIMER);
+			float backGroundAlphaEasing = EasingMaker(Out, Cubic, m_backGroundEasingTimer / BACK_GROUND_EASING_TIMER);
+			m_backGroundColor.color.a = static_cast<int>(BACK_GROUND_ALPHA * backGroundAlphaEasing);
+
+			//すべてのイージングが終わったら。
+			if (BACK_GROUND_EASING_TIMER <= m_backGroundEasingTimer) {
+
+				m_isDisplayUI = true;
+				m_isChangeDisplayUI = false;
+				m_backGroundEasingTimer = 0;
+
+			}
+
+		}
+
+
+	}
+
+
 }
 
 void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 {
-
-	if (!m_isDisplayUI) return;
 
 	//ImGui::Begin("UI");
 
@@ -119,7 +168,7 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 			//フォント数が既定値を超えていたら飛ばす。
 			if (fontNum < 0 || static_cast<int>(m_font.size()) <= fontNum) continue;
 
-			m_optionUI.front().m_name.m_color[index] = KazMath::Color(255, 255, 255, 255);
+			m_optionUI.front().m_name.m_color[index] = KazMath::Color(255, 255, 255, m_backGroundColor.color.a);
 
 			m_optionUI.front().m_fontSize = OPTION_FONTSIZE;
 
@@ -148,10 +197,10 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 			//フォント数が既定値を超えていたら飛ばす。
 			if (fontNum < 0 || static_cast<int>(m_font.size()) <= fontNum) continue;
 
-			headline.m_name.m_color[index] = KazMath::Color(255,255,255, 255);
+			headline.m_name.m_color[index] = KazMath::Color(255,255,255, m_backGroundColor.color.a);
 			//選択中じゃなかったら色を薄くする。
 			if (headline.m_headlineID != m_nowSelectHeadline) {
-				headline.m_name.m_color[index] = KazMath::Color(150,150,150, 200);
+				headline.m_name.m_color[index] = KazMath::Color(150,150,150, m_backGroundColor.color.a);
 			}
 
 			//使用するフォントのサイズを決める。
@@ -185,7 +234,7 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 		//フォント数が既定値を超えていたら飛ばす。
 		if (fontNum < 0 || static_cast<int>(m_font.size()) <= fontNum) continue;
 
-		m_optionDetails[m_nowSelectHeadline].m_name.m_color[index] = KazMath::Color(255, 255, 255, 255);
+		m_optionDetails[m_nowSelectHeadline].m_name.m_color[index] = KazMath::Color(255, 255, 255, m_backGroundColor.color.a);
 
 		//トランスフォームを用意。
 		KazMath::Transform2D transform;
@@ -208,7 +257,7 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 		//フォント数が既定値を超えていたら飛ばす。
 		if (fontNum < 0 || static_cast<int>(m_font.size()) <= fontNum) continue;
 
-		m_optionDetails[m_nowSelectHeadline].m_selectName[NOW_SELECT_DETAIL_ID].m_color[index] = KazMath::Color(255, 255, 255, 255);
+		m_optionDetails[m_nowSelectHeadline].m_selectName[NOW_SELECT_DETAIL_ID].m_color[index] = KazMath::Color(255, 255, 255, m_backGroundColor.color.a);
 
 		//トランスフォームを用意。
 		KazMath::Transform2D transform;
@@ -237,7 +286,7 @@ void OptionUI::Input()
 {
 	//スタートボタンが入力されたら。
 	if (ControllerInputManager::Instance()->InputTrigger(XINPUT_GAMEPAD_START)) {
-		m_isDisplayUI = !m_isDisplayUI;
+		m_isChangeDisplayUI = true;
 	}
 
 	//UIが表示されていない状態だったら入力を切る。

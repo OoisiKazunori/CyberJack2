@@ -356,9 +356,6 @@ void SceneManager::Draw()
 {
 	change->Draw(m_rasterize);
 
-	//IUを描画
-	OptionUI::Instance()->Draw(m_rasterize);
-
 	//デバッグ用のOnOffのラインを描画する。
 	if (OptionUI::Instance()->m_isRaytracingDebug) {
 		m_debugOnOffLineTransform.pos.x = m_debugRaytracingParam.m_sliderRate;
@@ -373,6 +370,9 @@ void SceneManager::Draw()
 		}
 		m_rasterize.ObjectRender(m_debugOnOffLineRender);
 	}
+
+	//IUを描画
+	OptionUI::Instance()->Draw(m_rasterize);
 
 	if (itisInArrayFlag)
 	{

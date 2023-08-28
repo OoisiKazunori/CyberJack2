@@ -16,8 +16,8 @@ enum EaseInType
 /// <summary>
 /// 始まり方と種類を合わせてイージングのグラフを作り、変化率を入れて値を返します
 /// </summary>
-/// <param name="ChooseType">イージングの始まり方</param>
-/// <param name="ChooseEase">イージングの種類</param>
+/// <param name="ChooseType">イージングの始まり方 InOutなど</param>
+/// <param name="ChooseEase">イージングの種類 SinCubicなど</param>
 /// <param name="t">変化率</param>
 /// <returns></returns>
 float EasingMaker(int ChooseType, int ChooseEase, float t);
