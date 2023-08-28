@@ -523,7 +523,7 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	}
 #endif
 
-	//m_stageArray[m_gameStageLevel]->Draw(arg_rasterize, arg_blasVec);
+	m_stageArray[m_gameStageLevel]->Draw(arg_rasterize, arg_blasVec);
 
 	//KazMath::Transform3D transform(KazMath::Vec3<float>(10.0f, 10.0f, 10.0f));
 	//DrawFunc::DrawModelInRaytracing(m_bloomModelRender, transform, DrawFunc::NONE, KazMath::Color(255, 0, 0, 255));

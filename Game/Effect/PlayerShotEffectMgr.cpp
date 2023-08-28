@@ -22,7 +22,7 @@ void PlayerShotEffectMgr::Generate(shared_ptr<IEnemy> arg_refEnemy, std::array<s
 
 }
 
-void PlayerShotEffectMgr::Update(const KazMath::Vec3<float>* arg_refPlayerPoint, std::array<bool, 4>& arg_hitArray, int* arg_hitNum)
+void PlayerShotEffectMgr::Update(const KazMath::Vec3<float>* arg_refPlayerPoint, std::array<bool, 8>& arg_hitArray, int* arg_hitNum)
 {
 
 	++m_effectDelay;

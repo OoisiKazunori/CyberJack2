@@ -153,6 +153,10 @@ void ChildOfEdenStage::Draw(DrawingByRasterize &arg_rasterize, Raytracing::BlasV
 	cameraMat.m_posZ2 = m_radius[1];
 	cameraMat.m_posZ3 = m_radius[2];
 	cameraMat.m_posZ4 = m_radius[3];
+	cameraMat.m_posZ5 = m_radius[4];
+	cameraMat.m_posZ6 = m_radius[5];
+	cameraMat.m_posZ7 = m_radius[6];
+	cameraMat.m_posZ8 = m_radius[7];
 
 	m_computeUpdateBuffer[2].bufferWrapper->TransData(&cameraMat, sizeof(CameraBufferData));
 

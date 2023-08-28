@@ -55,7 +55,7 @@ void PlayerShotEffect::Generate(const KazMath::Vec3<float>* arg_refPlayerPos, sh
 
 }
 
-void PlayerShotEffect::Update(std::array<bool, 4>& arg_hitArray, int* arg_hitNum)
+void PlayerShotEffect::Update(std::array<bool, 8>& arg_hitArray, int* arg_hitNum)
 {
 
 	//ベジエの終点に達していたら
