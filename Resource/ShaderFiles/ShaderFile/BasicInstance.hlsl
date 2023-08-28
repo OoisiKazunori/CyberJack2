@@ -66,7 +66,7 @@ GBufferOutput PSEmissiveMain(VSOutput input) : SV_TARGET
     output.normal = float4(-1, -1, -1, 1.0f); //���������[���h���W�����Ȃ����߁A�����Ŗ@����-1,-1,-1�ɂ��邱�Ƃɂ����GPU�p�[�e�B�N���ł���Ƃ������Ƃ����C�g�����ɓ`���A�A���x�h�œh��Ԃ������������Ă��܂��B
     output.metalnessRoughness = float4(0, 1, 0, 1);
     output.world = float4(input.svpos.xyz, 1.0f);
-    output.emissive = emissive;
+    output.emissive = float4(0.0f,1.0f,0.0f,1.0f);
     return output;
 }
 
