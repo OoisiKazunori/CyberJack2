@@ -343,7 +343,10 @@ GBufferOutput PSDefferdAnimationMainDissolve(PosUvNormalTangentBinormalOutput in
         discard;
     }
     
-    outlineTexutre[uint2(input.svpos.xy)] = float4(1, 0, 0, 1);
+    if (0 < m_dissolveStrength.x)
+    {
+        outlineTexutre[uint2(input.svpos.xy)] = float4(1, 0, 0, 1);
+    }
     
     float4 normalColor = NormalTex.Sample(smp, input.uv);
     //-1.0f ~ 1.0f
