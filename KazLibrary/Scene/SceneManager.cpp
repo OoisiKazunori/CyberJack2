@@ -273,6 +273,7 @@ void SceneManager::Update()
 	else {
 		m_debugRaytracingParam.m_debugReflection = false;
 		m_debugRaytracingParam.m_debugShadow = false;
+		m_debugRaytracingParam.m_sliderRate = 1280.0f / 2.0f;
 
 	}
 
