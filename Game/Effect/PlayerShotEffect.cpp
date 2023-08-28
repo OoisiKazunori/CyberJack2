@@ -135,8 +135,11 @@ void PlayerShotEffect::Update(std::array<bool, 4>& arg_hitArray, int* arg_hitNum
 			StopMgr::Instance()->m_stopTimer = StopMgr::Instance()->ENEMY_HIT_STOP;
 			m_refEnemy->Dead(&m_prevPos);
 
-			arg_hitArray[*arg_hitNum] = true;
-			*arg_hitNum += 1;
+			if (*arg_hitNum < arg_hitArray.size())
+			{
+				arg_hitArray[*arg_hitNum] = true;
+				*arg_hitNum += 1;
+			}
 
 			//Žü‚è‚Ì“G‚à”½“®‚Å“®‚©‚·B
 			for (auto& index : m_otherEnemy) {
