@@ -14,7 +14,7 @@ void PlayerShotEffectMgr::Init()
 	m_effectDelay = 0;
 }
 
-void PlayerShotEffectMgr::Generate(shared_ptr<IEnemy> arg_refEnemy, std::array<std::shared_ptr<IEnemy>, 3> arg_refOtherEnemy)
+void PlayerShotEffectMgr::Generate(shared_ptr<IEnemy> arg_refEnemy, std::array<std::shared_ptr<IEnemy>, 7> arg_refOtherEnemy)
 {
 
 	m_enemyStack.emplace_back(arg_refEnemy);

@@ -19,7 +19,7 @@ public:
 
 	};
 
-	std::array<ShockWaveData, 4> m_shockWave;
+	std::array<ShockWaveData, 8> m_shockWave;
 	KazBufferHelper::BufferData m_shockWaveParamData;
 
 	void Setting();

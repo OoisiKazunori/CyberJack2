@@ -215,7 +215,7 @@ float MappingHeightNoise(float3 arg_position, int arg_samplingCount)
     float seaSpeed = debugSeaData.m_seaSpeed;
     
     float thickness = 8.0f;
-    for (int index = 0; index < 4; ++index)
+    for (int index = 0; index < 8; ++index)
     {
         float waveLength = length(arg_position - shockWaveData.m_shockWave[index].m_pos) - shockWaveData.m_shockWave[index].m_radius;
         if (abs(waveLength) <= thickness)
@@ -612,7 +612,7 @@ float PerlinNoise2D(float2 arg_st, int arg_octaves, float arg_persistence, float
         float persitance = 2.0f;
         float lacunarity = 1.25f;
     
-        float noise = PerlinNoise2D(vtx.uv, octave, persitance, lacunarity, shockWaveData.m_shockWave[clamp(instanceID - 2, 0, 5)].m_facter);
+        float noise = PerlinNoise2D(vtx.uv, octave, persitance, lacunarity, shockWaveData.m_shockWave[clamp(instanceID - 2, 0, 10)].m_facter);
     
         if (noise <= 0.01f)
         {
@@ -640,7 +640,7 @@ float PerlinNoise2D(float2 arg_st, int arg_octaves, float arg_persistence, float
         float lacunarity = 1.25f;
     
         uint instanceID = InstanceID();
-        float noise = PerlinNoise2D(vtx.uv, octave, persitance, lacunarity, shockWaveData.m_shockWave[clamp(instanceID - 2, 0, 5)].m_facter);
+        float noise = PerlinNoise2D(vtx.uv, octave, persitance, lacunarity, shockWaveData.m_shockWave[clamp(instanceID - 2, 0, 10)].m_facter);
         
         if (noise <= 0.01f)
         {

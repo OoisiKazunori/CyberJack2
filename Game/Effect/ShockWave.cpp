@@ -5,8 +5,8 @@ void ShockWave::Setting()
 	for (auto& index : m_shockWave) {
 		index.m_isActive = false;
 	}
-	m_shockWaveParamData = KazBufferHelper::SetConstBufferData(sizeof(ShockWaveData) * 4);
-	m_shockWaveParamData.bufferWrapper->TransData(m_shockWave.data(), sizeof(ShockWaveData) * 4);
+	m_shockWaveParamData = KazBufferHelper::SetConstBufferData(sizeof(ShockWaveData) * 8);
+	m_shockWaveParamData.bufferWrapper->TransData(m_shockWave.data(), sizeof(ShockWaveData) * 8);
 }
 
 void ShockWave::Init()
@@ -18,5 +18,5 @@ void ShockWave::Init()
 
 void ShockWave::Update()
 {
-	m_shockWaveParamData.bufferWrapper->TransData(m_shockWave.data(), sizeof(ShockWaveData) * 4);
+	m_shockWaveParamData.bufferWrapper->TransData(m_shockWave.data(), sizeof(ShockWaveData) * 8);
 }

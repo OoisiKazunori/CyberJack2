@@ -108,7 +108,7 @@ struct ShockWave
 };
 struct ShockWaveParam
 {
-    ShockWave m_shockWave[4];
+    ShockWave m_shockWave[8];
 };
 
 //barys‚ðŒvŽZ

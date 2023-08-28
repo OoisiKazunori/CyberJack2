@@ -62,6 +62,30 @@ void GameScene::PreInit()
 	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].generateData.initPos = { -30.0f,50.0f,z };
 	++respoineIndex;
 
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].layerLevel = layerLevel;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].flame = 0;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].moveID = 4;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].generateData.initPos = { -30.0f,60.0f,z };
+	++respoineIndex;
+
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].layerLevel = layerLevel;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].flame = 0;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].moveID = 5;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].generateData.initPos = { -30.0f,20.0f,z };
+	++respoineIndex;
+
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].layerLevel = layerLevel;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].flame = 0;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].moveID = 6;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].generateData.initPos = { -30.0f,30.0f,z };
+	++respoineIndex;
+
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].layerLevel = layerLevel;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].flame = 0;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].moveID = 7;
+	m_responeData[ENEMY_TYPE_VIRUS][respoineIndex].generateData.initPos = { -30.0f,40.0f,z };
+	++respoineIndex;
+
 	//m_responeData[ENEMY_TYPE_BUTTERFLY][respoineIndex].layerLevel = layerLevel;
 	//m_responeData[ENEMY_TYPE_BUTTERFLY][respoineIndex].flame = 0;
 	//m_responeData[ENEMY_TYPE_BUTTERFLY][respoineIndex].generateData.initPos = { 90.0f,10.0f,z };
