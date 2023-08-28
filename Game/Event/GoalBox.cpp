@@ -31,8 +31,8 @@ GoalBox::GoalBox()
 	hitBox.radius = 10.0f;
 	//std::shared_ptr<DirectX::XMMATRIX>data = std::make_shared<DirectX::XMMATRIX>(model->data.motherMat);
 
-	damageSoundHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "EenemyDamage.wav", false);
-	warpSoundHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "warp.wav", false);
+	//damageSoundHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "EenemyDamage.wav", false);
+	//warpSoundHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "warp.wav", false);
 }
 
 void GoalBox::Init(const KazMath::Vec3<float> &POS)
@@ -85,7 +85,7 @@ void GoalBox::Update()
 		//ëÃóÕÇå∏ÇÁÇ∑
 		if (result == 1)
 		{
-			SoundManager::Instance()->PlaySoundMem(damageSoundHandle, 1);
+			//SoundManager::Instance()->PlaySoundMem(damageSoundHandle, 1);
 			reduceHpFlag = true;
 		}
 		//èIóπ

@@ -24,6 +24,7 @@
 #include"../Game/Effect/EnemyDissolveParam.h"
 #include"../Game/UI/OptionUI.h"
 #include <Input/ControllerInputManager.h>
+#include"../KazLibrary/Sound/SoundManager.h"
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
@@ -137,12 +138,14 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 
 	//EnemyDissolveParam::Instance()->Setting();
 
+	SoundManager::Instance()->SettingSoundManager();
+
 	m_debugLineScale = 0;
 }
 
 SceneManager::~SceneManager()
 {
-	SoundManager::Instance()->Finalize();
+	//SoundManager::Instance()->Finalize();
 }
 
 void SceneManager::Update()

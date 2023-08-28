@@ -12,6 +12,8 @@ PlayerShotEffect::PlayerShotEffect()
 	auto pipeline = DrawFuncData::GetAnimationModelBloomShader();
 	m_model = DrawFuncData::SetDrawGLTFAnimationIndexMaterialInRayTracingBloomData(playerModel, pipeline);
 
+	m_shotSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/Razer.wav");
+
 }
 
 void PlayerShotEffect::Init()
@@ -45,6 +47,8 @@ void PlayerShotEffect::Generate(const KazMath::Vec3<float>* arg_refPlayerPos, sh
 	VertexGenerateData generateData(m_splineRailPosArray.data(), sizeof(DirectX::XMFLOAT3), m_splineRailPosArray.size(), sizeof(m_splineRailPosArray[0]));
 	m_vertexBufferHandle = VertexBufferMgr::Instance()->GenerateBuffer(generateData, false);
 	m_splineDrawCall = DrawFuncData::SetLine(m_vertexBufferHandle);
+
+	SoundManager::Instance()->SoundPlayerWave(m_shotSE, 0);
 
 }
 

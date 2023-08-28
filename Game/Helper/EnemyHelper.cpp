@@ -125,7 +125,7 @@ bool KazEnemyHelper::LockOn(Cursor *CURSOR, const std::shared_ptr<IEnemy> &ENEMY
 		return false;
 	}
 
-	SoundManager::Instance()->PlaySoundMem(LOCKON_SOUND, 1);
+	//SoundManager::Instance()->PlaySoundMem(LOCKON_SOUND, 1);
 
 	//カーソルのカウント数を増やす
 	CURSOR->Hit(ENEMY->GetData()->hitBox.center);

@@ -13,7 +13,7 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 	KazEnemyHelper::GenerateEnemy(m_enemies, m_responeData, enemiesHandle, m_enemyHitBoxArray);
 
 	m_debugFlag = false;
-	m_bgmHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "bgm.wav");
+	//m_bgmHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "bgm.wav");
 
 	//m_bloomModelRender = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingBloomData(*ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf"), DrawFuncData::GetModelBloomShader());
 }
@@ -53,7 +53,7 @@ void InGame::Init(bool SKIP_FLAG)
 			}
 		}
 	}
-	SoundManager::Instance()->PlaySoundMem(m_bgmHandle, 10, true);
+	//SoundManager::Instance()->PlaySoundMem(m_bgmHandle, 10, true);
 
 }
 

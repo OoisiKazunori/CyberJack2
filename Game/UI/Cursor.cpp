@@ -49,7 +49,7 @@ Cursor::Cursor()
 	baseScale = { 2.0f,2.0f };
 	deadLine = 0.25f;
 
-	clickSoundHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "Push.wav", false);
+	//clickSoundHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "Push.wav", false);
 	initClickSoundFlag = false;
 
 
@@ -117,7 +117,7 @@ void Cursor::Update()
 
 	if (doneFlag && !initClickSoundFlag)
 	{
-		SoundManager::Instance()->PlaySoundMem(clickSoundHandle, 1);
+		//SoundManager::Instance()->PlaySoundMem(clickSoundHandle, 1);
 		initClickSoundFlag = true;
 	}
 
