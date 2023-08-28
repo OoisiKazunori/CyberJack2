@@ -40,9 +40,15 @@ void OptionUI::Setting()
 
 	//背景をロード
 	m_backGroundTexture = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/white.png");
-	m_backGroundColor = KazMath::Color(0,0,0,0);
+	m_backGroundColor = KazMath::Color(0, 0, 0, 0);
 	m_backGroundRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	m_backGroundEasingTimer = 0;
+
+	//矢印をロード
+	m_rightArrowTexture = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/rightArrow.png");
+	m_leftArrowTexture = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/leftArrow.png");
+	m_rightArrowRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
+	m_leftArrowRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 
 	//各変数の初期設定
 	m_nowSelectHeadline = 0;
@@ -197,10 +203,10 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 			//フォント数が既定値を超えていたら飛ばす。
 			if (fontNum < 0 || static_cast<int>(m_font.size()) <= fontNum) continue;
 
-			headline.m_name.m_color[index] = KazMath::Color(255,255,255, m_backGroundColor.color.a);
+			headline.m_name.m_color[index] = KazMath::Color(255, 255, 255, m_backGroundColor.color.a);
 			//選択中じゃなかったら色を薄くする。
 			if (headline.m_headlineID != m_nowSelectHeadline) {
-				headline.m_name.m_color[index] = KazMath::Color(150,150,150, m_backGroundColor.color.a);
+				headline.m_name.m_color[index] = KazMath::Color(50, 50, 50, m_backGroundColor.color.a);
 			}
 
 			//使用するフォントのサイズを決める。
@@ -247,8 +253,10 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 		arg_rasterize.ObjectRender(m_optionDetails[m_nowSelectHeadline].m_name.m_render[index]);
 
 	}
+	//現在選択中のオプションの詳細を描画する。
 	const int NOW_SELECT_DETAIL_ID = m_optionDetails[m_nowSelectHeadline].m_selectID;
 	const int DETAIL_CHARA_COUNT = static_cast<int>(m_optionDetails[m_nowSelectHeadline].m_selectName[NOW_SELECT_DETAIL_ID].m_string.size());
+	KazMath::Vec2<float> detailPos = KazMath::Vec2<float>();
 	for (int index = 0; index < DETAIL_CHARA_COUNT; ++index) {
 
 		//この文字のFontの番号を調べる。
@@ -268,6 +276,29 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize)
 		transform.scale.y = DETAIL_FONTSIZE;
 		DrawFunc::DrawTextureIn2D(m_optionDetails[m_nowSelectHeadline].m_selectName[NOW_SELECT_DETAIL_ID].m_render[index], transform, m_font[fontNum], m_optionDetails[m_nowSelectHeadline].m_selectName[NOW_SELECT_DETAIL_ID].m_color[index]);
 		arg_rasterize.ObjectRender(m_optionDetails[m_nowSelectHeadline].m_selectName[NOW_SELECT_DETAIL_ID].m_render[index]);
+
+		detailPos = transform.pos;
+
+	}
+
+	//矢印を描画する。
+	{
+		KazMath::Color color = KazMath::Color(255,255,255, m_backGroundColor.color.a);
+		KazMath::Transform2D transform;
+		transform.pos = detailPos;
+		transform.pos.x += DETAIL_FONTSIZE;
+		transform.scale.x = DETAIL_FONTSIZE;
+		transform.scale.y = DETAIL_FONTSIZE;
+		DrawFunc::DrawTextureIn2D(m_rightArrowRender, transform, m_rightArrowTexture, color);
+		arg_rasterize.ObjectRender(m_rightArrowRender);
+
+		transform.pos = detailPos;
+		transform.pos.x = DETAIL_BASEPOS.x + DETAIL_FLAG_POS;
+		transform.pos.x -= DETAIL_FONTSIZE / 2.0f;
+		transform.scale.x = DETAIL_FONTSIZE;
+		transform.scale.y = DETAIL_FONTSIZE;
+		DrawFunc::DrawTextureIn2D(m_leftArrowRender, transform, m_leftArrowTexture, color);
+		arg_rasterize.ObjectRender(m_leftArrowRender);
 
 	}
 
