@@ -163,4 +163,6 @@ private:
 	DrawFuncData::DrawCallData m_bloomModelRender;
 
 	int m_lightIndex = 0;
+
+	RESOURCE_HANDLE m_bgmHandle;
 };

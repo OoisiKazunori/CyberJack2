@@ -13,6 +13,7 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 	KazEnemyHelper::GenerateEnemy(m_enemies, m_responeData, enemiesHandle, m_enemyHitBoxArray);
 
 	m_debugFlag = false;
+	m_bgmHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "bgm.wav");
 
 	//m_bloomModelRender = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingBloomData(*ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf"), DrawFuncData::GetModelBloomShader());
 }
@@ -38,6 +39,11 @@ void InGame::Init(bool SKIP_FLAG)
 		{
 			if (!m_enemies[enemyType][enemyCount]) continue;
 
+			//出現場所をランダムにする。
+			m_responeData[enemyType][enemyCount].generateData.initPos.x = KazMath::Rand(-50.0f, 50.0f);
+			m_responeData[enemyType][enemyCount].generateData.initPos.y = KazMath::Rand(0.0f, 50.0f);
+			m_responeData[enemyType][enemyCount].generateData.initPos.z = KazMath::Rand(30.0f, 90.0f);
+
 			m_enemies[enemyType][enemyCount]->OnInit(m_responeData[enemyType][enemyCount].generateData.useMeshPaticleFlag);
 			m_enemies[enemyType][enemyCount]->Init(&(m_player.m_transform), m_responeData[enemyType][enemyCount].generateData, false);
 
@@ -47,6 +53,8 @@ void InGame::Init(bool SKIP_FLAG)
 			}
 		}
 	}
+	SoundManager::Instance()->PlaySoundMem(m_bgmHandle, 10, true);
+
 }
 
 void InGame::Finalize()
@@ -134,6 +142,12 @@ void InGame::Update()
 
 			if (enableToUseThisDataFlag && readyToStartFlag && m_enemies[enemyType][enemyCount] != nullptr && !m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->initFlag)
 			{
+
+
+				//出現場所をランダムにする。
+				m_responeData[enemyType][enemyCount].generateData.initPos.x = KazMath::Rand(-50.0f, 50.0f);
+				m_responeData[enemyType][enemyCount].generateData.initPos.y = KazMath::Rand(0.0f, 50.0f);
+				m_responeData[enemyType][enemyCount].generateData.initPos.z = KazMath::Rand(30.0f, 90.0f);
 
 				m_enemies[enemyType][enemyCount]->OnInit(m_responeData[enemyType][enemyCount].generateData.useMeshPaticleFlag);
 				m_enemies[enemyType][enemyCount]->Init(&(m_player.m_transform), m_responeData[enemyType][enemyCount].generateData, false);
@@ -351,9 +365,9 @@ void InGame::Update()
 					!m_enemies[enemyType][enemyCount]->m_isBeingShot)
 				{
 					//攻撃を当てる敵以外の参照も保存して渡す。
-					std::array<std::shared_ptr<IEnemy>, 3> refOtherEnemy;
+					std::array<std::shared_ptr<IEnemy>, 7> refOtherEnemy;
 					int counter = 0;
-					for (int index = 0; index < 4; ++index) {
+					for (int index = 0; index < 8; ++index) {
 						if (m_enemies[enemyType][enemyCount] == m_enemies[enemyType][index]) continue;
 
 						refOtherEnemy[counter] = m_enemies[enemyType][index];
