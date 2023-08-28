@@ -26,4 +26,16 @@ public:
 	void Update(const KazMath::Vec3<float>* arg_refPlayerPoint);
 	void Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec);
 
+	int GetAliveCount()
+	{
+		int count = 0;
+		for (auto& obj : m_effects)
+		{
+			if (obj.m_isActive)
+			{
+				++count;
+			}
+		}
+		return count;
+	}
 };

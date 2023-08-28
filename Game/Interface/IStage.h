@@ -35,7 +35,7 @@ public:
 	std::vector<Sphere*> blockHitBox;
 
 
-	bool hitFlag = false;
+	std::array<bool,4> hitFlag;
 	bool startFlag = false;
 	Sprite3DRender vaporWaveSunRender;
 	KazMath::Vec3<float> playerPos;

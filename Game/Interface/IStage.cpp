@@ -2,6 +2,10 @@
 
 IStage::IStage() :objectSpeed(5.0f)
 {
+	for (int i = 0; i < hitFlag.size(); ++i)
+	{
+		hitFlag[i] = false;
+	}
 }
 
 IStage::~IStage()

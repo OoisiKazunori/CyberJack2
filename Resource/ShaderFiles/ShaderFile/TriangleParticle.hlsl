@@ -200,6 +200,7 @@ struct ParticeArgumentData
     float3 rotationLerp;
     float4 colorLerp;
     int timer;
+    int isHitFlag;
 };
 
 static const int PARTICLE_MAX_NUM = 1024;
@@ -234,6 +235,7 @@ void InitCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, uin
     ParticleDataBuffer[index].rotationVel = RandVec3(RandomTableBuffer[index], 5.0f, 0.0f);
     ParticleDataBuffer[index].color = float4(1.0f, 1.0f, 1.0f, 1.0f);
     ParticleDataBuffer[index].timer = 0;
+    ParticleDataBuffer[index].isHitFlag = 0;
 }
 
 struct OutputData
@@ -246,8 +248,10 @@ cbuffer CameraBuffer : register(b0)
 {
     matrix billboard;
     matrix viewProj;
-    float3 playerPos;
-    float radius;
+    float posZ1;
+    float posZ2;
+    float posZ3;
+    float posZ4;
     uint rotaFlag;
 }
 
@@ -275,39 +279,63 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
     uint index = ThreadGroupIndex(groupId, groupIndex, groupThreadID, 1024);
 
     //プレイヤーより手前の場合は奥に置く
-    if (ParticleDataBuffer[index].pos.z <= playerPos.z)
-    {
-        ParticleDataBuffer[index].pos.z = playerPos.z + 2000.0f;
-        ParticleDataBuffer[index].scale = float3(0.0f, 0.0f, 0.0f);
-    }
     ParticleDataBuffer[index].scale = Lerp(ParticleDataBuffer[index].scale, float3(SCALE, SCALE, SCALE), 0.1f);
 
-
-    bool isHitFLag = CheckCircleAndCircle(ParticleDataBuffer[index].pos,playerPos,ParticleDataBuffer[index].scale.x,radius);
-    float3 rotaVel = ParticleDataBuffer[index].rotationVel;
-    float4 color = ParticleDataBuffer[index].color;
-    if(isHitFLag)
+    if(ParticleDataBuffer[index].pos.z - 5.0f <= posZ1 && posZ1 <= ParticleDataBuffer[index].pos.z + 5.0f)
     {
-        rotaVel = ParticleDataBuffer[index].rotationVel + float3(5.0f,5.0f,5.0f);
-        color = float4(0.8,0.0,0.0,1.0);
-        ++ParticleDataBuffer[index].timer;
-        ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos + float3(0.0f,55.0f,0.0f);
+        ParticleDataBuffer[index].isHitFlag = 1;
     }
-    else
+    if(ParticleDataBuffer[index].pos.z - 5.0f <= posZ2 && posZ2 <= ParticleDataBuffer[index].pos.z + 5.0f)
     {
-        ParticleDataBuffer[index].timer = 0;
+        ParticleDataBuffer[index].isHitFlag = 1;
     }
-
-    if(5 <= ParticleDataBuffer[index].timer)
+    if(ParticleDataBuffer[index].pos.z - 5.0f <= posZ3 && posZ3 <= ParticleDataBuffer[index].pos.z + 5.0f)
     {
-        ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos;
+        ParticleDataBuffer[index].isHitFlag = 1;
+    }
+    if(ParticleDataBuffer[index].pos.z - 5.0f <= posZ4 && posZ4 <= ParticleDataBuffer[index].pos.z + 5.0f)
+    {
+        ParticleDataBuffer[index].isHitFlag = 1;
     }
 
     
+    float3 rotaVel = ParticleDataBuffer[index].rotationVel;
+    float4 color = ParticleDataBuffer[index].color;
+
+    if(!ParticleDataBuffer[index].isHitFlag)
+    {
+        ParticleDataBuffer[index].timer = 0;
+        ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos;
+    }
+    else
+    {
+        ++ParticleDataBuffer[index].timer;
+    }
+
+    if(ParticleDataBuffer[index].isHitFlag && ParticleDataBuffer[index].timer <= 10)
+    {
+        rotaVel = ParticleDataBuffer[index].rotationVel + float3(5.0f,5.0f,5.0f);
+        color = float4(0.8,0.0,0.0,1.0);
+        
+        ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos + float3(0.0f,55.0f,0.0f);
+    }
+
+    if(10 <= ParticleDataBuffer[index].timer)
+    {
+        ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos;
+        color = float4(0.8,0.0,0.0,1.0);
+    }
+    if(60 <= ParticleDataBuffer[index].timer)
+    {
+        color = float4(1.0,1.0,1.0,1.0);
+        ParticleDataBuffer[index].isHitFlag = 0;
+    }
+
+    float lerpVel = 0.1f;
     ParticleDataBuffer[index].rotation += rotaVel;
-    ParticleDataBuffer[index].posLerp = lerp(ParticleDataBuffer[index].posLerp,ParticleDataBuffer[index].pos,0.1f);
-    ParticleDataBuffer[index].rotationLerp = lerp(ParticleDataBuffer[index].rotationLerp,ParticleDataBuffer[index].rotation,0.1f);
-    ParticleDataBuffer[index].colorLerp = lerp(ParticleDataBuffer[index].colorLerp,color,0.1f);
+    ParticleDataBuffer[index].posLerp = lerp(ParticleDataBuffer[index].posLerp,ParticleDataBuffer[index].pos,lerpVel);
+    ParticleDataBuffer[index].rotationLerp = lerp(ParticleDataBuffer[index].rotationLerp,ParticleDataBuffer[index].rotation,lerpVel);
+    ParticleDataBuffer[index].colorLerp = lerp(ParticleDataBuffer[index].colorLerp,color,lerpVel);
 
     WorldDataBuffer[index].mat =
     CalucurateWorldMat(

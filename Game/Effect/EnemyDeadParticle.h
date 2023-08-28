@@ -31,7 +31,7 @@ private:
 	struct InitCommonData
 	{
 		DirectX::XMFLOAT3 pos;
-		float m_particleNum;;
+		float m_particleNum;
 	};
 	struct Particle
 	{
