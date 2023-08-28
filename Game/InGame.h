@@ -55,6 +55,7 @@
 
 #include"../Game/Effect/InstanceMeshParticle.h"
 #include"../KazLibrary/Buffer/CreateMeshBuffer.h"
+#include"../KazLibrary/Sound/SoundManager.h"
 
 class InGame
 {
@@ -165,4 +166,6 @@ private:
 	int m_lightIndex = 0;
 
 	RESOURCE_HANDLE m_bgmHandle;
+
+	SoundData m_lockonSE;
 };

@@ -4,6 +4,7 @@
 #include "../KazLibrary/Math/KazMath.h"
 #include "../KazLibrary/Render/DrawFunc.h"
 #include "Render/DrawingByRasterize.h"
+#include "../KazLibrary/Sound/SoundManager.h"
 #include <string>
 #include <memory>
 #include <vector>
@@ -60,6 +61,11 @@ public:
 	KazBufferHelper::BufferData m_debugOnOffLineBuffer;
 	KazBufferHelper::BufferData m_debugOnOffLineStayBuffer;
 	KazMath::Transform2D m_debugOnOffLineTransform;
+
+
+	SoundData m_doneSE;
+	SoundData m_cancelSE;
+	SoundData m_selectSE;
 
 	//åªç›ëIëíÜÇÃè¨å©èoÇµID
 	int m_nowSelectHeadline;

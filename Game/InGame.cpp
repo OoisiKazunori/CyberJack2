@@ -13,6 +13,10 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 	KazEnemyHelper::GenerateEnemy(m_enemies, m_responeData, enemiesHandle, m_enemyHitBoxArray);
 
 	m_debugFlag = false;
+
+	m_lockonSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/lockon.wav");
+	m_lockonSE.volume = 0.01f;
+
 	//m_bgmHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "bgm.wav");
 
 	//m_bloomModelRender = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingBloomData(*ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf"), DrawFuncData::GetModelBloomShader());
@@ -181,6 +185,9 @@ void InGame::Update()
 					!m_cursor.releaseFlag &&
 					m_enemies[enemyType][enemyCount]->m_canLockOn)
 				{
+
+					SoundManager::Instance()->SoundPlayerWave(m_lockonSE, 0);
+
 					m_cursor.Hit(enemyData->hitBox.center);
 
 					m_enemies[enemyType][enemyCount]->Hit();

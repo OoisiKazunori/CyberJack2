@@ -9,6 +9,7 @@
 #include"../RenderTarget/RenderTargetStatus.h"
 #include<memory>
 #include"../KazLibrary/Render/DrawingByRasterize.h"
+#include "../KazLibrary/Sound/SoundManager.h"
 
 
 class SceneManager
@@ -32,6 +33,7 @@ private:
 	bool gameFirstInitFlag;
 
 
+	SoundData m_BGN;
 
 
 

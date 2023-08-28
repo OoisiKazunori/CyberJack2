@@ -32,7 +32,7 @@ VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 	m_meshParticleRender = std::make_unique<MeshParticleRender>(iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData);
 
 	m_dispperSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/disapper.wav");
-	m_dispperSE.volume = 0.001f;
+	m_dispperSE.volume = 0.002f;
 
 }
 

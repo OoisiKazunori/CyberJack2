@@ -73,6 +73,15 @@ void OptionUI::Setting()
 	m_isChangeDisplayUI = false;
 	m_isRaytracingDebug = false;
 
+
+	m_doneSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/done.wav");
+	m_doneSE.volume = 0.01f;
+
+	m_cancelSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/cancel.wav");
+	m_cancelSE.volume = 0.01f;
+
+	m_selectSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/select.wav");
+	m_selectSE.volume = 0.01f;
 }
 
 void OptionUI::Update()
@@ -403,8 +412,16 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate)
 void OptionUI::Input()
 {
 	//スタートボタンが入力されたら。
-	if (ControllerInputManager::Instance()->InputTrigger(XINPUT_GAMEPAD_START)) {
+	if (ControllerInputManager::Instance()->InputTrigger(XINPUT_GAMEPAD_START) && !m_isChangeDisplayUI) {
 		m_isChangeDisplayUI = true;
+
+		if (m_isDisplayUI) {
+			SoundManager::Instance()->SoundPlayerWave(m_cancelSE, 0);
+		}
+		else {
+			SoundManager::Instance()->SoundPlayerWave(m_doneSE, 0);
+		}
+
 	}
 
 	//UIが表示されていない状態だったら入力を切る。
@@ -418,12 +435,16 @@ void OptionUI::Input()
 
 		m_nowSelectHeadline = std::clamp(m_nowSelectHeadline + 1, 0, static_cast<int>(m_headlines.size()) - 1);
 
+		SoundManager::Instance()->SoundPlayerWave(m_selectSE, 0);
+
 	}
 	//上方向に入力されたら
 	bool isInputUp = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::UP_SIDE, DEADLINE);
 	if (isInputUp && !m_prevInputUp) {
 
 		m_nowSelectHeadline = std::clamp(m_nowSelectHeadline - 1, 0, static_cast<int>(m_headlines.size()) - 1);
+
+		SoundManager::Instance()->SoundPlayerWave(m_selectSE, 0);
 
 	}
 
@@ -433,6 +454,8 @@ void OptionUI::Input()
 
 		++m_optionDetails[m_nowSelectHeadline].m_selectID;
 
+		SoundManager::Instance()->SoundPlayerWave(m_doneSE, 0);
+
 	}
 
 	//左方向に入力されたら
@@ -440,6 +463,8 @@ void OptionUI::Input()
 	if (isInputLeft && !m_prevInputLeft) {
 
 		--m_optionDetails[m_nowSelectHeadline].m_selectID;
+
+		SoundManager::Instance()->SoundPlayerWave(m_doneSE, 0);
 
 	}
 	m_optionDetails[m_nowSelectHeadline].m_selectID = std::clamp(m_optionDetails[m_nowSelectHeadline].m_selectID, 0, static_cast<int>(m_optionDetails[m_nowSelectHeadline].m_selectName.size()) - 1);
