@@ -29,12 +29,15 @@ public:
 	struct ParticeArgumentData
 	{
 		DirectX::XMFLOAT3 m_pos;
+		DirectX::XMFLOAT3 m_basePos;
 		DirectX::XMFLOAT3 m_scale;
 		DirectX::XMFLOAT3 m_rotation;
 		DirectX::XMFLOAT3 m_rotationVel;
 		DirectX::XMFLOAT4 m_color;
+		DirectX::XMFLOAT3 m_posLerp;
 		DirectX::XMFLOAT3 m_rotationLerp;
 		DirectX::XMFLOAT4 m_colorlerp;
+		int m_timer;
 	};
 	struct CameraBufferData
 	{

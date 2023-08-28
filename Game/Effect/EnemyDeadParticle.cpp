@@ -48,13 +48,6 @@ EnemyDeadParticle::EnemyDeadParticle(const KazBufferHelper::BufferData& arg_mesh
 	m_executeIndirect.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_executeIndirect.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
 
-	m_executeIndirect.extraBufferArray.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4)));
-	m_executeIndirect.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-	m_executeIndirect.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-
-	DirectX::XMFLOAT4 emissive = { 0.0f,1.0f,0.0f,1.0f };
-	m_executeIndirect.extraBufferArray.back().bufferWrapper->TransData(&emissive, sizeof(DirectX::XMFLOAT4));
-
 }
 
 void EnemyDeadParticle::InitCompute(const KazMath::Vec3<float>& arg_pos, int particleNum)

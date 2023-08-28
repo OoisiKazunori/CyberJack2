@@ -191,12 +191,15 @@ float3 RandVec3(uint SEED, float MAX, float MIN)
 struct ParticeArgumentData
 {
     float3 pos;
+    float3 basePos;
     float3 scale;
     float3 rotation;
     float3 rotationVel;
     float4 color;
+    float3 posLerp;
     float3 rotationLerp;
     float4 colorLerp;
+    int timer;
 };
 
 static const int PARTICLE_MAX_NUM = 1024;
@@ -224,11 +227,13 @@ void InitCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, uin
         pos.x *= -1.0f;
     }
     ParticleDataBuffer[index].pos = pos;
-
+    ParticleDataBuffer[index].posLerp = pos;
+    ParticleDataBuffer[index].basePos = pos;
     ParticleDataBuffer[index].scale = float3(SCALE, SCALE, SCALE);
     ParticleDataBuffer[index].rotation = RandVec3(RandomTableBuffer[index], 360.0f, 0.0f);
     ParticleDataBuffer[index].rotationVel = RandVec3(RandomTableBuffer[index], 5.0f, 0.0f);
     ParticleDataBuffer[index].color = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    ParticleDataBuffer[index].timer = 0;
 }
 
 struct OutputData
@@ -285,16 +290,28 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
     {
         rotaVel = ParticleDataBuffer[index].rotationVel + float3(5.0f,5.0f,5.0f);
         color = float4(0.8,0.0,0.0,1.0);
+        ++ParticleDataBuffer[index].timer;
+        ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos + float3(0.0f,55.0f,0.0f);
+    }
+    else
+    {
+        ParticleDataBuffer[index].timer = 0;
+    }
+
+    if(5 <= ParticleDataBuffer[index].timer)
+    {
+        ParticleDataBuffer[index].pos = ParticleDataBuffer[index].basePos;
     }
 
     
     ParticleDataBuffer[index].rotation += rotaVel;
+    ParticleDataBuffer[index].posLerp = lerp(ParticleDataBuffer[index].posLerp,ParticleDataBuffer[index].pos,0.1f);
     ParticleDataBuffer[index].rotationLerp = lerp(ParticleDataBuffer[index].rotationLerp,ParticleDataBuffer[index].rotation,0.1f);
     ParticleDataBuffer[index].colorLerp = lerp(ParticleDataBuffer[index].colorLerp,color,0.1f);
 
     WorldDataBuffer[index].mat =
     CalucurateWorldMat(
-        ParticleDataBuffer[index].pos,
+        ParticleDataBuffer[index].posLerp,
         ParticleDataBuffer[index].scale,
         ParticleDataBuffer[index].rotationLerp
     );
