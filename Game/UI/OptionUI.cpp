@@ -393,7 +393,7 @@ void OptionUI::Draw(DrawingByRasterize &arg_rasterize, float arg_sliderRate)
 	}
 
 	//–îˆó‚ğ•`‰æ‚·‚éB
-	{
+	if(m_nowSelectHeadline != EXIT) {
 		KazMath::Color color = KazMath::Color(255, 255, 255, m_backGroundColor.color.a);
 		KazMath::Transform2D transform;
 		transform.pos = detailPos;
