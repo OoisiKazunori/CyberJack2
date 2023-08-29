@@ -116,6 +116,8 @@ public:
 	//操作方法
 	DrawFuncData::DrawCallData m_guideUI;
 	KazBufferHelper::BufferData m_guideTex;
+	DrawFuncData::DrawCallData m_guideSlideUI;
+	KazBufferHelper::BufferData m_guideSlideTex;
 
 	//デバッグの名称
 	enum DEBUG_NAME {

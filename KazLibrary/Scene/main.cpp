@@ -104,6 +104,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	OutputDebugStringA("ゲームのメインループを開始します\n");
 	while (CheckMessageFlag)
 	{
+		if (!OptionUI::Instance()->m_isDisplayUI)
+		{
+			//マウス非表示
+			ShowCursor(false);
+			//マウスの閉じ込め
+			RECT winRect;
+			GetWindowRect(winApi.hwnd, &winRect);
+			ClipCursor(&winRect);
+		}
+		else
+		{
+			//マウスを画面外に出す
+			ClipCursor(nullptr);
+			ShowCursor(true);
+		}
+
 		CheckMessageFlag = msg.CheckMessage();
 		imgui.NewFlame();
 		KeyBoradInputManager::Instance()->InputLog();
@@ -117,15 +133,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			sm.Update();
 			sm.Draw();
 		}
-
-
-		//マウス非表示
-		ShowCursor(false);
-		//マウスの閉じ込め
-		RECT winRect;
-		GetWindowRect(winApi.hwnd, &winRect);
-		ClipCursor(&winRect);
-
 
 		if (sm.endGameFlag || OptionUI::Instance()->m_isExit)
 		{
