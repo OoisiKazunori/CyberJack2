@@ -253,6 +253,10 @@ cbuffer CameraBuffer : register(b0)
     float posZ2;
     float posZ3;
     float posZ4;
+    float posZ5;
+    float posZ6;
+    float posZ7;
+    float posZ8;
     uint rotaFlag;
 }
 
