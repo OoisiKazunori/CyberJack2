@@ -300,7 +300,22 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
     {
         ParticleDataBuffer[index].isHitFlag = 1;
     }
-
+    if(ParticleDataBuffer[index].pos.z - len <= posZ5 && posZ5 <= ParticleDataBuffer[index].pos.z + len)
+    {
+        ParticleDataBuffer[index].isHitFlag = 1;
+    }
+    if(ParticleDataBuffer[index].pos.z - len <= posZ6 && posZ6 <= ParticleDataBuffer[index].pos.z + len)
+    {
+        ParticleDataBuffer[index].isHitFlag = 1;
+    }
+    if(ParticleDataBuffer[index].pos.z - len <= posZ7 && posZ7 <= ParticleDataBuffer[index].pos.z + len)
+    {
+        ParticleDataBuffer[index].isHitFlag = 1;
+    }
+    if(ParticleDataBuffer[index].pos.z - len <= posZ8 && posZ8 <= ParticleDataBuffer[index].pos.z + len)
+    {
+        ParticleDataBuffer[index].isHitFlag = 1;
+    }
     
     float3 rotaVel = ParticleDataBuffer[index].rotationVel;
     float4 color = ParticleDataBuffer[index].color;
