@@ -45,15 +45,22 @@ public:
 	{
 		DirectX::XMMATRIX m_billboardMat;
 		DirectX::XMMATRIX m_viewProjMat;
-		float m_posZ1;
-		float m_posZ2;
-		float m_posZ3;
-		float m_posZ4;
-		float m_posZ5;
-		float m_posZ6;
-		float m_posZ7;
-		float m_posZ8;
-		UINT num;
+		float posZ1;
+		float posZ2;
+		float posZ3;
+		float posZ4;
+		float posZ5;
+		float posZ6;
+		float posZ7;
+		float posZ8;
+		float posZ9;
+		float posZ10;
+		float posZ11;
+		float posZ12;
+		float posZ13;
+		float posZ14;
+		float posZ15;
+		float posZ16;
 	};
 	struct OutputData
 	{
@@ -72,7 +79,7 @@ public:
 
 
 	std::array<DrawFuncData::DrawCallData, PARTICLE_MAX_NUM> m_playerModel;
-	std::array<float,8> m_radius;
-	std::array<float,8> m_rate;
+	std::array<float,16> m_radius;
+	std::array<float,16> m_rate;
 };
 

@@ -55,7 +55,7 @@ void PlayerShotEffect::Generate(const KazMath::Vec3<float>* arg_refPlayerPos, sh
 
 }
 
-void PlayerShotEffect::Update(std::array<bool, 8>& arg_hitArray, int* arg_hitNum)
+void PlayerShotEffect::Update(std::array<bool, 16>& arg_hitArray, int* arg_hitNum)
 {
 
 	//ベジエの終点に達していたら
@@ -142,10 +142,13 @@ void PlayerShotEffect::Update(std::array<bool, 8>& arg_hitArray, int* arg_hitNum
 			StopMgr::Instance()->m_stopTimer = StopMgr::Instance()->ENEMY_HIT_STOP;
 			m_refEnemy->Dead(&m_prevPos);
 
-			if (*arg_hitNum < arg_hitArray.size())
+			for (int i = 0; i < arg_hitArray.size(); ++i)
 			{
-				arg_hitArray[*arg_hitNum] = true;
-				*arg_hitNum += 1;
+				if (!arg_hitArray[i])
+				{
+					arg_hitArray[i] = true;
+					break;
+				}
 			}
 
 			//周りの敵も反動で動かす。
@@ -169,10 +172,13 @@ void PlayerShotEffect::Update(std::array<bool, 8>& arg_hitArray, int* arg_hitNum
 
 			}
 
-			if (*arg_hitNum < arg_hitArray.size())
+			for (int i = 0; i < arg_hitArray.size(); ++i)
 			{
-				arg_hitArray[*arg_hitNum] = true;
-				*arg_hitNum += 1;
+				if (!arg_hitArray[i])
+				{
+					arg_hitArray[i] = true;
+					break;
+				}
 			}
 			SoundManager::Instance()->SoundPlayerWave(m_hitSE, 0);
 

@@ -214,7 +214,7 @@ void InitCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, uin
 {
     uint index = ThreadGroupIndex(groupId, groupIndex, groupThreadID, 1024);
 
-    //初期位置生成
+    //初期位置生�??
     float3 pos;
     const float2 HEIGHT_MAX = float2(200.0f, 0.0f);
     const float2 WIDTH_MAX = float2(400.0f, 200.0f);
@@ -257,7 +257,14 @@ cbuffer CameraBuffer : register(b0)
     float posZ6;
     float posZ7;
     float posZ8;
-    uint rotaFlag;
+    float posZ9;
+    float posZ10;
+    float posZ11;
+    float posZ12;
+    float posZ13;
+    float posZ14;
+    float posZ15;
+    float posZ16;
 }
 
 struct VertexBufferData
@@ -313,6 +320,43 @@ void UpdateCSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex, u
         ParticleDataBuffer[index].isHitFlag = 1;
     }
     if(ParticleDataBuffer[index].pos.z - len <= posZ8 && posZ8 <= ParticleDataBuffer[index].pos.z + len)
+    {
+        ParticleDataBuffer[index].isHitFlag = 1;
+    }
+    if(ParticleDataBuffer[index].pos.z - len <= posZ8 && posZ8 <= ParticleDataBuffer[index].pos.z + len)
+    {
+        ParticleDataBuffer[index].isHitFlag = 1;
+    }
+
+    if(ParticleDataBuffer[index].pos.z - len <= posZ9 && posZ9 <= ParticleDataBuffer[index].pos.z + len)
+    {
+        ParticleDataBuffer[index].isHitFlag = 1;
+    }
+    if(ParticleDataBuffer[index].pos.z - len <= posZ10 && posZ10 <= ParticleDataBuffer[index].pos.z + len)
+    {
+        ParticleDataBuffer[index].isHitFlag = 1;
+    }
+    if(ParticleDataBuffer[index].pos.z - len <= posZ11 && posZ11 <= ParticleDataBuffer[index].pos.z + len)
+    {
+        ParticleDataBuffer[index].isHitFlag = 1;
+    }
+    if(ParticleDataBuffer[index].pos.z - len <= posZ12 && posZ12 <= ParticleDataBuffer[index].pos.z + len)
+    {
+        ParticleDataBuffer[index].isHitFlag = 1;
+    }
+    if(ParticleDataBuffer[index].pos.z - len <= posZ13 && posZ13 <= ParticleDataBuffer[index].pos.z + len)
+    {
+        ParticleDataBuffer[index].isHitFlag = 1;
+    }
+    if(ParticleDataBuffer[index].pos.z - len <= posZ14 && posZ14 <= ParticleDataBuffer[index].pos.z + len)
+    {
+        ParticleDataBuffer[index].isHitFlag = 1;
+    }
+    if(ParticleDataBuffer[index].pos.z - len <= posZ15 && posZ15 <= ParticleDataBuffer[index].pos.z + len)
+    {
+        ParticleDataBuffer[index].isHitFlag = 1;
+    }
+    if(ParticleDataBuffer[index].pos.z - len <= posZ16 && posZ16 <= ParticleDataBuffer[index].pos.z + len)
     {
         ParticleDataBuffer[index].isHitFlag = 1;
     }

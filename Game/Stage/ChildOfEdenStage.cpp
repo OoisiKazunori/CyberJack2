@@ -139,24 +139,35 @@ void ChildOfEdenStage::Draw(DrawingByRasterize &arg_rasterize, Raytracing::BlasV
 		Rate(&m_rate[i], 0.01f, 1.0f);
 		if (hitFlag[i])
 		{
-			cameraMat.num = 1;
 			m_radius[i] += 60.0f;
 		}
 		else
 		{
-			cameraMat.num = 0;
 			m_radius[i] = 0.0f;
 			m_rate[i] = 0.0f;
 		}
+
+		if (4000.0f <= m_radius[i])
+		{
+			hitFlag[i] = false;
+		}
 	}
-	cameraMat.m_posZ1 = m_radius[0];
-	cameraMat.m_posZ2 = m_radius[1];
-	cameraMat.m_posZ3 = m_radius[2];
-	cameraMat.m_posZ4 = m_radius[3];
-	cameraMat.m_posZ5 = m_radius[4];
-	cameraMat.m_posZ6 = m_radius[5];
-	cameraMat.m_posZ7 = m_radius[6];
-	cameraMat.m_posZ8 = m_radius[7];
+	cameraMat.posZ1 = m_radius[0];
+	cameraMat.posZ2 = m_radius[1];
+	cameraMat.posZ3 = m_radius[2];
+	cameraMat.posZ4 = m_radius[3];
+	cameraMat.posZ5 = m_radius[4];
+	cameraMat.posZ6 = m_radius[5];
+	cameraMat.posZ7 = m_radius[6];
+	cameraMat.posZ8 = m_radius[7];
+	cameraMat.posZ9 = m_radius[8];
+	cameraMat.posZ10 = m_radius[9];
+	cameraMat.posZ11 = m_radius[10];
+	cameraMat.posZ12 = m_radius[11];
+	cameraMat.posZ13 = m_radius[12];
+	cameraMat.posZ14 = m_radius[13];
+	cameraMat.posZ15 = m_radius[14];
+	cameraMat.posZ16 = m_radius[15];
 
 	m_computeUpdateBuffer[2].bufferWrapper->TransData(&cameraMat, sizeof(CameraBufferData));
 
