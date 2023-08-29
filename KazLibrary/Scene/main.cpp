@@ -118,6 +118,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 
 
+		//マウス非表示
+		ShowCursor(false);
+		//マウスの閉じ込め
+		RECT winRect;
+		GetWindowRect(winApi.hwnd, &winRect);
+		ClipCursor(&winRect);
+
+
 		if (sm.endGameFlag)
 		{
 			break;
@@ -136,7 +144,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	}
 	winApi.UnregisterWindowClass();
 
-
+	ClipCursor(nullptr);
 
 	return 0;
 }

@@ -152,7 +152,6 @@ DirectX::XMFLOAT2 KeyBoradInputManager::GetMousePoint()
 	GetCursorPos(&WinAPIMousePos);
 	ScreenToClient(*hwnd, &WinAPIMousePos);
 
-
 	DirectX::XMFLOAT2 mousePos;
 	mousePos.x = static_cast<float>(WinAPIMousePos.x);
 	mousePos.y = static_cast<float>(WinAPIMousePos.y);
