@@ -269,8 +269,21 @@ void SceneManager::Update()
 
 		//左スティックでも動かせる。
 		const float STICK_SPEED = 10.0f;
-		m_debugRaytracingParam.m_sliderRate += ControllerInputManager::Instance()->InputStickState(ControllerStickSide::RIGHT_STICK, ControllerSide::RIGHT_SIDE) * STICK_SPEED;
-		m_debugRaytracingParam.m_sliderRate -= ControllerInputManager::Instance()->InputStickState(ControllerStickSide::RIGHT_STICK, ControllerSide::LEFT_SIDE) * STICK_SPEED;
+		bool rightFLag =
+			ControllerInputManager::Instance()->InputStickState(ControllerStickSide::RIGHT_STICK, ControllerSide::RIGHT_SIDE) ||
+			ControllerInputManager::Instance()->InputShoulderState(ControllerShoulderSide::RIGHT_SHOULDER) ||
+			ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_DPAD_RIGHT) ||
+			ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_RIGHT_THUMB)||
+			KeyBoradInputManager::Instance()->InputState(DIK_D);
+		bool leftFLag =
+			ControllerInputManager::Instance()->InputStickState(ControllerStickSide::RIGHT_STICK, ControllerSide::LEFT_SIDE) ||
+			ControllerInputManager::Instance()->InputShoulderState(ControllerShoulderSide::LEFT_SHOULDER) ||
+			ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_DPAD_LEFT) ||
+			ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_LEFT_THUMB)||
+			KeyBoradInputManager::Instance()->InputState(DIK_A);
+
+		m_debugRaytracingParam.m_sliderRate += rightFLag * STICK_SPEED;
+		m_debugRaytracingParam.m_sliderRate -= leftFLag * STICK_SPEED;
 		m_debugRaytracingParam.m_sliderRate = std::clamp(m_debugRaytracingParam.m_sliderRate, 0.0f, 1280.0f);
 
 		m_debugRaytracingParam.m_debugReflection = true;
