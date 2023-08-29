@@ -69,7 +69,6 @@ HRESULT WinApi::CreateMyWindow(int WINDOW_SIZE_X, int WINDOW_SIZE_Y)
 	//自動でサイズ補正
 	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
 
-
 	/*
 	ウィンドウオブジェクトの生成
 

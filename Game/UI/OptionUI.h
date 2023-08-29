@@ -118,7 +118,6 @@ public:
 		SEA
 	};
 
-
 public:
 
 	void Setting();
