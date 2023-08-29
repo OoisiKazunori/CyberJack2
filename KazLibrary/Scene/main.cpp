@@ -14,6 +14,7 @@
 #include"../KazLibrary/Buffer/UavViewHandleMgr.h"
 #include"Raytracing/RayPipeline.h"
 #include<time.h>
+#include"../Game/UI/OptionUI.h"
 
 
 //ターゲットがデバックの時のみコンソール用のmain文を参照する
@@ -126,7 +127,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		ClipCursor(&winRect);
 
 
-		if (sm.endGameFlag)
+		if (sm.endGameFlag || OptionUI::Instance()->m_isExit)
 		{
 			break;
 		}
