@@ -33,6 +33,8 @@ VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 
 	m_dispperSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/disapper.wav");
 	m_dispperSE.volume = 0.002f;
+	m_spawnSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/respawn.wav");
+	m_spawnSE.volume = 0.003f;
 
 }
 
@@ -113,6 +115,8 @@ void VirusEnemy::Update()
 		if (RESPAWN_TIMER < m_spawnTimer) {
 			m_spawnTimer = 0;
 			m_canSpawn = true;
+
+			SoundManager::Instance()->SoundPlayerWave(m_spawnSE, 0);
 		}
 
 	}

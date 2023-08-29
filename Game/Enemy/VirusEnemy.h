@@ -87,6 +87,7 @@ private:
 
 	//Ž€–SŽž‚Ì‰¹
 	SoundData m_dispperSE;
+	SoundData m_spawnSE;
 
 	struct DeadEffectData {
 		KazMath::Vec4<float> m_dissolve;
