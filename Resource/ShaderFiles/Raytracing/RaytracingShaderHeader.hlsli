@@ -516,6 +516,7 @@ void SecondaryPass(float3 arg_viewDir, inout float4 arg_emissiveColor, float4 ar
         arg_finalColor += float4((refractionColor.m_color), 1) * (perOfSeaColor / 2.0f);
         arg_finalColor += float4((reflectionColor.m_color), 1) * (perOfSeaColor / 2.0f);
         
+        arg_emissiveColor.w = 1.0f;
         arg_emissiveColor.xyz += refractionColor.m_emissive;
         arg_emissiveColor.xyz += reflectionColor.m_emissive;
         

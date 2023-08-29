@@ -646,6 +646,20 @@ float PerlinNoise2D(float2 arg_st, int arg_octaves, float arg_persistence, float
         {
             payload.m_color = float3(-1, -1, -1);
         }
+        
+        
+    
+        //当たったオブジェクトのInstanceIDが1だったら(GPUパーティクルだったら)輝度を保存する。
+        if (instanceID == 1)
+        {
+            payload.m_emissive = payload.m_color;
+        }
+        else
+        {
+            payload.m_emissive = payload.m_color / 3.0f;
+
+        }
+        
     }
     //それ以外は通常の反射
     else
