@@ -55,6 +55,11 @@ void OptionUI::Setting()
 	m_debugOnOffLineRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	m_debugOnOffLineBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLine.png");
 	m_debugOnOffLineStayBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLineStay.png");
+
+	//ëÄçÏÉKÉCÉhÇÃUI
+	m_guideUI = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
+	m_guideTex = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/Guide/GuideMenu.png");
+
 	for (auto &index : m_onRender) {
 		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	}
@@ -398,6 +403,16 @@ void OptionUI::Draw(DrawingByRasterize &arg_rasterize, float arg_sliderRate)
 
 	}
 
+	//ëÄçÏ
+	if(m_isDisplayUI)
+	{
+		KazMath::Color color = KazMath::Color(255, 255, 255, 255);
+		KazMath::Transform2D transform;
+		transform.scale = KazMath::Vec2<float>(256.0f, 64.0f);
+		transform.pos = KazMath::Vec2<float>(1280.0f - transform.scale.x / 2.0f, 720.0f - transform.scale.y / 2.0f);
+		DrawFunc::DrawTextureIn2D(m_guideUI, transform, m_guideTex, color);
+		arg_rasterize.ObjectRender(m_guideUI);
+	}
 
 	//îwåiÇï`âÊ
 	{

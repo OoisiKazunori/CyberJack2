@@ -111,6 +111,11 @@ public:
 	const float DETAIL_FONTSIZE = 25.0f;
 	const float DETAIL_FLAG_POS = 180.0f;	//詳細の右側のONOFFとかを描画する位置。
 
+
+	//操作方法
+	DrawFuncData::DrawCallData m_guideUI;
+	KazBufferHelper::BufferData m_guideTex;
+
 	//デバッグの名称
 	enum DEBUG_NAME {
 		RAYTRACING,

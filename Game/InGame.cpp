@@ -550,7 +550,7 @@ void InGame::Draw(DrawingByRasterize &arg_rasterize, Raytracing::BlasVector &arg
 	{
 		KazMath::Color color = KazMath::Color(255, 255, 255, 255);
 		KazMath::Transform2D transform;
-		transform.scale = KazMath::Vec2<float>(605.0f, 144.0f);
+		transform.scale = KazMath::Vec2<float>(338.0f, 82.0f);
 		transform.pos = KazMath::Vec2<float>(1280.0f - transform.scale.x / 2.0f, 720.0f - transform.scale.y / 2.0f);
 		DrawFunc::DrawTextureIn2D(m_guideUI, transform, m_guideTex, color);
 		arg_rasterize.ObjectRender(m_guideUI);
