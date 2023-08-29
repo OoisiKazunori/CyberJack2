@@ -207,6 +207,10 @@ void PlayerShotEffect::Update(std::array<bool, 8>& arg_hitArray, int* arg_hitNum
 void PlayerShotEffect::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
 
+	if (!m_isActive) {
+		m_transform.pos.y = -1000;
+	}
+
 	//DrawFunc::DrawModelInRaytracing(m_model, m_transform, DrawFunc::NONE);
 	DrawFunc::DrawModel(m_model, m_transform);
 	arg_rasterize.ObjectRender(m_model);
