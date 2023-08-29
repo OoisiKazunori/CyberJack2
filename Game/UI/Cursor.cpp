@@ -152,6 +152,10 @@ void Cursor::Update()
 	if (lockOnNum == 0)
 	{
 		numberTex->data.transform.rotation += 2.0f;
+
+		if (doneFlag) {
+			numberTex->data.transform.rotation += 5.0f;
+		}
 	}
 	else
 	{
@@ -544,6 +548,9 @@ void Cursor::Draw(DrawingByRasterize& arg_rasterize)
 			static_cast<float>(flameTextureBuffer.bufferWrapper->GetBuffer()->GetDesc().Width) * 2.0f,
 			static_cast<float>(flameTextureBuffer.bufferWrapper->GetBuffer()->GetDesc().Height) * 2.0f
 		};
+		if (doneFlag) {
+			transform.scale *= 0.9f;
+		}
 		DrawFunc::DrawTextureIn2D(flameRender, transform, flameTextureBuffer);
 		arg_rasterize.ObjectRender(flameRender);
 	}
