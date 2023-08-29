@@ -57,7 +57,7 @@ void PlayerShotEffectMgr::Draw(DrawingByRasterize& arg_rasterize, Raytracing::Bl
 {
 	for (auto& index : m_effects) {
 
-		if (!index.m_isActive) continue;
+		//if (!index.m_isActive) continue;
 
 		index.Draw(arg_rasterize, arg_blasVec);
 
