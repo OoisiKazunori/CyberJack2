@@ -90,7 +90,7 @@ HRESULT WinApi::CreateMyWindow(int WINDOW_SIZE_X, int WINDOW_SIZE_Y)
 	
 	hwnd = CreateWindow(
 		window.lpszClassName,
-		L"CyberJack",
+		L"‚¢‚¢‚Æ‚±‚Ç‚èƒGƒ“ƒWƒ“",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,

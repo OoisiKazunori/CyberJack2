@@ -103,6 +103,7 @@ RESOURCE_HANDLE TextureResourceMgr::LoadGraph(std::string RESOURCE)
 	{
 		bufferArray.emplace_back();
 		cpuBufferArray.emplace_back();
+		mipmapUploadBufferArray.emplace_back();
 	}
 
 	cpuBufferArray[elementNum] = KazBufferHelper::SetShaderResourceBufferData(textureDesc);

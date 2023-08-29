@@ -168,4 +168,6 @@ private:
 	RESOURCE_HANDLE m_bgmHandle;
 
 	SoundData m_lockonSE;
+
+	std::array<DrawFuncData::DrawCallData, 10>m_sponzaModel;
 };

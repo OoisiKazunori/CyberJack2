@@ -20,6 +20,11 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 	//m_bgmHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "bgm.wav");
 
 	//m_bloomModelRender = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingBloomData(*ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf"), DrawFuncData::GetModelBloomShader());
+
+	/*for (int i = 0; i < m_sponzaModel.size(); ++i)
+	{
+		m_sponzaModel[i] = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/Test/glTF/Sponza/", "Sponza.gltf"));
+	}*/
 }
 
 void InGame::Init(bool SKIP_FLAG)
@@ -86,27 +91,27 @@ void InGame::Input()
 	bool releaseFlag = false;
 
 	const int DEAD_ZONE = 3000;
-	if (cInput->InputState(XINPUT_GAMEPAD_A))
+	if (cInput->InputState(XINPUT_GAMEPAD_A) || input->InputState(DIK_SPACE))
 	{
 		doneFlag = true;
 	}
-	if (cInput->InputRelease(XINPUT_GAMEPAD_A))
+	if (cInput->InputRelease(XINPUT_GAMEPAD_A) || input->InputRelease(DIK_SPACE))
 	{
 		releaseFlag = true;
 	}
-	if (cInput->InputStickState(LEFT_STICK, UP_SIDE, DEAD_ZONE))
+	if (cInput->InputStickState(LEFT_STICK, UP_SIDE, DEAD_ZONE) || input->InputState(DIK_W))
 	{
 		upFlag = true;
 	}
-	if (cInput->InputStickState(LEFT_STICK, DOWN_SIDE, DEAD_ZONE))
+	if (cInput->InputStickState(LEFT_STICK, DOWN_SIDE, DEAD_ZONE) || input->InputState(DIK_S))
 	{
 		downFlag = true;
 	}
-	if (cInput->InputStickState(LEFT_STICK, LEFT_SIDE, DEAD_ZONE))
+	if (cInput->InputStickState(LEFT_STICK, LEFT_SIDE, DEAD_ZONE) || input->InputState(DIK_A))
 	{
 		leftFlag = true;
 	}
-	if (cInput->InputStickState(LEFT_STICK, RIGHT_SIDE, DEAD_ZONE))
+	if (cInput->InputStickState(LEFT_STICK, RIGHT_SIDE, DEAD_ZONE) || input->InputState(DIK_D))
 	{
 		rightFlag = true;
 	}
@@ -536,6 +541,11 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	//ImGui::Begin("Game");
 	//ImGui::Checkbox("Debug", &m_debugFlag);
 	//ImGui::End();
+
+	/*for (int i = 0; i < m_sponzaModel.size(); ++i)
+	{
+		arg_rasterize.ObjectRender(m_sponzaModel[i]);
+	}*/
 }
 
 int InGame::SceneChange()
