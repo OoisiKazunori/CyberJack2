@@ -71,7 +71,7 @@ void Cursor::Init()
 	notEnableLockOnFlag = false;
 }
 
-void Cursor::Input(bool UP_FLAG, bool DOWN_FLAG, bool LEFT_FLAG, bool RIGHT_FLAG, bool DONE_FLAG, bool RELEASE_FLAG, const KazMath::Vec2<float>& ANGLE)
+void Cursor::Input(bool UP_FLAG, bool DOWN_FLAG, bool LEFT_FLAG, bool RIGHT_FLAG, bool DONE_FLAG, bool RELEASE_FLAG, const KazMath::Vec2<float>& ANGLE, const KazMath::Vec2<float> &MOUSE_VEL)
 {
 	//UIが表示されていたら入力をすべて切る。
 	if (OptionUI::Instance()->m_isDisplayUI) {
@@ -94,6 +94,7 @@ void Cursor::Input(bool UP_FLAG, bool DOWN_FLAG, bool LEFT_FLAG, bool RIGHT_FLAG
 		doneFlag = DONE_FLAG;
 		releaseFlag = RELEASE_FLAG;
 		stickAngle = ANGLE;
+		mouseVel = MOUSE_VEL;
 	}
 	else
 	{
@@ -219,8 +220,15 @@ void Cursor::Update()
 
 
 	//スティックの操作からカーソルのスピードを調整
+	baseSpeed = 10.0f;
 	speed.x = baseSpeed * -stickAngle.x;
 	speed.y = baseSpeed * stickAngle.y;
+	if (mouseVel.Length() != 0.0f)
+	{
+		baseSpeed = 1.0f;
+		speed.x = baseSpeed * -mouseVel.x;
+		speed.y = baseSpeed * -mouseVel.y;
+	}
 
 
 	if (leftFlag)

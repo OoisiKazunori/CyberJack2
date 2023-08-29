@@ -129,6 +129,7 @@ private:
 
 	Player m_player;
 	Cursor m_cursor;
+	KazMath::Vec2<float>m_prevMouseVel;
 	SplineRail m_rail;
 	std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>m_stageArray;
 	CameraWork m_camera;
@@ -154,6 +155,19 @@ private:
 	//インゲーム---------------------------------------
 
 	//デバック処理---------------------------------------
+
+	//ゲーム開始時の表示
+	//推奨
+	DrawFuncData::DrawCallData m_guideRender;
+	KazBufferHelper::BufferData m_infomationTex;
+	int m_guideTimer;
+	float m_guideAlphaTimer;
+
+	//操作方法
+	DrawFuncData::DrawCallData m_guideUI;
+	KazBufferHelper::BufferData m_guideTex;
+
+
 public:
 	bool m_debugFlag;
 private:

@@ -7,7 +7,7 @@
 #include"PostEffect/Outline.h"
 #include"Effect/EnemyDissolveParam.h"
 
-InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX>& arg_responeData, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>& arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX>& BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX>& CAMERA_ARRAY) :
+InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> &arg_responeData, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX> &arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX> &BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX> &CAMERA_ARRAY) :
 	m_stageArray(arg_stageArray), m_responeData(arg_responeData), m_sceneNum(-1)
 {
 	KazEnemyHelper::GenerateEnemy(m_enemies, m_responeData, enemiesHandle, m_enemyHitBoxArray);
@@ -17,9 +17,13 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 	m_lockonSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/lockon.wav");
 	m_lockonSE.volume = 0.01f;
 
-	//m_bgmHandle = SoundManager::Instance()->LoadSoundMem(KazFilePathName::SoundPath + "bgm.wav");
+	//Infomation
+	m_guideRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
+	m_infomationTex = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/Guide/Infomation.png");
 
-	//m_bloomModelRender = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingBloomData(*ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf"), DrawFuncData::GetModelBloomShader());
+	//‘€ìƒKƒCƒh‚ÌUI
+	m_guideUI = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
+	m_guideTex = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/Guide/Guide.png");
 }
 
 void InGame::Init(bool SKIP_FLAG)
@@ -58,7 +62,8 @@ void InGame::Init(bool SKIP_FLAG)
 		}
 	}
 	//SoundManager::Instance()->PlaySoundMem(m_bgmHandle, 10, true);
-
+	m_guideTimer = 0;
+	m_guideAlphaTimer = 0.0f;
 }
 
 void InGame::Finalize()
@@ -68,12 +73,8 @@ void InGame::Finalize()
 
 void InGame::Input()
 {
-	KeyBoradInputManager* input = KeyBoradInputManager::Instance();
-	ControllerInputManager* cInput = ControllerInputManager::Instance();
-	if (input->InputTrigger(DIK_ESCAPE))
-	{
-		Init(false);
-	}
+	KeyBoradInputManager *input = KeyBoradInputManager::Instance();
+	ControllerInputManager *cInput = ControllerInputManager::Instance();
 
 	m_player.Input();
 
@@ -85,30 +86,40 @@ void InGame::Input()
 	bool doneFlag = false;
 	bool releaseFlag = false;
 
+	KazMath::Vec2<float>mouseVel(input->GetMouseVel().x, input->GetMouseVel().y);
+
 	const int DEAD_ZONE = 3000;
-	if (cInput->InputState(XINPUT_GAMEPAD_A))
+	if (cInput->InputState(XINPUT_GAMEPAD_A) || input->MouseInputState(MOUSE_INPUT_LEFT))
 	{
 		doneFlag = true;
 	}
-	if (cInput->InputRelease(XINPUT_GAMEPAD_A))
+	if (cInput->InputRelease(XINPUT_GAMEPAD_A) || input->MouseInputRelease(MOUSE_INPUT_LEFT))
 	{
 		releaseFlag = true;
 	}
-	if (cInput->InputStickState(LEFT_STICK, UP_SIDE, DEAD_ZONE))
+
+	KazMath::Vec2<float>dir = mouseVel - m_prevMouseVel;
+
+	if (cInput->InputStickState(LEFT_STICK, UP_SIDE, DEAD_ZONE) || std::signbit(dir.y))
 	{
 		upFlag = true;
 	}
-	if (cInput->InputStickState(LEFT_STICK, DOWN_SIDE, DEAD_ZONE))
+	if (cInput->InputStickState(LEFT_STICK, DOWN_SIDE, DEAD_ZONE) || !std::signbit(dir.y))
 	{
 		downFlag = true;
 	}
-	if (cInput->InputStickState(LEFT_STICK, LEFT_SIDE, DEAD_ZONE))
+	if (cInput->InputStickState(LEFT_STICK, LEFT_SIDE, DEAD_ZONE) || std::signbit(dir.x))
 	{
 		leftFlag = true;
 	}
-	if (cInput->InputStickState(LEFT_STICK, RIGHT_SIDE, DEAD_ZONE))
+	if (cInput->InputStickState(LEFT_STICK, RIGHT_SIDE, DEAD_ZONE) || !std::signbit(dir.x))
 	{
 		rightFlag = true;
+	}
+
+	if (input->InputTrigger(DIK_O))
+	{
+		bool debug = false;
 	}
 
 	KazMath::Vec2<float> joyStick;
@@ -123,8 +134,10 @@ void InGame::Input()
 		rightFlag,
 		doneFlag,
 		releaseFlag,
-		joyStick
+		joyStick,
+		mouseVel
 	);
+	m_prevMouseVel = mouseVel;
 }
 
 void InGame::Update()
@@ -174,7 +187,7 @@ void InGame::Update()
 			bool enableToUseDataFlag = m_enemies[enemyType][enemyCount] != nullptr && m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->initFlag;
 			if (enableToUseDataFlag)
 			{
-				EnemyData* enemyData = m_enemies[enemyType][enemyCount]->GetData().get();
+				EnemyData *enemyData = m_enemies[enemyType][enemyCount]->GetData().get();
 
 				bool enableToLockOnNumFlag = m_cursor.LockOn();
 				bool enableToLockOnEnemyFlag = m_enemies[enemyType][enemyCount]->IsAlive() && !m_enemies[enemyType][enemyCount]->LockedOrNot();
@@ -221,7 +234,7 @@ void InGame::Update()
 			bool enableToUseDataFlag = m_enemies[enemyType][enemyCount] != nullptr && m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->initFlag;
 			if (enableToUseDataFlag)
 			{
-				EnemyData* enemyData = m_enemies[enemyType][enemyCount]->GetData().get();
+				EnemyData *enemyData = m_enemies[enemyType][enemyCount]->GetData().get();
 
 				/*for (int i = 0; i < lineEffectArrayData.size(); ++i)
 				{
@@ -491,10 +504,27 @@ void InGame::Update()
 	}
 }
 
-void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
+void InGame::Draw(DrawingByRasterize &arg_rasterize, Raytracing::BlasVector &arg_blasVec)
 {
 
 	PlayerShotEffectMgr::Instance()->Draw(arg_rasterize, arg_blasVec);
+
+	{
+		++m_guideTimer;
+		float alpha = 255.0f;
+		if (60 * 3 < m_guideTimer)
+		{
+			Rate(&m_guideAlphaTimer, 0.01f, 1.0f);
+			alpha = 255.0f - EasingMaker(Out, Cubic, m_guideAlphaTimer) * 255.0f;
+		}
+		KazMath::Color color = KazMath::Color(255, 255, 255, static_cast<int>(alpha));
+		KazMath::Transform2D transform;
+		transform.pos = KazMath::Vec2<float>(1280.0f / 2.0f, 720.0f / 2.0f);
+		transform.scale = KazMath::Vec2<float>(1280.0f, 720.0f);
+		DrawFunc::DrawTextureIn2D(m_guideRender, transform, m_infomationTex, color);
+		arg_rasterize.ObjectRender(m_guideRender);
+	}
+
 
 	PIXBeginEvent(DirectX12CmdList::Instance()->cmdList.Get(), 0, "Enemy");
 	for (int enemyType = 0; enemyType < m_enemies.size(); ++enemyType)
@@ -516,26 +546,17 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 		m_cursor.Draw(arg_rasterize);
 	}
 
-#ifdef _DEBUG
-	if (m_debugFlag)
+
 	{
-		//m_rail.DebugDraw(arg_rasterize);
+		KazMath::Color color = KazMath::Color(255, 255, 255, 255);
+		KazMath::Transform2D transform;
+		transform.scale = KazMath::Vec2<float>(605.0f, 144.0f);
+		transform.pos = KazMath::Vec2<float>(1280.0f - transform.scale.x / 2.0f, 720.0f - transform.scale.y / 2.0f);
+		DrawFunc::DrawTextureIn2D(m_guideUI, transform, m_guideTex, color);
+		arg_rasterize.ObjectRender(m_guideUI);
 	}
-#endif
 
 	m_stageArray[m_gameStageLevel]->Draw(arg_rasterize, arg_blasVec);
-
-	//KazMath::Transform3D transform(KazMath::Vec3<float>(10.0f, 10.0f, 10.0f));
-	//DrawFunc::DrawModelInRaytracing(m_bloomModelRender, transform, DrawFunc::NONE, KazMath::Color(255, 0, 0, 255));
-	//for (auto& obj : m_bloomModelRender.m_raytracingData.m_blas)
-	//{
-	//	arg_blasVec.Add(obj, transform.GetMat());
-	//}
-	//arg_rasterize.ObjectRender(m_bloomModelRender);
-
-	//ImGui::Begin("Game");
-	//ImGui::Checkbox("Debug", &m_debugFlag);
-	//ImGui::End();
 }
 
 int InGame::SceneChange()
@@ -549,7 +570,7 @@ int InGame::SceneChange()
 	return SCENE_NONE;
 }
 
-void InGame::BufferStatesTransition(ID3D12Resource* arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after)
+void InGame::BufferStatesTransition(ID3D12Resource *arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after)
 {
 	D3D12_RESOURCE_BARRIER barriers[] = {
 	CD3DX12_RESOURCE_BARRIER::Transition(

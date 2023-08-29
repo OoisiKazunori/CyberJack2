@@ -13,7 +13,7 @@ public:
 	Cursor();
 
 	void Init();
-	void Input(bool UP_FLAG, bool DOWN_FLAG, bool LEFT_FLAG, bool RIGHT_FLAG, bool DONE_FLAG, bool RELEASE_FLAG, const KazMath::Vec2<float>& ANGLE);
+	void Input(bool UP_FLAG, bool DOWN_FLAG, bool LEFT_FLAG, bool RIGHT_FLAG, bool DONE_FLAG, bool RELEASE_FLAG, const KazMath::Vec2<float> &ANGLE, const KazMath::Vec2<float> &MOUSE_VEL);
 	void Update();
 	void Draw(DrawingByRasterize& arg_rasterize);
 
@@ -43,6 +43,7 @@ public:
 	KazMath::Vec2<float> cursorPos;
 	KazMath::Vec2<float> prevCursorPos;
 	KazMath::Vec2<float> vel;
+	KazMath::Vec2<float> mouseVel;
 	Ray hitBox;
 	DirectX::XMINT2 stopFlag;
 	bool releaseFlag;

@@ -200,16 +200,16 @@ void PortalScene::Input()
 	joyStick.x = inputController->GetJoyStickLXNum(0) / 32767.0f;
 	joyStick.y = inputController->GetJoyStickLYNum(0) / 32767.0f;
 
-	cursor.Input
-	(
-		upFlag,
-		downFlag,
-		leftFlag,
-		rightFlag,
-		doneFlag,
-		releaseFlag,
-		joyStick
-	);
+	//cursor.Input
+	//(
+	//	upFlag,
+	//	downFlag,
+	//	leftFlag,
+	//	rightFlag,
+	//	doneFlag,
+	//	releaseFlag,
+	//	joyStick
+	//);
 
 
 	KazMath::Vec2<float> cursorValue = cursor.GetValue();

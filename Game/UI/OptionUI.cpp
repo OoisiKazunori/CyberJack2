@@ -2,6 +2,7 @@
 #include "../KazLibrary/Loader/TextureResourceMgr.h"
 #include "../KazLibrary/Render/DrawFunc.h"
 #include "../KazLibrary/Input/ControllerInputManager.h"
+#include "../KazLibrary/Input/KeyBoradInputManager.h"
 #include <Imgui/imgui.h>
 #include "../Effect/TimeZone.h"
 #include "../Effect/SeaEffect.h"
@@ -14,7 +15,7 @@ void OptionUI::Setting()
 	int counter = 97; //97は"a"
 	std::string path = "Resource/UI/Font/";
 	std::string extension = ".png";
-	for (auto& index : m_font) {
+	for (auto &index : m_font) {
 
 		//ロードするファイルの文字列を取得。
 		std::string filePath = path;
@@ -54,10 +55,10 @@ void OptionUI::Setting()
 	m_debugOnOffLineRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	m_debugOnOffLineBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLine.png");
 	m_debugOnOffLineStayBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/DebugOnOffLineStay.png");
-	for (auto& index : m_onRender) {
+	for (auto &index : m_onRender) {
 		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	}
-	for (auto& index : m_offRender) {
+	for (auto &index : m_offRender) {
 		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	}
 	m_onString = "ON";
@@ -170,7 +171,7 @@ void OptionUI::Update()
 
 }
 
-void OptionUI::Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate)
+void OptionUI::Draw(DrawingByRasterize &arg_rasterize, float arg_sliderRate)
 {
 
 	//ImGui::Begin("UI");
@@ -182,7 +183,7 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate)
 	const int ASCII_Z = 90;	//"Z"のASCIIコード
 
 	//OnOffラインを描画
-	if(m_isRaytracingDebug) {
+	if (m_isRaytracingDebug) {
 
 		if (m_isDisplayUI) {
 
@@ -287,7 +288,7 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate)
 	}
 
 	//小見出しを描画
-	for (auto& headline : m_headlines) {
+	for (auto &headline : m_headlines) {
 
 		const int CHARA_COUNT = static_cast<int>(headline.m_name.m_string.size());
 		for (int index = 0; index < CHARA_COUNT; ++index) {
@@ -406,13 +407,12 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate)
 		DrawFunc::DrawTextureIn2D(m_backGroundRender, transform, m_backGroundTexture, m_backGroundColor);
 		arg_rasterize.ObjectRender(m_backGroundRender);
 	}
-
 }
 
 void OptionUI::Input()
 {
 	//スタートボタンが入力されたら。
-	if (ControllerInputManager::Instance()->InputTrigger(XINPUT_GAMEPAD_START) && !m_isChangeDisplayUI) {
+	if ((ControllerInputManager::Instance()->InputTrigger(XINPUT_GAMEPAD_START) || KeyBoradInputManager::Instance()->InputTrigger(DIK_ESCAPE)) && !m_isChangeDisplayUI) {
 		m_isChangeDisplayUI = true;
 
 		if (m_isDisplayUI) {
@@ -430,7 +430,7 @@ void OptionUI::Input()
 	const int DEADLINE = 30000;
 
 	//下方向に入力されたら
-	bool isInputDown = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::DOWN_SIDE, DEADLINE);
+	bool isInputDown = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::DOWN_SIDE, DEADLINE) || KeyBoradInputManager::Instance()->InputTrigger(DIK_DOWNARROW);
 	if (isInputDown && !m_prevInputDown) {
 
 		m_nowSelectHeadline = std::clamp(m_nowSelectHeadline + 1, 0, static_cast<int>(m_headlines.size()) - 1);
@@ -439,7 +439,7 @@ void OptionUI::Input()
 
 	}
 	//上方向に入力されたら
-	bool isInputUp = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::UP_SIDE, DEADLINE);
+	bool isInputUp = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::UP_SIDE, DEADLINE) || KeyBoradInputManager::Instance()->InputTrigger(DIK_UPARROW);
 	if (isInputUp && !m_prevInputUp) {
 
 		m_nowSelectHeadline = std::clamp(m_nowSelectHeadline - 1, 0, static_cast<int>(m_headlines.size()) - 1);
@@ -449,7 +449,7 @@ void OptionUI::Input()
 	}
 
 	//右方向に入力されたら
-	bool isInputRight = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::RIGHT_SIDE, DEADLINE);
+	bool isInputRight = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::RIGHT_SIDE, DEADLINE) || KeyBoradInputManager::Instance()->InputTrigger(DIK_RIGHTARROW);
 	if (isInputRight && !m_prevInputRight) {
 
 		++m_optionDetails[m_nowSelectHeadline].m_selectID;
@@ -459,7 +459,7 @@ void OptionUI::Input()
 	}
 
 	//左方向に入力されたら
-	bool isInputLeft = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::LEFT_SIDE, DEADLINE);
+	bool isInputLeft = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::LEFT_SIDE, DEADLINE) || KeyBoradInputManager::Instance()->InputTrigger(DIK_LEFTARROW);
 	if (isInputLeft && !m_prevInputLeft) {
 
 		--m_optionDetails[m_nowSelectHeadline].m_selectID;
@@ -481,10 +481,10 @@ OptionUI::OptionHeadline::OptionHeadline(std::string arg_headline, KazMath::Vec2
 {
 
 	m_name.m_string = arg_headline;
-	for (auto& index : m_name.m_render) {
+	for (auto &index : m_name.m_render) {
 		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	}
-	for (auto& index : m_name.m_color) {
+	for (auto &index : m_name.m_color) {
 		index = KazMath::Color(0, 255, 0, 255);
 	}
 
@@ -495,10 +495,10 @@ OptionUI::OptionDetails::OptionDetails(std::string arg_name, std::vector<DrawStr
 {
 
 	m_name.m_string = arg_name;
-	for (auto& index : m_name.m_render) {
+	for (auto &index : m_name.m_render) {
 		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	}
-	for (auto& index : m_name.m_color) {
+	for (auto &index : m_name.m_color) {
 		index = KazMath::Color(0, 255, 0, 255);
 	}
 
@@ -506,10 +506,10 @@ OptionUI::OptionDetails::OptionDetails(std::string arg_name, std::vector<DrawStr
 	m_selectName.resize(SELECT_COUNT);
 	for (int index = 0; index < SELECT_COUNT; ++index) {
 		m_selectName[index].m_string = arg_selectName[index].m_string;
-		for (auto& index : m_selectName[index].m_render) {
+		for (auto &index : m_selectName[index].m_render) {
 			index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 		}
-		for (auto& index : m_selectName[index].m_color) {
+		for (auto &index : m_selectName[index].m_color) {
 			index = KazMath::Color(0, 255, 0, 255);
 		}
 	}
