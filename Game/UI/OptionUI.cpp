@@ -32,12 +32,14 @@ void OptionUI::Setting()
 	m_headlines.emplace_back(OptionHeadline("RAYTRACING", KazMath::Vec2<float>(0, 0), 32.0f, RAYTRACING));
 	m_headlines.emplace_back(OptionHeadline("TIMEZONE", KazMath::Vec2<float>(0, 0), 32.0f, TIMEZONE));
 	m_headlines.emplace_back(OptionHeadline("SEA", KazMath::Vec2<float>(0, 0), 32.0f, SEA));
+	m_headlines.emplace_back(OptionHeadline("EXIT", KazMath::Vec2<float>(0, 0), 32.0f, EXIT));
 	m_optionUI.emplace_back(OptionHeadline("OPTION", KazMath::Vec2<float>(0, 0), OPTION_FONTSIZE, 0));
 
 	//オプション詳細を設定。
 	m_optionDetails.emplace_back(OptionDetails("DEBUG", { DrawStringData("OFF"),DrawStringData("ON") }, KazMath::Vec2<float>(), RAYTRACING));
 	m_optionDetails.emplace_back(OptionDetails("TIME", { DrawStringData("NOON"),DrawStringData("EVENING") }, KazMath::Vec2<float>(), TIMEZONE));
 	m_optionDetails.emplace_back(OptionDetails("STATE", { DrawStringData("A"),DrawStringData("B"),DrawStringData("C") }, KazMath::Vec2<float>(), SEA));
+	m_optionDetails.emplace_back(OptionDetails("", { DrawStringData("") }, KazMath::Vec2<float>(), EXIT));
 
 	//背景をロード
 	m_backGroundTexture = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/white.png");
@@ -73,6 +75,7 @@ void OptionUI::Setting()
 	m_isDisplayUI = false;
 	m_isChangeDisplayUI = false;
 	m_isRaytracingDebug = false;
+	m_isExit = false;
 
 
 	m_doneSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/done.wav");
@@ -114,6 +117,13 @@ void OptionUI::Update()
 
 		//選択している詳細のIDを反映。
 		SeaEffect::Instance()->m_seaID = m_optionDetails[SEA].m_selectID;
+
+		break;
+	}
+	case EXIT:
+	{
+
+		//EXITが選ばれている状態！
 
 		break;
 	}
@@ -474,6 +484,17 @@ void OptionUI::Input()
 	m_prevInputUp = isInputUp;
 	m_prevInputRight = isInputRight;
 	m_prevInputLeft = isInputLeft;
+
+	//EXIT状態だったら。
+	m_isExit = false;
+	if (m_nowSelectHeadline == EXIT) {
+
+		bool isInput = KeyBoradInputManager::Instance()->InputState(DIK_SPACE);
+		isInput |= ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_A);
+
+		m_isExit = isInput;
+
+	}
 }
 
 OptionUI::OptionHeadline::OptionHeadline(std::string arg_headline, KazMath::Vec2<float> arg_pos, float arg_fontSize, int arg_headlineID)

@@ -82,6 +82,7 @@ public:
 
 	//レイトレのデバッグのフラグ
 	bool m_isRaytracingDebug;
+	bool m_isExit;
 
 	//フォント配列
 	std::array<KazBufferHelper::BufferData, 26> m_font;
@@ -115,7 +116,8 @@ public:
 	enum DEBUG_NAME {
 		RAYTRACING,
 		TIMEZONE,
-		SEA
+		SEA,
+		EXIT,
 	};
 
 public:
