@@ -51,7 +51,7 @@ public:
 
 	void Generate(const KazMath::Vec3<float>* arg_refPlayerPoint, shared_ptr<IEnemy> arg_refEnemy, std::array<std::shared_ptr<IEnemy>, 7> arg_refOtherEnemy);
 
-	void Update(std::array<bool, 8>& arg_hitArray, int* arg_hitNum);
+	void Update(std::array<bool, 16>& arg_hitArray, int* arg_hitNum);
 	
 	void Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec);
 
