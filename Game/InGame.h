@@ -176,6 +176,7 @@ private:
 	KazBufferHelper::BufferData m_infomationTex;
 	int m_guideTimer;
 	float m_guideAlphaTimer;
+	bool m_isStartFlag;
 
 	//‘€ì•û–@
 	DrawFuncData::DrawCallData m_guideUI;

@@ -10,6 +10,7 @@
 #include"Effect/SeaEffect.h"
 #include"Effect/ShakeMgr.h"
 #include"../Game/Effect/TimeZone.h"
+#include"../Game/UI/OptionUI.h"
 
 InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX>& arg_responeData, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>& arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX>& BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX>& CAMERA_ARRAY) :
 	m_stageArray(arg_stageArray), m_responeData(arg_responeData), m_sceneNum(-1)
@@ -134,6 +135,7 @@ void InGame::Init(bool SKIP_FLAG)
 	m_guideTimer = 0;
 	m_guideAlphaTimer = 0.0f;
 	m_appearGuideFlag = true;
+	m_isStartFlag = false;
 }
 
 void InGame::Finalize()
@@ -195,6 +197,11 @@ void InGame::Input()
 	if (input->InputTrigger(DIK_I) || cInput->InputTrigger(XINPUT_GAMEPAD_START))
 	{
 		m_appearGuideFlag = !m_appearGuideFlag;
+	}
+
+	if (input->InputTrigger(DIK_SPACE))
+	{
+		m_guideTimer = 60 * 3;
 	}
 
 
@@ -614,6 +621,12 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 			Rate(&m_guideAlphaTimer, 0.01f, 1.0f);
 			alpha = 255.0f - EasingMaker(Out, Cubic, m_guideAlphaTimer) * 255.0f;
 		}
+		if (!m_isStartFlag && alpha <= 0.0f)
+		{
+			OptionUI::Instance()->m_optionDetails[OptionUI::RAYTRACING].m_selectID = false;
+			m_isStartFlag = true;
+		}
+
 		KazMath::Color color = KazMath::Color(255, 255, 255, static_cast<int>(alpha));
 		KazMath::Transform2D transform;
 		transform.pos = KazMath::Vec2<float>(1280.0f / 2.0f, 720.0f / 2.0f);

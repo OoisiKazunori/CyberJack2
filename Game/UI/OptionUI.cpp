@@ -82,7 +82,7 @@ void OptionUI::Setting()
 	m_prevInputLeft = false;
 	m_isDisplayUI = false;
 	m_isChangeDisplayUI = false;
-	m_isRaytracingDebug = true;
+	m_isRaytracingDebug = false;
 	m_isExit = false;
 
 
@@ -94,6 +94,8 @@ void OptionUI::Setting()
 
 	m_selectSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/select.wav");
 	m_selectSE.volume = 0.01f;
+
+	m_optionDetails[RAYTRACING].m_selectID = 1;
 }
 
 void OptionUI::Update()
@@ -238,7 +240,7 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate)
 
 				//トランスフォームを用意。
 				KazMath::Transform2D transform;
-				transform.pos = KazMath::Vec2<float>(1280.0f - OPTION_FONTSIZE * 2.0f, 720.0f - OPTION_FONTSIZE);
+				transform.pos = KazMath::Vec2<float>(1280.0f - OPTION_FONTSIZE * 2.0f, OPTION_FONTSIZE);
 				transform.pos.x += OPTION_FONTSIZE * (index);
 				transform.scale.x = OPTION_FONTSIZE;
 				transform.scale.y = OPTION_FONTSIZE;
@@ -263,7 +265,7 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate)
 
 				//トランスフォームを用意。
 				KazMath::Transform2D transform;
-				transform.pos = KazMath::Vec2<float>(OPTION_FONTSIZE * 1.0f, 720.0f - OPTION_FONTSIZE);
+				transform.pos = KazMath::Vec2<float>(OPTION_FONTSIZE * 1.0f, OPTION_FONTSIZE);
 				transform.pos.x += OPTION_FONTSIZE * (index);
 				transform.scale.x = OPTION_FONTSIZE;
 				transform.scale.y = OPTION_FONTSIZE;
