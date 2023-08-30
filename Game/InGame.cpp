@@ -6,6 +6,7 @@
 #include"../KazLibrary/Loader/MeshParticleLoader.h"
 #include"PostEffect/Outline.h"
 #include"Effect/EnemyDissolveParam.h"
+#include"../Game/Effect/TimeZone.h"
 
 InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX>& arg_responeData, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>& arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX>& BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX>& CAMERA_ARRAY) :
 	m_stageArray(arg_stageArray), m_responeData(arg_responeData), m_sceneNum(-1)
@@ -178,10 +179,12 @@ void InGame::Input()
 		rightFlag = true;
 	}
 
-	if (input->InputTrigger(DIK_O))
+
+	if (ControllerInputManager::Instance()->InputTrigger(XINPUT_GAMEPAD_B) || KeyBoradInputManager::Instance()->InputTrigger(DIK_RETURN))
 	{
-		bool debug = false;
+		TimeZone::Instance()->m_timeZone = !TimeZone::Instance()->m_timeZone;
 	}
+
 
 	KazMath::Vec2<float> joyStick;
 	joyStick.x = cInput->GetJoyStickLXNum(0) / 32767.0f;
@@ -203,6 +206,7 @@ void InGame::Input()
 
 void InGame::Update()
 {
+
 #pragma region ìGÇÃê∂ê¨èàóù
 	KazEnemyHelper::AddEnemy(m_enemies, m_responeData, addEnemiesHandle, m_gameFlame, m_gameStageLevel);
 

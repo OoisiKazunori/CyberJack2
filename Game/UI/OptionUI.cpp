@@ -416,7 +416,7 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate)
 	}
 
 	//ëÄçÏ
-	if (m_isDisplayUI || m_isChangeDisplayUI)
+	if (m_isDisplayUI && !m_isChangeDisplayUI)
 	{
 		KazMath::Color color = KazMath::Color(255, 255, 255, 255);
 		KazMath::Transform2D transform;
@@ -425,7 +425,7 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate)
 		DrawFunc::DrawTextureIn2D(m_guideUI, transform, m_guideTex, color);
 		arg_rasterize.ObjectRender(m_guideUI);
 	}
-	if (m_isDisplayUI && m_nowSelectHeadline == RAYTRACING && m_isRaytracingDebug == 1)
+	if (m_isDisplayUI && m_nowSelectHeadline == RAYTRACING && m_isRaytracingDebug == 1 && !m_isChangeDisplayUI)
 	{
 		KazMath::Color color = KazMath::Color(255, 255, 255, 255);
 		KazMath::Transform2D transform;
