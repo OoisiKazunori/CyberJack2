@@ -12,7 +12,7 @@
 #include"../Game/Effect/TimeZone.h"
 #include"../Game/UI/OptionUI.h"
 
-InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX>& arg_responeData, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>& arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX>& BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX>& CAMERA_ARRAY) :
+InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> &arg_responeData, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX> &arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX> &BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX> &CAMERA_ARRAY) :
 	m_stageArray(arg_stageArray), m_responeData(arg_responeData), m_sceneNum(-1)
 {
 	KazEnemyHelper::GenerateEnemy(m_enemies, m_responeData, enemiesHandle, m_enemyHitBoxArray);
@@ -106,7 +106,7 @@ void InGame::Init(bool SKIP_FLAG)
 	}
 
 	std::array<bool, 10>flagArray;
-	for (auto& obj : flagArray)
+	for (auto &obj : flagArray)
 	{
 		obj = false;
 	}
@@ -145,8 +145,8 @@ void InGame::Finalize()
 
 void InGame::Input()
 {
-	KeyBoradInputManager* input = KeyBoradInputManager::Instance();
-	ControllerInputManager* cInput = ControllerInputManager::Instance();
+	KeyBoradInputManager *input = KeyBoradInputManager::Instance();
+	ControllerInputManager *cInput = ControllerInputManager::Instance();
 
 	m_player.Input();
 
@@ -197,6 +197,11 @@ void InGame::Input()
 	if (input->InputTrigger(DIK_SPACE))
 	{
 		m_guideTimer = 60 * 3;
+	}
+
+	if (input->InputTrigger(DIK_SPACE) || cInput->InputTrigger(XINPUT_GAMEPAD_Y))
+	{
+		TimeZone::Instance()->m_timeZone = !TimeZone::Instance()->m_timeZone;
 	}
 
 
@@ -253,7 +258,7 @@ void InGame::Update()
 			bool enableToUseDataFlag = m_enemies[enemyType][enemyCount] != nullptr && m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->initFlag;
 			if (enableToUseDataFlag)
 			{
-				EnemyData* enemyData = m_enemies[enemyType][enemyCount]->GetData().get();
+				EnemyData *enemyData = m_enemies[enemyType][enemyCount]->GetData().get();
 
 				bool enableToLockOnNumFlag = m_cursor.LockOn();
 				bool enableToLockOnEnemyFlag = m_enemies[enemyType][enemyCount]->IsAlive() && !m_enemies[enemyType][enemyCount]->LockedOrNot();
@@ -300,7 +305,7 @@ void InGame::Update()
 			bool enableToUseDataFlag = m_enemies[enemyType][enemyCount] != nullptr && m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->initFlag;
 			if (enableToUseDataFlag)
 			{
-				EnemyData* enemyData = m_enemies[enemyType][enemyCount]->GetData().get();
+				EnemyData *enemyData = m_enemies[enemyType][enemyCount]->GetData().get();
 
 				/*for (int i = 0; i < lineEffectArrayData.size(); ++i)
 				{
@@ -532,7 +537,7 @@ void InGame::Update()
 	if (180 == m_notMoveTimer)
 	{
 		std::array<bool, 10>flagArray;
-		for (auto& obj : flagArray)
+		for (auto &obj : flagArray)
 		{
 			obj = false;
 		}
@@ -602,7 +607,7 @@ void InGame::Update()
 
 }
 
-void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
+void InGame::Draw(DrawingByRasterize &arg_rasterize, Raytracing::BlasVector &arg_blasVec)
 {
 
 	PlayerShotEffectMgr::Instance()->Draw(arg_rasterize, arg_blasVec);
@@ -654,7 +659,7 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	{
 		KazMath::Color color = KazMath::Color(255, 255, 255, 255);
 		KazMath::Transform2D transform;
-		transform.scale = KazMath::Vec2<float>(338.0f, 162.0f);
+		transform.scale = KazMath::Vec2<float>(static_cast<float>(m_guideTex.bufferWrapper->GetBuffer()->GetDesc().Width), static_cast<float>(m_guideTex.bufferWrapper->GetBuffer()->GetDesc().Height));
 
 		float posY = 0.0f;
 		if (m_appearGuideFlag)
@@ -706,7 +711,7 @@ int InGame::SceneChange()
 	return SCENE_NONE;
 }
 
-void InGame::BufferStatesTransition(ID3D12Resource* arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after)
+void InGame::BufferStatesTransition(ID3D12Resource *arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after)
 {
 	D3D12_RESOURCE_BARRIER barriers[] = {
 	CD3DX12_RESOURCE_BARRIER::Transition(
