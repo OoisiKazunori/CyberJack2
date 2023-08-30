@@ -66,11 +66,6 @@ private:
 
 	const float VIRUS_SCALE = 2.0f;
 
-	//è’åÇîg
-	float m_shockWaveTimer;
-	const float SHOCK_WAVE_TIMER = 60.0f;
-	const float SHOCK_WAVE_RAIDUS = 100.0f;
-
 	const KazMath::Vec4<float> OUTLINE_COLOR = KazMath::Vec4<float>(0.35f, 0.91f, 0.55f, 1.0f);
 	//const KazMath::Vec4<float> OUTLINE_COLOR = KazMath::Vec4<float>(0.95f, 0.91f, 0.95f, 1.0f);
 

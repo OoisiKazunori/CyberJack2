@@ -96,6 +96,9 @@ void VirusEnemy::Init(const KazMath::Transform3D* arg_playerTransform, const Ene
 	}
 
 	m_initDeadParticleFlag = false;
+
+
+	m_shockWaveTimer = 1;
 }
 
 void VirusEnemy::Finalize()
@@ -323,15 +326,6 @@ void VirusEnemy::Update()
 
 		iEnemy_EnemyStatusData->curlNozieFlag = true;
 
-		m_shockWaveTimer = std::clamp(m_shockWaveTimer + 1.0f, 0.0f, SHOCK_WAVE_TIMER);
-
-		//イージングを計算。
-		float easing = EasingMaker(EasingType::Out, EaseInType::Cubic, m_shockWaveTimer / SHOCK_WAVE_TIMER);
-
-		ShockWave::Instance()->m_shockWave[moveID].m_pos = m_basePos;
-		ShockWave::Instance()->m_shockWave[moveID].m_radius = easing * SHOCK_WAVE_RAIDUS;
-		ShockWave::Instance()->m_shockWave[moveID].m_power = (1.0f - easing);
-
 		if (0.94f <= m_deadEffectData.m_dissolve.a && !m_initDeadParticleFlag)
 		{
 			m_deadParticle->InitCompute(m_transform.pos, 350);
@@ -355,6 +349,14 @@ void VirusEnemy::Update()
 	default:
 		break;
 	}
+
+	//衝撃波の計算
+	m_shockWaveTimer = std::clamp(m_shockWaveTimer + 1.0f, 0.0f, SHOCK_WAVE_TIMER);
+	//イージングを計算。
+	float easing = EasingMaker(EasingType::Out, EaseInType::Cubic, m_shockWaveTimer / SHOCK_WAVE_TIMER);
+	ShockWave::Instance()->m_shockWave[moveID].m_pos = m_basePos;
+	ShockWave::Instance()->m_shockWave[moveID].m_radius = easing * SHOCK_WAVE_RAIDUS;
+	ShockWave::Instance()->m_shockWave[moveID].m_power = (1.0f - easing);
 
 	//衝撃波で動かす。
 	m_basePos += m_shockWaveVel;
