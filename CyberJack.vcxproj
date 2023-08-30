@@ -142,6 +142,7 @@
     <ClCompile Include="Game\Effect\PortalIntermediateDirection.cpp" />
     <ClCompile Include="Game\Effect\RocketEffect.cpp" />
     <ClCompile Include="Game\Effect\RocketLightEffect.cpp" />
+    <ClCompile Include="Game\Effect\SeaEffect.cpp" />
     <ClCompile Include="Game\Effect\SearchLight.cpp" />
     <ClCompile Include="Game\Effect\ShockWave.cpp" />
     <ClCompile Include="Game\Effect\SparkEmitter.cpp" />

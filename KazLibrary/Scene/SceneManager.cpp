@@ -28,18 +28,21 @@
 
 SceneManager::SceneManager() :gameFirstInitFlag(false)
 {
+
+	//デモ用のゲームシーンを設定。
 	scene.emplace_back(std::make_unique<GameScene>());
 
+	//シーン遷移を設定
+	change = std::make_unique<ChangeScene::SceneChange>();
+
+	//シーン番号、遷移に関するパラメーターを設定。
 	nowScene = 0;
 	nextScene = 0;
 	itisInArrayFlag = true;
 	endGameFlag = false;
 	initGameFlag = false;
-	m_raytracingFlag = true;
 
-	change = std::make_unique<ChangeScene::SceneChange>();
-
-
+	//レイトレーシング周りを設定
 	Raytracing::HitGroupMgr::Instance()->Setting();
 	m_pipelineShaders.push_back({ "Resource/ShaderFiles/RayTracing/RaytracingShader.hlsl", {L"mainRayGen"}, {L"mainMS", L"shadowMS", L"checkHitRayMS"}, {L"mainCHS", L"mainAnyHit"} });
 	int payloadSize = sizeof(float) * 7;
@@ -89,7 +92,6 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_raymarchingParam.m_gridSize = 4.0f;
 	m_raymarchingParam.m_wrapCount = 30.0f;
 	m_raymarchingParam.m_density = 0.65f;
-	//m_raymarchingParam.m_density = 1.0f;
 	m_raymarchingParam.m_sampleLength = 8.0f;
 	m_raymarchingParam.m_isSimpleFog = 0;
 	m_raymarchingParam.m_isActive = false;
@@ -115,7 +117,6 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	StopMgr::Instance()->m_isMoveOnly1F = false;
 	TimeZone::Instance()->m_isSkyEffect = false;
 	SeaEffect::Instance()->m_isSeaEffect = false;
-	SeaEffect::Instance()->m_seaID = SEA_ID::CALM;
 
 	TimeZone::Instance()->m_timeZone = 0;
 	m_debugRaytracingParam.m_skyFacter = 1.0f;
@@ -123,20 +124,14 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	//OnOffデバッグ用のパラメーターを用意。
 	m_rayPipeline->SetDebugOnOffConstData(&m_debugRaytracingParamData);
 
-
-	m_debugSeaParam.m_freq = 0.16f;
-	m_debugSeaParam.m_amp = 0.6f;
-	m_debugSeaParam.m_choppy = 4.0f;
-	m_debugSeaParam.m_seaSpeed = 5.8f;
-	m_debugSeaParamData = KazBufferHelper::SetConstBufferData(sizeof(DebugSeaParam));
-	m_debugSeaParamData.bufferWrapper->TransData(&m_debugSeaParam, sizeof(DebugSeaParam));
-	m_rayPipeline->SetDebugSeaConstData(&m_debugSeaParamData);
+	SeaEffect::Instance()->Setting();
+	m_rayPipeline->SetDebugSeaConstData(&SeaEffect::Instance()->m_debugSeaParamData);
 
 	ShockWave::Instance()->Setting();
 
 	OptionUI::Instance()->Setting();
 
-	//EnemyDissolveParam::Instance()->Setting();
+	EnemyDissolveParam::Instance()->Setting();
 
 	SoundManager::Instance()->SettingSoundManager();
 
@@ -149,7 +144,6 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 
 SceneManager::~SceneManager()
 {
-	//SoundManager::Instance()->Finalize();
 }
 
 void SceneManager::Update()
@@ -263,13 +257,13 @@ void SceneManager::Update()
 			ControllerInputManager::Instance()->InputStickState(ControllerStickSide::RIGHT_STICK, ControllerSide::RIGHT_SIDE) ||
 			ControllerInputManager::Instance()->InputShoulderState(ControllerShoulderSide::RIGHT_SHOULDER) ||
 			ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_DPAD_RIGHT) ||
-			ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_RIGHT_THUMB)||
+			ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_RIGHT_THUMB) ||
 			KeyBoradInputManager::Instance()->InputState(DIK_E);
 		bool leftFLag =
 			ControllerInputManager::Instance()->InputStickState(ControllerStickSide::RIGHT_STICK, ControllerSide::LEFT_SIDE) ||
 			ControllerInputManager::Instance()->InputShoulderState(ControllerShoulderSide::LEFT_SHOULDER) ||
 			ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_DPAD_LEFT) ||
-			ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_LEFT_THUMB)||
+			ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_LEFT_THUMB) ||
 			KeyBoradInputManager::Instance()->InputState(DIK_Q);
 
 		m_debugRaytracingParam.m_sliderRate += rightFLag * STICK_SPEED;
@@ -290,7 +284,8 @@ void SceneManager::Update()
 	TimeZone::Instance()->Update();
 
 	ShockWave::Instance()->Update();
-	//EnemyDissolveParam::Instance()->Update();
+
+	EnemyDissolveParam::Instance()->Update();
 
 	m_isOldDebugRaytracing = OptionUI::Instance()->m_isRaytracingDebug;
 
@@ -298,7 +293,6 @@ void SceneManager::Update()
 
 
 	//デバッグ用の値の更新処理
-
 	m_debugRaytracingParamData.bufferWrapper->TransData(&m_debugRaytracingParam, sizeof(DebugRaytracingParam));
 
 	//選択されている値によってDirLightの角度を変える。
@@ -317,49 +311,7 @@ void SceneManager::Update()
 		m_debugRaytracingParam.m_skyFacter += (1.0f - m_debugRaytracingParam.m_skyFacter) / 5.0f;
 	}
 
-	const float CALM_SEA_AMP = 0.02f;
-	const float CALM_SEA_FREQ = 0.16f;
-
-	const float NORMAL_SEA_AMP = 0.6f;
-	const float NORMAL_SEA_FREQ = 0.16f;
-
-	const float STORMY_SEA_AMP = 2.8f;
-	const float STORMY_SEA_FREQ = 0.16f;
-	const float STORMY_SEA_SPEED = 10.0f;
-
-	const float EFFECT_FREQ = 0.01f;
-
-	const float SEA_SPEED = 5.8f;
-
-	//静かな海だったら
-	float baseAmp = 0.0f;
-	float baseFreq = 0.0f;
-	float baseSeaSpeed = SEA_SPEED;
-	if (SeaEffect::Instance()->m_seaID == SEA_ID::CALM) {
-		baseAmp = CALM_SEA_AMP;
-		baseFreq = CALM_SEA_FREQ;
-	}
-	else if (SeaEffect::Instance()->m_seaID == SEA_ID::NORMAL) {
-		baseAmp = NORMAL_SEA_AMP;
-		baseFreq = NORMAL_SEA_FREQ;
-	}
-	else if (SeaEffect::Instance()->m_seaID == SEA_ID::STORMY) {
-		baseAmp = STORMY_SEA_AMP;
-		baseFreq = STORMY_SEA_FREQ;
-		m_debugSeaParam.m_seaSpeed = SEA_SPEED;
-		//baseSeaSpeed = STORMY_SEA_SPEED;
-	}
-
-	if (!SeaEffect::Instance()->m_isOldSeaEffect && SeaEffect::Instance()->m_isSeaEffect && SeaEffect::Instance()->m_seaID == SEA_ID::CALM) {
-		m_debugSeaParam.m_amp += 0.4f;
-		m_debugSeaParam.m_freq += EFFECT_FREQ;
-		m_debugSeaParam.m_seaSpeed += 10.0f;
-	}
-	m_debugSeaParam.m_amp += (baseAmp - m_debugSeaParam.m_amp) / 8.0f;
-	m_debugSeaParam.m_freq += (baseFreq - m_debugSeaParam.m_freq) / 8.0f;
-	m_debugSeaParam.m_seaSpeed += (baseSeaSpeed - m_debugSeaParam.m_seaSpeed) / 20.0f;
-
-	m_debugSeaParamData.bufferWrapper->TransData(&m_debugSeaParam, sizeof(DebugSeaParam));
+	SeaEffect::Instance()->Update();
 
 	m_noiseParamData.bufferWrapper->TransData(&m_noiseParam, sizeof(NoiseParam));
 	m_raymarchingParamData.bufferWrapper->TransData(&m_raymarchingParam, sizeof(RaymarchingParam));
@@ -384,17 +336,13 @@ void SceneManager::Draw()
 	m_rasterize.Sort();
 	m_rasterize.Render();
 
-	if (m_raytracingFlag)
+	//Tlasを構築 or 再構築する。
+	m_tlas.Build(m_blasVector);
+	//レイトレ用のデータを構築。
+	m_rayPipeline->BuildShaderTable(m_blasVector);
+	if (m_blasVector.GetBlasRefCount() != 0)
 	{
-		//Tlasを構築 or 再構築する。
-		m_tlas.Build(m_blasVector);
-		//レイトレ用のデータを構築。
-		m_rayPipeline->BuildShaderTable(m_blasVector);
-		if (m_blasVector.GetBlasRefCount() != 0)
-		{
-			m_rayPipeline->TraceRay(m_tlas);
-		}
+		m_rayPipeline->TraceRay(m_tlas);
 	}
-
 
 }

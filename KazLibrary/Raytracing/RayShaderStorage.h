@@ -13,7 +13,7 @@ namespace Raytracing {
 	class RayShaderData;
 
 	/// <summary>
-	/// シェーダーデータ保存クラス レイトレ用に持ってきました。新しいエンジンではラスタライズで使ってるやつと統合させます。
+	/// シェーダーデータ保存クラス レイトレ用に持ってきました。
 	/// </summary>
 	class RayShaderStorage : public ISingleton<RayShaderStorage> {
 
