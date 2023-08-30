@@ -6,8 +6,11 @@
 #include"../KazLibrary/Loader/MeshParticleLoader.h"
 #include"PostEffect/Outline.h"
 #include"Effect/EnemyDissolveParam.h"
+#include"Effect/ShockWave.h"
+#include"Effect/SeaEffect.h"
+#include"Effect/ShakeMgr.h"
 
-InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> &arg_responeData, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX> &arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX> &BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX> &CAMERA_ARRAY) :
+InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX>& arg_responeData, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>& arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX>& BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX>& CAMERA_ARRAY) :
 	m_stageArray(arg_stageArray), m_responeData(arg_responeData), m_sceneNum(-1)
 {
 	KazEnemyHelper::GenerateEnemy(m_enemies, m_responeData, enemiesHandle, m_enemyHitBoxArray);
@@ -18,7 +21,12 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 	m_lockonSE.volume = 0.01f;
 
 	//Infomation
-	m_guideRender = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
+	DrawFuncData::PipelineGenerateData pipelineData = DrawFuncData::GetSpriteAlphaShader();
+	pipelineData.desc.DepthStencilState.DepthEnable = true;							//深度テストを行う
+	pipelineData.desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;//書き込み許可
+	pipelineData.desc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;		//小さければOK
+	pipelineData.desc.DSVFormat = DXGI_FORMAT_D32_FLOAT;							//深度値フォーマット
+	m_guideRender = DrawFuncData::SetSpriteAlphaData(pipelineData);
 	m_infomationTex = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/Guide/Infomation.png");
 
 	//操作ガイドのUI
@@ -26,10 +34,52 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 	m_guideTex = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/Guide/Guide.png");
 	//m_bloomModelRender = DrawFuncData::SetDrawGLTFIndexMaterialInRayTracingBloomData(*ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf"), DrawFuncData::GetModelBloomShader());
 
-	/*for (int i = 0; i < m_sponzaModel.size(); ++i)
-	{
-		m_sponzaModel[i] = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/Test/glTF/Sponza/", "Sponza.gltf"));
-	}*/
+	//for (int i = 0; i < m_sponzaModel.size(); ++i)
+	//{
+	//	m_sponzaModel[i] = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/Test/glTF/Sponza/", "Sponza.gltf"));
+	//}
+
+
+	m_hitSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/hit.wav");
+	m_hitSE.volume = 0.01f;
+
+	//右固め
+	m_responePatternArray[0][0] = { 50.0f,25.0f,50.0f };
+	m_responePatternArray[0][1] = { 30.0f,35.0f,75.0f };
+	m_responePatternArray[0][2] = { 25.0f,55.0f,100.0f };
+	//左固め
+	m_responePatternArray[0][3] = { -50.0f,25.0f,50.0f };
+	m_responePatternArray[0][4] = { -30.0f,35.0f,75.0f };
+	m_responePatternArray[0][6] = { -25.0f,55.0f,100.0f };
+	//真ん中
+	m_responePatternArray[0][5] = { 0.0f,25.0f,50.0f };
+	m_responePatternArray[0][7] = { 0.0f,60.0f,100.0f };
+
+
+	//右固め
+	m_responePatternArray[1][0] = { 50.0f,25.0f,50.0f };
+	m_responePatternArray[1][1] = { 50.0f,50.0f,75.0f };
+	m_responePatternArray[1][2] = { 50.0f,25.0f,100.0f };
+	//左固め
+	m_responePatternArray[1][3] = { -50.0f,25.0f,50.0f };
+	m_responePatternArray[1][4] = { -50.0f,50.0f,75.0f };
+	m_responePatternArray[1][5] = { -30.0f,25.0f,100.0f };
+	//真ん中
+	m_responePatternArray[1][6] = { 0.0f,25.0f,50.0f };
+	m_responePatternArray[1][7] = { 0.0f,70.0f,150.0f };
+
+
+	//右固め
+	m_responePatternArray[2][0] = { 25.0f,25.0f,50.0f };
+	m_responePatternArray[2][1] = { 45.0f,55.0f,75.0f };
+	m_responePatternArray[2][2] = { 65.0f,85.0f,95.0f };
+	//左固め
+	m_responePatternArray[2][3] = { -25.0f,25.0f,50.0f };
+	m_responePatternArray[2][4] = { -45.0f,55.0f,75.0f };
+	m_responePatternArray[2][5] = { -65.0f,85.0f,95.0f };
+	//真ん中
+	m_responePatternArray[2][6] = { 0.0f, 25.0f,50.0f };
+	m_responePatternArray[2][7] = { 0.0f, 75.0f,105.0f };
 }
 
 void InGame::Init(bool SKIP_FLAG)
@@ -46,6 +96,19 @@ void InGame::Init(bool SKIP_FLAG)
 
 	m_butterflyEnemyRespawnDelay = 0;
 
+
+	m_responePatternIndex = KazMath::Rand<size_t>(m_responePatternArray.size() - 1, 0);
+	if (m_responePatternArray.size() <= m_responePatternIndex)
+	{
+		m_responePatternIndex = 0;
+	}
+
+	std::array<bool, 10>flagArray;
+	for (auto& obj : flagArray)
+	{
+		obj = false;
+	}
+
 	//敵を全部生成しちゃう。
 	for (int enemyType = 0; enemyType < m_responeData.size(); ++enemyType)
 	{
@@ -53,10 +116,9 @@ void InGame::Init(bool SKIP_FLAG)
 		{
 			if (!m_enemies[enemyType][enemyCount]) continue;
 
+			size_t index(GetRespownPattern(flagArray));
 			//出現場所をランダムにする。
-			m_responeData[enemyType][enemyCount].generateData.initPos.x = KazMath::Rand(-50.0f, 50.0f);
-			m_responeData[enemyType][enemyCount].generateData.initPos.y = KazMath::Rand(0.0f, 50.0f);
-			m_responeData[enemyType][enemyCount].generateData.initPos.z = KazMath::Rand(30.0f, 90.0f);
+			m_responeData[enemyType][enemyCount].generateData.initPos = m_responePatternArray[m_responePatternIndex][index];
 
 			m_enemies[enemyType][enemyCount]->OnInit(m_responeData[enemyType][enemyCount].generateData.useMeshPaticleFlag);
 			m_enemies[enemyType][enemyCount]->Init(&(m_player.m_transform), m_responeData[enemyType][enemyCount].generateData, false);
@@ -80,8 +142,8 @@ void InGame::Finalize()
 
 void InGame::Input()
 {
-	KeyBoradInputManager *input = KeyBoradInputManager::Instance();
-	ControllerInputManager *cInput = ControllerInputManager::Instance();
+	KeyBoradInputManager* input = KeyBoradInputManager::Instance();
+	ControllerInputManager* cInput = ControllerInputManager::Instance();
 
 	m_player.Input();
 
@@ -166,20 +228,8 @@ void InGame::Update()
 
 			if (enableToUseThisDataFlag && readyToStartFlag && m_enemies[enemyType][enemyCount] != nullptr && !m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->initFlag)
 			{
-
-
-				//出現場所をランダムにする。
-				m_responeData[enemyType][enemyCount].generateData.initPos.x = KazMath::Rand(-50.0f, 50.0f);
-				m_responeData[enemyType][enemyCount].generateData.initPos.y = KazMath::Rand(0.0f, 50.0f);
-				m_responeData[enemyType][enemyCount].generateData.initPos.z = KazMath::Rand(30.0f, 90.0f);
-
 				m_enemies[enemyType][enemyCount]->OnInit(m_responeData[enemyType][enemyCount].generateData.useMeshPaticleFlag);
 				m_enemies[enemyType][enemyCount]->Init(&(m_player.m_transform), m_responeData[enemyType][enemyCount].generateData, false);
-
-				if (m_enemies[enemyType][enemyCount]->GetData()->meshParticleFlag)
-				{
-					continue;
-				}
 			}
 		}
 	}
@@ -194,7 +244,7 @@ void InGame::Update()
 			bool enableToUseDataFlag = m_enemies[enemyType][enemyCount] != nullptr && m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->initFlag;
 			if (enableToUseDataFlag)
 			{
-				EnemyData *enemyData = m_enemies[enemyType][enemyCount]->GetData().get();
+				EnemyData* enemyData = m_enemies[enemyType][enemyCount]->GetData().get();
 
 				bool enableToLockOnNumFlag = m_cursor.LockOn();
 				bool enableToLockOnEnemyFlag = m_enemies[enemyType][enemyCount]->IsAlive() && !m_enemies[enemyType][enemyCount]->LockedOrNot();
@@ -241,7 +291,7 @@ void InGame::Update()
 			bool enableToUseDataFlag = m_enemies[enemyType][enemyCount] != nullptr && m_enemies[enemyType][enemyCount]->GetData()->oprationObjData->initFlag;
 			if (enableToUseDataFlag)
 			{
-				EnemyData *enemyData = m_enemies[enemyType][enemyCount]->GetData().get();
+				EnemyData* enemyData = m_enemies[enemyType][enemyCount]->GetData().get();
 
 				/*for (int i = 0; i < lineEffectArrayData.size(); ++i)
 				{
@@ -472,11 +522,26 @@ void InGame::Update()
 
 	if (180 == m_notMoveTimer)
 	{
-		/*for (int enemyType = 0; enemyType < m_responeData.size(); ++enemyType)
+		std::array<bool, 10>flagArray;
+		for (auto& obj : flagArray)
+		{
+			obj = false;
+		}
+		++m_responePatternIndex;
+		if (m_responePatternArray.size() <= m_responePatternIndex)
+		{
+			m_responePatternIndex = 0;
+		}
+
+		for (int enemyType = 0; enemyType < m_responeData.size(); ++enemyType)
 		{
 			for (int enemyCount = 0; enemyCount < m_responeData[enemyType].size(); ++enemyCount)
 			{
 				if (!m_enemies[enemyType][enemyCount]) continue;
+
+				size_t index(GetRespownPattern(flagArray));
+				//出現場所をランダムにする。
+				m_responeData[enemyType][enemyCount].generateData.initPos = m_responePatternArray[m_responePatternIndex][index];
 
 				m_enemies[enemyType][enemyCount]->OnInit(m_responeData[enemyType][enemyCount].generateData.useMeshPaticleFlag);
 				m_enemies[enemyType][enemyCount]->Init(&(m_player.m_transform), m_responeData[enemyType][enemyCount].generateData, false);
@@ -492,7 +557,7 @@ void InGame::Update()
 		{
 			m_stageArray[m_gameStageLevel]->hitFlag[i] = false;
 		}
-		m_lightIndex = 0;*/
+		m_lightIndex = 0;
 	}
 	else
 	{
@@ -509,9 +574,26 @@ void InGame::Update()
 	{
 		m_gameFlame = 0;
 	}
+
+
+	//無理やり衝撃波を出す。
+	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_RETURN) || ControllerInputManager::Instance()->InputTrigger(XINPUT_GAMEPAD_B)) {
+
+		//ランダムで敵を選択して衝撃波を出す。
+		int randomEnemy = KazMath::Rand(0, 7);
+
+		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
+		SeaEffect::Instance()->m_isSeaEffect = true;
+		ShockWave::Instance()->m_shockWave[randomEnemy].m_isActive = true;
+		ShockWave::Instance()->m_shockWave[randomEnemy].m_power = 1.0f;
+		ShockWave::Instance()->m_shockWave[randomEnemy].m_radius = 0.0f;
+		m_enemies[ENEMY_TYPE_VIRUS][randomEnemy]->m_shockWaveTimer = 0;
+		SoundManager::Instance()->SoundPlayerWave(m_hitSE, 0);
+	}
+
 }
 
-void InGame::Draw(DrawingByRasterize &arg_rasterize, Raytracing::BlasVector &arg_blasVec)
+void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)
 {
 
 	PlayerShotEffectMgr::Instance()->Draw(arg_rasterize, arg_blasVec);
@@ -592,10 +674,10 @@ void InGame::Draw(DrawingByRasterize &arg_rasterize, Raytracing::BlasVector &arg
 	//ImGui::Checkbox("Debug", &m_debugFlag);
 	//ImGui::End();
 
-	/*for (int i = 0; i < m_sponzaModel.size(); ++i)
-	{
-		arg_rasterize.ObjectRender(m_sponzaModel[i]);
-	}*/
+	//for (int i = 0; i < m_sponzaModel.size(); ++i)
+	//{
+	//	arg_rasterize.ObjectRender(m_sponzaModel[i]);
+	//}
 }
 
 int InGame::SceneChange()
@@ -609,7 +691,7 @@ int InGame::SceneChange()
 	return SCENE_NONE;
 }
 
-void InGame::BufferStatesTransition(ID3D12Resource *arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after)
+void InGame::BufferStatesTransition(ID3D12Resource* arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after)
 {
 	D3D12_RESOURCE_BARRIER barriers[] = {
 	CD3DX12_RESOURCE_BARRIER::Transition(

@@ -216,4 +216,9 @@ public:
 	KazMath::Vec3<float> m_deadEffectVel;
 	KazMath::Vec3<float> m_shockWaveVel;
 
+	//è’åÇîg
+	float m_shockWaveTimer;
+	const float SHOCK_WAVE_TIMER = 60.0f;
+	const float SHOCK_WAVE_RAIDUS = 100.0f;
+
 };

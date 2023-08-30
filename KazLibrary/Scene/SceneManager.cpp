@@ -257,16 +257,6 @@ void SceneManager::Update()
 	//デバッグ実行中はOnOffのラインをつかんで動かせるようにする。
 	if (OptionUI::Instance()->m_isRaytracingDebug) {
 
-		//左クリックしていたら。
-		bool isMouseLeftClick = KeyBoradInputManager::Instance()->MouseInputState(MOUSE_INPUT_LEFT);
-		if (isMouseLeftClick) {
-
-			//マウスの移動量を保存して動かす。
-			m_debugRaytracingParam.m_sliderRate = KeyBoradInputManager::Instance()->GetMousePoint().x;
-			m_debugRaytracingParam.m_sliderRate = std::clamp(m_debugRaytracingParam.m_sliderRate, 0.0f, 1280.0f);
-
-		}
-
 		//左スティックでも動かせる。
 		const float STICK_SPEED = 10.0f;
 		bool rightFLag =
@@ -383,9 +373,9 @@ void SceneManager::Draw()
 {
 	change->Draw(m_rasterize);
 
-	//IUを描画
-	OptionUI::Instance()->Draw(m_rasterize, m_debugRaytracingParam.m_sliderRate);
 
+	//UIを描画
+	OptionUI::Instance()->Draw(m_rasterize, m_debugRaytracingParam.m_sliderRate);
 	if (itisInArrayFlag)
 	{
 		scene[nowScene]->Draw(m_rasterize, m_blasVector);

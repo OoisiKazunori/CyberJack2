@@ -15,7 +15,7 @@ void OptionUI::Setting()
 	int counter = 97; //97は"a"
 	std::string path = "Resource/UI/Font/";
 	std::string extension = ".png";
-	for (auto &index : m_font) {
+	for (auto& index : m_font) {
 
 		//ロードするファイルの文字列を取得。
 		std::string filePath = path;
@@ -36,7 +36,7 @@ void OptionUI::Setting()
 	m_optionUI.emplace_back(OptionHeadline("OPTION", KazMath::Vec2<float>(0, 0), OPTION_FONTSIZE, 0));
 
 	//オプション詳細を設定。
-	m_optionDetails.emplace_back(OptionDetails("DEBUG", { DrawStringData("OFF"),DrawStringData("ON") }, KazMath::Vec2<float>(), RAYTRACING));
+	m_optionDetails.emplace_back(OptionDetails("DEBUG", { DrawStringData("ON"),DrawStringData("OFF") }, KazMath::Vec2<float>(), RAYTRACING));
 	m_optionDetails.emplace_back(OptionDetails("TIME", { DrawStringData("NOON"),DrawStringData("EVENING") }, KazMath::Vec2<float>(), TIMEZONE));
 	m_optionDetails.emplace_back(OptionDetails("STATE", { DrawStringData("A"),DrawStringData("B"),DrawStringData("C") }, KazMath::Vec2<float>(), SEA));
 	m_optionDetails.emplace_back(OptionDetails("", { DrawStringData("") }, KazMath::Vec2<float>(), EXIT));
@@ -65,10 +65,10 @@ void OptionUI::Setting()
 	m_guideSlideUI = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	m_guideSlideTex = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/Guide/Slide.png");
 
-	for (auto &index : m_onRender) {
+	for (auto& index : m_onRender) {
 		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	}
-	for (auto &index : m_offRender) {
+	for (auto& index : m_offRender) {
 		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	}
 	m_onString = "ON";
@@ -82,7 +82,7 @@ void OptionUI::Setting()
 	m_prevInputLeft = false;
 	m_isDisplayUI = false;
 	m_isChangeDisplayUI = false;
-	m_isRaytracingDebug = false;
+	m_isRaytracingDebug = true;
 	m_isExit = false;
 
 
@@ -108,7 +108,7 @@ void OptionUI::Update()
 	{
 
 		//選択している詳細のIDを反映。
-		m_isRaytracingDebug = m_optionDetails[RAYTRACING].m_selectID;
+		m_isRaytracingDebug = !m_optionDetails[RAYTRACING].m_selectID;
 
 		break;
 	}
@@ -188,7 +188,7 @@ void OptionUI::Update()
 
 }
 
-void OptionUI::Draw(DrawingByRasterize &arg_rasterize, float arg_sliderRate)
+void OptionUI::Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate)
 {
 
 	//ImGui::Begin("UI");
@@ -305,7 +305,7 @@ void OptionUI::Draw(DrawingByRasterize &arg_rasterize, float arg_sliderRate)
 	}
 
 	//小見出しを描画
-	for (auto &headline : m_headlines) {
+	for (auto& headline : m_headlines) {
 
 		const int CHARA_COUNT = static_cast<int>(headline.m_name.m_string.size());
 		for (int index = 0; index < CHARA_COUNT; ++index) {
@@ -416,7 +416,7 @@ void OptionUI::Draw(DrawingByRasterize &arg_rasterize, float arg_sliderRate)
 	}
 
 	//操作
-	if (m_isDisplayUI)
+	if (m_isDisplayUI || m_isChangeDisplayUI)
 	{
 		KazMath::Color color = KazMath::Color(255, 255, 255, 255);
 		KazMath::Transform2D transform;
@@ -528,10 +528,10 @@ OptionUI::OptionHeadline::OptionHeadline(std::string arg_headline, KazMath::Vec2
 {
 
 	m_name.m_string = arg_headline;
-	for (auto &index : m_name.m_render) {
+	for (auto& index : m_name.m_render) {
 		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	}
-	for (auto &index : m_name.m_color) {
+	for (auto& index : m_name.m_color) {
 		index = KazMath::Color(0, 255, 0, 255);
 	}
 
@@ -542,10 +542,10 @@ OptionUI::OptionDetails::OptionDetails(std::string arg_name, std::vector<DrawStr
 {
 
 	m_name.m_string = arg_name;
-	for (auto &index : m_name.m_render) {
+	for (auto& index : m_name.m_render) {
 		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	}
-	for (auto &index : m_name.m_color) {
+	for (auto& index : m_name.m_color) {
 		index = KazMath::Color(0, 255, 0, 255);
 	}
 
@@ -553,10 +553,10 @@ OptionUI::OptionDetails::OptionDetails(std::string arg_name, std::vector<DrawStr
 	m_selectName.resize(SELECT_COUNT);
 	for (int index = 0; index < SELECT_COUNT; ++index) {
 		m_selectName[index].m_string = arg_selectName[index].m_string;
-		for (auto &index : m_selectName[index].m_render) {
+		for (auto& index : m_selectName[index].m_render) {
 			index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 		}
-		for (auto &index : m_selectName[index].m_color) {
+		for (auto& index : m_selectName[index].m_color) {
 			index = KazMath::Color(0, 255, 0, 255);
 		}
 	}
