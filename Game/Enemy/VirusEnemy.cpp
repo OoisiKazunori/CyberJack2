@@ -107,19 +107,19 @@ void VirusEnemy::Update()
 	using namespace KazMath;
 
 	//死んでいたらリスポーンするまでのタイマーを更新
-	m_canSpawn = false;
-	if (!iEnemy_EnemyStatusData->oprationObjData->initFlag) {
+	//m_canSpawn = false;
+	//if (!iEnemy_EnemyStatusData->oprationObjData->initFlag) {
 
-		const int RESPAWN_TIMER = 180;
-		++m_spawnTimer;
-		if (RESPAWN_TIMER < m_spawnTimer) {
-			m_spawnTimer = 0;
-			m_canSpawn = true;
+	//	const int RESPAWN_TIMER = 180;
+	//	++m_spawnTimer;
+	//	if (RESPAWN_TIMER < m_spawnTimer) {
+	//		m_spawnTimer = 0;
+	//		m_canSpawn = true;
 
-			SoundManager::Instance()->SoundPlayerWave(m_spawnSE, 0);
-		}
+	//		SoundManager::Instance()->SoundPlayerWave(m_spawnSE, 0);
+	//	}
 
-	}
+	//}
 
 	//HPを保存。
 	m_prevhp = m_hp;

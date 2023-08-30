@@ -150,6 +150,19 @@ private:
 	const int CHANGE_GMAE_FLAME_SPEED_MAX_TIME = 2;	//敵が居なくなってからゲーム内時間の進むスピードが速まるまでの間隔
 	std::vector<Sphere*>m_enemyHitBoxArray;
 
+	//リスポーンのパターン
+	std::array<std::array<KazMath::Vec3<float>, 8>, 3>m_responePatternArray;
+	size_t m_responePatternIndex;
+	size_t GetRespownPattern(std::array<bool, 10>& arg_flagArray)
+	{
+		size_t index = KazMath::Rand<size_t>(m_responePatternArray[0].size() - 1, 0);
+		while (arg_flagArray[index])
+		{
+			index = KazMath::Rand<size_t>(m_responePatternArray[0].size() - 1, 0);
+		}
+		arg_flagArray[index] = true;
+		return index;
+	}
 	//敵----------------------------------------------------------------
 
 	//インゲーム---------------------------------------
