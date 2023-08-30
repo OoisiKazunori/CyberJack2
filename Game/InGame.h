@@ -61,21 +61,21 @@ class InGame
 {
 public:
 
-	InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX>& RESPONE_DATA,
-		const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>& STAGE_ARRAY,
-		const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX>& BACKGROUND_COLOR,
-		const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX>& CAMERA_ARRAY);
+	InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> &RESPONE_DATA,
+		const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX> &STAGE_ARRAY,
+		const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX> &BACKGROUND_COLOR,
+		const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX> &CAMERA_ARRAY);
 	void Init(
 		bool SKIP_FLAG
 	);
 	void Finalize();
 	void Input();
 	void Update();
-	void Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec);
+	void Draw(DrawingByRasterize &arg_rasterize, Raytracing::BlasVector &arg_blasVec);
 
 	int SceneChange();
 
-	void BufferStatesTransition(ID3D12Resource* arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after);
+	void BufferStatesTransition(ID3D12Resource *arg_resource, D3D12_RESOURCE_STATES arg_before, D3D12_RESOURCE_STATES arg_after);
 
 	std::array<std::array<shared_ptr<IEnemy>, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> GetEnemy() { return m_enemies; }
 
@@ -148,7 +148,7 @@ private:
 	bool m_isEnemyNotMoveFlag;
 	int m_notMoveTimer;
 	const int CHANGE_GMAE_FLAME_SPEED_MAX_TIME = 2;	//敵が居なくなってからゲーム内時間の進むスピードが速まるまでの間隔
-	std::vector<Sphere*>m_enemyHitBoxArray;
+	std::vector<Sphere *>m_enemyHitBoxArray;
 
 	//敵----------------------------------------------------------------
 
@@ -166,7 +166,9 @@ private:
 	//操作方法
 	DrawFuncData::DrawCallData m_guideUI;
 	KazBufferHelper::BufferData m_guideTex;
-
+	KazMath::Vec3<float>m_guideUIPos;
+	float m_appearGuideRate, m_disappearGuideRate;
+	bool m_appearGuideFlag;
 
 public:
 	bool m_debugFlag;

@@ -70,6 +70,7 @@ void InGame::Init(bool SKIP_FLAG)
 	//SoundManager::Instance()->PlaySoundMem(m_bgmHandle, 10, true);
 	m_guideTimer = 0;
 	m_guideAlphaTimer = 0.0f;
+	m_appearGuideFlag = true;
 }
 
 void InGame::Finalize()
@@ -123,9 +124,9 @@ void InGame::Input()
 		rightFlag = true;
 	}
 
-	if (input->InputTrigger(DIK_O))
+	if (input->InputTrigger(DIK_I) || cInput->InputTrigger(XINPUT_GAMEPAD_START))
 	{
-		bool debug = false;
+		m_appearGuideFlag = !m_appearGuideFlag;
 	}
 
 	KazMath::Vec2<float> joyStick;
@@ -556,8 +557,23 @@ void InGame::Draw(DrawingByRasterize &arg_rasterize, Raytracing::BlasVector &arg
 	{
 		KazMath::Color color = KazMath::Color(255, 255, 255, 255);
 		KazMath::Transform2D transform;
-		transform.scale = KazMath::Vec2<float>(338.0f, 82.0f);
-		transform.pos = KazMath::Vec2<float>(1280.0f - transform.scale.x / 2.0f, 720.0f - transform.scale.y / 2.0f);
+		transform.scale = KazMath::Vec2<float>(338.0f, 162.0f);
+
+		float posY = 0.0f;
+		if (m_appearGuideFlag)
+		{
+			Rate(&m_appearGuideRate, 0.01f, 1.0f);
+			posY = transform.scale.y + EasingMaker(Out, Exp, m_appearGuideRate) * -transform.scale.y;
+			m_disappearGuideRate = 0.0f;
+		}
+		else
+		{
+			Rate(&m_disappearGuideRate, 0.01f, 1.0f);
+			posY = EasingMaker(Out, Exp, m_disappearGuideRate) * transform.scale.y;
+			m_appearGuideRate = 0.0f;
+		}
+
+		transform.pos = KazMath::Vec2<float>(1280.0f - transform.scale.x / 2.0f, 720.0f - transform.scale.y / 2.0f + posY);
 		DrawFunc::DrawTextureIn2D(m_guideUI, transform, m_guideTex, color);
 		arg_rasterize.ObjectRender(m_guideUI);
 	}
