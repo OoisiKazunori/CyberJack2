@@ -62,9 +62,6 @@ void OptionUI::Setting()
 	m_guideUI = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	m_guideTex = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/Guide/GuideMenu.png");
 
-	m_guideSlideUI = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
-	m_guideSlideTex = TextureResourceMgr::Instance()->LoadGraphBuffer("Resource/UI/Guide/Slide.png");
-
 	for (auto& index : m_onRender) {
 		index = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
 	}
@@ -426,15 +423,6 @@ void OptionUI::Draw(DrawingByRasterize& arg_rasterize, float arg_sliderRate)
 		transform.pos = KazMath::Vec2<float>(1280.0f - transform.scale.x / 2.0f - 200.0f, 720.0f - transform.scale.y / 2.0f);
 		DrawFunc::DrawTextureIn2D(m_guideUI, transform, m_guideTex, color);
 		arg_rasterize.ObjectRender(m_guideUI);
-	}
-	if (m_isDisplayUI && m_nowSelectHeadline == RAYTRACING && m_isRaytracingDebug == 1 && !m_isChangeDisplayUI)
-	{
-		KazMath::Color color = KazMath::Color(255, 255, 255, 255);
-		KazMath::Transform2D transform;
-		transform.scale = KazMath::Vec2<float>(256.0f, 16.0f);
-		transform.pos = KazMath::Vec2<float>(1280.0f - transform.scale.x / 2.0f - 200.0f, 720.0f - transform.scale.y / 2.0f - 80.0f);
-		DrawFunc::DrawTextureIn2D(m_guideSlideUI, transform, m_guideSlideTex, color);
-		arg_rasterize.ObjectRender(m_guideSlideUI);
 	}
 
 	//”wŒi‚ð•`‰æ
