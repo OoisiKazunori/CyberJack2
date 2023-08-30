@@ -36,7 +36,7 @@ void OptionUI::Setting()
 	m_optionUI.emplace_back(OptionHeadline("OPTION", KazMath::Vec2<float>(0, 0), OPTION_FONTSIZE, 0));
 
 	//オプション詳細を設定。
-	m_optionDetails.emplace_back(OptionDetails("DEBUG", { DrawStringData("OFF"),DrawStringData("ON") }, KazMath::Vec2<float>(), RAYTRACING));
+	m_optionDetails.emplace_back(OptionDetails("DEBUG", { DrawStringData("ON"),DrawStringData("OFF") }, KazMath::Vec2<float>(), RAYTRACING));
 	m_optionDetails.emplace_back(OptionDetails("TIME", { DrawStringData("NOON"),DrawStringData("EVENING") }, KazMath::Vec2<float>(), TIMEZONE));
 	m_optionDetails.emplace_back(OptionDetails("STATE", { DrawStringData("A"),DrawStringData("B"),DrawStringData("C") }, KazMath::Vec2<float>(), SEA));
 	m_optionDetails.emplace_back(OptionDetails("", { DrawStringData("") }, KazMath::Vec2<float>(), EXIT));
@@ -82,7 +82,7 @@ void OptionUI::Setting()
 	m_prevInputLeft = false;
 	m_isDisplayUI = false;
 	m_isChangeDisplayUI = false;
-	m_isRaytracingDebug = false;
+	m_isRaytracingDebug = true;
 	m_isExit = false;
 
 
@@ -108,7 +108,7 @@ void OptionUI::Update()
 	{
 
 		//選択している詳細のIDを反映。
-		m_isRaytracingDebug = m_optionDetails[RAYTRACING].m_selectID;
+		m_isRaytracingDebug = !m_optionDetails[RAYTRACING].m_selectID;
 
 		break;
 	}
