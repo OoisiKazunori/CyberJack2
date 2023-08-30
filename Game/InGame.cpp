@@ -6,6 +6,9 @@
 #include"../KazLibrary/Loader/MeshParticleLoader.h"
 #include"PostEffect/Outline.h"
 #include"Effect/EnemyDissolveParam.h"
+#include"Effect/ShockWave.h"
+#include"Effect/SeaEffect.h"
+#include"Effect/ShakeMgr.h"
 
 InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX>& arg_responeData, const std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>& arg_stageArray, const std::array<KazMath::Color, KazEnemyHelper::STAGE_NUM_MAX>& BACKGROUND_COLOR, const std::array<std::array<KazEnemyHelper::ForceCameraData, 10>, KazEnemyHelper::STAGE_NUM_MAX>& CAMERA_ARRAY) :
 	m_stageArray(arg_stageArray), m_responeData(arg_responeData), m_sceneNum(-1)
@@ -35,6 +38,10 @@ InGame::InGame(const std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NU
 	//{
 	//	m_sponzaModel[i] = DrawFuncData::SetDefferdRenderingModel(ModelLoader::Instance()->Load("Resource/Test/glTF/Sponza/", "Sponza.gltf"));
 	//}
+
+
+	m_hitSE = SoundManager::Instance()->SoundLoadWave("Resource/Sound/hit.wav");
+	m_hitSE.volume = 0.01f;
 
 	//右固め
 	m_responePatternArray[0][0] = { 50.0f,25.0f,50.0f };
@@ -566,6 +573,23 @@ void InGame::Update()
 	{
 		m_gameFlame = 0;
 	}
+
+
+	//無理やり衝撃波を出す。
+	if (KeyBoradInputManager::Instance()->InputTrigger(DIK_RETURN) || ControllerInputManager::Instance()->InputTrigger(XINPUT_GAMEPAD_B)) {
+
+		//ランダムで敵を選択して衝撃波を出す。
+		int randomEnemy = KazMath::Rand(0, 7);
+
+		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
+		SeaEffect::Instance()->m_isSeaEffect = true;
+		ShockWave::Instance()->m_shockWave[randomEnemy].m_isActive = true;
+		ShockWave::Instance()->m_shockWave[randomEnemy].m_power = 1.0f;
+		ShockWave::Instance()->m_shockWave[randomEnemy].m_radius = 0.0f;
+		m_enemies[ENEMY_TYPE_VIRUS][randomEnemy]->m_shockWaveTimer = 0;
+		SoundManager::Instance()->SoundPlayerWave(m_hitSE, 0);
+	}
+
 }
 
 void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)

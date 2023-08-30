@@ -133,6 +133,7 @@ private:
 	SplineRail m_rail;
 	std::array<std::shared_ptr<IStage>, KazEnemyHelper::STAGE_NUM_MAX>m_stageArray;
 	CameraWork m_camera;
+	SoundData m_hitSE;
 
 	//’±‚Ì“G‚ğ”‰ñ‚Éˆê‰ñoŒ»‚³‚¹‚é‚æ‚¤‚É‚·‚é‚½‚ß‚Ì•Ï”
 	int m_butterflyEnemyRespawnDelay;
