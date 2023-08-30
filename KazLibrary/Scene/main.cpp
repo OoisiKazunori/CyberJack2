@@ -111,7 +111,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//マウスの閉じ込め
 			RECT winRect;
 			GetWindowRect(winApi.hwnd, &winRect);
-			ClipCursor(&winRect);
+			ClipCursor(nullptr);
 		}
 		else
 		{
