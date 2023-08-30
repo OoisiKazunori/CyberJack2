@@ -647,7 +647,10 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	{
 		KazMath::Color color = KazMath::Color(255, 255, 255, 255);
 		KazMath::Transform2D transform;
-		transform.scale = KazMath::Vec2<float>(338.0f, 162.0f);
+		transform.scale = KazMath::Vec2<float>(
+			static_cast<float>(m_guideTex.bufferWrapper->GetBuffer()->GetDesc().Width),
+			static_cast<float>(m_guideTex.bufferWrapper->GetBuffer()->GetDesc().Height)
+		);
 
 		float posY = 0.0f;
 		if (m_appearGuideFlag)
