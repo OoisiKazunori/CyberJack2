@@ -468,7 +468,9 @@ void OptionUI::Input()
 	const int DEADLINE = 30000;
 
 	//‰º•ûŒü‚É“ü—Í‚³‚ê‚½‚ç
-	bool isInputDown = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::DOWN_SIDE, DEADLINE) || KeyBoradInputManager::Instance()->InputTrigger(DIK_DOWNARROW);
+	bool isInputDown = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::DOWN_SIDE, DEADLINE) ||
+		KeyBoradInputManager::Instance()->InputTrigger(DIK_DOWNARROW) ||
+		KeyBoradInputManager::Instance()->InputTrigger(DIK_S);
 	if (isInputDown && !m_prevInputDown) {
 
 		m_nowSelectHeadline = std::clamp(m_nowSelectHeadline + 1, 0, static_cast<int>(m_headlines.size()) - 1);
@@ -477,7 +479,9 @@ void OptionUI::Input()
 
 	}
 	//ã•ûŒü‚É“ü—Í‚³‚ê‚½‚ç
-	bool isInputUp = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::UP_SIDE, DEADLINE) || KeyBoradInputManager::Instance()->InputTrigger(DIK_UPARROW);
+	bool isInputUp = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::UP_SIDE, DEADLINE) ||
+		KeyBoradInputManager::Instance()->InputTrigger(DIK_UPARROW) ||
+		KeyBoradInputManager::Instance()->InputTrigger(DIK_W);
 	if (isInputUp && !m_prevInputUp) {
 
 		m_nowSelectHeadline = std::clamp(m_nowSelectHeadline - 1, 0, static_cast<int>(m_headlines.size()) - 1);
@@ -487,7 +491,9 @@ void OptionUI::Input()
 	}
 
 	//‰E•ûŒü‚É“ü—Í‚³‚ê‚½‚ç
-	bool isInputRight = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::RIGHT_SIDE, DEADLINE) || KeyBoradInputManager::Instance()->InputTrigger(DIK_RIGHTARROW);
+	bool isInputRight = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::RIGHT_SIDE, DEADLINE) ||
+		KeyBoradInputManager::Instance()->InputTrigger(DIK_RIGHTARROW) ||
+		KeyBoradInputManager::Instance()->InputTrigger(DIK_A);
 	if (isInputRight && !m_prevInputRight) {
 
 		++m_optionDetails[m_nowSelectHeadline].m_selectID;
@@ -497,7 +503,9 @@ void OptionUI::Input()
 	}
 
 	//¶•ûŒü‚É“ü—Í‚³‚ê‚½‚ç
-	bool isInputLeft = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::LEFT_SIDE, DEADLINE) || KeyBoradInputManager::Instance()->InputTrigger(DIK_LEFTARROW);
+	bool isInputLeft = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::LEFT_SIDE, DEADLINE) ||
+		KeyBoradInputManager::Instance()->InputTrigger(DIK_LEFTARROW) ||
+		KeyBoradInputManager::Instance()->InputTrigger(DIK_D);
 	if (isInputLeft && !m_prevInputLeft) {
 
 		--m_optionDetails[m_nowSelectHeadline].m_selectID;

@@ -264,13 +264,13 @@ void SceneManager::Update()
 			ControllerInputManager::Instance()->InputShoulderState(ControllerShoulderSide::RIGHT_SHOULDER) ||
 			ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_DPAD_RIGHT) ||
 			ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_RIGHT_THUMB)||
-			KeyBoradInputManager::Instance()->InputState(DIK_D);
+			KeyBoradInputManager::Instance()->InputState(DIK_E);
 		bool leftFLag =
 			ControllerInputManager::Instance()->InputStickState(ControllerStickSide::RIGHT_STICK, ControllerSide::LEFT_SIDE) ||
 			ControllerInputManager::Instance()->InputShoulderState(ControllerShoulderSide::LEFT_SHOULDER) ||
 			ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_DPAD_LEFT) ||
 			ControllerInputManager::Instance()->InputState(XINPUT_GAMEPAD_LEFT_THUMB)||
-			KeyBoradInputManager::Instance()->InputState(DIK_A);
+			KeyBoradInputManager::Instance()->InputState(DIK_Q);
 
 		m_debugRaytracingParam.m_sliderRate += rightFLag * STICK_SPEED;
 		m_debugRaytracingParam.m_sliderRate -= leftFLag * STICK_SPEED;
