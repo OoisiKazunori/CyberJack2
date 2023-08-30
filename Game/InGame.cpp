@@ -202,6 +202,7 @@ void InGame::Input()
 	if (input->InputTrigger(DIK_SPACE) || cInput->InputTrigger(XINPUT_GAMEPAD_Y))
 	{
 		TimeZone::Instance()->m_timeZone = !TimeZone::Instance()->m_timeZone;
+		OptionUI::Instance()->m_optionDetails[OptionUI::TIMEZONE].m_selectID = !OptionUI::Instance()->m_optionDetails[OptionUI::TIMEZONE].m_selectID;
 	}
 
 
