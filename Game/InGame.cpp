@@ -189,11 +189,6 @@ void InGame::Input()
 		rightFlag = true;
 	}
 
-	if (ControllerInputManager::Instance()->InputTrigger(XINPUT_GAMEPAD_B) || KeyBoradInputManager::Instance()->InputTrigger(DIK_SPACE))
-	{
-		TimeZone::Instance()->m_timeZone = !TimeZone::Instance()->m_timeZone;
-	}
-
 	if (input->InputTrigger(DIK_I) || cInput->InputTrigger(XINPUT_GAMEPAD_START))
 	{
 		m_appearGuideFlag = !m_appearGuideFlag;
@@ -225,7 +220,6 @@ void InGame::Input()
 
 void InGame::Update()
 {
-
 #pragma region ìGÇÃê∂ê¨èàóù
 	KazEnemyHelper::AddEnemy(m_enemies, m_responeData, addEnemiesHandle, m_gameFlame, m_gameStageLevel);
 
@@ -660,21 +654,18 @@ void InGame::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 	{
 		KazMath::Color color = KazMath::Color(255, 255, 255, 255);
 		KazMath::Transform2D transform;
-		transform.scale = KazMath::Vec2<float>(
-			static_cast<float>(m_guideTex.bufferWrapper->GetBuffer()->GetDesc().Width),
-			static_cast<float>(m_guideTex.bufferWrapper->GetBuffer()->GetDesc().Height)
-		);
+		transform.scale = KazMath::Vec2<float>(338.0f, 162.0f);
 
 		float posY = 0.0f;
 		if (m_appearGuideFlag)
 		{
-			Rate(&m_appearGuideRate, 0.01f, 1.0f);
+			Rate(&m_appearGuideRate, 0.08f, 1.0f);
 			posY = transform.scale.y + EasingMaker(Out, Exp, m_appearGuideRate) * -transform.scale.y;
 			m_disappearGuideRate = 0.0f;
 		}
 		else
 		{
-			Rate(&m_disappearGuideRate, 0.01f, 1.0f);
+			Rate(&m_disappearGuideRate, 0.08f, 1.0f);
 			posY = EasingMaker(Out, Exp, m_disappearGuideRate) * transform.scale.y;
 			m_appearGuideRate = 0.0f;
 		}
