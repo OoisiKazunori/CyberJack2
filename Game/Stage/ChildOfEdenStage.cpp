@@ -90,7 +90,7 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 
 	m_computeInit.Compute({ DISPATCH_MAX_NUM,1,1 });
 
-	auto playerModel = *ModelLoader::Instance()->Load("Resource/Player/Kari/", "Player.gltf");
+	auto playerModel = *ModelLoader::Instance()->Load("Resource/Player/", "Player.gltf");
 	auto pipeline = DrawFuncData::GetModelBloomShader();
 	//m_playerModel.resize(PARTICLE_MAX_NUM);
 	for (auto &index : m_playerModel)
