@@ -111,6 +111,39 @@ struct ShockWaveParam
     ShockWave m_shockWave[8];
 };
 
+
+
+//各リソース等
+StructuredBuffer<uint> indexBuffer : register(t1, space1);
+StructuredBuffer<Vertex> vertexBuffer : register(t2, space1);
+Texture2D<float4> objectTexture : register(t0, space1);
+//サンプラー
+SamplerState smp : register(s0, space1);
+
+//TLAS
+RaytracingAccelerationStructure gRtScene : register(t0);
+
+//カメラ座標用定数バッファ
+ConstantBuffer<CameraEyePosConstData> cameraEyePos : register(b0);
+ConstantBuffer<LightData> lightData : register(b1);
+ConstantBuffer<DebugRaytracingParam> debugRaytracingData : register(b2);
+ConstantBuffer<DebugSeaParam> debugSeaData : register(b3);
+ConstantBuffer<ShockWaveParam> shockWaveData : register(b4);
+
+//GBuffer
+Texture2D<float4> albedoMap : register(t1);
+Texture2D<float4> normalMap : register(t2);
+Texture2D<float4> materialMap : register(t3);
+Texture2D<float4> worldMap : register(t4);
+Texture2D<float4> emissiveMap : register(t5);
+
+//出力先UAV
+RWTexture2D<float4> finalColor : register(u0);
+RWTexture3D<float4> volumeNoiseTexture : register(u1);
+RWTexture2D<float4> lensFlareTexture : register(u2);
+RWTexture2D<float4> emissiveTexture : register(u3);
+
+
 //barysを計算
 inline float3 CalcBarycentrics(float2 Barys)
 {
@@ -304,143 +337,6 @@ bool IsInRange(float3 arg_value, float arg_range, float arg_wrapCount)
     return isInRange;
 }
 
-void GodRayPass(float4 arg_worldColor, inout float4 arg_albedoColor, uint2 arg_launchIndex, CameraEyePosConstData arg_cameraEyePos, LightData arg_lightData, RaytracingAccelerationStructure arg_scene, RWTexture3D<float4> arg_volumeTexture, RaymarchingParam arg_raymarchingParam)
-{
-    
-    ////カメラからサンプリング地点までをレイマーチングで動かす定数で割り、サンプリング回数を求める。
-    //const int SAMPLING_COUNT = 16;
-    //float3 samplingDir = normalize(arg_worldColor.xyz - arg_cameraEyePos.m_eye);
-    //float samplingLength = length(arg_cameraEyePos.m_eye - arg_worldColor.xyz) / (float) SAMPLING_COUNT;
-    //float raymarchingBright = 0.0f;
-    //bool isFinshVolumeFog = false;
-    //for (int counter = 0; counter < SAMPLING_COUNT; ++counter)
-    //{
-                
-    //    //ペイロード(再帰的に処理をするレイトレの中で値の受け渡しに使用する構造体)を宣言。
-    //    Payload payloadData;
-    //    payloadData.m_emissive = float3(0.0f, 0.0f, 0.0f);
-    //    payloadData.m_color = float3(0.0f, 0.0f, 0.0f); //色を真っ黒にしておく。レイを飛ばしてどこにもあたらなかった時に呼ばれるMissShaderが呼ばれたらそこで1を書きこむ。何かに当たったときに呼ばれるClosestHitShaderが呼ばれたらそこは影なので0を書き込む。
-        
-    //    //減衰
-    //    float progress = 1.0f / float(counter + 1.0f);
-        
-    //    //ディレクションライトの処理
-    //    if (arg_lightData.m_dirLight.m_isActive)
-    //    {
-        
-    //        //レイを撃つ
-    //        CastRay(payloadData, arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter, -arg_lightData.m_dirLight.m_dir, 300000.0f, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
-        
-    //        //結果を保存。
-    //        raymarchingBright = lerp(raymarchingBright, payloadData.m_color.x, progress);
-            
-    //    }
-    //    //ポイントライトの処理
-    //    float pointLightDistance = length((arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter) - arg_worldColor.xyz);
-    //    if (arg_lightData.m_pointLight.m_isActive && pointLightDistance < arg_lightData.m_pointLight.m_power)
-    //    {
-        
-    //        //レイを撃つ
-    //        CastRay(payloadData, arg_cameraEyePos.m_eye + (samplingDir * samplingLength) * counter, -arg_lightData.m_dirLight.m_dir, pointLightDistance, MISS_LIGHTING, RAY_FLAG_SKIP_CLOSEST_HIT_SHADER, arg_scene);
-        
-    //        //結果を保存。
-    //        raymarchingBright = lerp(raymarchingBright, payloadData.m_color.x, progress);
-            
-    //    }
-        
-    //}
-    
-    ////ボリュームフォグ
-    //float3 fogColor = float3(0, 0, 0);
-    //if (arg_raymarchingParam.m_isActive)
-    //{
-    //    //レイマーチングの回数を計算。
-    //    float rayLength = length(arg_cameraEyePos.m_eye - arg_worldColor.xyz);
-    //    float marchingMovedLength = 0; //レイマーチングで動いた距離
-    //    float3 marchingPos = arg_cameraEyePos.m_eye;
-    //    float3 marchingDir = normalize(arg_worldColor.xyz - arg_cameraEyePos.m_eye);
-    //    for (int index = 0; index < 10000; ++index)
-    //    {
-        
-    //        //マーチングを進める量。
-    //        float marchingMoveLength = arg_raymarchingParam.m_sampleLength;
-        
-    //        //マーチングが上限より移動していたら。
-    //        bool isFinish = false;
-    //        if (rayLength < marchingMovedLength + marchingMoveLength)
-    //        {
-            
-    //            //残りの量を移動させる。
-    //            marchingMoveLength = rayLength - marchingMovedLength;
-    //            isFinish = true;
-
-    //        }
-    //        else
-    //        {
-            
-    //            //動いた量を保存。
-    //            marchingMovedLength += marchingMoveLength;
-            
-    //        }
-        
-    //        //マーチングを進める。
-    //        marchingPos += marchingDir * marchingMoveLength;
-        
-    //        //レイマーチングの座標をボクセル座標空間に直す。
-    //        float3 volumeTexPos = arg_raymarchingParam.m_pos;
-    //        volumeTexPos -= arg_raymarchingParam.m_gridSize * ((256.0f / 2.0f) * arg_raymarchingParam.m_wrapCount);
-    //        int3 boxPos = marchingPos - volumeTexPos; //マーチングのサンプリング地点をボリュームテクスチャの中心基準の座標にずらす。
-    //        boxPos /= arg_raymarchingParam.m_gridSize;
-        
-    //        //マーチング座標がボクセルの位置より離れていたらサンプリングしない。
-    //        if (!IsInRange(boxPos, 256.0f, arg_raymarchingParam.m_wrapCount))
-    //        {
-        
-    //            if (isFinish)
-    //            {
-    //                break;
-    //            }
-    //            continue;
-    //        }
-        
-    //        boxPos.x = boxPos.x % 256;
-    //        boxPos.y = boxPos.y % 256;
-    //        boxPos.z = boxPos.z % 256;
-    //        boxPos = clamp(boxPos, 0, 255);
-        
-    //        //ノイズを抜き取る。
-    //        float3 noise = arg_volumeTexture[boxPos].xyz / 50.0f;
-        
-    //        float3 weights = float3(0.8f, 0.1f, 0.1f); // 各ノイズの重み
-    //        float fogDensity = dot(noise, weights) * arg_raymarchingParam.m_density;
-        
-    //        //Y軸の高さで減衰させる。
-    //        float maxY = 50.0f;
-    //       // fogDensity *= 1.0f - saturate(marchingPos.y / maxY);
-        
-    //        //その部分の色を抜き取る。
-    //        fogColor += float3(fogDensity, fogDensity, fogDensity) * arg_raymarchingParam.m_color;
-    //        //fogColor = arg_raymarchingParam.m_color * fogDensity + fogColor * saturate(1.0f - fogDensity);
-        
-    //        if (isFinish)
-    //        {
-    //            break;
-    //        }
-        
-    //    }
-    //}
-    
-    //const float3 FOGCOLOR_LIT = float3(1.0f, 1.0f, 1.0f);
-    //const float3 FOGCOLOR_UNLIT = float3(0.0f, 0.0f, 0.0f);
-    
-    //float3 godRayColor = lerp(FOGCOLOR_UNLIT, FOGCOLOR_LIT, raymarchingBright);
-    //const float FOG_DENSITY = 0.0001f;
-    //float absorb = exp(-length(arg_cameraEyePos.m_eye - arg_worldColor.xyz) * FOG_DENSITY);
-    //arg_albedoColor.xyz = lerp(godRayColor, arg_albedoColor.xyz, absorb);
-    //arg_albedoColor.xyz += float3(clamp(fogColor.x, 0.0f, arg_raymarchingParam.m_color.x), clamp(fogColor.y, 0.0f, arg_raymarchingParam.m_color.y), clamp(fogColor.z, 0.0f, arg_raymarchingParam.m_color.z));
-    
-}
-
 void SecondaryPass(float3 arg_viewDir, inout float4 arg_emissiveColor, float4 arg_worldColor, float4 arg_materialInfo, float4 arg_normalColor, float4 arg_albedoColor, RaytracingAccelerationStructure arg_scene, CameraEyePosConstData arg_cameraEyePos, inout float4 arg_finalColor)
 {
         
@@ -525,4 +421,295 @@ void SecondaryPass(float3 arg_viewDir, inout float4 arg_emissiveColor, float4 ar
     {
         arg_finalColor = arg_albedoColor;
     }
+}
+
+
+
+float3 IntersectionPos(float3 Dir, float3 A, float Radius)
+{
+    float b = dot(A, Dir);
+    float c = dot(A, A) - Radius * Radius;
+    float d = max(b * b - c, 0.0f);
+
+    return A + Dir * (-b + sqrt(d));
+}
+float Scale(float FCos)
+{
+    float x = 1.0f - FCos;
+    return 0.25f * exp(-0.00287f + x * (0.459f + x * (3.83f + x * (-6.80f + x * 5.25f))));
+}
+
+//大気散乱
+float3 AtmosphericScattering(float3 pos, inout float3 mieColor)
+{
+    
+    //レイリー散乱定数
+    float kr = 0.0025f;
+    //ミー散乱定数
+    float km = 0.005f;
+
+    //大気中の線分をサンプリングする数。
+    float fSamples = 2.0f;
+
+    //謎の色 色的には薄めの茶色
+    float3 three_primary_colors = float3(0.68f, 0.55f, 0.44f);
+    //光の波長？
+    float3 v3InvWaveLength = 1.0f / pow(three_primary_colors, 4.0f);
+
+    //大気圏の一番上の高さ。
+    float fOuterRadius = 10250.0f;
+    //地球全体の地上の高さ。
+    float fInnerRadius = 10200.0f;
+
+    //太陽光の強さ？
+    float fESun = 10.0f;
+    //太陽光の強さにレイリー散乱定数をかけてレイリー散乱の強さを求めている。
+    float fKrESun = kr * fESun;
+    //太陽光の強さにミー散乱定数をかけてレイリー散乱の強さを求めている。
+    float fKmESun = km * fESun;
+
+    //レイリー散乱定数に円周率をかけているのだが、限りなく0に近い値。
+    float fKr4PI = kr * 4.0f * PI;
+    //ミー散乱定数に円周率をかけているのだが、ミー散乱定数は0なのでこれの値は0。
+    float fKm4PI = km * 4.0f * PI;
+
+    //地球全体での大気の割合。
+    float fScale = 1.0f / (fOuterRadius - fInnerRadius);
+    //平均大気密度を求める高さ。
+    float fScaleDepth = 0.35f;
+    //地球全体での大気の割合を平均大気密度で割った値。
+    float fScaleOverScaleDepth = fScale / fScaleDepth;
+
+    //散乱定数を求める際に使用する値。
+    float g = -0.999f;
+    //散乱定数を求める際に使用する値を二乗したもの。なぜ。
+    float g2 = g * g;
+
+    //当たった天球のワールド座標
+    float3 worldPos = normalize(pos) * fOuterRadius;
+    worldPos = IntersectionPos(normalize(worldPos), float3(0.0, fInnerRadius, 0.0), fOuterRadius);
+
+    //カメラ座標 元計算式だと中心固定になってしまっていそう。
+    float3 v3CameraPos = float3(0.0, fInnerRadius + 1.0f, 0.0f);
+
+    //ディレクショナルライトの場所を求める。
+    float3 dirLightPos = -lightData.m_dirLight.m_dir * 15000.0f;
+
+    //ディレクショナルライトへの方向を求める。
+    float3 v3LightDir = normalize(dirLightPos - worldPos);
+
+    //天球上頂点からカメラまでのベクトル(光が大気圏に突入した点からカメラまでの光のベクトル)
+    float3 v3Ray = worldPos - v3CameraPos;
+
+    //大気に突入してからの点とカメラまでの距離。
+    float fFar = length(v3Ray);
+
+    //正規化された拡散光が来た方向。
+    v3Ray /= fFar;
+
+    //サンプリングする始点座標 資料だとAの頂点
+    float3 v3Start = v3CameraPos;
+    //サンプルではカメラの位置が(0,Radius,0)なのでカメラの高さ。どの位置に移動しても地球視点で見れば原点(地球の中心)からの高さ。
+    float fCameraHeight = length(v3CameraPos);
+    //地上からの法線(?)と拡散光がやってきた角度の内積によって求められた角度をカメラの高さで割る。
+    float fStartAngle = dot(v3Ray, v3Start) / fCameraHeight;
+    //開始地点の高さに平均大気密度をかけた値の指数を求める？
+    float fStartDepth = exp(fScaleOverScaleDepth * (fInnerRadius - fCameraHeight));
+    //開始地点のなにかの角度のオフセット。
+    float fStartOffset = fStartDepth * Scale(fStartAngle);
+
+    //サンプルポイント間の長さ。
+    float fSampleLength = fFar / fSamples;
+    //サンプルポイント間の長さに地球の大気の割合をかける。
+    float fScaledLength = fSampleLength * fScale;
+    //拡散光が来た方向にサンプルの長さをかけることでサンプルポイント間のレイをベクトルを求める。
+    float3 v3SampleRay = v3Ray * fSampleLength;
+    //最初のサンプルポイントを求める。0.5をかけてるのは少し動かすため？
+    float3 v3SamplePoint = v3Start + v3SampleRay * 0.5f;
+
+    //色情報
+    float3 v3FrontColor = 0.0f;
+    for (int n = 0; n < int(fSamples); ++n)
+    {
+        //サンプルポイントの高さ。どちらにせよ原点は地球の中心なので、この値が現在位置の高さになる。
+        float fHeight = length(v3SamplePoint);
+        //地上からサンプルポイントの高さの差に平均大気密度をかけたもの。  高度に応じて大気密度が指数的に小さくなっていくのを表現している？
+        float fDepth = exp(fScaleOverScaleDepth * (fInnerRadius - fHeight));
+        //地上から見たサンプルポイントの法線とディレクショナルライトの方向の角度を求めて、サンプルポイントの高さで割る。
+        float fLightAngle = dot(v3LightDir, v3SamplePoint) / fHeight; //こいつの値が-1になる→Scale内の計算でexpの引数が43になり、とてつもなくでかい値が入る。 → -にならないようにする？
+        //地上から見たサンプルポイントの法線と散乱光が飛んできている方区の角度を求めて、サンプルポイントの高さで割る。
+        float fCameraAngle = dot(v3Ray, v3SamplePoint) / fHeight;
+        //散乱光？
+        float fScatter = (fStartOffset + fDepth * (Scale(fLightAngle * 1) - Scale(fCameraAngle * 1)));
+
+        //色ごとの減衰率？
+        float3 v3Attenuate = exp(-fScatter * (v3InvWaveLength * fKr4PI + fKm4PI));
+        //サンプルポイントの位置を考慮して散乱した色を求める。
+        v3FrontColor += v3Attenuate * (fDepth * fScaledLength);
+        //サンプルポイントを移動させる。
+        v3SamplePoint += v3SampleRay;
+
+    }
+
+    //レイリー散乱に使用する色情報
+    float3 c0 = v3FrontColor * (v3InvWaveLength * fKrESun);
+    //ミー散乱に使用する色情報
+    float3 c1 = v3FrontColor * fKmESun;
+    //カメラ座標から天球の座標へのベクトル。
+    float3 v3Direction = v3CameraPos - worldPos;
+
+    //float fcos = dot(v3LightDir, v3Direction) / length(v3Direction);
+    float fcos = dot(v3LightDir, v3Direction) / length(v3Direction);
+    float fcos2 = fcos * fcos;
+
+    //レイリー散乱の明るさ。
+    float rayleighPhase = 0.75f * (1.0f + fcos2);
+    //ミー散乱の明るさ。
+    float miePhase = 1.5f * ((1.0f - g2) / (2.0f + g2)) * (1.0f + fcos2) / pow(1.0f + g2 - 2.0f * g * fcos, 1.5f);
+
+    //ミー散乱の色を保存。
+    mieColor = c0 * rayleighPhase;
+
+    //最終結果の色
+    float3 col = 1.0f;
+    col.rgb = rayleighPhase * c0 + miePhase * c1;
+
+    //交点までのベクトルと太陽までのベクトルが近かったら白色に描画する。
+    int sunWhite = step(0.999f, dot(normalize(dirLightPos - v3CameraPos), normalize(worldPos - v3CameraPos)));
+    
+    return col + float3(sunWhite, sunWhite, sunWhite);
+
+}
+
+//波を計算。
+float SeaOctave(float2 arg_uv, float arg_choppy, float3 arg_position)
+{
+    
+    float noise = ValueNoise(arg_uv, 0.0f) * 2.0f;
+    arg_uv += float2(noise, noise * 1.0f);
+    float2 wv = 1.0f - abs(sin(arg_uv));
+    float2 swv = abs(cos(arg_uv));
+    wv = lerp(wv, swv, wv);
+    return pow(1.0f - pow(wv.x * wv.y, 0.65f), arg_choppy);
+}
+
+//海のハイトマップの計算の際にレイマーチングしている位置のノイズを計算する。
+float MappingHeightNoise(float3 arg_position, int arg_samplingCount)
+{
+    
+    //定数 いずれ定数バッファにする。
+    float freq = debugSeaData.m_freq;
+    float amp = debugSeaData.m_amp;
+    float choppy = debugSeaData.m_choppy;
+    float seaSpeed = debugSeaData.m_seaSpeed;
+    
+    float thickness = 8.0f;
+    for (int index = 0; index < 8; ++index)
+    {
+        float waveLength = length(arg_position - shockWaveData.m_shockWave[index].m_pos) - shockWaveData.m_shockWave[index].m_radius;
+        if (abs(waveLength) <= thickness)
+        {
+    
+            float easing = (1.0f - abs(waveLength / thickness));
+            //easing = easing ==  0 ? 0 : pow(2, 10 * easing - 10);
+            easing = -(cos(PI * easing) - 1.0f) / 2.0f;
+            amp += shockWaveData.m_shockWave[index].m_power * easing;
+        
+        }
+    }
+    
+
+    //XZ平面による計算
+    float2 uv = arg_position.xz / 2.0f;
+
+    float d, h = 0.0f;
+    
+    //ここで「フラクタルブラウン運動」によるノイズの計算を行っている
+    for (int i = 0; i < arg_samplingCount; ++i)
+    {
+        
+        float seaTimer = (1.0f + cameraEyePos.m_timer * seaSpeed);
+        
+        //単純に、iTime（時間経過）によってUV値を微妙にずらしてアニメーションさせている
+        //iTimeのみを指定してもほぼ同じアニメーションになる
+        //SEA_TIMEのプラス分とマイナス分を足して振幅を大きくしている・・・？
+        d = SeaOctave((uv + seaTimer) * freq, choppy, arg_position);
+        d += SeaOctave((uv - seaTimer) * freq, choppy, arg_position);
+
+        h += d * amp;
+
+        float octave_m = float2x2(1.6f, 1.2f, -1.2f, 1.6f);
+        //これは回転行列・・・？
+        //uv値を回転させている風。これをなくすと平坦な海になる
+        uv *= octave_m;
+        //uv = mul(uv, octave_m);
+
+        //fbm関数として、振幅を0.2倍、周波数を2.0倍して次の計算を行う
+        freq *= 2.0f;
+        amp *= 0.2f;
+
+        //choppyを翻訳すると「波瀾」という意味
+        //これを小さくすると海が「おとなしく」なる
+        choppy = lerp(choppy, 1.0f, 0.2f);
+    }
+
+    //最後に、求まった高さ`h`を、現在のレイの高さから引いたものを「波の高さ」としている
+    return arg_position.y - h;
+}
+
+//水面に向かってレイマーチングを行う。
+void HeightMapRayMarching(float3 arg_origin, float3 arg_direction, out float3 arg_position)
+{
+    float tm = 0.0f;
+
+    float tx = 10000.0f;
+
+    //一旦遠くの位置のサンプリングを行い、結果の高さが0以上だったらレイが海に当たらないということなのでReturnする。
+    float hx = MappingHeightNoise(arg_origin + arg_direction * tx, 8);
+    if (0.0f < hx)
+    {
+        arg_position = float3(0.0f, 0.0f, 0.0f);
+        return;
+    }
+
+    //ここからが本格的なレイマーチング。
+    float hm = MappingHeightNoise(arg_origin + arg_direction * tm, 8); //開始地点でのハイトマップの値。
+    float tmid = 0.0f;
+    for (int i = 0; i < 8; ++i)
+    {
+        //現在の位置でのハイトマップの値をレイマーチングの到達点の値で正規化する。
+        float f = hm / (hm - hx);
+
+        tmid = lerp(tm, tx, f);
+        arg_position = arg_origin + arg_direction * tmid;
+
+        //次なる位置のハイトマップを取得する。
+        float hmid = MappingHeightNoise(arg_position, 8);
+
+        //サンプリング位置の高さがマイナス距離の場合は`hx`, `tx`を更新する
+        if (hmid < 0.0f)
+        {
+            //遠くの位置
+            tx = tmid;
+            hx = hmid;
+        }
+        //そうでない場合は、`hm`, `tm`を更新する
+        else
+        {
+            //近くの位置
+            tm = tmid;
+            hm = hmid;
+        }
+    }
+    
+}
+
+float3 GetSeaNormal(float3 arg_position, float arg_eps)
+{
+    float3 n;
+    n.y = MappingHeightNoise(arg_position, 5);
+    n.x = MappingHeightNoise(float3(arg_position.x + arg_eps, arg_position.y, arg_position.z), 5) - n.y;
+    n.z = MappingHeightNoise(float3(arg_position.x, arg_position.y, arg_position.z + arg_eps), 5) - n.y;
+    n.y = arg_eps;
+    return normalize(n);
 }

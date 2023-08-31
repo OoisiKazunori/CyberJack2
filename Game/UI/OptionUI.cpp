@@ -37,7 +37,7 @@ void OptionUI::Setting()
 
 	//オプション詳細を設定。
 	m_optionDetails.emplace_back(OptionDetails("DEBUG", { DrawStringData("ON"),DrawStringData("OFF") }, KazMath::Vec2<float>(), RAYTRACING));
-	m_optionDetails.emplace_back(OptionDetails("TIME", { DrawStringData("NOON"),DrawStringData("EVENING") }, KazMath::Vec2<float>(), TIMEZONE));
+	m_optionDetails.emplace_back(OptionDetails("TIME", { DrawStringData("EVENING"),DrawStringData("NOON") }, KazMath::Vec2<float>(), TIMEZONE));
 	m_optionDetails.emplace_back(OptionDetails("STATE", { DrawStringData("A"),DrawStringData("B"),DrawStringData("C") }, KazMath::Vec2<float>(), SEA));
 	m_optionDetails.emplace_back(OptionDetails("", { DrawStringData("") }, KazMath::Vec2<float>(), EXIT));
 
@@ -115,7 +115,7 @@ void OptionUI::Update()
 	{
 
 		//選択している詳細のIDを反映。
-		TimeZone::Instance()->m_timeZone = m_optionDetails[TIMEZONE].m_selectID;
+		TimeZone::Instance()->ChangeTimeZone(!m_optionDetails[TIMEZONE].m_selectID);
 
 		break;
 	}
@@ -123,7 +123,7 @@ void OptionUI::Update()
 	{
 
 		//選択している詳細のIDを反映。
-		SeaEffect::Instance()->m_seaID = m_optionDetails[SEA].m_selectID;
+		SeaEffect::Instance()->ChangeSeaEffect(m_optionDetails[SEA].m_selectID);
 
 		break;
 	}
@@ -481,7 +481,7 @@ void OptionUI::Input()
 	//右方向に入力されたら
 	bool isInputRight = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::RIGHT_SIDE, DEADLINE) ||
 		KeyBoradInputManager::Instance()->InputTrigger(DIK_RIGHTARROW) ||
-		KeyBoradInputManager::Instance()->InputTrigger(DIK_A);
+		KeyBoradInputManager::Instance()->InputTrigger(DIK_D);
 	if (isInputRight && !m_prevInputRight) {
 
 		++m_optionDetails[m_nowSelectHeadline].m_selectID;
@@ -493,7 +493,7 @@ void OptionUI::Input()
 	//左方向に入力されたら
 	bool isInputLeft = ControllerInputManager::Instance()->InputStickState(ControllerStickSide::LEFT_STICK, ControllerSide::LEFT_SIDE, DEADLINE) ||
 		KeyBoradInputManager::Instance()->InputTrigger(DIK_LEFTARROW) ||
-		KeyBoradInputManager::Instance()->InputTrigger(DIK_D);
+		KeyBoradInputManager::Instance()->InputTrigger(DIK_A);
 	if (isInputLeft && !m_prevInputLeft) {
 
 		--m_optionDetails[m_nowSelectHeadline].m_selectID;

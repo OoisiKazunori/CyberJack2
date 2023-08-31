@@ -4,7 +4,6 @@
 #include"../KazLibrary/Sound/SoundManager.h"
 #include"../KazLibrary/Imgui/MyImgui.h"
 #include"../Enemy/EnemyData.h"
-#include"../Game/Effect/MeshParticleEmitter.h"
 #include"../KazLibrary/Render/DrawingByRasterize.h"
 #include"../KazLibrary/Raytracing/BlasVector.h"
 
@@ -139,7 +138,6 @@ public:
 			//ProcessingOfDeathFbx(DEATH_SINK);
 			break;
 		case ENEMY_MODEL_MESHPARTICLE:
-			iEnemy_MeshModelRender->Update();
 			break;
 		default:
 			break;
@@ -161,7 +159,6 @@ public:
 				iEnemy_FbxModelRender->Draw();
 				break;
 			case ENEMY_MODEL_MESHPARTICLE:
-				iEnemy_MeshModelRender->Draw();
 				break;
 			default:
 				break;
@@ -174,10 +171,13 @@ public:
 
 	void InitMeshPartilce(std::string arg_fileDir, std::string arg_fileName, DirectX::XMMATRIX* arg_mat);
 
+	bool GetCanLockOn() { return m_canLockOn; }
+	void SetShockWaveVel(KazMath::Vec3<float> arg_shockWaveVel) { m_shockWaveVel = arg_shockWaveVel; }
+	void InitShockWaveTimer() { m_shockWaveTimer = 0; }
+
 	std::unique_ptr<EnemyData> iEnemy_EnemyStatusData;		//ìGÇÃèÛë‘Çï€ë∂Ç∑ÇÈÉfÅ[É^
 	ObjModelRenderPtr iEnemy_ObjModelRender;				//ìGÇÃï`âÊ
 	FbxModelRenderPtr iEnemy_FbxModelRender;				//ìGÇÃï`âÊ
-	std::unique_ptr<MeshParticleEmitter> iEnemy_MeshModelRender;
 	KazMath::Vec3<float> lerpPos;
 	float yVel;
 	bool m_isDead;
@@ -186,12 +186,25 @@ public:
 
 
 protected:
+
 	bool initDeadSoundFlag;
 	bool demoFlag;
 	bool debugShotFlag;
 	const KazMath::Transform3D* m_playerTransform;
 	int moveID;
 	float moveIDparam;
+
+	bool m_canLockOn;
+	int m_spawnTimer;
+	bool m_canSpawn;
+	KazMath::Vec3<float> m_deadEffectVel;
+	KazMath::Vec3<float> m_shockWaveVel;
+
+	//è’åÇîg
+	float m_shockWaveTimer;
+	const float SHOCK_WAVE_TIMER = 60.0f;
+	const float SHOCK_WAVE_RAIDUS = 100.0f;
+
 private:
 	int deadSoundHandle;
 	int shotSoundHandle;
@@ -207,18 +220,5 @@ private:
 	KazMath::Vec3<float>initDeadYVel;
 
 	EnemyModelType modelType;
-
-public:
-
-	bool m_canLockOn;
-	int m_spawnTimer;
-	bool m_canSpawn;
-	KazMath::Vec3<float> m_deadEffectVel;
-	KazMath::Vec3<float> m_shockWaveVel;
-
-	//è’åÇîg
-	float m_shockWaveTimer;
-	const float SHOCK_WAVE_TIMER = 60.0f;
-	const float SHOCK_WAVE_RAIDUS = 100.0f;
 
 };

@@ -37,14 +37,6 @@ void KazEnemyHelper::GenerateEnemy(std::array<std::array<std::shared_ptr<IEnemy>
 					ENEMIES[enemyType][enemyCount] = std::make_unique<VirusEnemy>(RESPONE_DATA[enemyType][enemyCount].moveID, RESPONE_DATA[enemyType][enemyCount].moveIDparam);
 					ENEMISE_HITBOX.emplace_back(&ENEMIES[enemyType][enemyCount]->GetData()->hitBox);
 					break;
-				case ENEMY_TYPE_LOTUSLEAF:
-					ENEMIES[enemyType][enemyCount] = std::make_unique<LotusLeafEnemy>(RESPONE_DATA[enemyType][enemyCount].moveID, RESPONE_DATA[enemyType][enemyCount].moveIDparam);
-					ENEMISE_HITBOX.emplace_back(&ENEMIES[enemyType][enemyCount]->GetData()->hitBox);
-					break;
-				case ENEMY_TYPE_BUTTERFLY:
-					ENEMIES[enemyType][enemyCount] = std::make_unique<ButterflyEnemy>(RESPONE_DATA[enemyType][enemyCount].moveID, RESPONE_DATA[enemyType][enemyCount].moveIDparam);
-					ENEMISE_HITBOX.emplace_back(&ENEMIES[enemyType][enemyCount]->GetData()->hitBox);
-					break;
 				default:
 					break;
 				}
@@ -106,7 +98,7 @@ void KazEnemyHelper::InitEnemy(const KazMath::Transform3D* arg_playerTransform, 
 	}
 }
 
-bool KazEnemyHelper::LockOn(Cursor *CURSOR, const std::shared_ptr<IEnemy> &ENEMY, AttackLog *LOG, float FONT_SIZE, RESOURCE_HANDLE LOCKON_SOUND)
+bool KazEnemyHelper::LockOn(Cursor *CURSOR, const std::shared_ptr<IEnemy> &ENEMY, float FONT_SIZE, RESOURCE_HANDLE LOCKON_SOUND)
 {
 	if (ENEMY == nullptr)
 	{
@@ -125,13 +117,10 @@ bool KazEnemyHelper::LockOn(Cursor *CURSOR, const std::shared_ptr<IEnemy> &ENEMY
 		return false;
 	}
 
-	//SoundManager::Instance()->PlaySoundMem(LOCKON_SOUND, 1);
-
 	//カーソルのカウント数を増やす
 	CURSOR->Hit(ENEMY->GetData()->hitBox.center);
 	//敵が当たった情報を書く
 	ENEMY->Hit();
-	LOG->WriteLog(ENEMY->GetData()->oprationObjData->name, FONT_SIZE);
 
 	return true;
 }

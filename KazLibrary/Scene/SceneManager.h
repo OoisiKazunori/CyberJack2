@@ -3,7 +3,6 @@
 #include"../Scene/SceneBase.h"
 #include"TitleScene.h"
 #include"GameScene.h"
-#include"DebugScene.h"
 #include"../Scene/SceneChange.h"
 #include"../RenderTarget/GaussianBuler.h"
 #include"../RenderTarget/RenderTargetStatus.h"
@@ -79,19 +78,6 @@ private:
 	}m_debugRaytracingParam;
 	KazBufferHelper::BufferData m_debugRaytracingParamData;
 
-	//海デバッグ用
-	struct DebugSeaParam
-	{
-		float m_freq;
-		float m_amp;
-		float m_choppy;
-		float m_seaSpeed;
-	}m_debugSeaParam;
-	KazBufferHelper::BufferData m_debugSeaParamData;
-	enum SEA_ID {
-		CALM, NORMAL, STORMY
-	};
-
 	//デバッグ用のOnOff切り替えライン
 	bool m_isOldDebugRaytracing;
 	float m_debugLineScale;
@@ -114,5 +100,4 @@ private:
 	//レイトレ用パイプライン
 	std::vector<Raytracing::RayPipelineShaderData> m_pipelineShaders;
 	std::unique_ptr<Raytracing::RayPipeline> m_rayPipeline;
-	bool m_raytracingFlag;
 };

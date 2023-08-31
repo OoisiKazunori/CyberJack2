@@ -17,12 +17,9 @@ public:
 public:
 	KazMath::Transform3D m_skydormTransform;
 	float m_skydormScale;
-	//DrawFuncData::DrawCallData m_drawSkydorm;
 
 	//ステージ内に漂う三角パーティクル
 	DrawFuncData::DrawCallData m_drawTriangleParticle;
-	//上記のパーティクルをレイトレで描画する
-	//DrawFuncData::DrawCallData m_drawTriangleParticleInRaytracing;
 
 	static const int DISPATCH_MAX_NUM = 10;
 	static const int PARTICLE_MAX_NUM = 1024 * DISPATCH_MAX_NUM;

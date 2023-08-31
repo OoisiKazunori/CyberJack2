@@ -43,34 +43,11 @@ MeshParticleRender::MeshParticleRender(const InitMeshParticleData& DATA) :
 			m_particleRender.bufferWrapper->GetBuffer()->GetGPUVirtualAddress(),
 			PARTICLE_MAX_NUM
 		);
-
-		//KazRenderHelper::DrawIndexInstanceCommandData command;
-		////topology
-		//command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		////indexinstance
-		//command.drawIndexInstancedData = { PARTICLE_MAX_NUM * 6,1,0,0,0 };
-		////view
-		//command.vertexBufferDrawData.slot = 0;
-		//command.vertexBufferDrawData.numViews = 1;
-		//command.vertexBufferDrawData.vertexBufferView =
-		//	KazBufferHelper::SetVertexBufferView(
-		//		m_meshParticleVertexBuffer.bufferWrapper->GetGpuAddress(),
-		//		sizeof(VertexBufferData) * (PARTICLE_MAX_NUM * 4),
-		//		sizeof(VertexBufferData)
-		//	);
-		//command.indexBufferView = KazBufferHelper::SetIndexBufferView(m_meshParticleIndexBuffer.bufferWrapper->GetGpuAddress(), sizeof(UINT) * (PARTICLE_MAX_NUM * 6));
-
-
-		//command.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		//m_executeIndirect.drawMultiMeshesIndexInstanceCommandData.drawIndexInstancedData[0] = command.drawIndexInstancedData;
-		//m_executeIndirect.drawMultiMeshesIndexInstanceCommandData.vertexBufferDrawData[0] = command.vertexBufferDrawData;
-		//m_executeIndirect.drawMultiMeshesIndexInstanceCommandData.indexBufferView[0] = command.indexBufferView;
 	}
 
 	m_executeIndirect.extraBufferArray.emplace_back(m_particleRender);
 	m_executeIndirect.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_executeIndirect.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-	m_modelRender = DrawFuncData::SetDrawGLTFIndexMaterialData(*ModelLoader::Instance()->Load("Resource/Test/glTF/Box/", "BoxTextured.gltf"), DrawFuncData::GetModelShader());
 	m_viewBuffer = KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX));
 
 
@@ -392,34 +369,6 @@ void MeshParticleRender::AddMeshData(const InitMeshParticleData& DATA)
 
 
 	scaleRotaMatArray.emplace_back(ScaleRotaBillData(KazMath::CaluScaleMatrix(DATA.particleScale), DATA.billboardFlag));
-
-	//頂点バッファのスタック
-
-	//struct CommonData
-	//{
-	//	UINT id;
-	//	UINT vertNum;
-	//};
-	//m_idBuffer.emplace_back(KazBufferHelper::SetConstBufferData(sizeof(CommonData)));
-	//CommonData data;
-	//data.id = MESH_PARTICLE_GENERATE_NUM;
-	//data.vertNum = DATA.modelVertexBuffer.elementNum;
-	//m_idBuffer.back().bufferWrapper->TransData(&data, sizeof(CommonData));
-	////頂点情報
-	//m_computeStackVertex.m_extraBufferArray[0] = DATA.modelVertexBuffer;
-	//m_computeStackVertex.m_extraBufferArray[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
-	//m_computeStackVertex.m_extraBufferArray[0].rootParamType = GRAPHICS_PRAMTYPE_DATA;
-	////入力
-	//m_computeStackVertex.m_extraBufferArray[1] = m_inputVertexBuffer;
-	//m_computeStackVertex.m_extraBufferArray[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-	//m_computeStackVertex.m_extraBufferArray[1].rootParamType = GRAPHICS_PRAMTYPE_DATA2;
-
-	//m_computeStackVertex.m_extraBufferArray[2] = m_idBuffer.back();
-	//m_computeStackVertex.m_extraBufferArray[2].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-	//m_computeStackVertex.m_extraBufferArray[2].rootParamType = GRAPHICS_PRAMTYPE_DATA;
-	//m_computeStackVertex.Compute({ 5,1,1 });
-
-	//++MESH_PARTICLE_GENERATE_NUM;
 }
 
 void MeshParticleRender::Compute(DrawingByRasterize& arg_rasterize)
@@ -509,12 +458,6 @@ void MeshParticleRender::Compute(DrawingByRasterize& arg_rasterize)
 	m_meshParticleVertexBuffer.bufferWrapper->ChangeBarrier(D3D12_RESOURCE_STATE_COMMON);
 
 	//描画処理---------------------------------------
-	/*
-
-	DirectX::XMMATRIX viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
-	m_viewBuffer.bufferWrapper->TransData(&viewProjMat, sizeof(DirectX::XMMATRIX));*/
-	//m_computeCuring.Compute({ DISPATCH_NUM,1,1 });
-
 	arg_rasterize.ObjectRender(m_executeIndirect);
 	//描画処理---------------------------------------
 

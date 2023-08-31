@@ -2,7 +2,6 @@
 #include"../KazLibrary/Render/KazRender.h"
 #include<array>
 #include<memory>
-#include"../Game/CollisionDetection/InstanceMeshCollision.h"
 #include"../KazLibrary/Loader/MeshParticleLoader.h"
 #include"../KazLibrary/Render/DrawingByRasterize.h"
 #include"../KazLibrary/Raytracing/BlasVector.h"
@@ -30,9 +29,7 @@ public:
 
 
 
-	std::vector<InitMeshCollisionData> collisionArrrayData;
 	std::vector<InitMeshParticleData> particleArrrayData;
-	std::vector<Sphere*> blockHitBox;
 
 
 	std::array<bool,16> hitFlag;

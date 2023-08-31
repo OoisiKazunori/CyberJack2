@@ -1,18 +1,11 @@
 #pragma once
 #include"../DirectXCommon/Base.h"
 #include"../Scene/SceneBase.h"
-#include"../Game/Stage/DrawGrid.h"
 #include"../KazLibrary/RenderTarget/GaussianBuler.h"
 #include"../KazLibrary/Helper/Select.h"
-#include"../Game/UI/DrawMenu.h"
 #include"../KazLibrary/Render/KazRender.h"
 #include"../Game/Player.h"
-#include"../Game/UI/AttackLog.h"
-#include"../Game/Event/WindowFlame.h"
 #include"../Game/GameRenderTarget.h"
-
-#include"../Game/Tutorial/OldComputer.h"
-#include"../Game/Tutorial/TutorialMovie.h"
 
 class TitleScene :public SceneBase
 {
