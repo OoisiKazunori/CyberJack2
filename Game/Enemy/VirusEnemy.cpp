@@ -7,6 +7,7 @@
 #include"../KazLibrary/Buffer/GBufferMgr.h"
 #include"../Effect/EnemyDissolveParam.h"
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
+#include"../KazLibrary/Raytracing/Blas.h"
 
 VirusEnemy::VirusEnemy(int arg_moveID, float arg_moveIDparam)
 {
@@ -273,6 +274,11 @@ void VirusEnemy::Update()
 	m_model.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_TEX;
 
 	ShockWave::Instance()->m_shockWave[moveID].m_facter = m_deadEffectData.m_dissolve.x;
+
+	for (auto& obj : m_model.m_raytracingData.m_blas)
+	{
+		obj->Update();
+	}
 }
 
 void VirusEnemy::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg_blasVec)

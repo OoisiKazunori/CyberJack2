@@ -37,7 +37,7 @@ void OptionUI::Setting()
 
 	//オプション詳細を設定。
 	m_optionDetails.emplace_back(OptionDetails("DEBUG", { DrawStringData("ON"),DrawStringData("OFF") }, KazMath::Vec2<float>(), RAYTRACING));
-	m_optionDetails.emplace_back(OptionDetails("TIME", { DrawStringData("NOON"),DrawStringData("EVENING") }, KazMath::Vec2<float>(), TIMEZONE));
+	m_optionDetails.emplace_back(OptionDetails("TIME", { DrawStringData("EVENING"),DrawStringData("NOON") }, KazMath::Vec2<float>(), TIMEZONE));
 	m_optionDetails.emplace_back(OptionDetails("STATE", { DrawStringData("A"),DrawStringData("B"),DrawStringData("C") }, KazMath::Vec2<float>(), SEA));
 	m_optionDetails.emplace_back(OptionDetails("", { DrawStringData("") }, KazMath::Vec2<float>(), EXIT));
 
@@ -118,7 +118,7 @@ void OptionUI::Update()
 	{
 
 		//選択している詳細のIDを反映。
-		TimeZone::Instance()->m_timeZone = m_optionDetails[TIMEZONE].m_selectID;
+		TimeZone::Instance()->m_timeZone = !m_optionDetails[TIMEZONE].m_selectID;
 
 		break;
 	}
