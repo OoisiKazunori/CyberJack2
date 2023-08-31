@@ -125,7 +125,7 @@ void VirusEnemy::Update()
 		m_transform.scale += KazMath::Vec3<float>(DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE, DEAD_EFFECT_SCALE);
 
 		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
-		SeaEffect::Instance()->m_isSeaEffect = true;
+		SeaEffect::Instance()->ActivateSeaEffect();
 
 		ShockWave::Instance()->m_shockWave[moveID].m_isActive = true;
 		ShockWave::Instance()->m_shockWave[moveID].m_power = 1.0f;

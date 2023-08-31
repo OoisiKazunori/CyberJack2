@@ -14,9 +14,27 @@ private:
 
 public:
 
+	void ChangeTimeZone(int arg_timeZone) {
+		m_timeZone = arg_timeZone;
+	}
+
+	void InverseTimeZone() {
+		m_timeZone = !m_timeZone;
+	}
+
+	int GetTimeZone() {
+		return m_timeZone;
+	}
+
+	bool GetIsSkyEffect() {
+		return m_isSkyEffect;
+	}
+
 	void KillButterfly() {
 		m_skyEffefctTimer = SKY_EFFECT_TIMER;
 	}
+
+	void Init();
 
 	void Update();
 

@@ -165,7 +165,7 @@ void InGame::Input()
 
 	if (input->InputTrigger(DIK_SPACE) || cInput->InputTrigger(XINPUT_GAMEPAD_Y))
 	{
-		TimeZone::Instance()->m_timeZone = !TimeZone::Instance()->m_timeZone;
+		TimeZone::Instance()->InverseTimeZone();
 		OptionUI::Instance()->m_optionDetails[OptionUI::TIMEZONE].m_selectID = !OptionUI::Instance()->m_optionDetails[OptionUI::TIMEZONE].m_selectID;
 	}
 
@@ -272,7 +272,7 @@ void InGame::Update()
 	m_stageArray[m_gameStageLevel]->playerPos = m_rail.GetPosition();
 
 	m_player.Update();
-	m_player.pos = {0,20,0};
+	m_player.pos = { 0,20,0 };
 	m_cursor.Update();
 	m_camera.Update(m_cursor.GetValue(), &m_player.pos, m_player.m_transform.rotation, false);
 
@@ -343,7 +343,7 @@ void InGame::Update()
 		int randomEnemy = KazMath::Rand(0, 7);
 
 		ShakeMgr::Instance()->m_shakeAmount = 0.4f;
-		SeaEffect::Instance()->m_isSeaEffect = true;
+		SeaEffect::Instance()->ActivateSeaEffect();
 		ShockWave::Instance()->m_shockWave[randomEnemy].m_isActive = true;
 		ShockWave::Instance()->m_shockWave[randomEnemy].m_power = 1.0f;
 		ShockWave::Instance()->m_shockWave[randomEnemy].m_radius = 0.0f;

@@ -118,7 +118,7 @@ void OptionUI::Update()
 	{
 
 		//‘I‘ð‚µ‚Ä‚¢‚éÚ×‚ÌID‚ð”½‰fB
-		TimeZone::Instance()->m_timeZone = !m_optionDetails[TIMEZONE].m_selectID;
+		TimeZone::Instance()->ChangeTimeZone(!m_optionDetails[TIMEZONE].m_selectID);
 
 		break;
 	}
@@ -126,7 +126,7 @@ void OptionUI::Update()
 	{
 
 		//‘I‘ð‚µ‚Ä‚¢‚éÚ×‚ÌID‚ð”½‰fB
-		SeaEffect::Instance()->m_seaID = m_optionDetails[SEA].m_selectID;
+		SeaEffect::Instance()->ChangeSeaEffect(m_optionDetails[SEA].m_selectID);
 
 		break;
 	}

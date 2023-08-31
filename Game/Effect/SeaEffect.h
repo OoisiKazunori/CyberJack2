@@ -7,7 +7,7 @@
 class SeaEffect :public ISingleton<SeaEffect>
 {
 
-public:
+private:
 
 	//海デバッグ用
 	struct DebugSeaParam
@@ -29,9 +29,21 @@ public:
 
 public:
 
+	void ChangeSeaEffect(int arg_seaID) {
+		m_seaID = arg_seaID;
+	}
+
+	void ActivateSeaEffect() {
+		m_isSeaEffect = true;
+	};
+
+	void UpdateFlag();
+
 	void Setting();
 
 	void Update();
+
+	KazBufferHelper::BufferData& GetDebugSeaParamData() { return m_debugSeaParamData; }
 
 };
 

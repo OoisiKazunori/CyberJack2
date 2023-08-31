@@ -1,5 +1,13 @@
 #include "SeaEffect.h"
 
+void SeaEffect::UpdateFlag()
+{
+
+	SeaEffect::Instance()->m_isOldSeaEffect = SeaEffect::Instance()->m_isSeaEffect;
+	SeaEffect::Instance()->m_isSeaEffect = false;
+
+}
+
 void SeaEffect::Setting()
 {
 
@@ -11,10 +19,14 @@ void SeaEffect::Setting()
 	m_debugSeaParamData = KazBufferHelper::SetConstBufferData(sizeof(DebugSeaParam));
 	m_debugSeaParamData.bufferWrapper->TransData(&m_debugSeaParam, sizeof(DebugSeaParam));
 
+	m_isSeaEffect = false;
+
 }
 
 void SeaEffect::Update()
 {
+
+
 	const float CALM_SEA_AMP = 0.02f;
 	const float CALM_SEA_FREQ = 0.16f;
 

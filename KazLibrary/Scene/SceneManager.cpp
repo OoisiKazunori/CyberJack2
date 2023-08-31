@@ -107,20 +107,18 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_isDebugTimeZone = false;
 	m_isDebugVolumeFog = false;
 	m_isDebugSea = false;
-	TimeZone::Instance()->m_isSkyEffect = false;
-	SeaEffect::Instance()->m_isSeaEffect = false;
+	TimeZone::Instance()->Init();
 
 	//ヒットストップのタイマーを初期化。
 	StopMgr::Instance()->Init();
 
-	TimeZone::Instance()->m_timeZone = 0;
 	m_debugRaytracingParam.m_skyFacter = 1.0f;
 
 	//OnOffデバッグ用のパラメーターを用意。
 	m_rayPipeline->SetDebugOnOffConstData(&m_debugRaytracingParamData);
 
 	SeaEffect::Instance()->Setting();
-	m_rayPipeline->SetDebugSeaConstData(&SeaEffect::Instance()->m_debugSeaParamData);
+	m_rayPipeline->SetDebugSeaConstData(&SeaEffect::Instance()->GetDebugSeaParamData());
 
 	ShockWave::Instance()->Setting();
 
@@ -167,8 +165,7 @@ void SceneManager::Update()
 		initGameFlag = false;
 	}
 
-	SeaEffect::Instance()->m_isOldSeaEffect = SeaEffect::Instance()->m_isSeaEffect;
-	SeaEffect::Instance()->m_isSeaEffect = false;
+	SeaEffect::Instance()->UpdateFlag();
 
 	const int RESTART_NUM = -2;
 
@@ -291,15 +288,15 @@ void SceneManager::Update()
 	m_debugRaytracingParamData.bufferWrapper->TransData(&m_debugRaytracingParam, sizeof(DebugRaytracingParam));
 
 	//選択されている値によってDirLightの角度を変える。
-	if (TimeZone::Instance()->m_timeZone == 0) {
+	if (TimeZone::Instance()->GetTimeZone() == 0) {
 		GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir += (KazMath::Vec3<float>(0.0f, -0.857f, 0.514f) - GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir) / 30.0f;
 	}
-	else if (TimeZone::Instance()->m_timeZone == 1) {
+	else if (TimeZone::Instance()->GetTimeZone() == 1) {
 		GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir += (KazMath::Vec3<float>(0.0f, -0.683f, -0.73f) - GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir) / 30.0f;
 	}
 	GBufferMgr::Instance()->m_lightConstData.m_dirLight.m_dir.Normalize();
 
-	if (TimeZone::Instance()->m_isSkyEffect) {
+	if (TimeZone::Instance()->GetIsSkyEffect()) {
 		m_debugRaytracingParam.m_skyFacter += (0.25f - m_debugRaytracingParam.m_skyFacter) / 5.0f;
 	}
 	else {
