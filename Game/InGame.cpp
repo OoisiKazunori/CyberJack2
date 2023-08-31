@@ -189,7 +189,7 @@ void InGame::Input()
 		rightFlag = true;
 	}
 
-	if (input->InputTrigger(DIK_I) || cInput->InputTrigger(XINPUT_GAMEPAD_START))
+	if (input->InputTrigger(DIK_I) || cInput->InputTrigger(XINPUT_GAMEPAD_X))
 	{
 		m_appearGuideFlag = !m_appearGuideFlag;
 	}
