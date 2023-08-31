@@ -126,6 +126,61 @@ float3 DomainWarping(float2 arg_st, float arg_time)
 
 
 
+//乱数を取得。
+float2 Random2D(float2 arg_st)
+{
+    float2 seed = float2(dot(arg_st, float2(127.1f, 311.7f)), dot(arg_st, float2(269.5f, 183.3f)));
+    return -1.0f + 2.0f * frac(sin(seed) * 43758.5453123f);
+}
+
+//2Dグラディエントノイズ関数
+float GradientNoise2D(float2 arg_st)
+{
+    float2 i = floor(arg_st);
+    float2 f = frac(arg_st);
+
+    //四つの隣接点の座標を求める
+    float2 u = f * f * (3.0f - 2.0f * f);
+
+    float a = dot(Random2D(i), f - float2(0, 0));
+    float b = dot(Random2D(i + float2(1, 0)), f - float2(1, 0));
+    float c = dot(Random2D(i + float2(0, 1)), f - float2(0, 1));
+    float d = dot(Random2D(i + float2(1, 1)), f - float2(1, 1));
+
+    //ノイズ値を補間する
+    float x1 = lerp(a, b, u.x);
+    float x2 = lerp(c, d, u.x);
+
+    return lerp(x1, x2, u.y);
+}
+
+float PerlinNoise2D(float2 arg_st, int arg_octaves, float arg_persistence, float arg_lacunarity, float arg_threshold)
+{
+    float noiseValue = 0;
+    
+    float frequency = 0.9f;
+    float localAmplitude = 5.0f;
+    float sum = 0.0f;
+    float maxValue = 0.0f;
+
+    for (int i = 0; i < arg_octaves; ++i)
+    {
+        sum += localAmplitude * GradientNoise2D(arg_st * frequency);
+        maxValue += localAmplitude;
+
+        localAmplitude *= arg_persistence;
+        frequency *= arg_lacunarity;
+    }
+
+    noiseValue = (sum / maxValue + 1.0f) * 0.5f; //ノイズ値を再マッピング
+
+    if (noiseValue <= arg_threshold)
+    {
+        noiseValue = 0.0f;
+    }
+    return noiseValue;
+}
+
 
 //海用
 
@@ -151,11 +206,6 @@ float ValueNoise(float2 arg_point, float arg_st)
     float2 u = f * f * uid;
 
     //グリッド上に乱数を求めて補間する。
-    // +---+---+
-    // | a | b |
-    // +---+---+
-    // | c | d |
-    // +---+---+
     float dim = 1.0f;
     float a = Hash(i + float2(0.0f, 0.0f));
     float b = Hash(i + float2(dim, 0.0f));
