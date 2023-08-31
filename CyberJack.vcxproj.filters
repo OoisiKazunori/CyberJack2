@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Game\Debug\ParameterMgr.cpp" />
-    <ClCompile Include="Game\Debug\WirteCpuLineData.cpp" />
     <ClCompile Include="Game\Interface\IEnemy.cpp" />
     <ClCompile Include="Game\Interface\IOperationObject.cpp" />
     <ClCompile Include="Game\Interface\IStage.cpp" />
@@ -78,7 +77,6 @@
     <ClCompile Include="Game\Tutorial\DirectXMoive.cpp" />
     <ClCompile Include="KazLibrary\Render\MovieRender.cpp" />
     <ClCompile Include="Game\Tutorial\DirectX12MoviePlayer.cpp" />
-    <ClCompile Include="Game\Debug\ParticleWall.cpp" />
     <ClCompile Include="KazLibrary\Collision\BoundingBox.cpp" />
     <ClCompile Include="KazLibrary\Collision\BBDuringEquallyCoordinatePlace.cpp" />
     <ClCompile Include="KazLibrary\Render\DrawExcuteIndirect.cpp" />
@@ -136,7 +134,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
-    <ClInclude Include="Game\Debug\WirteCpuLineData.h" />
     <ClInclude Include="Game\Interface\IEnemy.h" />
     <ClInclude Include="Game\Interface\IOperationObject.h" />
     <ClInclude Include="Game\Interface\IStage.h" />
@@ -225,7 +222,6 @@
     <ClInclude Include="KazLibrary\Render\MovieRender.h" />
     <ClInclude Include="Game\Tutorial\DirectX12MoviePlayer.h" />
     <ClInclude Include="KazLibrary\Render\KazExcuteIndirect.h" />
-    <ClInclude Include="Game\Debug\ParticleWall.h" />
     <ClInclude Include="KazLibrary\Collision\BoundingBox.h" />
     <ClInclude Include="KazLibrary\Collision\BBDuringEquallyCoordinatePlace.h" />
     <ClInclude Include="KazLibrary\Render\DrawExcuteIndirect.h" />
