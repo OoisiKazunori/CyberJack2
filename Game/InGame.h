@@ -11,8 +11,6 @@
 #include"../Game/Interface/IStage.h"
 #include"../Game/Helper/EnemyHelper.h"
 
-#include"../Game/Effect/RocketLightEffect.h"
-#include"../Game/Effect/MeshParticleEmitter.h"
 #include"../Game/Helper/CameraWork.h"
 #include"../Game/Tool/SplineRail.h"
 #include"../Game/Debug/DebugCamera.h"
@@ -26,7 +24,6 @@
 #include"../KazLibrary/Helper/Compute.h"
 #include"../KazLibrary/Helper/ResourceFilePass.h"
 
-#include"../Game/Effect/InstanceMeshParticle.h"
 #include"../KazLibrary/Buffer/CreateMeshBuffer.h"
 #include"../KazLibrary/Sound/SoundManager.h"
 

@@ -96,8 +96,6 @@ void Player::Update()
 	}
 	//----------HP‚ªŒ¸‚Á‚½‚çƒvƒŒƒCƒ„[‚ğÔ‚­‚·‚é----------
 
-	damageEffect.Update();
-
 
 	//ImGui::Begin("Head");
 	//KazImGuiHelper::InputVec3("Pos", &adjPos);

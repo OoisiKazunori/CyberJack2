@@ -5,7 +5,6 @@
 #include"../Game/Interface/IEnemy.h"
 #include"../Game/Enemy/VirusEnemy.h"
 #include"../Game/UI/Cursor.h"
-#include"../Game/Effect/InstanceMeshParticle.h"
 
 
 namespace KazEnemyHelper

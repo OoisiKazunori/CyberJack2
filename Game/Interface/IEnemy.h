@@ -4,7 +4,6 @@
 #include"../KazLibrary/Sound/SoundManager.h"
 #include"../KazLibrary/Imgui/MyImgui.h"
 #include"../Enemy/EnemyData.h"
-#include"../Game/Effect/MeshParticleEmitter.h"
 #include"../KazLibrary/Render/DrawingByRasterize.h"
 #include"../KazLibrary/Raytracing/BlasVector.h"
 
@@ -139,7 +138,6 @@ public:
 			//ProcessingOfDeathFbx(DEATH_SINK);
 			break;
 		case ENEMY_MODEL_MESHPARTICLE:
-			iEnemy_MeshModelRender->Update();
 			break;
 		default:
 			break;
@@ -161,7 +159,6 @@ public:
 				iEnemy_FbxModelRender->Draw();
 				break;
 			case ENEMY_MODEL_MESHPARTICLE:
-				iEnemy_MeshModelRender->Draw();
 				break;
 			default:
 				break;
@@ -177,7 +174,6 @@ public:
 	std::unique_ptr<EnemyData> iEnemy_EnemyStatusData;		//“G‚Ìó‘Ô‚ğ•Û‘¶‚·‚éƒf[ƒ^
 	ObjModelRenderPtr iEnemy_ObjModelRender;				//“G‚Ì•`‰æ
 	FbxModelRenderPtr iEnemy_FbxModelRender;				//“G‚Ì•`‰æ
-	std::unique_ptr<MeshParticleEmitter> iEnemy_MeshModelRender;
 	KazMath::Vec3<float> lerpPos;
 	float yVel;
 	bool m_isDead;

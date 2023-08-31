@@ -1,6 +1,5 @@
 #include "IEnemy.h"
 #include"../KazLibrary/Helper/ResourceFilePass.h"
-#include"../Game/Effect/InstanceMeshParticle.h"
 
 IEnemy::IEnemy() :hpDirtyFlag(&iOperationData.rockOnNum)
 {
