@@ -654,7 +654,7 @@ void InGame::Draw(DrawingByRasterize &arg_rasterize, Raytracing::BlasVector &arg
 
 	if (!m_debugFlag)
 	{
-		m_cursor.Draw(arg_rasterize);
+		//m_cursor.Draw(arg_rasterize);
 	}
 
 

@@ -6,10 +6,6 @@
 
 ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 {
-	//m_drawSkydorm = DrawFuncData::SetDrawGLTFIndexMaterialData(
-	//	*ModelLoader::Instance()->Load(KazFilePathName::StagePath + "Skydorm/", "skydome.gltf"),
-	//	DrawFuncData::GetModelShader()
-	//);
 	m_skydormTransform.scale = { m_skydormScale,m_skydormScale,m_skydormScale };
 
 	m_drawTriangleParticle.extraBufferArray.emplace_back(KazBufferHelper::SetGPUBufferData(sizeof(ParticeArgumentData) * PARTICLE_MAX_NUM, "Particle"));
@@ -106,16 +102,11 @@ ChildOfEdenStage::ChildOfEdenStage() :m_skydormScale(100.0f)
 
 void ChildOfEdenStage::Update()
 {
-	//m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas[0]->Update();
 }
 
 void ChildOfEdenStage::Draw(DrawingByRasterize &arg_rasterize, Raytracing::BlasVector &arg_blasVec)
 {
-	//DrawFunc::DrawModel(m_drawSkydorm, m_skydormTransform);
-	//arg_rasterize.ObjectRender(m_drawSkydorm);
-
-	//matrixBuffer.bufferWrapper->CopyBuffer(matrixVRAMBuffer.bufferWrapper->GetBuffer());
-
+	//GPUパーティクルをCPUに書き込む処理を追加
 	memcpy(m_particleMatrix.data(), matrixBuffer.bufferWrapper->GetMapAddres(), sizeof(DirectX::XMMATRIX) * PARTICLE_MAX_NUM);
 
 	for (auto &blas : m_playerModel.back().m_raytracingData.m_blas)
@@ -125,15 +116,10 @@ void ChildOfEdenStage::Draw(DrawingByRasterize &arg_rasterize, Raytracing::BlasV
 
 	arg_rasterize.ObjectRender(m_drawTriangleParticle);
 
-	//for (auto& index : m_drawTriangleParticleInRaytracing.m_raytracingData.m_blas)
-	//{
-	//	arg_blasVec.Add(index, DirectX::XMMatrixIdentity(), 1);
-	//}
 
 	CameraBufferData cameraMat;
 	cameraMat.m_billboardMat = CameraMgr::Instance()->GetMatBillBoard();
 	cameraMat.m_viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
-	//cameraMat.m_hitPos = playerPos.ConvertXMFLOAT3();
 	for (int i = 0; i < hitFlag.size(); ++i)
 	{
 		Rate(&m_rate[i], 0.01f, 1.0f);
@@ -172,6 +158,4 @@ void ChildOfEdenStage::Draw(DrawingByRasterize &arg_rasterize, Raytracing::BlasV
 	m_computeUpdateBuffer[2].bufferWrapper->TransData(&cameraMat, sizeof(CameraBufferData));
 
 	m_computeUpdate.Compute({ DISPATCH_MAX_NUM,1,1 });
-
-	//arg_rasterize.ObjectRender(m_drawCall);
 }
