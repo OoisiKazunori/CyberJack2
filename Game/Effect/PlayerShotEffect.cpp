@@ -154,7 +154,7 @@ void PlayerShotEffect::Update(std::array<bool, 16>& arg_hitArray, int* arg_hitNu
 			//Žü‚è‚Ì“G‚à”½“®‚Å“®‚©‚·B
 			for (auto& index : m_otherEnemy) {
 
-				index->m_shockWaveVel = KazMath::Vec3<float>(index->m_transform.pos - m_refEnemy->m_transform.pos).GetNormal() * SHOCK_WAVE_VEL;
+				index->SetShockWaveVel(KazMath::Vec3<float>(index->m_transform.pos - m_refEnemy->m_transform.pos).GetNormal() * SHOCK_WAVE_VEL);
 
 			}
 			SoundManager::Instance()->SoundPlayerWave(m_hitSE, 0);
@@ -168,7 +168,7 @@ void PlayerShotEffect::Update(std::array<bool, 16>& arg_hitArray, int* arg_hitNu
 
 			for (auto& index : m_otherEnemy) {
 
-				index->m_shockWaveVel = KazMath::Vec3<float>(index->m_transform.pos - m_refEnemy->m_transform.pos).GetNormal() * SHOCK_WAVE_VEL;
+				index->SetShockWaveVel(KazMath::Vec3<float>(index->m_transform.pos - m_refEnemy->m_transform.pos).GetNormal() * SHOCK_WAVE_VEL);
 
 			}
 
