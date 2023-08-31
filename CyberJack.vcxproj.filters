@@ -131,6 +131,8 @@
     <ClCompile Include="Game\UI\OptionUI.cpp" />
     <ClCompile Include="Game\Effect\EnemyDeadParticle.cpp" />
     <ClCompile Include="Game\Effect\SeaEffect.cpp" />
+    <ClCompile Include="Game\Effect\StopMgr.cpp" />
+    <ClCompile Include="Game\Effect\TimeZone.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />

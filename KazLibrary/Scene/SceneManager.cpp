@@ -107,10 +107,11 @@ SceneManager::SceneManager() :gameFirstInitFlag(false)
 	m_isDebugTimeZone = false;
 	m_isDebugVolumeFog = false;
 	m_isDebugSea = false;
-	StopMgr::Instance()->m_isPause = false;
-	StopMgr::Instance()->m_isMoveOnly1F = false;
 	TimeZone::Instance()->m_isSkyEffect = false;
 	SeaEffect::Instance()->m_isSeaEffect = false;
+
+	//ヒットストップのタイマーを初期化。
+	StopMgr::Instance()->Init();
 
 	TimeZone::Instance()->m_timeZone = 0;
 	m_debugRaytracingParam.m_skyFacter = 1.0f;
@@ -144,8 +145,8 @@ void SceneManager::Update()
 {
 	DescriptorHeapMgr::Instance()->SetDescriptorHeap();
 
-	if ((StopMgr::Instance()->m_isPause && !StopMgr::Instance()->m_isMoveOnly1F) || 0 < StopMgr::Instance()->m_stopTimer) {
-		StopMgr::Instance()->m_stopTimer = std::clamp(StopMgr::Instance()->m_stopTimer - 1, 0, 100000);
+	if (StopMgr::Instance()->IsHitStop()) {
+		StopMgr::Instance()->Update();
 		m_blasVector.Update();
 		return;
 	}

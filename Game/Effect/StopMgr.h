@@ -7,12 +7,22 @@
 class StopMgr :public ISingleton<StopMgr>
 {
 
-public:
+private:
 
-	bool m_isPause;
-	bool m_isMoveOnly1F;
 	int m_stopTimer;
 
 	const int ENEMY_HIT_STOP = 3;
+
+public:
+
+	void Init();
+
+	void Update();
+
+	void HitStopEnemy();
+
+	bool IsHitStop() {
+		return 0 < m_stopTimer;
+	}
 
 };

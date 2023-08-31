@@ -121,6 +121,8 @@
     <ClCompile Include="Game\Effect\PlayerShotEffectMgr.cpp" />
     <ClCompile Include="Game\Effect\SeaEffect.cpp" />
     <ClCompile Include="Game\Effect\ShockWave.cpp" />
+    <ClCompile Include="Game\Effect\StopMgr.cpp" />
+    <ClCompile Include="Game\Effect\TimeZone.cpp" />
     <ClCompile Include="Game\Enemy\VirusEnemy.cpp" />
     <ClCompile Include="Game\GameRenderTarget.cpp" />
     <ClCompile Include="Game\Helper\CameraWork.cpp" />

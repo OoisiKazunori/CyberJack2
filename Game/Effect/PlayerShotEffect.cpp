@@ -139,7 +139,7 @@ void PlayerShotEffect::Update(std::array<bool, 16>& arg_hitArray, int* arg_hitNu
 		if (0 < m_refEnemy->iOperationData.rockOnNum) {
 
 			//m_refEnemy->Hit();
-			StopMgr::Instance()->m_stopTimer = StopMgr::Instance()->ENEMY_HIT_STOP;
+			StopMgr::Instance()->HitStopEnemy();
 			m_refEnemy->Dead(&m_prevPos);
 
 			for (int i = 0; i < arg_hitArray.size(); ++i)
@@ -163,7 +163,7 @@ void PlayerShotEffect::Update(std::array<bool, 16>& arg_hitArray, int* arg_hitNu
 		else {
 
 			//Žü‚è‚Ì“G‚à”½“®‚Å“®‚©‚·B
-			StopMgr::Instance()->m_stopTimer = StopMgr::Instance()->ENEMY_HIT_STOP;
+			StopMgr::Instance()->HitStopEnemy();
 			m_refEnemy->Dead(&m_prevPos);
 
 			for (auto& index : m_otherEnemy) {
