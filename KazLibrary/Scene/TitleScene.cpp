@@ -7,7 +7,6 @@
 #include"../Imgui/MyImgui.h"
 #include"../Helper/ResourceFilePass.h"
 #include"../Easing/easing.h"
-#include"../Game/Event/GameCommonData.h"
 #include"../Game/Input/Input.h"
 #include"../Helper/ResourceFilePass.h"
 

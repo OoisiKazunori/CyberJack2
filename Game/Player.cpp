@@ -37,7 +37,6 @@ void Player::Init(const KazMath::Vec3<float>& POS, bool DRAW_UI_FLAG, bool APPEA
 	pos = POS;
 	hp = 3;
 
-	hpUi.Init(hp);
 	prevHp = hp;
 	redFlag = false;
 	coolTimer = 0;
@@ -51,7 +50,6 @@ void Player::Init(const KazMath::Vec3<float>& POS, bool DRAW_UI_FLAG, bool APPEA
 
 void Player::Finalize()
 {
-	damageWindow.Finalize();
 }
 
 void Player::Input()
@@ -60,14 +58,11 @@ void Player::Input()
 
 void Player::Update()
 {
-	hpUi.Update();
 
 	//----------HPが減ったらプレイヤーを赤くする----------
 	if (hp != prevHp)
 	{
 		//SoundManager::Instance()->PlaySoundMem(damageSoundHandle, 1);
-		damageEffect.Init(pos);
-		damageWindow.Init(pos + KazMath::Vec3<float>(WIN_X / 2.0f, WIN_Y / 2.0f + 200.0f, 0.0f));
 		redFlag = true;
 	}
 	prevHp = hp;
@@ -102,7 +97,6 @@ void Player::Update()
 	//----------HPが減ったらプレイヤーを赤くする----------
 
 	damageEffect.Update();
-	damageWindow.Update();
 
 
 	//ImGui::Begin("Head");
@@ -221,12 +215,6 @@ void Player::Draw(DrawingByRasterize& arg_rasterize, Raytracing::BlasVector& arg
 
 void Player::Hit()
 {
-	if (!coolTimeFlag)
-	{
-		--hp;
-		hpUi.Sub();
-	}
-	coolTimeFlag = true;
 }
 
 bool Player::IsAlive()

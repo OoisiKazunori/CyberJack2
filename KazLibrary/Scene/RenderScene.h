@@ -49,8 +49,6 @@ private:
 	Sprite3DRender m_spriteR;
 	CameraWork m_camera;
 
-	std::unique_ptr<GPUParticleRender> m_gpuParticleRender;
-
 	bool m_texFlag;
 
 	ResouceBufferHelper m_clearGBuffer;

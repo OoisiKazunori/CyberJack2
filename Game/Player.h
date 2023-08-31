@@ -1,9 +1,7 @@
 #pragma once
 #include"../KazLibrary/DirectXCommon/Base.h"
 #include"../KazLibrary/Render/KazRender.h"
-#include"../Game/UI/PlayerHpUi.h"
 #include"../Game/Effect/PlayerDamageEmitter.h"
-#include"../Game/UI/DamageTextWindow.h"
 #include"../KazLibrary/Buffer/DrawFuncData.h"
 #include"../KazLibrary/Render/DrawFunc.h"
 #include"../KazLibrary/Loader/ModelLoader.h"
@@ -59,11 +57,9 @@ private:
 	bool redFlag;
 	bool drawHpFlag;
 
-	PlayerHpUi hpUi;
 
 	int damageSoundHandle;
 	PlayerDamageEmitter damageEffect;
-	DamageTextWindow damageWindow;
 
 
 	bool leftFlag;
