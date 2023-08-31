@@ -4,11 +4,7 @@
 #include"../Game/Enemy/EnemyData.h"
 #include"../Game/Interface/IEnemy.h"
 #include"../Game/Enemy/VirusEnemy.h"
-#include"../Game/Enemy/LotusLeafEnemy.h"
-#include"../Game/Enemy/ButterflyEnemy.h"
 #include"../Game/UI/Cursor.h"
-#include"../Game/UI/AttackLog.h"
-#include"../Game/Effect/InstanceMeshParticle.h"
 
 
 namespace KazEnemyHelper
@@ -47,7 +43,7 @@ namespace KazEnemyHelper
 		bool DEMO_FLAG = false
 	);
 
-	bool LockOn(Cursor *CURSOR, const std::shared_ptr<IEnemy> &ENEMY, AttackLog *LOG, float FONT_SIZE, RESOURCE_HANDLE LOCKON_SOUND);
+	bool LockOn(Cursor *CURSOR, const std::shared_ptr<IEnemy> &ENEMY, float FONT_SIZE, RESOURCE_HANDLE LOCKON_SOUND);
 
 	enum CameraDir
 	{

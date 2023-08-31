@@ -4,43 +4,14 @@
 #include<memory>
 #include"../Game/Player.h"
 #include"../Game/UI/Cursor.h"
-#include"../Game/LineEffect/LineLevel1.h"
-#include"../Game/Event/GoalBox.h"
 #include"../KazLibrary/RenderTarget/RenderTargetStatus.h"
 #include"../KazLibrary/RenderTarget/GaussianBuler.h"
 #include"../KazLibrary/Render/PolygonRender.h"
 #include"../KazLibrary/Scene/SceneBase.h"
 #include"../Game/Interface/IStage.h"
-#include"../Game/Stage/FirstStage.h"
-#include"../Game/Stage/SecondStage.h"
-#include"../Game/Stage/ThridStage.h"
-#include"../Game/Stage/RezStage.h"
-#include"../Game/Stage/BlockParticleStage.h"
-#include"../Game/Stage/GpuParticleStage.h"
-
-#include"../Game/UI/AnnounceStageUI.h"
-#include"../Game/Event/EventSprite.h"
-#include"../Game/Event/TutorialWindow.h"
-#include"../Game/Event/PortalEffect.h"
-#include"../Game/Effect/IHitEffectEmitter.h"
-#include"../Game/Effect/HitEffectPattern1Emitter.h"
-#include"../Game/Effect/HitEffectPattern2Emitter.h"
-#include"../Game/Effect/HitEffectPattern3Emitter.h"
 #include"../Game/Helper/EnemyHelper.h"
 
-#include"../Game/Effect/FireEffect.h"
-#include"../Game/Effect/RocketLightEffect.h"
-#include"../Game/Effect/MeshParticleEmitter.h"
-#include"../Game/Effect/DeadParticle.h"
-
-#include"../Game/UI/AttackLog.h"
 #include"../Game/Helper/CameraWork.h"
-
-#include"Tutorial.h"
-#include"../Game/UI/StringWindow.h"
-
-#include"../Game/CollisionDetection/InstanceMeshCollision.h"
-#include"../Game/Effect/InstanceDeadParticle.h"
 #include"../Game/Tool/SplineRail.h"
 #include"../Game/Debug/DebugCamera.h"
 
@@ -53,7 +24,6 @@
 #include"../KazLibrary/Helper/Compute.h"
 #include"../KazLibrary/Helper/ResourceFilePass.h"
 
-#include"../Game/Effect/InstanceMeshParticle.h"
 #include"../KazLibrary/Buffer/CreateMeshBuffer.h"
 #include"../KazLibrary/Sound/SoundManager.h"
 

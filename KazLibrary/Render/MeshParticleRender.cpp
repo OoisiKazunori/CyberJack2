@@ -70,7 +70,6 @@ MeshParticleRender::MeshParticleRender(const InitMeshParticleData& DATA) :
 	m_executeIndirect.extraBufferArray.emplace_back(m_particleRender);
 	m_executeIndirect.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_UAV_VIEW;
 	m_executeIndirect.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
-	m_modelRender = DrawFuncData::SetDrawGLTFIndexMaterialData(*ModelLoader::Instance()->Load("Resource/Test/glTF/Box/", "BoxTextured.gltf"), DrawFuncData::GetModelShader());
 	m_viewBuffer = KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX));
 
 

@@ -150,7 +150,6 @@ private:
 	float m_alpha;
 	DrawFuncData::DrawCallData m_executeIndirect;
 
-	DrawFuncData::DrawCallData m_modelRender;
 
 	ComputeShader m_computeCuring;
 	bool curlNozieFlag;

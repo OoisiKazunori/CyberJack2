@@ -1,6 +1,5 @@
 #include "IEnemy.h"
 #include"../KazLibrary/Helper/ResourceFilePass.h"
-#include"../Game/Effect/InstanceMeshParticle.h"
 
 IEnemy::IEnemy() :hpDirtyFlag(&iOperationData.rockOnNum)
 {
@@ -232,10 +231,6 @@ void IEnemy::InitModel(const KazMath::Transform3D &TRANSFORM, const std::string 
 				&iEnemy_FbxModelRender->motherMat,
 				lData
 			);*/
-
-		iEnemy_EnemyStatusData->deadParticleData.motherMat = iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData.motherMat;
-		iEnemy_EnemyStatusData->deadParticleData.startFlag = &iEnemy_EnemyStatusData->oprationObjData->enableToHitFlag;
-		iEnemy_EnemyStatusData->deadParticleData.meshParticleData = iEnemy_EnemyStatusData->meshParticleData[0]->meshParticleData;
 		break;
 	case ENEMY_MODEL_MESHPARTICLE:
 		//RESOURCE_HANDLE lHandle = FbxModelResourceMgr::Instance()->LoadModel(MODEL_FILEPASS, REV_UV_FLAG);	//ƒ‚ƒfƒ‹“Ç‚Ýž‚Ý)

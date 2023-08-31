@@ -3,7 +3,6 @@
 #include"../Scene/SceneBase.h"
 #include"TitleScene.h"
 #include"GameScene.h"
-#include"DebugScene.h"
 #include"../Scene/SceneChange.h"
 #include"../RenderTarget/GaussianBuler.h"
 #include"../RenderTarget/RenderTargetStatus.h"

@@ -1,13 +1,7 @@
 #pragma once
-#include"../Game/Game.h"
 #include"../Game/InGame.h"
 #include"../KazLibrary/Scene/SceneBase.h"
 #include"../Game/Helper/EnemyHelper.h"
-#include"../Game/Stage/FirstStage.h"
-#include"../Game/Stage/SecondStage.h"
-#include"../Game/Stage/ThridStage.h"
-#include"../Game/Stage/RezStage.h"
-#include"../Game/Stage/BlockParticleStage.h"
 #include"../Game/Stage/ChildOfEdenStage.h"
 
 class GameScene :public SceneBase
