@@ -91,7 +91,6 @@ private:
 	//進行にかかわるもの
 	bool m_gameStartFlag;						//ゲーム開始を知らせるフラグ
 	bool m_sceneChangeFlag;
-	int m_gameFlame;							//1ステージの経過時間
 	int m_gameSpeed;							//1ステージで進む時間のスピード
 	int m_gameStageLevel;						//現在のステージのレベル
 	int m_gameLeyerLevel;						//現在のステージのレベル
@@ -116,8 +115,8 @@ private:
 	std::array<int, KazEnemyHelper::ENEMY_TYPE_MAX> addEnemiesHandle;														//0から順番に追加で初期化する際に必要
 	std::array<std::array<ResponeData, KazEnemyHelper::ENEMY_NUM_MAX>, KazEnemyHelper::ENEMY_TYPE_MAX> m_responeData;		//敵を生成する際に必要な設定
 	std::array<ResponeData, 50>m_addResponeData;																			//敵を追加で生成する際に必要な設定をスタックしたもの
-	bool m_isEnemyNotMoveFlag;
-	int m_notMoveTimer;
+	bool m_isNoEnemy;
+	int m_noEnemyTimer;
 	const int CHANGE_GMAE_FLAME_SPEED_MAX_TIME = 2;	//敵が居なくなってからゲーム内時間の進むスピードが速まるまでの間隔
 	std::vector<Sphere *>m_enemyHitBoxArray;
 
@@ -155,8 +154,6 @@ private:
 	float m_appearGuideRate, m_disappearGuideRate;
 	bool m_appearGuideFlag;
 
-public:
-	bool m_debugFlag;
 private:
 	DebugCamera m_debugCamera;
 	//デバック処理---------------------------------------
