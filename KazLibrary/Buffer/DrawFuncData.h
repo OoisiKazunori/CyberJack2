@@ -1120,6 +1120,51 @@ namespace DrawFuncData
 		return drawCallData;
 	};
 
+	static DrawCallData SetDrawGLTFAnimationIndexMaterialData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA)
+	{
+		DrawCallData drawCallData;
+
+		//頂点情報
+		drawCallData.m_modelVertDataHandle = MODEL_DATA.modelVertDataHandle;
+		drawCallData.drawMultiMeshesIndexInstanceCommandData = VertexBufferMgr::Instance()->GetVertexIndexBuffer(MODEL_DATA.modelVertDataHandle).index;
+		drawCallData.drawCommandType = VERT_TYPE::MULTI_MESHED;
+		for (auto& obj : MODEL_DATA.modelData)
+		{
+			drawCallData.materialBuffer.emplace_back(obj.materialData.textureBuffer);
+		}
+
+		//行列情報
+		drawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(CoordinateSpaceMatData))
+		);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(CoordinateSpaceMatData);
+
+		//色乗算
+		drawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMFLOAT4))
+		);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA2;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMFLOAT4);
+		KazMath::Color init(255, 255, 255, 255);
+		drawCallData.extraBufferArray.back().bufferWrapper->TransData(&init.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+
+		//骨
+		drawCallData.extraBufferArray.emplace_back(
+			KazBufferHelper::SetConstBufferData(sizeof(BoneData))
+		);
+		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
+		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
+		drawCallData.extraBufferArray.back().structureSize = sizeof(BoneData);
+
+		drawCallData.pipelineData = PIPELINE_DATA;
+
+		return drawCallData;
+	};
+
+
 	//レイトレでのモデルのポリゴン表示(インデックスあり、マテリアルあり、ブルームの加減設定あり、アニメーション対応)
 	static DrawCallData SetDrawGLTFAnimationIndexMaterialInRayTracingBloomData(const ModelInfomation& MODEL_DATA, const PipelineGenerateData& PIPELINE_DATA)
 	{
@@ -1495,6 +1540,20 @@ namespace DrawFuncData
 		{
 			lData.desc.RTVFormats[i] = GBufferMgr::Instance()->GetRenderTargetFormat()[i];
 		}
+		return lData;
+	};
+
+	static DrawFuncData::PipelineGenerateData GetAnimationModelShader()
+	{
+		DrawFuncData::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormalBoneNoWeight();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSModel", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSModel", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+
+		//その他設定
+		lData.desc.NumRenderTargets = 1;
+		lData.desc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 		return lData;
 	};
 

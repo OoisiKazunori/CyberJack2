@@ -4,7 +4,6 @@
 #include "Buffer/UavViewHandleMgr.h"
 #include "../PostEffect/GaussianBlur.h"
 #include "../PostEffect/Bloom.h"
-#include "../../Game/Helper/CameraWork.h"
 
 namespace PostEffect {
 

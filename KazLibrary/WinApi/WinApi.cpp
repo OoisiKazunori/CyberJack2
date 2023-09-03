@@ -89,7 +89,7 @@ HRESULT WinApi::CreateMyWindow(int WINDOW_SIZE_X, int WINDOW_SIZE_Y)
 	
 	hwnd = CreateWindow(
 		window.lpszClassName,
-		L"iitokodori-Demo",
+		L"10days",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,

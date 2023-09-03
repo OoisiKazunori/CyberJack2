@@ -265,10 +265,8 @@ void ModelAnimator::SetEndPosture(const std::string& AnimationName)
 	boneBuff.bufferWrapper->TransData(boneMatricies.data(), sizeof(DirectX::XMMATRIX) * MAX_BONE_NUM);
 }
 
-void ModelAnimator::Play(const std::string& AnimationName, const bool& Loop, const bool& Blend, float InitPast)
+void ModelAnimator::Play(const std::string& AnimationName, const bool& Loop, float InitPast)
 {
-	if (!Blend)Reset();
-
 	auto skel = attachSkelton.lock();
 	assert(skel);
 	assert(skel->animations.contains(AnimationName));

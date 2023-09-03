@@ -15,27 +15,12 @@ class DrawingByRasterize
 public:
 	DrawingByRasterize();
 
-	/// <summary>
-	/// 描画情報にスタックした情報の初期化
-	/// シーン切り替え時に呼び出し推奨
-	/// </summary>
-	void Clear();
-
-
-	//描画情報のスタック----------------------------------------
-
-	RESOURCE_HANDLE GetHandle();
-	DrawFuncData::DrawData* StackData(RESOURCE_HANDLE HANDLE);
-	//描画情報のスタック----------------------------------------
-
 	//新システムでの描画命令
 	void ObjectRender(const DrawFuncData::DrawCallData& DRAW_DATA);
 	void Sort();
 	void Render();
 
 private:
-	HandleMaker drawHandle;
-	std::vector<DrawFuncData::DrawData> graphicDataArray;
 
 	//パイプラインの情報----------------------------------------
 

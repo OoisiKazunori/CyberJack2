@@ -2,7 +2,7 @@
 #include"../KazLibrary/Input/KeyBoradInputManager.h"
 #include"../KazLibrary/Input/ControllerInputManager.h"
 
-DebugCamera::DebugCamera() :m_distance(20.0f), m_matRot(DirectX::XMMatrixIdentity()), m_target(0.0f, 1.0f, 0.0f)
+DebugCamera::DebugCamera() :m_distance(20.0f), m_matRot(DirectX::XMMatrixIdentity()), m_target(0.0f, 1.0f, 0.0f), m_initFlag(false)
 {
 }
 
@@ -24,9 +24,8 @@ void DebugCamera::Camera(bool arg_zoomFlag, bool arg_targetPosFlag, bool arg_rot
 
 	const KazMath::Vec2<float> SCALE = { 0.01f,0.01f };
 
-
 	// マウスの左ボタンが押されていたらカメラを回転させる
-	if (arg_rotationFlag)
+	if (arg_rotationFlag || !m_initFlag)
 	{
 		float dy = arg_mouseVel.x * SCALE.x;
 		float dx = arg_mouseVel.y * SCALE.y;
@@ -36,7 +35,7 @@ void DebugCamera::Camera(bool arg_zoomFlag, bool arg_targetPosFlag, bool arg_rot
 	}
 
 	// マウスの中ボタンが押されていたらカメラを並行移動させる
-	if (arg_zoomFlag)
+	if (arg_zoomFlag || !m_initFlag)
 	{
 		float dx = arg_mouseVel.x / 100.0f;
 		float dy = arg_mouseVel.y / 100.0f;
@@ -49,14 +48,14 @@ void DebugCamera::Camera(bool arg_zoomFlag, bool arg_targetPosFlag, bool arg_rot
 	}
 
 	// ホイール入力で距離を変更
-	if (arg_mouseVel.z != 0)
+	if (arg_mouseVel.z != 0 || !m_initFlag)
 	{
 		m_distance -= arg_mouseVel.z / 100.0f;
 		m_distance = max(m_distance, 1.0f);
 		dirty = true;
 	}
 
-	if (dirty)
+	if (dirty || !m_initFlag)
 	{
 		// 追加回転分の回転行列を生成
 		DirectX::XMMATRIX matRotNew = DirectX::XMMatrixIdentity();
@@ -80,6 +79,7 @@ void DebugCamera::Camera(bool arg_zoomFlag, bool arg_targetPosFlag, bool arg_rot
 		m_eye = { target.x + vTargetEye.m128_f32[0], target.y + vTargetEye.m128_f32[1], target.z + vTargetEye.m128_f32[2] };
 		m_up = { vUp.m128_f32[0], vUp.m128_f32[1], vUp.m128_f32[2] };
 	}
-
 	CameraMgr::Instance()->Camera(m_eye, m_target, m_up);
+
+	m_initFlag = true;
 };

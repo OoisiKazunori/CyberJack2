@@ -13,7 +13,7 @@ std::shared_ptr<ModelInfomation> ModelLoader::Load(std::string arg_fileDir, std:
 	{
 		if (m_modelNameArray[i] == arg_fileDir + arg_fileName)
 		{
-			//return m_modelArray[i];
+			return m_modelArray[i];
 		}
 	}
 

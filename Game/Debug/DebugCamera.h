@@ -52,5 +52,6 @@ private:
 		m_target = KazMath::Vec3<float>(target_moved.x, target_moved.y, target_moved.z);
 	}
 
+	bool m_initFlag;
 };
 

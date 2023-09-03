@@ -110,6 +110,11 @@ struct ModelMeshData
 	MaterialData materialData;
 };
 
+struct BoneData
+{
+	DirectX::XMMATRIX bone[256];
+};
+
 struct ModelInfomation
 {
 	std::vector<ModelMeshData> modelData;
@@ -167,7 +172,7 @@ public:
 	void SetEndPosture(const std::string& AnimationName);
 
 	//アニメーション再生
-	void Play(const std::string& AnimationName, const bool& Loop, const bool& Blend, float InitPast = 0.0f);
+	void Play(const std::string& AnimationName, const bool& Loop, float InitPast = 0.0f);
 	//何かしらのアニメーションが現在再生中か
 	bool IsPlay()const
 	{

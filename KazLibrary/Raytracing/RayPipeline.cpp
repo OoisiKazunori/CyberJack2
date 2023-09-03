@@ -14,7 +14,6 @@
 #include "../Game/Effect/ShockWave.h"
 #include <DirectXMath.h>
 #include"../PostEffect/Outline.h"
-#include"../Game/Effect/EnemyDissolveParam.h"
 
 DirectX12* Raytracing::RayPipeline::m_refDirectX12 = nullptr;
 

@@ -26,27 +26,6 @@ DrawingByRasterize::DrawingByRasterize()
 {
 }
 
-void DrawingByRasterize::Clear()
-{
-	graphicDataArray.clear();
-	graphicDataArray.shrink_to_fit();
-}
-
-RESOURCE_HANDLE DrawingByRasterize::GetHandle()
-{
-	RESOURCE_HANDLE lHandle = drawHandle.GetHandle();
-	if (graphicDataArray.size() <= lHandle)
-	{
-		graphicDataArray.emplace_back();
-	}
-	return lHandle;
-}
-
-DrawFuncData::DrawData* DrawingByRasterize::StackData(RESOURCE_HANDLE HANDLE)
-{
-	return &graphicDataArray[HANDLE];
-}
-
 void DrawingByRasterize::ObjectRender(const DrawFuncData::DrawCallData& DRAW_DATA)
 {
 	kazCommandList.emplace_back(DRAW_DATA);

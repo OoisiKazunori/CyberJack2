@@ -57,7 +57,7 @@ struct ModelWithLightOutputData
     float3 worldPos : POSITION;
 };
 
-//ライトあり頂点返還
+//ライトあり頂点変換
 ModelWithLightOutputData VSPosNormalUvLightMain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
 {
     ModelWithLightOutputData op;
@@ -330,4 +330,88 @@ GBufferOutput PSDefferdAnimationBloomMain(PosUvNormalTangentBinormalOutput input
     }
     output.emissive = emissive;
     return output;
+}
+
+
+//バックバッファ描画向け--------------------------
+cbuffer cbuff3 : register(b2)
+{
+    matrix bonesB2[256];
+}
+
+//ライトなし頂点変換
+PosUvNormalTangentBinormalOutput VSModel(VertexData input)
+{
+    float4 resultPos = input.pos;
+
+    static const int NO_BONE = -1;
+    if (input.boneNo[2] != NO_BONE)
+    {
+        int num;
+        
+        if (input.boneNo[3] != NO_BONE)
+        {
+            num = 4;
+        }
+        else
+        {
+            num = 3;
+        }
+        
+        matrix mat = bonesB2[input.boneNo[0]] * input.weight[0];
+        for (int i = 1; i < num; ++i)
+        {
+            mat += bonesB2[input.boneNo[i]] * input.weight[i];
+        }
+        resultPos = mul(mat, input.pos);
+    }
+    else if (input.boneNo[1] != NO_BONE)
+    {
+        matrix mat = bonesB2[input.boneNo[0]] * input.weight[0];
+        mat += bonesB2[input.boneNo[1]] * (1 - input.weight[0]);
+        
+        resultPos = mul(mat, input.pos);
+    }
+    else if (input.boneNo[0] != NO_BONE)
+    {
+        resultPos = mul(bonesB2[input.boneNo[0]], input.pos);
+    }
+
+    PosUvNormalTangentBinormalOutput op;
+    op.svpos = mul(worldMat,resultPos);
+    op.worldPos = op.svpos.xyz;
+    op.svpos = mul(viewMat,op.svpos);
+    op.svpos = mul(projectionMat,op.svpos);
+    op.uv = input.uv;
+    op.normal = input.normal;
+    op.binormal = input.binormal;
+    op.tangent = input.tangent;
+    return op;
+}
+
+//乗算ありPS
+float4 PSModel(PosUvNormalTangentBinormalOutput input) : SV_TARGET
+{
+    float4 normalColor = NormalTex.Sample(smp,input.uv);
+    //-1.0f ~ 1.0f
+    float3 normalVec = 2 * normalColor - 1.0f;
+    normalVec = normalize(normalVec);
+
+    float3 normal = mul(rotaion,float4(input.normal,1.0f));
+    normal = normalize(normal);
+    float3 tangent = mul(rotaion,float4(input.tangent,1.0f));
+    tangent = normalize(tangent);
+    float3 binormal = cross(normal,tangent);
+
+    float3 nWorld = CalucurateTangentToLocal(normalVec,normal,tangent,binormal);
+    if(IsEnableToUseMaterialTex(normalColor))
+    {
+        nWorld = input.normal;
+    }
+
+    float4 texColor = AlbedoTex.Sample(smp,input.uv);
+
+    float4 albedo = texColor * colorB1;
+    float4 oNormal = float4(normal + float3(0.5f,0.5f,0.5f), 1.0f);
+    return albedo * oNormal;
 }

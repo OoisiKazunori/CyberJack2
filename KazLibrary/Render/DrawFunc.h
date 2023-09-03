@@ -25,45 +25,6 @@ namespace DrawFunc
 		REFLECTION	//レイトレ側でオブジェクトを反射させる
 	};
 
-	struct TextureRender
-	{
-		DrawFuncData::DrawCallData m_drawCommand;
-		KazBufferHelper::BufferData m_textureBuffer;
-		KazMath::Transform2D m_transform;
-
-		TextureRender(const std::string& arg_textureFilePass, bool arg_alphaFlag = false)
-		{
-			if (arg_alphaFlag)
-			{
-				m_drawCommand = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteAlphaShader());
-			}
-			else
-			{
-				m_drawCommand = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
-			}
-			m_textureBuffer = TextureResourceMgr::Instance()->LoadGraphBuffer(arg_textureFilePass);
-			m_transform.scale =
-			{
-				static_cast<float>(m_textureBuffer.bufferWrapper->GetBuffer().Get()->GetDesc().Width),
-				static_cast<float>(m_textureBuffer.bufferWrapper->GetBuffer().Get()->GetDesc().Height)
-			};
-		};
-		TextureRender()
-		{
-			m_drawCommand = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
-		};
-
-		void operator=(const KazBufferHelper::BufferData& rhs)
-		{
-			m_textureBuffer = rhs;
-			m_transform.scale =
-			{
-				static_cast<float>(m_textureBuffer.bufferWrapper->GetBuffer().Get()->GetDesc().Width),
-				static_cast<float>(m_textureBuffer.bufferWrapper->GetBuffer().Get()->GetDesc().Height)
-			};
-		};
-	};
-
 	static void DrawTextureIn2D(DrawFuncData::DrawCallData& arg_callData, const KazMath::Transform2D& arg_transform, const KazBufferHelper::BufferData& arg_texture)
 	{
 		//行列情報
@@ -79,6 +40,19 @@ namespace DrawFunc
 	{
 		//行列情報
 		DirectX::XMMATRIX mat = arg_transform.GetMat() * CameraMgr::Instance()->GetOrthographicMatProjection();
+		arg_callData.extraBufferArray[0].bufferWrapper->TransData(&mat, sizeof(DirectX::XMMATRIX));
+		//色
+		arg_callData.extraBufferArray[1].bufferWrapper->TransData(&arg_color.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
+		//テクスチャ情報
+		arg_callData.extraBufferArray[2] = arg_texture;
+		arg_callData.extraBufferArray[2].rangeType = GRAPHICS_RANGE_TYPE_SRV_DESC;
+		arg_callData.extraBufferArray[2].rootParamType = GRAPHICS_PRAMTYPE_DATA;
+	}
+
+	static void DrawTextureIn3D(DrawFuncData::DrawCallData& arg_callData, KazMath::Transform3D& arg_transform, const KazBufferHelper::BufferData& arg_texture, const KazMath::Color& arg_color)
+	{
+		//行列情報
+		DirectX::XMMATRIX mat = arg_transform.GetMat() * CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
 		arg_callData.extraBufferArray[0].bufferWrapper->TransData(&mat, sizeof(DirectX::XMMATRIX));
 		//色
 		arg_callData.extraBufferArray[1].bufferWrapper->TransData(&arg_color.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
@@ -198,12 +172,9 @@ namespace DrawFunc
 
 		arg_callData.extraBufferArray[1].bufferWrapper->TransData(&arg_color.ConvertColorRateToXMFLOAT4(), sizeof(DirectX::XMFLOAT4));
 
+		arg_callData.extraBufferArray[2] = arg_boneBuffer;
 		arg_callData.extraBufferArray[2].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		arg_callData.extraBufferArray[2].rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-
-		arg_callData.extraBufferArray[3] = arg_boneBuffer;
-		arg_callData.extraBufferArray[3].rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
-		arg_callData.extraBufferArray[3].rootParamType = GRAPHICS_PRAMTYPE_DATA4;
 	}
 
 	static void DrawLine(DrawFuncData::DrawCallData& arg_callData, std::vector<KazMath::Vec3<float>>arg_limitPosArray, RESOURCE_HANDLE arg_vertexHandle, const KazMath::Color& arg_color = KazMath::Color(255, 255, 255, 255))
