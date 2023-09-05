@@ -109,16 +109,18 @@ void RenderTargetStatus::PrepareToChangeBarrier(RESOURCE_HANDLE OPEN_RENDERTARGE
 
 		for (int i = 0; i < closeRendertargetPass.size(); ++i)
 		{
+			RESOURCE_HANDLE handle = renderTargetHandle.CaluNowHandle(closeRendertargetPass[i]);
 			//指定のレンダータゲットを閉じる
-			ChangeBarrier(buffers[i].bufferWrapper->GetBuffer(closeRendertargetPass[i]).Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			ChangeBarrier(buffers[handle].bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		}
 	}
 
 
 	for (int i = 0; i < openRendertargetPass.size(); ++i)
 	{
+		RESOURCE_HANDLE handle = renderTargetHandle.CaluNowHandle(openRendertargetPass[i]);
 		//指定のレンダータゲットでバリアをあける
-		ChangeBarrier(buffers[i].bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		ChangeBarrier(buffers[handle].bufferWrapper->GetBuffer().Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	}
 
 
@@ -181,11 +183,11 @@ void RenderTargetStatus::SetDepth(RESOURCE_HANDLE RENDERTARGET_HANDLE)
 	DirectX12CmdList::Instance()->cmdList->OMSetRenderTargets(1, &rtvH, false, &gDepth.dsvH[handle]);
 }
 
-RESOURCE_HANDLE RenderTargetStatus::CreateRenderTarget(const KazMath::Vec2<UINT> &GRAPH_SIZE, const DirectX::XMFLOAT3 &CLEAR_COLOR, const DXGI_FORMAT &FORMAT)
+RESOURCE_HANDLE RenderTargetStatus::CreateRenderTarget(const KazMath::Vec2<UINT>& GRAPH_SIZE, const DirectX::XMFLOAT3& CLEAR_COLOR, const DXGI_FORMAT& FORMAT)
 {
 	//レンダーターゲット用のバッファ生成準備
 	MultiRenderTargetData bufferData;
-	bufferData.backGroundColor = { CLEAR_COLOR.x / 255.0f,CLEAR_COLOR.y / 255.0f,CLEAR_COLOR.z / 255.0f };
+	bufferData.backGroundColor = { CLEAR_COLOR.x,CLEAR_COLOR.y ,CLEAR_COLOR.z };
 	bufferData.format = FORMAT;
 	bufferData.graphSize = GRAPH_SIZE;
 	//生成
@@ -196,7 +198,7 @@ RESOURCE_HANDLE RenderTargetStatus::CreateRenderTarget(const KazMath::Vec2<UINT>
 	return handle;
 }
 
-std::vector<RESOURCE_HANDLE> RenderTargetStatus::CreateMultiRenderTarget(const std::vector<MultiRenderTargetData> &MULTIRENDER_TARGET_DATA, const DXGI_FORMAT &FORMAT)
+std::vector<RESOURCE_HANDLE> RenderTargetStatus::CreateMultiRenderTarget(const std::vector<MultiRenderTargetData>& MULTIRENDER_TARGET_DATA, const DXGI_FORMAT& FORMAT)
 {
 	std::vector<RESOURCE_HANDLE> handles;
 	for (int i = 0; i < MULTIRENDER_TARGET_DATA.size(); ++i)
@@ -210,7 +212,7 @@ std::vector<RESOURCE_HANDLE> RenderTargetStatus::CreateMultiRenderTarget(const s
 	return handles;
 }
 
-std::vector<RESOURCE_HANDLE> RenderTargetStatus::CreateMultiRenderTarget(const std::vector<MultiRenderTargetData> &MULTIRENDER_TARGET_DATA)
+std::vector<RESOURCE_HANDLE> RenderTargetStatus::CreateMultiRenderTarget(const std::vector<MultiRenderTargetData>& MULTIRENDER_TARGET_DATA)
 {
 	std::vector<RESOURCE_HANDLE> handles;
 	for (int i = 0; i < MULTIRENDER_TARGET_DATA.size(); ++i)
@@ -222,12 +224,12 @@ std::vector<RESOURCE_HANDLE> RenderTargetStatus::CreateMultiRenderTarget(const s
 	return handles;
 }
 
-ID3D12Resource *RenderTargetStatus::GetBufferData(RESOURCE_HANDLE HANDLE)const
+ID3D12Resource* RenderTargetStatus::GetBufferData(RESOURCE_HANDLE HANDLE)const
 {
 	return buffers[HANDLE].bufferWrapper->GetBuffer().Get();
 }
 
-const KazBufferHelper::BufferData &RenderTargetStatus::GetBuffer(RESOURCE_HANDLE HANDLE)
+const KazBufferHelper::BufferData& RenderTargetStatus::GetBuffer(RESOURCE_HANDLE HANDLE)
 {
 	return buffers[renderTargetHandle.CaluNowHandle(HANDLE)];
 }
@@ -257,7 +259,7 @@ void RenderTargetStatus::DeleteRenderTarget(RESOURCE_HANDLE HANDLE)
 
 }
 
-void RenderTargetStatus::DeleteMultiRenderTarget(const std::vector<RESOURCE_HANDLE> &HANDLE)
+void RenderTargetStatus::DeleteMultiRenderTarget(const std::vector<RESOURCE_HANDLE>& HANDLE)
 {
 	for (int i = 0; i < HANDLE.size(); ++i)
 	{
@@ -280,7 +282,7 @@ void RenderTargetStatus::DeleteMultiRenderTarget(const std::vector<RESOURCE_HAND
 	}
 }
 
-void RenderTargetStatus::ChangeBarrier(ID3D12Resource *RESOURCE, const D3D12_RESOURCE_STATES &BEFORE_STATE, const D3D12_RESOURCE_STATES &AFTER_STATE)
+void RenderTargetStatus::ChangeBarrier(ID3D12Resource* RESOURCE, const D3D12_RESOURCE_STATES& BEFORE_STATE, const D3D12_RESOURCE_STATES& AFTER_STATE)
 {
 	D3D12_RESOURCE_BARRIER barrier =
 		CD3DX12_RESOURCE_BARRIER::Transition(
@@ -307,7 +309,7 @@ std::vector<RESOURCE_HANDLE> RenderTargetStatus::CountPass(RESOURCE_HANDLE HANDL
 	return std::vector<RESOURCE_HANDLE>();
 }
 
-RESOURCE_HANDLE RenderTargetStatus::GenerateRenderTargetBuffer(const MultiRenderTargetData &arg_renderTargetBufferData)
+RESOURCE_HANDLE RenderTargetStatus::GenerateRenderTargetBuffer(const MultiRenderTargetData& arg_renderTargetBufferData)
 {
 	//ビューの生成
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -322,7 +324,7 @@ RESOURCE_HANDLE RenderTargetStatus::GenerateRenderTargetBuffer(const MultiRender
 	resource.Height = arg_renderTargetBufferData.graphSize.y;
 	resource.Width = static_cast<UINT64>(arg_renderTargetBufferData.graphSize.x);
 	resource.Format = arg_renderTargetBufferData.format;
-	float clearValue[] = { arg_renderTargetBufferData.backGroundColor.x / 255.0f,arg_renderTargetBufferData.backGroundColor.y / 255.0f ,arg_renderTargetBufferData.backGroundColor.z / 255.0f,1.0f };
+	float clearValue[] = { arg_renderTargetBufferData.backGroundColor.x / 255.0f,arg_renderTargetBufferData.backGroundColor.y / 255.0f ,arg_renderTargetBufferData.backGroundColor.z / 255.0f ,1.0f };
 	D3D12_CLEAR_VALUE clearColor = CD3DX12_CLEAR_VALUE(resource.Format, clearValue);
 
 

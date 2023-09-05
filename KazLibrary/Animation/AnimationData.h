@@ -110,11 +110,6 @@ struct ModelMeshData
 	MaterialData materialData;
 };
 
-struct BoneData
-{
-	DirectX::XMMATRIX bone[256];
-};
-
 struct ModelInfomation
 {
 	std::vector<ModelMeshData> modelData;

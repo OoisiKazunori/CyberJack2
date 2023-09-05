@@ -24,9 +24,14 @@ DrawFuncHelper::TextureRender::TextureRender(const std::string& arg_textureFileP
 	};
 }
 
+DrawFuncHelper::TextureRender::TextureRender(const DrawFuncData::DrawCallData& arg_drawCall)
+{
+	m_drawCommand = arg_drawCall;
+}
+
 DrawFuncHelper::TextureRender::TextureRender()
 {
-	m_drawCommand = DrawFuncData::SetTexPlaneData(DrawFuncData::GetSpriteShader());
+	m_drawCommand = DrawFuncData::SetSpriteAlphaData(DrawFuncData::GetSpriteShader());
 }
 
 void DrawFuncHelper::TextureRender::operator=(const KazBufferHelper::BufferData& rhs)
@@ -71,50 +76,56 @@ void DrawFuncHelper::TextureRender::Error()
 
 DrawFuncHelper::ModelRender::ModelRender(const std::string& arg_fileDir, const std::string& arg_filePass)
 {
-	m_modelInfo = ModelLoader::Instance()->Load(arg_fileDir, arg_filePass);
-
-	Error();
-	//アニメーションあり
-	if (0 < m_modelInfo->skelton->bones.size())
-	{
-		m_animator = std::make_shared<ModelAnimator>(m_modelInfo);
-	}
-	else
-	{
-		m_identityMat = KazBufferHelper::SetConstBufferData(sizeof(BoneData));
-		BoneData data;
-		for (int i = 0; i < 256; ++i)
-		{
-			data.bone[i] = DirectX::XMMatrixIdentity();
-		}
-		m_identityMat.bufferWrapper->TransData(&data, sizeof(BoneData));
-	}
-	m_drawCommand = DrawFuncData::SetDrawGLTFAnimationIndexMaterialData(*m_modelInfo, DrawFuncData::GetAnimationModelShader());
+	Load(arg_fileDir, arg_filePass);
 }
 
 DrawFuncHelper::ModelRender::ModelRender(const std::shared_ptr<ModelInfomation>& arg_modelInfomation, const DrawFuncData::DrawCallData& arg_drawCall)
 {
 	m_modelInfo = arg_modelInfomation;
-	if (0 < m_modelInfo->skelton->bones.size())
-	{
-		m_animator = std::make_shared<ModelAnimator>(m_modelInfo);
-	}
-	else
-	{
-		m_identityMat = KazBufferHelper::SetConstBufferData(sizeof(BoneData));
-		BoneData data;
-		for (int i = 0; i < 256; ++i)
-		{
-			data.bone[i] = DirectX::XMMatrixIdentity();
-		}
-		m_identityMat.bufferWrapper->TransData(&data, sizeof(BoneData));
-	}
+	LoadAnimation();
 	m_drawCommand = arg_drawCall;
 }
 
 DrawFuncHelper::ModelRender::ModelRender()
 {
-	m_drawCommand = DrawFuncData::SetDrawGLTFAnimationIndexMaterialData(*m_modelInfo, DrawFuncData::GetAnimationModelShader());
+}
+
+void DrawFuncHelper::ModelRender::Load(const std::string& arg_fileDir, const std::string& arg_filePass)
+{
+	m_modelInfo = ModelLoader::Instance()->Load(arg_fileDir, arg_filePass);
+
+	Error();
+	if (LoadAnimation())
+	{
+		m_drawCommand = DrawFuncData::SetDrawGLTFAnimationIndexMaterialData(*m_modelInfo, DrawFuncData::GetAnimationModelShader());
+	}
+	else
+	{
+		m_drawCommand = DrawFuncData::SetDrawGLTFAnimationIndexMaterialData(*m_modelInfo, DrawFuncData::GetDefferedModelShader());
+	}
+}
+
+void DrawFuncHelper::ModelRender::Load(const std::shared_ptr<ModelInfomation>& arg_modelInfomation, const DrawFuncData::DrawCallData& arg_drawCall)
+{
+	m_modelInfo = arg_modelInfomation;
+
+	Error();
+	LoadAnimation();
+	m_drawCommand = arg_drawCall;
+}
+
+bool DrawFuncHelper::ModelRender::LoadAnimation()
+{
+	//アニメーションあり
+	if (3 < m_modelInfo->skelton->bones.size())
+	{
+		m_animator = std::make_shared<ModelAnimator>(m_modelInfo);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void DrawFuncHelper::ModelRender::Draw(DrawingByRasterize& arg_rasterize, KazMath::Transform3D& arg_trasform3D, const KazMath::Color& arg_addColor, float arg_timeScale)
@@ -126,7 +137,7 @@ void DrawFuncHelper::ModelRender::Draw(DrawingByRasterize& arg_rasterize, KazMat
 	}
 	else
 	{
-		DrawFunc::DrawModel(m_drawCommand, arg_trasform3D, m_identityMat, arg_addColor);
+		DrawFunc::DrawModel(m_drawCommand, arg_trasform3D, arg_addColor);
 	}
 	arg_rasterize.ObjectRender(m_drawCommand);
 }

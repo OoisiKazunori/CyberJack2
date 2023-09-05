@@ -103,58 +103,59 @@ GBufferMgr::GBufferMgr()
 		);
 	}
 
-	//レンズフレア用のブラー
-	m_lensFlareBlur = std::make_shared<PostEffect::GaussianBlur>(m_lensFlareLuminanceGBuffer);
-	m_outline = std::make_shared<PostEffect::Outline>(m_outlineBuffer);
+	////レンズフレア用のブラー
+	//m_lensFlareBlur = std::make_shared<PostEffect::GaussianBlur>(m_lensFlareLuminanceGBuffer);
+	//m_outline = std::make_shared<PostEffect::Outline>(m_outlineBuffer);
 
-	//レンズフレア合成関連。
-	m_lensFlareConposeBuffTexture = KazBufferHelper::SetUAVTexBuffer(1280, 720, DXGI_FORMAT_R8G8B8A8_UNORM);
-	m_lensFlareConposeBuffTexture.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
-	DescriptorHeapMgr::Instance()->CreateBufferView(
-		m_lensFlareConposeBuffTexture.bufferWrapper->GetViewHandle(),
-		KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), 1280 * 720),
-		m_lensFlareConposeBuffTexture.bufferWrapper->GetBuffer().Get()
-	);
-	{
-		//レンズフレア用のシェーダーを用意。
-		std::vector<KazBufferHelper::BufferData>extraBuffer =
-		{
-			 m_lensFlareConposeBuffTexture,
-			 m_lensFlareLuminanceGBuffer,
-			 m_raytracingGBuffer,
-		};
-		extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
-		extraBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_TEX2;
-		extraBuffer[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		extraBuffer[2].rootParamType = GRAPHICS_PRAMTYPE_TEX3;
-		m_lensFlareComposeShader = std::make_shared<ComputeShader>();
-		m_lensFlareComposeShader->Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "PostEffect/LensFlare/" + "LensFlareComposeShader.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
-	}
-	{
-		//バックバッファ合成用シェーダーを用意。
-		std::vector<KazBufferHelper::BufferData>extraBuffer =
-		{
-			 m_backBufferCopyBuffer,
-			 m_raytracingGBuffer,
-			 m_backBufferCompositeBuffer,
-		};
-		extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
-		extraBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_TEX2;
-		extraBuffer[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
-		extraBuffer[2].rootParamType = GRAPHICS_PRAMTYPE_TEX3;
-		m_backBufferRaytracingCompositeShader = std::make_shared<ComputeShader>();
-		m_backBufferRaytracingCompositeShader->Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "Raytracing/" + "BackBufferComposeShader.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
-	}
+	////レンズフレア合成関連。
+	//m_lensFlareConposeBuffTexture = KazBufferHelper::SetUAVTexBuffer(1280, 720, DXGI_FORMAT_R8G8B8A8_UNORM);
+	//m_lensFlareConposeBuffTexture.bufferWrapper->CreateViewHandle(UavViewHandleMgr::Instance()->GetHandle());
+	//DescriptorHeapMgr::Instance()->CreateBufferView(
+	//	m_lensFlareConposeBuffTexture.bufferWrapper->GetViewHandle(),
+	//	KazBufferHelper::SetUnorderedAccessTextureView(sizeof(DirectX::XMFLOAT4), 1280 * 720),
+	//	m_lensFlareConposeBuffTexture.bufferWrapper->GetBuffer().Get()
+	//);
+	//{
+	//	//レンズフレア用のシェーダーを用意。
+	//	std::vector<KazBufferHelper::BufferData>extraBuffer =
+	//	{
+	//		 m_lensFlareConposeBuffTexture,
+	//		 m_lensFlareLuminanceGBuffer,
+	//		 m_raytracingGBuffer,
+	//	};
+	//	extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	//	extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
+	//	extraBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	//	extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_TEX2;
+	//	extraBuffer[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	//	extraBuffer[2].rootParamType = GRAPHICS_PRAMTYPE_TEX3;
+	//	m_lensFlareComposeShader = std::make_shared<ComputeShader>();
+	//	m_lensFlareComposeShader->Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "PostEffect/LensFlare/" + "LensFlareComposeShader.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
+	//}
+	//{
+	//	//バックバッファ合成用シェーダーを用意。
+	//	std::vector<KazBufferHelper::BufferData>extraBuffer =
+	//	{
+	//		 m_backBufferCopyBuffer,
+	//		 m_raytracingGBuffer,
+	//		 m_backBufferCompositeBuffer,
+	//	};
+	//	extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	//	extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
+	//	extraBuffer[1].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	//	extraBuffer[1].rootParamType = GRAPHICS_PRAMTYPE_TEX2;
+	//	extraBuffer[2].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
+	//	extraBuffer[2].rootParamType = GRAPHICS_PRAMTYPE_TEX3;
+	//	m_backBufferRaytracingCompositeShader = std::make_shared<ComputeShader>();
+	//	m_backBufferRaytracingCompositeShader->Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "Raytracing/" + "BackBufferComposeShader.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
+	//}
 
-	m_cameraPosBuffer = KazBufferHelper::SetConstBufferData(sizeof(CameraEyePosBufferData));
 	m_lightBuffer = KazBufferHelper::SetConstBufferData(sizeof(LightConstData));
 	m_lightConstData.m_dirLight.m_dir = KazMath::Vec3<float>(0.0f, -1.0f, 0.6f);
 	m_lightConstData.m_dirLight.m_isActive = true;
 	m_lightConstData.m_pointLight.m_power = 100.0f;
+
+	m_cameraPosBuffer = KazBufferHelper::SetConstBufferData(sizeof(CameraEyePosBufferData));
 }
 
 std::vector<RESOURCE_HANDLE> GBufferMgr::GetRenderTarget()

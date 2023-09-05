@@ -119,7 +119,6 @@ void DrawingByRasterize::Sort()
 			);
 		}
 
-
 		for (UINT i = 0; i < result.pipelineData.NumRenderTargets; ++i)
 		{
 			switch (callData.pipelineData.blendMode)

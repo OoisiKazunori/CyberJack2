@@ -24,6 +24,7 @@ namespace DrawFuncHelper
 		/// <param name="arg_textureFilePass">テクスチャのファイルパス</param>
 		/// <param name="arg_drawCall">描画情報の生成</param>
 		TextureRender(const std::string& arg_textureFilePass, const DrawFuncData::DrawCallData& arg_drawCall);
+		TextureRender(const DrawFuncData::DrawCallData& arg_drawCall);
 		TextureRender();
 
 
@@ -47,11 +48,15 @@ namespace DrawFuncHelper
 		DrawFuncData::DrawCallData m_drawCommand;
 		std::shared_ptr<ModelInfomation> m_modelInfo;
 		std::shared_ptr<ModelAnimator> m_animator;
-		KazBufferHelper::BufferData m_identityMat;
 
 		ModelRender(const std::string& arg_fileDir, const std::string& arg_filePass);
 		ModelRender(const std::shared_ptr<ModelInfomation>& arg_modelInfomation, const DrawFuncData::DrawCallData& arg_drawCall);
 		ModelRender();
+
+		void Load(const std::string& arg_fileDir, const std::string& arg_filePass);
+		void Load(const std::shared_ptr<ModelInfomation>& arg_modelInfomation, const DrawFuncData::DrawCallData& arg_drawCall);
+
+		bool LoadAnimation();
 
 		void Draw(DrawingByRasterize& arg_rasterize, KazMath::Transform3D& arg_trasform3D, const KazMath::Color& arg_addColor = KazMath::Color(255, 255, 255, 255), float arg_timeScale = 1.0f);
 		void Error();

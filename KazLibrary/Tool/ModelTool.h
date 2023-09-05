@@ -33,7 +33,7 @@ private:
 			}
 			else
 			{
-				m_drawCall = DrawFuncData::SetDefferdRenderingModelAnimation(arg_modelInfomation);
+				m_drawCall = DrawFuncData::SetDefferdRenderingModelAnimationInRaytracing(arg_modelInfomation);
 			}
 		};
 		std::string m_fileName;

@@ -173,10 +173,10 @@ namespace Raytracing {
 		m_numBlas = 0;
 
 		//レンズフレア
-		m_lensFlare = std::make_shared<PostEffect::LensFlare>(GBufferMgr::Instance()->GetLensFlareBuffer(), GBufferMgr::Instance()->GetEmissiveGBuffer());
+		//m_lensFlare = std::make_shared<PostEffect::LensFlare>(GBufferMgr::Instance()->GetLensFlareBuffer(), GBufferMgr::Instance()->GetEmissiveGBuffer());
 
 		//アウトライン合成用シェーダー
-		{
+	/*	{
 			std::vector<KazBufferHelper::BufferData>extraBuffer =
 			{
 				 GBufferMgr::Instance()->GetRayTracingBuffer(),
@@ -202,7 +202,7 @@ namespace Raytracing {
 			extraBuffer[0].rangeType = GRAPHICS_RANGE_TYPE_UAV_DESC;
 			extraBuffer[0].rootParamType = GRAPHICS_PRAMTYPE_TEX;
 			m_outlineCleanShader.Generate(ShaderOptionData(KazFilePathName::RelativeShaderPath + "PostEffect/Outline/" + "BlackOut.hlsl", "main", "cs_6_4", SHADER_TYPE_COMPUTE), extraBuffer);
-		}
+		}*/
 
 	}
 

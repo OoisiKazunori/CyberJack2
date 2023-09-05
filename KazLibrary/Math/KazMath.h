@@ -617,7 +617,8 @@ namespace KazMath
 			pos(Vec3<float>(0.0f, 0.0f, 0.0f)),
 			scale(Vec3<float>(1.0f, 1.0f, 1.0f)),
 			rotation(Vec3<float>(0.0f, 0.0f, 0.0f)),
-			quaternion({ 0,0,0,0 })
+			quaternion({ 0,0,0,0 }),
+			parent(nullptr)
 		{
 		};
 		Transform3D(const Vec3<float>& POS) :
@@ -627,7 +628,8 @@ namespace KazMath
 			pos(POS),
 			scale(Vec3<float>(1.0f, 1.0f, 1.0f)),
 			rotation(Vec3<float>(0.0f, 0.0f, 0.0f)),
-			quaternion({ 0,0,0,0 })
+			quaternion({ 0,0,0,0 }),
+			parent(nullptr)
 		{
 		};
 		Transform3D(const Vec3<float>& POS, const Vec3<float>& SCALE, const Vec3<float>& ROTATION) :
@@ -637,7 +639,8 @@ namespace KazMath
 			pos(POS),
 			scale(SCALE),
 			rotation(ROTATION),
-			quaternion({ 0,0,0,0 })
+			quaternion({ 0,0,0,0 }),
+			parent(nullptr)
 		{
 		};
 

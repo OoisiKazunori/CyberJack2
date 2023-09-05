@@ -1153,11 +1153,11 @@ namespace DrawFuncData
 
 		//骨
 		drawCallData.extraBufferArray.emplace_back(
-			KazBufferHelper::SetConstBufferData(sizeof(BoneData))
+			KazBufferHelper::SetConstBufferData(sizeof(DirectX::XMMATRIX) * 256)
 		);
 		drawCallData.extraBufferArray.back().rangeType = GRAPHICS_RANGE_TYPE_CBV_VIEW;
 		drawCallData.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA3;
-		drawCallData.extraBufferArray.back().structureSize = sizeof(BoneData);
+		drawCallData.extraBufferArray.back().structureSize = sizeof(DirectX::XMMATRIX);
 
 		drawCallData.pipelineData = PIPELINE_DATA;
 
@@ -1332,7 +1332,7 @@ namespace DrawFuncData
 		return drawCall;
 	};
 
-	static DrawCallData SetDefferdRenderingModelAnimation(std::shared_ptr<ModelInfomation>arg_model)
+	static DrawCallData SetDefferdRenderingModelAnimationInRaytracing(std::shared_ptr<ModelInfomation>arg_model)
 	{
 		DrawCallData drawCall;
 
@@ -1355,6 +1355,29 @@ namespace DrawFuncData
 		drawCall.extraBufferArray.back().rootParamType = GRAPHICS_PRAMTYPE_DATA4;
 
 		drawCall.SetupRaytracing(true);
+
+		return drawCall;
+	};
+
+	static DrawCallData SetDefferdRenderingModelAnimation(std::shared_ptr<ModelInfomation>arg_model)
+	{
+		DrawCallData drawCall;
+		//パイプライン生成--------------------------
+		DrawFuncData::PipelineGenerateData lData;
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "ModelRender.hlsl", "VS", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "ModelRender.hlsl", "PS", "ps_6_4", SHADER_TYPE_PIXEL);
+
+		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormalBoneNoWeight();
+
+		for (int i = 0; i < GBufferMgr::Instance()->GetRenderTargetFormat().size(); ++i)
+		{
+			lData.desc.RTVFormats[i] = GBufferMgr::Instance()->GetRenderTargetFormat()[i];
+		}
+		lData.desc.NumRenderTargets = static_cast<UINT>(GBufferMgr::Instance()->GetRenderTargetFormat().size());
+		//パイプライン生成--------------------------
+
+		drawCall = DrawFuncData::SetDrawGLTFAnimationIndexMaterialData(*arg_model,lData);
+		drawCall.renderTargetHandle = GBufferMgr::Instance()->GetRenderTarget()[0];
 
 		return drawCall;
 	};
@@ -1543,11 +1566,25 @@ namespace DrawFuncData
 		return lData;
 	};
 
-	static DrawFuncData::PipelineGenerateData GetAnimationModelShader()
+	static DrawFuncData::PipelineGenerateData GetDefferedModelShader()
 	{
 		DrawFuncData::PipelineGenerateData lData;
 		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormalBoneNoWeight();
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSModel", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSModel", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+
+		//その他設定
+		lData.desc.NumRenderTargets = 1;
+		lData.desc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		return lData;
+	};
+
+	static DrawFuncData::PipelineGenerateData GetAnimationModelShader()
+	{
+		DrawFuncData::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetPosUvNormalTangentBinormalBoneNoWeight();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "VSAnimationModel", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Model.hlsl", "PSModel", "ps_6_4", SHADER_TYPE_PIXEL);
 		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
 
@@ -1564,6 +1601,26 @@ namespace DrawFuncData
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
 		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
 		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ALPHA;
+		return lData;
+	};
+
+	static DrawFuncData::PipelineGenerateData GetRWSpriteShader()
+	{
+		DrawFuncData::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetTex();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "PSRWTexMain", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::NONE;
+		return lData;
+	};
+
+	static DrawFuncData::PipelineGenerateData GetSpriteAddShader()
+	{
+		DrawFuncData::PipelineGenerateData lData;
+		lData.desc = DrawFuncPipelineData::SetTex();
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "VSmain", "vs_6_4", SHADER_TYPE_VERTEX);
+		lData.shaderDataArray.emplace_back(KazFilePathName::RelativeShaderPath + "ShaderFile/" + "Sprite.hlsl", "PSmain", "ps_6_4", SHADER_TYPE_PIXEL);
+		lData.blendMode = DrawFuncPipelineData::PipelineBlendModeEnum::ADD;
 		return lData;
 	};
 

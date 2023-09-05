@@ -26,7 +26,7 @@ struct PosUvNormalOutput
     float3 worldPos : POSITION;
 };
 
-//ライトなし頂点変換
+//ライトなし�?�点変換
 PosUvNormalOutput VSPosNormalUvmain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
 {
     PosUvNormalOutput op;
@@ -57,7 +57,7 @@ struct ModelWithLightOutputData
     float3 worldPos : POSITION;
 };
 
-//ライトあり頂点変換
+//ライトあり�?�点変換
 ModelWithLightOutputData VSPosNormalUvLightMain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
 {
     ModelWithLightOutputData op;
@@ -109,7 +109,7 @@ struct PosUvNormalTangentBinormalOutput
     float3 binormal : BINORMAL;
 };
 
-//ディファードレンダリング対応
+//�?ィファードレンダリング対�?
 PosUvNormalTangentBinormalOutput VSDefferdMain(float4 pos : POSITION,float3 normal : NORMAL,float2 uv:TEXCOORD,float3 tangent : TANGENT,float3 binormal : BINORMAL)
 {
     PosUvNormalTangentBinormalOutput op;
@@ -130,7 +130,7 @@ cbuffer ColorBuffer : register(b2)
     float4 color;
 }
 
-//ディファードレンダリング対応
+//�?ィファードレンダリング対�?
 GBufferOutput PSDefferdMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
 {
     float4 normalColor = NormalTex.Sample(smp,input.uv);
@@ -172,7 +172,7 @@ cbuffer EmissiveBuffer : register(b3)
     float4 emissiveColorAndStrength;
 }
 
-//ディファードレンダリング対応、ブルーム付き
+//�?ィファードレンダリング対応、ブルー�?付き
 GBufferOutput PSDefferdBloomMain(PosUvNormalTangentBinormalOutput input) : SV_TARGET
 {
     float4 normalColor = NormalTex.Sample(smp,input.uv);
@@ -228,7 +228,7 @@ cbuffer cbuff4 : register(b3)
     matrix bones[256];
 }
 
-//モデルのアニメーション
+//モ�?ルのアニメーション
 PosUvNormalTangentBinormalOutput VSDefferdAnimationMain(VertexData input)
 {
     float4 resultPos = input.pos;
@@ -314,7 +314,7 @@ GBufferOutput PSDefferdAnimationBloomMain(PosUvNormalTangentBinormalOutput input
     }
 
     GBufferOutput output;
-    output.albedo = texColor * color;
+    output.albedo = texColor * float4(1.0f,1.0f,1.0f,1.0f);
     output.normal = float4(normal, 1.0f);
     output.metalnessRoughness = float4(mrColor.xyz,raytracingId);
     output.world = float4(input.worldPos,1.0f);
@@ -339,8 +339,57 @@ cbuffer cbuff3 : register(b2)
     matrix bonesB2[256];
 }
 
-//ライトなし頂点変換
+//ライトなし�?�点変換
 PosUvNormalTangentBinormalOutput VSModel(VertexData input)
+{
+    float4 resultPos = input.pos;
+
+    //static const int NO_BONE = -1;
+    //if (input.boneNo[2] != NO_BONE)
+    //{
+    //    int num;
+    //    
+    //    if (input.boneNo[3] != NO_BONE)
+    //    {
+    //        num = 4;
+    //    }
+    //    else
+    //    {
+    //        num = 3;
+    //    }
+    //    
+    //    matrix mat = bonesB2[input.boneNo[0]] * input.weight[0];
+    //    for (int i = 1; i < num; ++i)
+    //    {
+    //        mat += bonesB2[input.boneNo[i]] * input.weight[i];
+    //    }
+    //    resultPos = mul(mat, input.pos);
+    //}
+    //else if (input.boneNo[1] != NO_BONE)
+    //{
+    //    matrix mat = bonesB2[input.boneNo[0]] * input.weight[0];
+    //    mat += bonesB2[input.boneNo[1]] * (1 - input.weight[0]);
+    //    
+    //    resultPos = mul(mat, input.pos);
+    //}
+    //else if (input.boneNo[0] != NO_BONE)
+    //{
+    //    resultPos = mul(bonesB2[input.boneNo[0]], input.pos);
+    //}
+
+    PosUvNormalTangentBinormalOutput op;
+    op.svpos = mul(worldMat,resultPos);
+    op.worldPos = op.svpos.xyz;
+    op.svpos = mul(viewMat,op.svpos);
+    op.svpos = mul(projectionMat,op.svpos);
+    op.uv = input.uv;
+    op.normal = input.normal;
+    op.binormal = input.binormal;
+    op.tangent = input.tangent;
+    return op;
+}
+
+PosUvNormalTangentBinormalOutput VSAnimationModel(VertexData input)
 {
     float4 resultPos = input.pos;
 
@@ -412,6 +461,6 @@ float4 PSModel(PosUvNormalTangentBinormalOutput input) : SV_TARGET
     float4 texColor = AlbedoTex.Sample(smp,input.uv);
 
     float4 albedo = texColor * colorB1;
-    float4 oNormal = float4(normal + float3(0.5f,0.5f,0.5f), 1.0f);
-    return albedo * oNormal;
+    float4 oNormal = float4(nWorld + float3(0.5f,0.5f,0.5f), 1.0f);
+    return albedo;
 }
