@@ -118,6 +118,8 @@
     <ClCompile Include="Game\Effect\ShockWave.cpp" />
     <ClCompile Include="Game\Effect\StopMgr.cpp" />
     <ClCompile Include="Game\Input\Input.cpp" />
+    <ClCompile Include="Game\Render\BasicDraw.cpp" />
+    <ClCompile Include="Game\Render\GameRender.cpp" />
     <ClCompile Include="Game\Scene\DemoScene.cpp" />
     <ClCompile Include="Game\Scene\GameScene.cpp" />
     <ClCompile Include="Game\Scene\main.cpp" />
@@ -232,6 +234,8 @@
     <ClInclude Include="Game\Effect\ShockWave.h" />
     <ClInclude Include="Game\Effect\StopMgr.h" />
     <ClInclude Include="Game\Input\Input.h" />
+    <ClInclude Include="Game\Render\BasicDraw.h" />
+    <ClInclude Include="Game\Render\GameRender.h" />
     <ClInclude Include="Game\Scene\DemoScene.h" />
     <ClInclude Include="Game\Scene\GameScene.h" />
     <ClInclude Include="Game\Scene\ModelToolScene.h" />

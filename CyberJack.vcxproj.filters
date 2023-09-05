@@ -113,6 +113,8 @@
     <ClCompile Include="Game\Scene\StageSelectScene.cpp" />
     <ClCompile Include="Game\Scene\TitleScene.cpp" />
     <ClCompile Include="KazLibrary\DrawFunc\DrawFuncHelper.cpp" />
+    <ClCompile Include="Game\Render\BasicDraw.cpp" />
+    <ClCompile Include="Game\Render\GameRender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Debug\ParameterMgr.h" />
@@ -245,6 +247,8 @@
     <ClInclude Include="Game\Scene\StageSelectScene.h" />
     <ClInclude Include="Game\Scene\TitleScene.h" />
     <ClInclude Include="KazLibrary\DrawFunc\DrawFuncHelper.h" />
+    <ClInclude Include="Game\Render\BasicDraw.h" />
+    <ClInclude Include="Game\Render\GameRender.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
